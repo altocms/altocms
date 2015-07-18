@@ -23,7 +23,7 @@ class CacheBackendMemcached extends Dklab_Cache_Backend_TagEmuWrapper implements
         return extension_loaded('memcache');
     }
 
-    static public function init($sFuncStats) {
+    static public function Init($sFuncStats) {
 
         if (!self::IsAvailable()) {
             return false;
@@ -43,6 +43,16 @@ class CacheBackendMemcached extends Dklab_Cache_Backend_TagEmuWrapper implements
     public function IsСoncurrent() {
 
         return true;
+    }
+
+    public function Remove($sName) {
+
+        return parent::remove($sName);
+    }
+
+    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array()) {
+
+        return parent::clean($sMode, $aTags);
     }
 
 }

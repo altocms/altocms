@@ -14,8 +14,13 @@
 class AltoFunc_Main {
 
     static protected $sRandChars = '0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
+    static protected $sMemSizeUnits = 'BKMGTP';
 
+    /**
+     * @param string $sStr
+     *
+     * @return string
+     */
     static public function StrUnderscore($sStr) {
 
         return strtolower(preg_replace('/([^A-Z])([A-Z])/', "$1_$2", $sStr));
@@ -31,16 +36,37 @@ class AltoFunc_Main {
         return $sCamelized;
     }
 
+    /**
+     * @param string $sStr
+     * @param string $sSeparator
+     * @param bool   $bSkipEmpty
+     *
+     * @return array
+     */
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
 
         return F::Array_Str2Array($sStr, $sSeparator, $bSkipEmpty);
     }
 
+    /**
+     * @param string $sStr
+     * @param string $sSeparator
+     * @param bool   $bUnique
+     *
+     * @return array
+     */
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
 
         return F::Array_Str2ArrayInt($sStr, $sSeparator, $bUnique);
     }
 
+    /**
+     * @param mixed  $xVal
+     * @param string $sSeparator
+     * @param bool   $bSkipEmpty
+     *
+     * @return array
+     */
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
 
         return F::Array_Val2Array($xVal, $sSeparator, $bSkipEmpty);
@@ -84,7 +110,7 @@ class AltoFunc_Main {
      */
     static public function MemSizeFormat($nValue, $nDecimal = 0) {
 
-        $aUnits = self::$aMemSizeUnits;
+        $aUnits = self::$sMemSizeUnits;
         $nIndex = 0;
         $nResult = intval($nValue);
         while ($nResult >= 1024) {
@@ -112,11 +138,10 @@ class AltoFunc_Main {
     static public function MemSize2Int($sNum) {
 
         $nValue = floatval($sNum);
-        if (!is_numeric($sChar = strtoupper(substr($sNum, -1)))) {
-            if ($sChar == 'B') {
-                $sChar = substr($sNum, -1);
-            }
-            if (($nIdx = array_search(strtoupper($sChar), self::$aMemSizeUnits)) !== false) {
+        if (!is_numeric($sNum)) {
+            // string has a non-numeric suffix
+            $sSuffix = strpbrk(strtoupper($sNum), self::$sMemSizeUnits);
+            if ($sSuffix && ($nIdx = strpos(self::$sMemSizeUnits, $sSuffix[0]))) {
                 $nValue *= pow(1024, $nIdx);
             }
         }
@@ -131,7 +156,11 @@ class AltoFunc_Main {
     static public function JsonEncode($xData) {
 
         if (function_exists('json_encode')) {
-            return json_encode($xData);
+            $iOptions = 0;
+            if (defined('JSON_NUMERIC_CHECK')) {
+                $iOptions = $iOptions | JSON_NUMERIC_CHECK;
+            }
+            return json_encode($xData, $iOptions);
         }
         if (is_null($xData)) {
             return 'null';
@@ -179,6 +208,8 @@ class AltoFunc_Main {
 
     }
 
+    static protected $_aUserIp = array();
+
     /**
      * Returns all IP of current user
      *
@@ -216,7 +247,7 @@ class AltoFunc_Main {
             if (isset($_SERVER[$sParam]) && (!$aNonTrusted || !in_array($sParam, $aNonTrusted))) {
                 // sometimes IPs separated by space
                 $sIp = str_replace(' ', ',', trim($_SERVER[$sParam]));
-                if (strpos($sIp, ',')) {
+                if (strpos($sIp, ',') === false) {
                     // several IPs
                     $aData = explode(',', $sIp);
                     $aIp[$sParam] = '';
@@ -259,41 +290,56 @@ class AltoFunc_Main {
      */
     static public function GetUserIp($aTrusted = null, $aNonTrusted = null) {
 
-        $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
-        $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
-        if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
-            $aExcludeIp[] = $_SERVER['SERVER_ADDR'];
-        }
+        $sKey = md5(serialize(array($aTrusted, $aNonTrusted)));
+        if (isset(self::$_aUserIp[$sKey])) {
+            $sIp = self::$_aUserIp[$sKey];
+        } else {
+            $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
+            $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
+            if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
+                $aExcludeIp[] = $_SERVER['SERVER_ADDR'];
+            }
 
-        $bSeekBackward = F::_getConfig('sys.ip.backward', true);
-        // collect all ip
-        $aIp = array();
-        foreach ($aIpParams as $sIp) {
-            if (strpos($sIp, ',')) {
-                $aSeveralIps = explode(',', $sIp);
-                if ($bSeekBackward) {
-                    $aSeveralIps = array_reverse($aSeveralIps);
+            $bSeekBackward = F::_getConfig('sys.ip.backward', true);
+            $bExcludePrivate = F::_getConfig('sys.ip.exclude_private', true);
+            // collect all ip
+            $aIp = array();
+            foreach ($aIpParams as $sIp) {
+                if (strpos($sIp, ',')) {
+                    $aSeveralIps = explode(',', $sIp);
+                    if ($bSeekBackward) {
+                        $aSeveralIps = array_reverse($aSeveralIps);
+                    }
+                    $aIp = array_merge($aIp, $aSeveralIps);
+                } else {
+                    $aIp[] = $sIp;
                 }
-                $aIp = array_merge($aIp, $aSeveralIps);
-            } else {
-                $aIp[] = $sIp;
             }
-        }
-        foreach ($aIp as $sIp) {
-            if (!in_array($sIp, $aExcludeIp)) {
-                return $sIp;
+            foreach ($aIp as $sIp) {
+                if (!in_array($sIp, $aExcludeIp) && (!$bExcludePrivate || filter_var($sIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))) {
+                    return $sIp;
+                }
             }
+            $sIp = array_shift($aIp);
+            self::$_aUserIp[$sKey] = $sIp;
         }
-        $sIp = array_shift($aIp);
         return $sIp;
     }
 
+    /**
+     * @param string $sValue
+     * @param string $sParam
+     * @param int    $nMin
+     * @param int    $nMax
+     *
+     * @return bool
+     */
     static public function CheckVal($sValue, $sParam, $nMin = 1, $nMax = 100) {
 
         if (!is_scalar($sValue)) {
             return false;
         }
-        switch ($sParam) {
+        switch (strtolower($sParam)) {
             case 'id':
                 if (preg_match('/^\d{' . $nMin . ',' . $nMax . '}$/', $sValue)) {
                     return true;
@@ -309,9 +355,7 @@ class AltoFunc_Main {
                 break;
             case 'url':
                 // ф-ция неверно понимает URL без протокола
-                if ((filter_var($sValue, FILTER_VALIDATE_URL) !== false)
-                    || (filter_var('http:' . $sValue, FILTER_VALIDATE_URL) !== false)
-                ) {
+                if ((filter_var($sValue, FILTER_VALIDATE_URL) !== false) || (filter_var('http:' . $sValue, FILTER_VALIDATE_URL) !== false)) {
                     return true;
                 }
                 break;
@@ -331,7 +375,7 @@ class AltoFunc_Main {
                 }
                 break;
             case 'text':
-                if (mb_strlen($sValue, 'UTF-8') >= $nMin && mb_strlen($sValue, 'UTF-8') <= $nMax) {
+                if ((mb_strlen($sValue, 'UTF-8') >= $nMin) && ($nMax == 0 || mb_strlen($sValue, 'UTF-8') <= $nMax)) {
                     return true;
                 }
                 break;
@@ -379,25 +423,33 @@ class AltoFunc_Main {
     }
 
     /**
-     * Даст одинаковый результат на 32-х и 64-х системах
+     * Calculates crc32 for any vartype, returns the same result for 32-bit and 64-bit systems
      *
-     * @param $sData
+     * @param mixed $xData
+     * @param bool  $bHex
      *
-     * @return string
+     * @return int|string
      */
-    static public function Crc32($sData) {
+    static public function Crc32($xData, $bHex = false) {
 
-        $nCrc = abs(crc32((string)$sData));
-        if( $nCrc & 0x80000000){
-            $nCrc ^= 0xffffffff;
-            $nCrc += 1;
+        if (is_null($xData)) {
+            $nCrc = 0;
+        } else {
+            if (!is_scalar($xData)) {
+                $sData = serialize($xData);
+            } else {
+                $sData = (string)$xData;
+            }
+            $nCrc = abs(crc32($sData));
+            if( $nCrc & 0x80000000){
+                $nCrc ^= 0xffffffff;
+                $nCrc += 1;
+            }
+        }
+        if ($bHex) {
+            return str_pad(dechex($nCrc), 8, STR_PAD_LEFT);
         }
         return $nCrc;
-    }
-
-    static public function VarCrc32($xData) {
-
-        return self::Crc32(serialize($xData));
     }
 
     /**
@@ -406,13 +458,23 @@ class AltoFunc_Main {
      * @param   string  $sText
      * @param   int     $nLen
      * @param   string  $sPostfix
+     * @param   boolean $bWordWrap
      *
      * @return  string
      */
-    static public function TruncateText($sText, $nLen, $sPostfix = '') {
+    static public function TruncateText($sText, $nLen, $sPostfix = '', $bWordWrap = false) {
 
         if (mb_strlen($sText, 'UTF-8') > $nLen) {
-            $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix)) . $sPostfix;
+            if (!$bWordWrap) {
+                $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix, 'UTF-8'), 'UTF-8') . $sPostfix;
+            } else {
+                $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix, 'UTF-8'), 'UTF-8');
+                $nLength = mb_strlen($sText, 'UTF-8');
+                if (preg_match('/[^\s\.\!\?\,\:\;\]\)\}]+$/siU', $sText, $aM)) {
+                    $sText = trim(mb_substr($sText, 0, $nLength - mb_strlen($aM[0], 'UTF-8'), 'UTF-8'));
+                }
+                $sText .= $sPostfix;
+            }
         }
         return $sText;
     }
@@ -425,7 +487,7 @@ class AltoFunc_Main {
      *
      * @return  string
      */
-    static public function CatText($sText, $nCountWords) {
+    static public function CutText($sText, $nCountWords) {
 
         $aWords = preg_split('#[\s\r\n]+#um', $sText);
         if ($nCountWords < count($aWords)) {
@@ -437,31 +499,49 @@ class AltoFunc_Main {
     /**
      * Аналог serialize() с контролем CRC32
      *
-     * @param $xData
+     * @param mixed $xData
+     * @param bool  $bSafeMode
      *
      * @return string
      */
-    static public function Serialize($xData) {
+    static public function Serialize($xData, $bSafeMode = false) {
 
         $sData = serialize($xData);
-        $sCrc32 = dechex(crc32($sData));
-        return $sCrc32 . '|' . $sData;
+        if ($bSafeMode) {
+            $sData = base64_encode($sData);
+        }
+        $sResult = static::Crc32($sData, true) . '|' . $sData;
+        return $bSafeMode ? 'x' . $sResult : $sResult;
 
     }
 
     /**
      * Аналог unserialize() с контролем CRC32
      *
-     * @param $sData
-     * @param $xDefaultOnError
+     * @param string $sData
+     * @param mixed  $xDefaultOnError
      *
-     * @return mixed|null
+     * @return mixed
      */
     static public function Unserialize($sData, $xDefaultOnError = null) {
 
-        if (is_string($sData) && strpos($sData, '|')) {
-            list($sCrc32, $sData) = explode('|', $sData);
-            if ($sCrc32 && $sData && $sCrc32 == dechex(crc32($sData))) {
+        if (is_string($sData) && $sData) {
+            if (strpos($sData, '|')) {
+                if ($sData[0] == 'x') {
+                    $bBase64 = true;
+                    list($sCrc32, $sData) = explode('|', substr($sData, 1), 2);
+                } else {
+                    $bBase64 = false;
+                    list($sCrc32, $sData) = explode('|', $sData, 2);
+                }
+                if ($sCrc32 && $sData && ($sCrc32 == static::Crc32($sData, true))) {
+                    if ($bBase64) {
+                        $sData = base64_decode($sData);
+                    }
+                    $xData = @unserialize($sData);
+                    return $xData;
+                }
+            } else {
                 $xData = @unserialize($sData);
                 return $xData;
             }
@@ -469,6 +549,13 @@ class AltoFunc_Main {
         return $xDefaultOnError;
     }
 
+    /**
+     * Returns IP-rang by mask (e.c '173.194' => array('173.194.0.0', '173.194.255.255')
+     *
+     * @param string $sIp
+     *
+     * @return array
+     */
     static public function IpRange($sIp) {
 
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
@@ -522,13 +609,54 @@ class AltoFunc_Main {
         return $oInterval->Seconds();
     }
 
-    static public function DateTimeAdd($sDate, $sInterval) {
+    /**
+     * Add interval to defined (or current) datetime
+     *
+     * @param string $sDate
+     * @param string $sInterval
+     *
+     * @return string
+     */
+    static public function DateTimeAdd($sDate, $sInterval = null) {
 
+        if (func_num_args() == 1) {
+            $sInterval = $sDate;
+            $sDate = 'now';
+        } elseif (is_null($sDate)) {
+            $sDate = 'now';
+        }
         $date = new DateTime($sDate);
-        $date->add(new DateInterval('PT' . self::ToSeconds($sInterval) . 'S'));
+        $date->add(new DateInterval('PT' . static::ToSeconds($sInterval) . 'S'));
         return $date->format('Y-m-d H:i:s');
     }
 
+    /**
+     * Sub interval from defined (or current) datetime
+     *
+     * @param string $sDate
+     * @param string $sInterval
+     *
+     * @return string
+     */
+    static public function DateTimeSub($sDate, $sInterval = null) {
+
+        if (is_null($sDate)) {
+            $sDate = 'now';
+        } elseif (func_num_args() == 1) {
+            $sInterval = $sDate;
+            $sDate = 'now';
+        }
+        $date = new DateTime($sDate);
+        $date->sub(new DateInterval('PT' . static::ToSeconds($sInterval) . 'S'));
+        return $date->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * @param string $sDate1
+     * @param string $sDate2
+     *
+     * @return int
+     */
     static public function DateDiffSeconds($sDate1, $sDate2) {
         $oDatetime1 = date_create($sDate1);
         $oDatetime2 = date_create($sDate2);
@@ -536,6 +664,9 @@ class AltoFunc_Main {
         return intval($nDiff);
     }
 
+    /**
+     * @return string
+     */
     static public function Now() {
 
         return date('Y-m-d H:i:s');
@@ -555,7 +686,7 @@ class AltoFunc_Main {
 
         if ($xLang === true) {
             if (class_exists('ModuleLang', false)) {
-                $xLang = E::Lang_GetLang();
+                $xLang = E::ModuleLang()->GetLang();
             } elseif (class_exists('Config', false)) {
                 $xLang = Config::Get('lang.current');
             } else {
@@ -563,13 +694,13 @@ class AltoFunc_Main {
             }
         }
 
-        $sText = strtolower($sText);
+        $sText = mb_strtolower($sText, 'UTF-8');
         if ($xLang !== false) {
             $aChars = UserLocale::getLocale($xLang, 'translit');
             if ($aChars) {
                 $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
             }
-            $sText = preg_replace('/[\-]{2,}/', '-', $sText);
+            $sText = preg_replace('/[\-]{2,}/u', '-', $sText);
         }
         $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
         // В некоторых случаях может возвращаться пустая строка
@@ -579,21 +710,115 @@ class AltoFunc_Main {
         return $sResult;
     }
 
+    /**
+     * @param string $sText
+     * @param bool   $xLang
+     *
+     * @return string
+     */
     static public function TranslitUrl($sText, $xLang = true) {
 
         $aSymbols = array(
             "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
-            "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'
+            '<' => '', '>' => '', '«' => '', '»' => '', '(' => '-', ')' => '-'
         );
-        $sText = self::Translit($sText, $xLang);
+        $sText = mb_strtolower(static::Translit($sText, $xLang), 'utf-8');
         $sText = str_replace(array_keys($aSymbols), array_values($aSymbols), $sText);
-        $sText = preg_replace('/[^a-z0-9\-]/', '-', $sText);
+        $sText = preg_replace('/[^a-z0-9\-]/i', '-', $sText);
         $sText = preg_replace('/\s/', '-', $sText);
         $sText = preg_replace('/[\-]{2,}/', '-', $sText);
         $sText = trim($sText, '-');
         return $sText;
     }
 
+    /**
+     * URL encoding with double encoding for slashes
+     *
+     * @param string $sStr
+     *
+     * @return string
+     */
+    static public function UrlEncode($sStr) {
+
+        return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
+    }
+
+    /**
+     * URL encoding with double encoding for slashes
+     *
+     * @param string $sStr
+     *
+     * @return string
+     */
+    static public function UrlDecode($sStr) {
+
+        return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
+    }
+
+    /**
+     * Compare string with simple pattern - symbol, '?', '*'
+     *
+     * @param string|array $xPatterns
+     * @param string       $sString
+     * @param bool         $bCaseInsensitive
+     * @param array        $aMatches
+     *
+     * @return bool
+     */
+    static public function StrMatch($xPatterns, $sString, $bCaseInsensitive = false, &$aMatches = array()) {
+
+        $xResult = false;
+        if ($xPatterns) {
+            if (is_array($xPatterns)) {
+                foreach($xPatterns as $sPattern) {
+                    $xResult = static::StrMatch($sPattern, $sString, $bCaseInsensitive, $aMatches);
+                    if ($xResult) {
+                        return $xResult;
+                    }
+                }
+            } else {
+                $sPattern = (string)$xPatterns;
+                if ($sPattern === $sString) {
+                    return $xPatterns;
+                }
+                if (strpos($sPattern, '?') !== false) {
+                    $sCharQ = '_' . uniqid() . '_';
+                } else {
+                    $sCharQ = '';
+                }
+                if (strpos($sPattern, '*') !== false) {
+                    $sCharW = '_' . uniqid() . '_';
+                } else {
+                    $sCharW = '';
+                }
+                if (!$sCharQ && !$sCharW) {
+                    if ($bCaseInsensitive) {
+                        return (strcasecmp($sPattern, $sString) === 0) ? $xPatterns : false;
+                    } else {
+                        return (strcmp($sPattern, $sString) === 0) ? $xPatterns : false;
+                    }
+                }
+                if ($sCharQ) {
+                    $sPattern = str_replace('?', $sCharQ, $sPattern);
+                }
+                if ($sCharW) {
+                    $sPattern = str_replace('*', $sCharW, $sPattern);
+                }
+                $sPattern = preg_quote($sPattern, '/');
+                if ($sCharQ) {
+                    $sPattern = str_replace($sCharQ, '(.)', $sPattern);
+                }
+                if ($sCharW) {
+                    $sPattern = str_replace($sCharW, '(.*)', $sPattern);
+                }
+                $sPattern = '/^' . $sPattern . '$/' . ($bCaseInsensitive ? 'i' : '');
+                if (preg_match($sPattern, $sString, $aMatches)) {
+                    return $xPatterns;
+                }
+            }
+        }
+        return false;
+    }
 }
 
 // EOF

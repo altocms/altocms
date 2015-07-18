@@ -42,9 +42,9 @@ abstract class ActionPlugin extends Action {
              * Проверяем в списке шаблонов
              */
             $sPlugin = strtolower($aMatches[1]);
-            $sAction = ucfirst($aMatches[2]);
+            $sAction = strtolower($aMatches[2]);
             $sPluginDir = Plugin::GetDir($sPlugin);
-            $aPaths = glob($sPluginDir . '/templates/skin/*/actions/Action' . $sAction, GLOB_ONLYDIR);
+            $aPaths = glob($sPluginDir . '/templates/skin/*/actions/' . $sAction, GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(
                 Config::Get('view.skin'),
                 array_map(

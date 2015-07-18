@@ -38,16 +38,7 @@ class PluginExample_HookExample extends Hook {
          * Будет вызвана функция func_init_action($Var) в том месте движка, где стоит данный хук
          */
 
-
-        /*
-         * Хук с делегированием
-         *
-         * $this->AddDelegateHook('module_topic_addtopic_before','func_topic_addtopic_new',__CLASS__);
-         *
-         * Полная подмена функции AddTopic() модуля Topic на свою.
-         * Будет вызвана функция func_topic_addtopic_new($Var), где $aVars - НЕассоциативный массив аргументов.
-         * Делегирование существует в движке только для обеспечения совместимости со старыми плагинами, рекомендуется вместо него использовать переопределение.
-         */
     }
 }
-?>
+
+// EOF

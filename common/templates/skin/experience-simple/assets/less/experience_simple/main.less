@@ -1,0 +1,250 @@
+@import "../bootstrap/mixins";
+//@import "../var.experience_simple.less";
+
+
+body {
+    background-color: rgb(245, 246, 248);
+}
+
+/** ССЫЛКИ
+_______________________________________________________________*/
+a, i.fa {
+    .transition(~".3s");
+}
+
+a:hover, .link:hover, .link.link-clear:hover, .link-blue-red:hover, .link-header:hover, .link-dark.link-clear:hover,
+.link-dual.link-clear:hover, .link-light-gray.link-clear:hover, .link-gray.link-clear:hover, .link-clear:hover {
+    color: @active-link-color !important;
+    i.fa {
+        color: @active-link-color !important;
+    }
+}
+
+.link.link-gray {
+    color: @main-gray !important;
+    &:hover {
+        color: @active-link-color !important;
+        i.fa {
+            color: @active-link-color !important;
+        }
+    }
+}
+
+
+/** БЛОК СООБЩЕНИЙ
+_______________________________________________________________*/
+.bg-warning, .comment-preview {
+    background-color: @light;
+    border: 1px solid @lighten-gray;
+    padding: 8px;
+    font-size: 13px;
+
+    &.system-msg {
+        padding: 18px;
+        background-color: lighten(@green, 40%);
+        border: 1px solid lighten(@green, 40%);
+    }
+}
+
+
+
+
+/** ЗАГОЛОВКИ
+_______________________________________________________________*/
+h1, h2, h3, h4, h5, h6 {
+    a {
+        font-family: @font-family-serif !important;
+    }
+    font-family: @font-family-serif !important;
+}
+
+h3.accent, h4.accent, h5.accent, h3.accent a, h4.accent a, h5.accent a, h6.accent a {
+    font-family: @font-family-serif !important;
+}
+
+h1 {
+    margin: 4px 0;
+}
+//
+//h1, h1 a {
+//    color:  @dark-blue;
+//    font-size: 24px;
+//    line-height: 26px;
+//}
+
+
+h2, h2 a {
+    color:  @dark-blue;
+    font-size: 22px;
+    line-height: 24px;
+}
+
+h3, h3 a {
+    color:  @dark-blue;
+    font-size: 22px;
+    line-height: 24px;
+}
+
+h4, h4 a {
+    color:  @dark-blue;
+    font-size: 18px;
+    line-height: 20px;
+}
+
+h5, h5 a {
+    color:  @dark-blue;
+    font-size: 16px;
+    line-height: 18px;
+}
+
+h6, h6 a {
+    color: @dark-blue;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+
+
+
+
+
+/** АВТОКОМПЛИТ
+_______________________________________________________________*/
+.ui-autocomplete img {
+    border-radius: 24px;
+    margin-right: 4px;
+}
+
+
+/** ВСПОМОГАТЕЛЬНЫЕ
+_______________________________________________________________*/
+.right-divider {
+    border-right: 1px solid @light-gray;
+    padding-right: 10px !important;
+}
+.bor32 {
+    border-radius: 32px !important;
+}
+.bor50 {
+    border-radius: 50px !important;
+}
+.bor100 {
+    border-radius: 100px !important;
+}
+.vac {
+    vertical-align: middle !important;
+}
+.fs-small {
+    font-size: @font-size-small !important;
+}
+.tdn {
+    text-decoration: none !important;
+}
+.dib {
+    display: block;
+}
+.mat0 {
+    margin-top: 0 !important;
+}
+.par0 {
+    padding-right: 0 !important;
+}
+
+.fa-btn {
+    i.fa {
+        margin: 0 2px;
+
+    }
+    &:hover i.fa{
+        color: #1c374c !important;
+    }
+}
+
+
+//.hover-look(@size) {
+//        position: relative;
+//        &::before {
+//            font-family: "FontAwesome", serif;
+//            content: '\f00e';
+//            background: rgba(255, 255, 255, 0.6);
+//            height: 100%;
+//            width: 100%;
+//            top: 50%;
+//            left: 50%;
+//            position: absolute;
+//            opacity: .6;
+//            border-radius: @size;
+//            .transition(0.3)
+//        }
+//
+//}
+//
+//.hover-look50 { .hover-look(50px); }
+//.hover-look100 { .hover-look(100px); }
+//.hover-look150 { .hover-look(150px); }
+//.hover-look200 { .hover-look(200px); }
+
+.transition3 { .transition(~".3s"); }
+.transition5 { .transition(~".5s"); }
+.transition8 { .transition(~".8s"); }
+.transition10 { .transition(~"1s"); }
+
+
+.modal .nav.nav-tabs a, .panel-navigation span {
+    font-size: @font-size-small !important;
+}
+
+.navbar-main.fixed {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 3;
+}
+
+.uploader-actions {
+    &:hover a {
+        color: @active-link-color !important;
+    }
+}
+
+.blog-uploader-actions {
+    & > div {
+        display: block;
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+        &:hover a {
+            color: @active-link-color !important;
+        }
+        & > input {
+            display: block;
+            position: absolute;
+        }
+    }
+}
+
+.js-alto-multi-uploader-form {
+    input {
+        font-size: 62px !important;
+        cursor: pointer;
+    }
+}
+.js-fileapi-wrapper {
+    cursor: pointer !important;
+}
+
+.topic-text img, .topic-text a[data-url] , .topic-text a[rel^="prettyPhoto"] {
+    max-width: 100%;
+}
+
+.comment-text, .topic-text, .feed-comment-text *, .topic-title, .topic-title * {
+    word-wrap: break-word;
+}
+
+.searched-item {
+    background-color: lighten(@yellow, 30%);
+}
+
+.has-feedback .form-control-feedback{
+    z-index: 2;
+}

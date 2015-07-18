@@ -24,36 +24,29 @@ class WidgetTags extends Widget {
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * Получаем список тегов
-         */
-        $aTags = $this->oEngine->Topic_GetOpenTopicTags(Config::Get('block.tags.tags_count'));
-        /**
-         * Расчитываем логарифмическое облако тегов
-         */
+
+        $iLimit = C::Val('widgets.tags.params.limit', 70);
+        // * Получаем список тегов
+        $aTags = E::ModuleTopic()->GetOpenTopicTags($iLimit);
+
+        // * Расчитываем логарифмическое облако тегов
         if ($aTags) {
-            $this->Tools_MakeCloud($aTags);
-            /**
-             * Устанавливаем шаблон вывода
-             */
-            $this->Viewer_Assign('aTags', $aTags);
+            E::ModuleTools()->MakeCloud($aTags);
+
+            // * Устанавливаем шаблон вывода
+            E::ModuleViewer()->Assign('aTags', $aTags);
         }
-        /**
-         * Теги пользователя
-         */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
-            $aTags = $this->oEngine->Topic_GetOpenTopicTags(
-                Config::Get('block.tags.personal_tags_count'), $oUserCurrent->getId()
-            );
-            /**
-             * Расчитываем логарифмическое облако тегов
-             */
+
+        // * Теги пользователя
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
+            $aTags = E::ModuleTopic()->GetOpenTopicTags($iLimit, $oUserCurrent->getId());
+
+            // * Расчитываем логарифмическое облако тегов
             if ($aTags) {
-                $this->Tools_MakeCloud($aTags);
-                /**
-                 * Устанавливаем шаблон вывода
-                 */
-                $this->Viewer_Assign('aTagsUser', $aTags);
+                E::ModuleTools()->MakeCloud($aTags);
+
+                // * Устанавливаем шаблон вывода
+                E::ModuleViewer()->Assign('aTagsUser', $aTags);
             }
         }
     }

@@ -14,7 +14,7 @@
  */
 
 /**
- * Обрабатывые авторизацию
+ * Authorization and password reovery
  *
  * @package actions
  * @since   1.0
@@ -25,14 +25,11 @@ class ActionLogin extends Action {
      *
      */
     public function Init() {
-        /**
-         * Устанавливаем дефолтный евент
-         */
+
         $this->SetDefaultEvent('index');
-        /**
-         * Отключаем отображение статистики выполнения
-         */
-        Router::SetIsShowStats(false);
+
+        // Отключаем отображение статистики выполнения
+        R::SetIsShowStats(false);
     }
 
     /**
@@ -56,62 +53,62 @@ class ActionLogin extends Action {
      */
     protected function EventAjaxLogin() {
 
-        // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        // Устанавливаем формат Ajax ответа
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        // * Проверяем передачу логина пароля через POST
-        $sUserLogin = $this->GetPost('login');
+        // Проверяем передачу логина пароля через POST
+        $sUserLogin = trim($this->GetPost('login'));
         $sUserPassword = $this->GetPost('password');
-        if (!$sUserLogin || !$sUserPassword) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        if (!$sUserLogin || !trim($sUserPassword)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_login_bad'));
             return;
         }
 
-        // * Проверяем есть ли такой юзер по логину
-        if ((F::CheckVal($sUserLogin, 'mail') && $oUser = $this->User_GetUserByMail($sUserLogin))
-            || ($oUser = $this->User_GetUserByLogin($sUserLogin))
-        ) {
+        // Seek user by mail or by login
+        /** @var ModuleUser_EntityUser $oUser */
+        if ($oUser = E::ModuleUser()->GetUserByMailOrLogin($sUserLogin)) {
             // Не забанен ли юзер
             if ($oUser->IsBanned()) {
                 if ($oUser->IsBannedByIp()) {
-                    $this->Message_AddErrorSingle($this->Lang_Get('user_ip_banned'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_ip_banned'));
                     return;
                 } elseif ($oUser->GetBanLine()) {
-                    $this->Message_AddErrorSingle(
-                        $this->Lang_Get('user_banned_before', array('date' => $oUser->GetBanLine()))
+                    E::ModuleMessage()->AddErrorSingle(
+                        E::ModuleLang()->Get('user_banned_before', array('date' => $oUser->GetBanLine()))
                     );
                     return;
                 } else {
-                    $this->Message_AddErrorSingle($this->Lang_Get('user_banned_unlim'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_banned_unlim'));
                     return;
                 }
             }
-            // * Сверяем хеши паролей и проверяем активен ли юзер
-            if ($this->Security_CheckSalted($oUser->getPassword(), $sUserPassword, 'pass')) {
+            // Check password
+            if (E::ModuleUser()->CheckPassword($oUser, $sUserPassword)) {
                 if (!$oUser->getActivate()) {
-                    $this->Message_AddErrorSingle(
-                        $this->Lang_Get(
+                    E::ModuleMessage()->AddErrorSingle(
+                        E::ModuleLang()->Get(
                             'user_not_activated',
-                            array('reactivation_path' => Router::GetPath('login') . 'reactivation')
+                            array('reactivation_path' => R::GetPath('login') . 'reactivation')
                         )
                     );
                     return;
                 }
-                $bRemember = getRequest('remember', false) ? true : false;
+                $bRemember = F::GetRequest('remember', false) ? true : false;
 
-                // * Авторизуем
-                $this->User_Authorization($oUser, $bRemember);
+                // Авторизуем
+                E::ModuleUser()->Authorization($oUser, $bRemember);
 
-                // * Определяем редирект
-                $sUrl = Config::Get('module.user.redirect_after_login');
-                if (getRequestStr('return-path')) {
-                    $sUrl = getRequestStr('return-path');
+                // Определяем редирект
+                //$sUrl = Config::Get('module.user.redirect_after_login');
+                $sUrl = Config::Get('path.root.url');
+                if (F::GetRequestStr('return-path')) {
+                    $sUrl = F::GetRequestStr('return-path');
                 }
-                $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
+                E::ModuleViewer()->AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
                 return;
             }
         }
-        $this->Message_AddErrorSingle($this->Lang_Get('user_login_bad'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_login_bad'));
     }
 
     /**
@@ -119,11 +116,11 @@ class ActionLogin extends Action {
      */
     protected function EventReactivation() {
 
-        if ($this->User_GetUserCurrent()) {
-            Router::Location(Config::Get('path.root.url') . '/');
+        if (E::ModuleUser()->GetUserCurrent()) {
+            R::Location(Config::Get('path.root.url') . '/');
         }
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('reactivation'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('reactivation'));
     }
 
     /**
@@ -131,23 +128,24 @@ class ActionLogin extends Action {
      */
     protected function EventAjaxReactivation() {
 
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if ((F::CheckVal(getRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(getRequestStr('mail')))) {
+        /** @var ModuleUser_EntityUser $oUser */
+        if ((F::CheckVal(F::GetRequestStr('mail'), 'mail') && $oUser = E::ModuleUser()->GetUserByMail(F::GetRequestStr('mail')))) {
             if ($oUser->getActivate()) {
-                $this->Message_AddErrorSingle($this->Lang_Get('registration_activate_error_reactivate'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('registration_activate_error_reactivate'));
                 return;
             } else {
-                $oUser->setActivateKey(F::RandomStr());
-                if ($this->User_Update($oUser)) {
-                    $this->Message_AddNotice($this->Lang_Get('reactivation_send_link'));
-                    $this->Notify_SendReactivationCode($oUser);
+                $oUser->setActivationKey(F::RandomStr());
+                if (E::ModuleUser()->Update($oUser)) {
+                    E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('reactivation_send_link'));
+                    E::ModuleNotify()->SendReactivationCode($oUser);
                     return;
                 }
             }
         }
 
-        $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_email'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('password_reminder_bad_email'));
     }
 
     /**
@@ -157,11 +155,11 @@ class ActionLogin extends Action {
      */
     protected function EventLogin() {
 
-        // * Если уже авторизирован
-        if ($this->User_GetUserCurrent()) {
-            Router::Location(Config::Get('path.root.url') . '/');
+        // Если уже авторизирован
+        if (E::ModuleUser()->GetUserCurrent()) {
+            R::Location(Config::Get('path.root.url') . '/');
         }
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('login'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('login'));
     }
 
     /**
@@ -170,13 +168,45 @@ class ActionLogin extends Action {
      */
     protected function EventExit() {
 
-        $this->Security_ValidateSendForm();
-        $this->User_Logout();
-        if (isset($_SERVER['HTTP_REFERER']) && F::File_IsLocalUrl($_SERVER['HTTP_REFERER'])) {
-            Router::Location($_SERVER['HTTP_REFERER']);
+        E::ModuleSecurity()->ValidateSendForm();
+        E::ModuleUser()->Logout();
+
+        $iShowTime = Config::Val('module.user.logout.show_exit', 3);
+        $sRedirect = Config::Get('module.user.logout.redirect');
+        if (!$sRedirect) {
+            if (isset($_SERVER['HTTP_REFERER']) && F::File_IsLocalUrl($_SERVER['HTTP_REFERER'])) {
+                $sRedirect = $_SERVER['HTTP_REFERER'];
+            }
+        }
+
+        /**
+         * issue #104, {@see https://github.com/altocms/altocms/issues/104}
+         * Установим в lgp (last_good_page) хэш имени страницы с постфиксом "logout". Такая
+         * кука будет означать, что на этой странице пользователь вышел с сайта. Время 60 -
+         * заранее достаточное время, что бы произошел редирект на страницу HTTP_REFERER. Если
+         * же эта страница выпадет в 404 то в экшене ActionError уйдем на главную, поскольку
+         * эта страница недоступна стала после выхода с сайта, а до этого была вполне ничего.
+         */
+
+        if ($iShowTime) {
+            $sUrl = F::RealUrl($sRedirect);
+            $sReferrer = Config::Get('path.root.web'). R::GetAction() . "/" . R::GetActionEvent() .'/?security_key=' . F::GetRequest('security_key', '');
+            E::ModuleSession()->SetCookie('lgp', md5($sReferrer . 'logout'), 60);
+            E::ModuleViewer()->SetHtmlHeadTag('meta', array('http-equiv' => 'Refresh', 'Content' => $iShowTime . '; url=' . $sUrl));
+        } elseif ($sRedirect) {
+            // Если установлена пользовтаельская страница выхода, то считаем,
+            // что она без ошибки и смело не нее редиректим, в других случаях
+            // возможна 404
+            if (!Config::Get('module.user.logout.redirect')) {
+                E::ModuleSession()->SetCookie('lgp', md5(F::RealUrl($sRedirect) . 'logout'), 60);
+            }
+            R::Location($sRedirect);
             exit;
         } else {
-            $this->Viewer_Assign('bRefreshToHome', true);
+            // E::ModuleViewer()->Assign('bRefreshToHome', true);
+            // Время показа страницы выхода не задано, поэтому просто редирект
+            R::Location(Config::Get('path.root.web'));
+            exit;
         }
     }
 
@@ -185,61 +215,115 @@ class ActionLogin extends Action {
      */
     protected function EventAjaxReminder() {
 
-        // * Устанвливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        // Устанвливаем формат Ajax ответа
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        // * Пользователь с таким емайлом существует?
-        if ((F::CheckVal(getRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(getRequestStr('mail')))) {
-
-            // * Формируем и отправляем ссылку на смену пароля
-            $oReminder = Engine::GetEntity('User_Reminder');
-            $oReminder->setCode(F::RandomStr(32));
-            $oReminder->setDateAdd(F::Now());
-            $oReminder->setDateExpire(date('Y-m-d H:i:s', time() + 60 * 60 * 24 * 7));
-            $oReminder->setDateUsed(null);
-            $oReminder->setIsUsed(0);
-            $oReminder->setUserId($oUser->getId());
-            if ($this->User_AddReminder($oReminder)) {
-                $this->Message_AddNotice($this->Lang_Get('password_reminder_send_link'));
-                $this->Notify_SendReminderCode($oUser, $oReminder);
-                return;
-            }
-        }
-        $this->Message_AddError($this->Lang_Get('password_reminder_bad_email'), $this->Lang_Get('error'));
+        $this->_eventRecovery(true);
     }
 
     /**
      * Обработка напоминания пароля, подтверждение смены пароля
      *
+     * @return string|null
      */
     protected function EventReminder() {
 
-        // * Устанавливаем title страницы
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('password_reminder'));
+        if (E::IsUser()) {
+            // Для авторизованного юзера восстанавливать нечего
+            Router::Location('/');
+        } else {
+            // Устанавливаем title страницы
+            E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('password_reminder'));
 
-        // * Проверка кода на восстановление пароля и генерация нового пароля
-        if (F::CheckVal($this->GetParam(0), 'md5')) {
+            $this->_eventRecovery(false);
+        }
+    }
 
-            // * Проверка кода подтверждения
-            if ($oReminder = $this->User_GetReminderByCode($this->GetParam(0))) {
-                if (!$oReminder->getIsUsed() && strtotime($oReminder->getDateExpire()) > time()
-                    && $oUser = $this->User_GetUserById($oReminder->getUserId())
-                ) {
-                    $sNewPassword = F::RandomStr(7);
-                    $oUser->setPassword($sNewPassword, true);
-                    if ($this->User_Update($oUser)) {
-                        $oReminder->setDateUsed(F::Now());
-                        $oReminder->setIsUsed(1);
-                        $this->User_UpdateReminder($oReminder);
-                        $this->Notify_SendReminderPassword($oUser, $sNewPassword);
-                        $this->SetTemplateAction('reminder_confirm');
-                        return;
+    protected function _eventRecovery($bAjax = false) {
+
+        if ($this->IsPost()) {
+            // Was POST request
+            $sEmail = F::GetRequestStr('mail');
+
+            // Пользователь с таким емайлом существует?
+            if ($sEmail && (F::CheckVal($sEmail, 'mail'))) {
+                if ($this->_eventRecoveryRequest($sEmail)) {
+                    if (!$bAjax) {
+                        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('password_reminder_send_link'));
                     }
+                    return;
                 }
             }
-            $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_code'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('password_reminder_bad_email'), E::ModuleLang()->Get('error'));
+        } elseif ($sRecoveryCode = $this->GetParam(0)) {
+            // Was recovery code in GET
+            if (F::CheckVal($sRecoveryCode, 'md5')) {
+
+                // Проверка кода подтверждения
+                if ($this->_eventRecoverySend($sRecoveryCode)) {
+                    return null;
+                }
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('password_reminder_bad_code_txt'), E::ModuleLang()->Get('password_reminder_bad_code'));
+                if (!$bAjax) {
+                    return R::Action('error');
+                }
+                return;
+            }
         }
+    }
+
+    protected function _eventRecoveryRequest($sMail) {
+
+        if ($oUser = E::ModuleUser()->GetUserByMail($sMail)) {
+
+            // Формируем и отправляем ссылку на смену пароля
+            /** @var ModuleUser_EntityReminder $oReminder */
+            $oReminder = E::GetEntity('User_Reminder');
+            $oReminder->setCode(F::RandomStr(32));
+            $oReminder->setDateAdd(F::Now());
+            $oReminder->setDateExpire(date('Y-m-d H:i:s', time() + Config::Val('module.user.pass_recovery_delay', 60 * 60 * 24 * 7)));
+            $oReminder->setDateUsed(null);
+            $oReminder->setIsUsed(0);
+            $oReminder->setUserId($oUser->getId());
+            if (E::ModuleUser()->AddReminder($oReminder)) {
+                E::ModuleNotify()->SendReminderCode($oUser, $oReminder);
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('password_reminder_send_link'));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function _eventRecoverySend($sRecoveryCode) {
+
+        /** @var ModuleUser_EntityReminder $oReminder */
+        if ($oReminder = E::ModuleUser()->GetReminderByCode($sRecoveryCode)) {
+            /** @var ModuleUser_EntityUser $oUser */
+            if ($oReminder->IsValid() && $oUser = E::ModuleUser()->GetUserById($oReminder->getUserId())) {
+                $sNewPassword = F::RandomStr(7);
+                $oUser->setPassword($sNewPassword, true);
+                if (E::ModuleUser()->Update($oUser)) {
+
+                    // Do logout of current user
+                    E::ModuleUser()->Logout();
+
+                    // Close all sessions of this user
+                    E::ModuleUser()->CloseAllSessions($oUser);
+
+                    $oReminder->setDateUsed(F::Now());
+                    $oReminder->setIsUsed(1);
+                    E::ModuleUser()->UpdateReminder($oReminder);
+                    E::ModuleNotify()->SendReminderPassword($oUser, $sNewPassword);
+                    $this->SetTemplateAction('reminder_confirm');
+
+                    if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
+                        E::ModuleViewer()->Assign('return-path', $sUrl);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

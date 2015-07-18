@@ -14,11 +14,12 @@
  */
 
 /**
- * Плагин для Smarty
- * Работа с группой виджетов
+ * Plugin for Smarty
+ * Adds widget into widget group
  *
- * @param   array $aParams
+ * @param   array                    $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
@@ -36,7 +37,7 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
     if (!isset($aParams['widget'])) {
         $sError = 'Parameter "widget" does not define in {wgroup_add ...} function';
@@ -44,14 +45,14 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
 
     $aWidgetParams = (isset($aParams['params']) ? (array)$aParams['params'] : array());
     if (array_key_exists('priority', $aWidgetParams)) {
         $nPriority = $aWidgetParams['priority'];
     } elseif (array_key_exists('priority', $aParams)) {
-        $nPriority = $aWidgetParams['priority'];
+        $nPriority = $aParams['priority'];
     } else {
         $nPriority = 0;
     }
@@ -62,8 +63,8 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
         }
     }
 
-    E::Viewer_AddWidget($aParams['group'], $aParams['widget'], $aWidgetParams, $nPriority);
-    $aWidgets = E::Viewer_GetWidgets();
+    E::ModuleViewer()->AddWidget($aParams['group'], $aParams['widget'], $aWidgetParams, $nPriority);
+    $aWidgets = E::ModuleViewer()->GetWidgets();
 
     $oSmartyTemplate->assign('aWidgets', $aWidgets);
     $oSmartyTemplate->parent->assign('aWidgets', $aWidgets);

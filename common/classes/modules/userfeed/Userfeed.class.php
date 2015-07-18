@@ -39,7 +39,8 @@ class ModuleUserfeed extends Module {
      * Инициализация модуля
      */
     public function Init() {
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -51,7 +52,8 @@ class ModuleUserfeed extends Module {
      *
      * @return bool
      */
-    public function subscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function SubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+
         return $this->oMapper->subscribeUser($iUserId, $iSubscribeType, $iTargetId);
     }
 
@@ -64,7 +66,8 @@ class ModuleUserfeed extends Module {
      *
      * @return bool
      */
-    public function unsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function UnsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+
         return $this->oMapper->unsubscribeUser($iUserId, $iSubscribeType, $iTargetId);
     }
 
@@ -77,26 +80,40 @@ class ModuleUserfeed extends Module {
      *
      * @return array
      */
-    public function read($iUserId, $iCount = null, $iFromId = null) {
+    public function Read($iUserId, $iCount = null, $iFromId = null) {
+
         if (!$iCount) {
             $iCount = Config::Get('module.userfeed.count_default');
         }
         $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId);
-        $aTopicsIds = $this->oMapper->readFeed($aUserSubscribes, $iCount, $iFromId);
-        return $this->Topic_getTopicsAdditionalData($aTopicsIds);
+        if (E::IsAdmin()) {
+            $aFilter = array();
+        } else {
+            $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
+            $aFilter = array(
+                'include_types' => $aOpenBlogTypes,
+            );
+        }
+        $aTopicsIds = $this->oMapper->readFeed($aUserSubscribes, $iCount, $iFromId, $aFilter);
+        if ($aTopicsIds) {
+            return E::ModuleTopic()->GetTopicsAdditionalData($aTopicsIds);
+        }
+        return array();
     }
 
     /**
      * Получить ленту топиков по подписке
      *
-     * @param int $iUserId ID пользователя, для которого получаем ленту
-     * @param int $iCount  Число получаемых записей (если null, из конфига)
-     * @param int $iFromId Получить записи, начиная с указанной
+     * @param int  $iUserId ID пользователя, для которого получаем ленту
+     * @param int  $iPage
+     * @param int  $iPerPage
+     * @param bool $iOnlyNew
      *
-     * @return array
+     * @return mixed
      */
-    public function trackread($iUserId, $iPage = 1, $iPerPage = 10, $iOnlyNew = false) {
-        $aTopicTracks = $this->Subscribe_GetTracks(
+    public function Trackread($iUserId, $iPage = 1, $iPerPage = 10, $iOnlyNew = false) {
+
+        $aTopicTracks = E::ModuleSubscribe()->GetTracks(
             array('user_id' => $iUserId, 'target_type' => 'topic_new_comment', 'status' => 1, 'only_new' => $iOnlyNew),
             array('date_add' => 'desc'), $iPage, $iPerPage
         );
@@ -104,7 +121,7 @@ class ModuleUserfeed extends Module {
         foreach ($aTopicTracks['collection'] as $oTrack) {
             $aTopicsIds[] = $oTrack->getTargetId();
         }
-        $aTopicTracks['collection'] = $this->Topic_getTopicsAdditionalData($aTopicsIds);
+        $aTopicTracks['collection'] = E::ModuleTopic()->GetTopicsAdditionalData($aTopicsIds);
         return $aTopicTracks;
     }
 
@@ -116,9 +133,10 @@ class ModuleUserfeed extends Module {
      * @return int
      */
     public function GetCountTrackNew($sUserId) {
-        if (false === ($data = $this->Cache_Get("track_count_new_user_{$sUserId}"))) {
+
+        if (false === ($data = E::ModuleCache()->Get("track_count_new_user_{$sUserId}"))) {
             $data = $this->oMapper->GetCountTrackNew($sUserId);
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $data, "track_count_new_user_{$sUserId}",
                 array('topic_update', 'topic_new', "topic_read_user_{$sUserId}"), 60 * 60 * 24
             );
@@ -134,24 +152,46 @@ class ModuleUserfeed extends Module {
      *
      * @return array
      */
-    public function getUserSubscribes($iUserId) {
-        $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId);
-        $aResult = array('blogs' => array(), 'users' => array());
+    /**
+     * @param int        $iUserId
+     * @param string|int $xTargetType
+     * @param array      $aTargetsId
+     * @param bool       $bIdOnly
+     *
+     * @return array
+     */
+    public function GetUserSubscribes($iUserId, $xTargetType = null, $aTargetsId = array(), $bIdOnly = false) {
+
+        $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId, $xTargetType, $aTargetsId);
+
+        if ($bIdOnly) {
+            return $aUserSubscribes;
+        }
+
+        $aResult = array(
+            'blogs' => array(),
+            'blog' => array(),
+            'users' => array(),
+            'user' => array(),
+        );
         if (count($aUserSubscribes['blogs'])) {
-            $aBlogs = $this->Blog_getBlogsByArrayId($aUserSubscribes['blogs']);
+            $aBlogs = E::ModuleBlog()->GetBlogsByArrayId($aUserSubscribes['blogs']);
             foreach ($aBlogs as $oBlog) {
                 $aResult['blogs'][$oBlog->getId()] = $oBlog;
+                $aResult['blog'][$oBlog->getId()] = $oBlog;
             }
         }
         if (count($aUserSubscribes['users'])) {
-            $aUsers = $this->User_getUsersByArrayId($aUserSubscribes['users']);
+            $aUsers = E::ModuleUser()->GetUsersByArrayId($aUserSubscribes['users']);
             foreach ($aUsers as $oUser) {
                 $aResult['users'][$oUser->getId()] = $oUser;
+                $aResult['user'][$oUser->getId()] = $oUser;
             }
         }
 
         return $aResult;
     }
+
 }
 
 // EOF

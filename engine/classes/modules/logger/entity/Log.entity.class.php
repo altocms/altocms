@@ -10,6 +10,10 @@
 
 class ModuleLogger_EntityLog extends Entity {
 
+    const MAX_LOCK_CNT    = 10;
+    const MAX_LOCK_PERIOD = 50000;
+    const MAX_LOCK_TIME   = 1000000;
+
     protected $aLogs = array();
 
     /**
@@ -25,16 +29,15 @@ class ModuleLogger_EntityLog extends Entity {
 
     protected $aRecord = array();
 
-    public function __construct($aParam = false) {
+    public function __construct($aParam = null) {
 
         $this->SetFileName(Config::Get('sys.logs.file'));
         $this->SetFileDir(Config::Get('sys.logs.dir'));
 
-        // Максимальный размер файла при ротации логов в байтах
-        $this->SetSizeForRotate(1000000);
+        // Max file size for rotation
+        $this->SetSizeForRotate(Config::Get('sys.logs.size_for_rotate'));
 
-        // Использовать автоматическую ротация логов
-        $this->SetUseRotate(false);
+        $this->SetCountForRotate(Config::Get('sys.logs.count_for_rotate'));
 
         // Текущий уровень логирования
         $this->SetLogLevel(0);
@@ -50,19 +53,45 @@ class ModuleLogger_EntityLog extends Entity {
         }
     }
 
-    public function GetRandom() {
+    /**
+     * Sets dir for log file
+     *
+     * @param $sDir
+     */
+    public function SetFileDir($sDir) {
 
-        return rand(1000, 9999);
+        if (substr($sDir, -1) !== '/') {
+            $sDir .= '/';
+        }
+        parent::SetFileDir($sDir);
     }
 
-    public function SetSizeForRotate($nSize) {
+    /**
+     * Sets max size for file rotation
+     *
+     * @param $iSize
+     */
+    public function SetSizeForRotate($iSize) {
 
-        if ($nSize && intval($nSize) > 0) {
-            $this->setProp('size_for_rotate', intval($nSize));
+        $iSize = intval($iSize);
+        if ($iSize > 0) {
+            $this->setProp('size_for_rotate', $iSize);
+            // Set rotation to on
             $this->SetUseRotate(true);
         } else {
+            // Set rotation to off
             $this->SetUseRotate(false);
         }
+    }
+
+    /**
+     * Sets max files number in rotation
+     *
+     * @param int $iCount
+     */
+    public function SetCountForRotate($iCount) {
+
+        $this->setProp('count_for_rotate', intval($iCount));
     }
 
     /**
@@ -80,12 +109,16 @@ class ModuleLogger_EntityLog extends Entity {
             $nLevelIndex = 0;
         }
         if ($nLevelIndex >= $this->GetLogLevel()) {
+            if (!is_scalar($sMsg)) {
+                $sMsg = print_r($sMsg, true);
+            }
             $this->DumpBegin($sMsg, $sLevel);
             return $this->DumpEnd();
         }
+        return false;
     }
 
-    protected function _checlLogLevel($sLevel) {
+    protected function _checkLogLevel($sLevel) {
 
         // Если уровень записи в лог больше либо равен текущему уровню, то создаем запись
         if (!$sLevel || ($nLevelIndex = array_search(strtoupper($sLevel), $this->aLogLevels)) == false) {
@@ -98,14 +131,19 @@ class ModuleLogger_EntityLog extends Entity {
         return false;
     }
 
-    // Начало записи
+    /**
+     * Begin of record for log file
+     *
+     * @param string $sMsg
+     * @param string $sLevel
+     */
     public function DumpBegin($sMsg, $sLevel = 'DEBUG') {
 
-        if ($sLogLevel = $this->_checlLogLevel($sLevel)) {
+        if ($sLogLevel = $this->_checkLogLevel($sLevel)) {
 
             // Формируем запись
             $this->aRecord = array(
-                'id'    => sprintf('%014.2F-%4d', microtime(true), $this->GetRandom()),
+                'id'    => sprintf('%014.3F-%s', microtime(true), strtoupper(uniqid())),
                 'time'  => date('Y-m-d H:i:s'),
                 'pid'   => @getmypid(),
                 'level' => $sLogLevel,
@@ -114,15 +152,20 @@ class ModuleLogger_EntityLog extends Entity {
             );
 
             if ($this->getUseTrace()) {
-                $this->aRecord['trace'] = $this->parserTrace(debug_backtrace());
+                $this->aRecord['trace'] = $this->_parserTrace(debug_backtrace());
             }
         }
     }
 
-    // Добавление информации к записи
+    /**
+     * Append message to record
+     *
+     * @param string $sMsg
+     * @param string $sLevel
+     */
     public function DumpAppend($sMsg, $sLevel = 'DEBUG') {
 
-        if ($sLogLevel = $this->_checlLogLevel($sLevel)) {
+        if ($sLogLevel = $this->_checkLogLevel($sLevel)) {
             if (!$this->aRecord) {
                 // Запись не создавалась, надо ее создать
                 return $this->DumpBegin($sMsg, $sLevel);
@@ -137,12 +180,20 @@ class ModuleLogger_EntityLog extends Entity {
         }
     }
 
+    /**
+     * End of record for log file
+     *
+     * @param string $sMsg
+     * @param string $sLevel
+     *
+     * @return bool
+     */
     public function DumpEnd($sMsg = null, $sLevel = 'DEBUG') {
 
         $xResult = false;
         // Если аргументы не переданы, а запись есть, то сохраняем ее
         $bForce = ((func_num_args() == 0) && $this->aRecord);
-        if (($sLogLevel = $this->_checlLogLevel($sLevel)) || $bForce) {
+        if (($sLogLevel = $this->_checkLogLevel($sLevel)) || $bForce) {
             if (!$this->aRecord) {
                 // Запись не создавалась, надо ее создать
                 return $this->DumpBegin($sMsg, $sLevel);
@@ -183,7 +234,7 @@ class ModuleLogger_EntityLog extends Entity {
                 $sMsgOut .= '[END:' . $this->aRecord['id'] . "]\n";
 
                 // Записываем
-                $xResult = $this->write($sMsgOut);
+                $xResult = $this->_write($sMsgOut);
 
                 // Очищаем текущую запись
                 $this->aRecord = array();
@@ -193,29 +244,64 @@ class ModuleLogger_EntityLog extends Entity {
     }
 
     /**
-     * Производит сохранение в файл
+     * Writes message to log file
      *
-     * @param   string $msg    Сообщение
+     * @param string $sMsg - message to log
      *
-     * @return bool
+     * @return bool|int
      */
-    protected function Write($msg) {
+    protected function _write($sMsg) {
 
         $xResult = false;
-        // * Если имя файла не задано то ничего не делаем
+        // if no filename then nothing to do
         if (!($sFileName = $this->GetFileName())) {
             //throw new Exception("Empty file name for log!");
             return false;
         }
-        // * Если имя файла равно '-' то выводим сообщение лога в браузер
+        // if filename equal '-' then wtites message to browser
         if ($sFileName == '-') {
-            echo($msg . "<br>\n");
+            echo($sMsg . "<br/>\n");
         } else {
-            // * Запись в файл
-            if ($xResult = F::File_PutContents($this->GetFileDir() . $sFileName, $msg . "\n", FILE_APPEND | LOCK_EX)) {
-                // * Если нужно, то делаем ротацию
-                if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
-                    $this->rotate();
+            // writes to file
+            $sFile = $this->GetFileDir() . $sFileName;
+
+            // file for locking
+            $sCheckFileName = $sFile . '.lock';
+            if (is_file($sCheckFileName) && !is_writeable($sCheckFileName)) {
+                F::SysWarning('Cannot write to file ' . $sCheckFileName);
+            } else {
+                $fp = @fopen($sCheckFileName, 'c');
+                if (!$fp) {
+                    // It is not clear what to do here
+                    if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
+                        // Do rotation if need
+                        if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
+                            $this->_rotate();
+                        }
+                    }
+                } else {
+                    // Tries to lock
+                    $iTotal = 0;
+                    // Check the count of attempts at competitive lock requests
+                    for ($iCnt = 0; $iCnt < self::MAX_LOCK_CNT; $iCnt++) {
+                        if (flock($fp, LOCK_EX)) {
+                            if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
+                                // Do rotation if need
+                                if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
+                                    $this->_rotate();
+                                }
+                            }
+                            flock($fp, LOCK_UN);
+                            break;
+                        } else {
+                            $iTotal += self::MAX_LOCK_PERIOD;
+                            if ($iTotal >= self::MAX_LOCK_TIME) {
+                                break;
+                            }
+                            usleep(self::MAX_LOCK_PERIOD);
+                        }
+                    }
+                    fclose($fp);
                 }
             }
         }
@@ -223,25 +309,22 @@ class ModuleLogger_EntityLog extends Entity {
     }
 
     /**
-     * Производит ротацию логов
-     *
+     * Rotates log files
      */
-    protected function Rotate() {
+    protected function _rotate() {
 
         clearstatcache();
-        /**
-         * Если размер файла лога привысил максимальный то сохраняем текущий файл в архивный, а текущий становится пустым
-         */
-        if (filesize($this->GetFileDir() . $this->GetFileName()) >= $this->GetSizeForRotate()) {
-            $pathinfo = pathinfo($this->sPathLogs . $this->getFileName());
-            $name = $pathinfo['basename'];
-            $aName = explode('.', $name);
+        // Если размер файла лога привысил максимальный то сохраняем текущий файл в архивный,
+        // а текущий становится пустым
+        $sFileName = $this->GetFileDir() . $this->GetFileName();
+        if (filesize($sFileName) >= $this->GetSizeForRotate()) {
+            $aPathInfo = pathinfo($sFileName);
             $i = 1;
+            $sPathFile = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'];
             while (true) {
-                $sNewName = $aName[0] . ".$i." . $aName[1];
-                $sNewFullName = $pathinfo['dirname'] . '/' . $sNewName;
+                $sNewFullName = $sPathFile . ".$i." . $aPathInfo['extension'];
                 if (!F::File_Exists($sNewFullName)) {
-                    $this->rotateRename($i - 1);
+                    $this->_rotateRename($sFileName, $i - 1);
                     break;
                 }
                 $i++;
@@ -252,18 +335,24 @@ class ModuleLogger_EntityLog extends Entity {
     /**
      * Переименовывает все файлы логов согласно их последовательности
      *
-     * @param int $numberLast
+     * @param string $sFileName
+     * @param int    $iNumberLast
      */
-    protected function RotateRename($numberLast) {
+    protected function _rotateRename($sFileName, $iNumberLast) {
 
-        $pathinfo = pathinfo($this->GetFileDir() . $this->GetFileName());
-        $aName = explode('.', $pathinfo['basename']);
-        for ($i = $numberLast; $i > 0; $i--) {
-            $sFullNameCur = $pathinfo['dirname'] . '/' . $aName[0] . ".$i." . $aName[1];
-            $sFullNameNew = $pathinfo['dirname'] . '/' . $aName[0] . '.' . ($i + 1) . '.' . $aName[1];
-            rename($sFullNameCur, $sFullNameNew);
+        $aPathInfo = pathinfo($sFileName);
+        $iMaxCount = $this->GetCountForRotate();
+        $sPathFile = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'];
+        for ($i = $iNumberLast; $i > 0; $i--) {
+            $sFullNameCur = $sPathFile . ".$i." . $aPathInfo['extension'];
+            if ($iMaxCount && $iMaxCount <= $i) {
+                F::File_Delete($sFullNameCur);
+            } else {
+                $sFullNameNew = $sPathFile . '.' . ($i + 1) . '.' . $aPathInfo['extension'];
+                rename($sFullNameCur, $sFullNameNew);
+            }
         }
-        rename($this->GetFileDir() . $this->GetFileName(), $pathinfo['dirname'] . '/' . $aName[0] . '.1.' . $aName[1]);
+        rename($sFileName, $sPathFile . '.1.' . $aPathInfo['extension']);
     }
 
     /**
@@ -273,23 +362,22 @@ class ModuleLogger_EntityLog extends Entity {
      *
      * @return string
      */
-    protected function ParserTrace($aTrace) {
+    protected function _parserTrace($aTrace) {
 
         $sMsg = '';
         for ($i = count($aTrace) - 1; $i >= 0; $i--) {
             if (isset($aTrace[$i]['class'])) {
-                $funct = $aTrace[$i]['class'] . $aTrace[$i]['type'] . $aTrace[$i]['function'] . '()';
+                $sFunc = $aTrace[$i]['class'] . $aTrace[$i]['type'] . $aTrace[$i]['function'] . '()';
             } else {
-                $funct = $aTrace[$i]['function'] . '()';
+                $sFunc = $aTrace[$i]['function'] . '()';
             }
-            $sMsg .= $aTrace[$i]['file'] . '(line:' . $aTrace[$i]['line'] . '){' . $funct . '}';
+            $sMsg .= $aTrace[$i]['file'] . '(line:' . $aTrace[$i]['line'] . '){' . $sFunc . '}';
             if ($i != 0) {
                 $sMsg .= ' => ';
             }
         }
         return $sMsg;
     }
-
 
 }
 

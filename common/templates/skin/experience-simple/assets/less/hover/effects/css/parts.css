@@ -1,0 +1,84 @@
+/** МЕНЮ ВТОРОГО УРОВНЯ
+----------------------------------------------------------------------------------------------------------*/
+.navbar-main {
+  z-index: 1;
+  min-height: 52px;
+  margin-bottom: 0;
+  background-color: #f3f7f8;
+  border: 0;
+  border-bottom: 1px;
+}
+.navbar-main .navbar-collapse {
+  max-height: 1000px;
+}
+.navbar-main .navbar-brand {
+  padding: 14px 16px;
+  height: 52px;
+}
+.navbar-main .navbar-nav > li > a {
+  padding: 14px;
+  line-height: 24px;
+}
+.navbar-main .navbar-nav > li.dropdown > a {
+  padding: 10px 16px;
+}
+.navbar-main .navbar-nav li a {
+  color: #1c374c;
+  font-weight: 400;
+  font-size: 14px;
+  opacity: 0.85;
+}
+.navbar-main .navbar-nav li.active a,
+.navbar-main .navbar-nav li a:hover,
+.navbar-main .navbar-nav li.active a:hover {
+  color: #498bbd;
+  background-color: #f3f7f8;
+  opacity: 1;
+}
+.navbar-main .navbar-header {
+  margin-right: 40px;
+}
+.navbar-main .navbar-header a span {
+  font-size: 24px;
+  position: relative;
+  top: 4px;
+  color: #1c374c;
+  margin-left: 2px;
+}
+.navbar-main img.user {
+  border-radius: 16px;
+  margin-right: 10px;
+}
+.navbar-main .user-button {
+  color: #1c374c;
+}
+.navbar-main .user-button .caret {
+  color: #d0dbdf;
+  border-top: 6px solid;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+.navbar-main .navbar-nav > .open > a,
+.navbar-main .navbar-nav > .open > a:hover,
+.navbar-main .navbar-nav > .open > a:focus {
+  background-color: #f3f7f8 !important;
+}
+.dropdown-user-menu {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: 1px solid white !important;
+  background: #f3f7f8 !important;
+  border-top: 0 !important;
+}
+.dropdown-user-menu a {
+  font-size: 14px;
+}
+.fadeIn {
+  -webkit-animation-duration: .5s;
+  -moz-animation-duration: .5s;
+  -o-animation-duration: .5s;
+  animation-duration: .5s;
+}
+a > i.fa {
+  margin-right: 4px;
+}

@@ -1,0 +1,76 @@
+//@import "../var.experience_simple.less";
+
+
+.paginator {
+
+    margin-top: 58px;
+    margin-left: 0;
+    margin-bottom: 24px;
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: inline-block;
+            height: @paginator-height;
+            min-width: @paginator-height;
+            text-align: center;
+            line-height: @paginator-height;
+            background: @paginator-background-color none;
+            margin-right: 4px;
+            border: 0;
+            cursor: pointer;
+
+            &:hover a, &.active a, &.active span, a:hover {
+                color: @paginator-background-active-font-color !important;
+            }
+
+            &:hover, &.active{
+                background: @paginator-background-active-color none;
+            }
+
+            &.disabled{
+                &:hover, &.active{
+                    background: @paginator-background-color none;
+                }
+            }
+
+            a, & > span, i {
+                font-weight: normal !important;
+                font-size: @paginator-font-size;
+                color: @paginator-font-color ;
+                padding: 0;
+                display: block;
+                line-height: @paginator-height;
+                text-decoration: none;
+
+            }
+
+            &.next {
+                margin-left: 4px;
+                a:hover {
+                    color: @paginator-background-active-font-color !important;
+                    i.fa {
+                        color: @paginator-background-active-font-color !important;
+                    }
+                }
+            }
+
+            &.prev {
+                margin-right: 4px;
+                a:hover {
+                    color: @paginator-background-active-font-color !important;
+                    i.fa {
+                        color: @paginator-background-active-font-color !important;
+                    }
+                }
+            }
+
+            &.first, &.last {
+                padding: 0 12px;
+            }
+        }
+    }
+}

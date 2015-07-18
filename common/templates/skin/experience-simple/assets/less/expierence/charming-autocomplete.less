@@ -1,0 +1,87 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+span.ui-helper-hidden-accessible {
+    display: none;
+}
+
+.ui-autocomplete {
+
+    position: absolute;
+    cursor: default;
+    top: 100%;
+    left: 0;
+    z-index: @zindex-dropdown;
+    display: none; // none by default, but block on "open" of the menu
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0; // override default ul
+    list-style: none;
+    font-size: @font-size-base;
+    background-color: @dropdown-bg;
+    border: 1px solid @dropdown-fallback-border; // IE8 fallback
+    border: 1px solid @dropdown-border;
+    border-radius: 0 0 @border-radius-base @border-radius-base;
+
+    .box-shadow(none);
+    background-clip: padding-box;
+
+    // Aligns the dropdown menu to right
+    &.pull-right {
+        right: 0;
+        left: auto;
+    }
+
+    // Dividers (basically an hr) within the dropdown
+    .divider {
+        .nav-divider(@dropdown-divider-bg);
+    }
+
+    // Links within the dropdown menu
+    > li > a {
+        display: block;
+        padding: 3px 20px;
+        clear: both;
+        font-weight: normal;
+        line-height: @line-height-base;
+        color: @dropdown-link-color;
+        white-space: nowrap; // prevent links from randomly breaking onto new lines
+
+        &:hover,
+        &:focus,
+        &.ui-state-hover,
+        &.ui-state-focus {
+            text-decoration: none;
+            color: @dropdown-link-hover-color;
+            background-color: @dropdown-link-hover-bg;
+        }
+    }
+
+    > .active > a {
+        &,
+        &:hover,
+        &:focus,
+        &.ui-state-hover,
+        &.ui-state-focus {
+            color: @dropdown-link-active-color;
+            text-decoration: none;
+            outline: 0;
+            background-color: @dropdown-link-active-bg;
+        }
+    }
+
+    > .disabled > a {
+        &,
+        &:hover,
+        &:focus {
+            color: @dropdown-link-disabled-color;
+            text-decoration: none;
+            background-color: transparent;
+            background-image: none; // Remove CSS gradient
+            .reset-filter();
+            cursor: not-allowed;
+        }
+    }
+}

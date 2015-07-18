@@ -1,0 +1,369 @@
+@import "../bootstrap/variables";
+@import "variables";
+
+/* Примеси, используемые при создании меню
+-----------------------------------------------------------*/
+.user-menu-link() {
+    font-size: @menu-level-1-font-size;
+    padding: 0 10px;
+    color: @color-73;
+
+    &:hover {
+        background-color: @color-36;
+    }
+}
+
+/* Описание стилей
+-----------------------------------------------------------*/
+// Строка меню шириной на весь экран с отступами по краям
+.menu-level-1-container {
+    padding: @menu-level-1-vertical-padding 0;
+    background-color: @color-30;
+
+    a {
+        outline: none;
+    }
+}
+
+ul.menu-level-1 .dropdown.right .dropdown-menu {
+    left: auto !important;
+    right: 0 !important;
+}
+
+// Главное меню сайта
+ul.menu-level-1 {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    // Только прямые потомки, то есть кнопки и заголовки меню первого уровня
+    & > li {
+        display: inline-block;
+        line-height: (@menu-level-1-buttons-height - 2);
+        padding: 0;
+        height: @menu-level-1-buttons-height;
+        font-size: @menu-level-1-font-size;
+        border: 1px solid @menu-level-1-background-color;
+
+        // У правосторонних элементов добавит левый отступ
+        &.right {
+            float: right;
+            margin-left: @menu-level-1-space-small;
+        }
+
+        // Наведенные элементы
+        &:hover {
+            border: 1px solid @menu-level-1-hover-color;
+            background-color: @menu-level-1-hover-color;
+        }
+
+        // И активные элементы
+        &.active, &.open, &.create {
+            border: 1px solid @color-50;
+
+            &:hover {
+                border: 1px solid @color-50;
+                background-color: @menu-level-1-hover-color;
+            }
+        }
+        &.create {
+            margin-right: 32px;
+        }
+
+        // Ссылка в меню
+        a {
+            color: @menu-level-1-link-color;
+            text-decoration: none;
+            padding: @menu-level-1-vertical-padding @menu-level-1-buttons-side-padding;
+            white-space: nowrap;
+
+            // Кнопка с личными сообщениями
+            &.messages {
+                color: @menu-level-1-link-mail-color;
+                font-weight: bold;
+                font-size: @font-size-base;
+
+                i {
+                    color: @menu-level-1-link-mail-color;
+                    font-weight: normal;
+                }
+
+                em {
+                    display: none;
+                    font-style: normal;
+                    font-size: @font-size-small;
+                }
+            }
+
+        }
+
+        // li.final - помечается последний в группе элемент меню, делает отступ справа
+        &.final {
+            margin-right: @menu-level-1-space-big;
+        }
+
+        // Выпадающее меню первого уровня
+        &.dropdown {
+            position: relative;
+
+            // Ссылки меню
+            & > a {
+                color: @menu-level-1-menu-link-color;
+
+                // Кнопка с профилем пользователя
+                &.userlogo {
+                    .user-menu-link();
+                    color: @menu-level-1-link-user-color;
+                    font-size: @font-size-base;
+                    font-weight: bold;
+                    display: block;
+                    padding-left: 0;
+                    padding-right: 0;
+                    position: relative;
+                    top: -1px;
+
+                    img {
+                        margin-right: 5px;
+                        width: 20px;
+                    }
+
+                    &:hover {
+                        background-color: @menu-level-1-background-color;
+                        color: @color-100;
+                    }
+                }
+            }
+
+            &:hover, &.active, &.open {
+                background-color: @menu-level-1-background-color;
+                border: 1px solid @menu-level-1-background-color;
+
+                a {
+                    color: @menu-level-1-link-color;
+
+                    &.userlogo {
+                        color: @color-100;
+                    }
+                }
+            }
+
+            // Каретка
+            i.caret {
+                display: inline-block;
+                width: 0;
+                height: 0;
+                margin-left: 2px;
+                vertical-align: middle;
+                border-top: @menu-level-1-caret-width solid;
+                border-right: @menu-level-1-caret-width solid transparent;
+                border-left: @menu-level-1-caret-width solid transparent;
+            }
+
+        }
+
+        // Скрытое меню в которое сворачиваются не помещающиеся элементы
+        &.menu-hidden-container {
+            display: none;
+            float: right;
+            padding: 0;
+
+            .menu-hidden-trigger {
+                padding-right: 2px;
+                i {
+                    font-size: 18px;
+                    padding: 3px;
+                }
+            }
+
+            ul.menu-hidden {
+                min-width: @menu-level-1-submenu-min-width;
+
+                & > li {
+                    position: relative;
+                    margin-left: 0;
+
+                    a {
+                        background-color: @menu-level-1-background-color;
+                        &:hover {
+                            background-color: @menu-level-1-submenu-hover-color;
+                        }
+                    }
+
+                    a.userlogo {
+                        padding: 2px @menu-level-1-buttons-side-padding;
+                        min-width: @menu-level-1-submenu-min-width;
+                        line-height: @menu-level-1-buttons-height;
+                    }
+
+                    a.messages {
+                        color: @menu-level-1-link-mail-color;
+
+                        em {
+                            display: inline-block;
+                        }
+                    }
+
+                    // Меню второго уровня
+                    & > ul {
+                        margin-top: 0;
+                        padding-top: 0;
+                        position: relative;
+                        width: 100%;
+                        padding-bottom: 0;
+                        border: 0;
+                        box-shadow: none;
+                        min-width: @menu-level-1-submenu-min-width;
+
+                        li.active {
+                            a {
+                                border-left: @menu-level-1-caret-width solid @menu-level-1-marker-color;
+                            }
+                        }
+
+                        a {
+                            border-left: @menu-level-1-caret-width solid @menu-level-1-submenu-hover-color;
+
+                            &:hover {
+                                border-left: @menu-level-1-caret-width solid @menu-level-1-marker-color;
+                            }
+                        }
+
+                    }
+                }
+
+                // Разворачивающая ссылка открытого меню второго уровня
+                li.open > a {
+                    background-color: @menu-level-1-submenu-hover-color;
+                    color: @menu-level-1-link-user-color;
+                    border-left: @menu-level-1-caret-width solid @menu-level-1-marker-color;
+
+                    &.userlogo {
+                        padding: 2px @menu-level-1-buttons-side-padding;
+                    }
+
+                }
+            }
+        }
+    }
+
+}
+
+// ul-Список выпадающего меню
+.dropdown-menu {
+    position: absolute;
+    z-index: 10000;
+    display: none;
+    float: left;
+    top: 100%;
+    left: 0;
+    min-width: @menu-level-1-submenu-min-width;
+    padding: 4px 0;
+    margin: @menu-level-1-vertical-padding + 1 0 0;
+    list-style: none;
+    font-size: @font-size-base;
+    text-align: left;
+    background-color: @menu-level-1-background-color;
+    border-radius: @menu-level-1-border-radius;
+    background-clip: padding-box;
+
+    > li {
+        &.labeled > a {
+            padding: 6px 56px 6px 9px;
+        }
+
+        &.active {
+            background-color: @menu-level-1-background-color;
+            a {
+                color: @menu-level-1-link-color;
+                background-color: @menu-level-1-submenu-hover-color;
+                border-left: @menu-level-1-caret-width solid @menu-level-1-marker-color;
+
+                &:hover {
+                    color: @menu-level-1-link-color;
+                    background-color: @menu-level-1-submenu-hover-color;
+                    border-left: @menu-level-1-caret-width solid @menu-level-1-marker-color;
+                }
+            }
+        }
+
+        &.divider {
+            margin: 4px 0;
+            background-color: @menu-level-1-submenu-divider-color;
+        }
+
+        & > a {
+            display: block;
+            clear: both;
+            font-weight: 400;
+            white-space: nowrap;
+            color: @menu-level-1-link-color;
+            text-decoration: none;
+            font-size: @font-size-small;
+            border-left: @menu-level-1-caret-width solid @menu-level-1-background-color;
+            position: relative;
+
+            &:hover {
+                color: @menu-level-1-link-color;
+                background-color: @menu-level-1-submenu-hover-color;
+                border-left: @menu-level-1-caret-width solid @menu-level-1-marker-color;
+            }
+        }
+
+        i.label {
+            background-color: @menu-level-1-submenu-hover-color;
+            border-radius: @menu-level-1-border-radius;
+            color: @menu-level-1-link-color;
+            margin-left: @menu-level-1-font-size;
+            font-size: @font-size-small;
+            position: absolute;
+            right: 14px;
+            font-style: normal;
+            font-weight: normal;
+            padding: 3px @menu-level-1-counter-top-padding @menu-level-1-counter-top-padding;
+            top: @menu-level-1-vertical-padding - @menu-level-1-counter-top-padding + 3;
+        }
+
+    }
+}
+
+// Открытое меню
+.open {
+    > .dropdown-menu {
+        display: block;
+    }
+    > a {
+        outline: 0;
+    }
+}
+
+// Бокс скрытого меню
+.menu-hidden-container-box {
+    float: right;
+}
+
+/* Адаптивная верстка
+-----------------------------------------------------------------------------*/
+// Extra small
+@media only screen and (max-width: @screen-xs-max) {
+}
+
+// Small
+@media only screen and (max-width: @screen-sm-max) {
+    ul.menu-level-1 {
+        & > li {
+            // Уберем отступы разделителя меню
+            &.final {
+                margin-right: 0;
+            }
+
+        }
+    }
+}
+
+// Medium
+@media only screen and (max-width: @screen-md-max) {
+}
+
+// Large
+@media only screen and (max-width: @screen-lg-min) {
+}

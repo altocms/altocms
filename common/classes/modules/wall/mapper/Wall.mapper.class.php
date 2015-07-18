@@ -29,11 +29,9 @@ class ModuleWall_MapperWall extends Mapper {
      */
     public function AddWall($oWall) {
 
-        $sql = "INSERT INTO ?_wall SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oWall->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_wall(?#) VALUES(?a)";
+        $iId = $this->oDb->query($sql, $oWall->getKeyProps(), $oWall->getValProps());
+        return $iId ? $iId : false;
     }
 
     /**
@@ -191,28 +189,28 @@ class ModuleWall_MapperWall extends Mapper {
     /**
      * Получение записей по ID, без дополнительных данных
      *
-     * @param array $aArrayId    Список ID сообщений
+     * @param array $aMessagesId    Список ID сообщений
      *
      * @return array
      */
-    public function GetWallsByArrayId($aArrayId) {
+    public function GetWallsByArrayId($aMessagesId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aMessagesId) || count($aMessagesId) == 0) {
             return array();
         }
-
+        $nLimit = sizeof($aMessagesId);
         $sql
             = "
-            SELECT *
-            FROM ?_wall
+            SELECT
+                w.id AS ARRAY_KEY,
+                w.*
+            FROM ?_wall AS w
             WHERE
-                id IN(?a)
-            ORDER BY FIELD(id,?a) ";
+                w.id IN(?a)
+            LIMIT $nLimit";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('Wall', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aMessagesId)) {
+            $aResult = E::GetEntityRows('Wall', $aRows, $aMessagesId);
         }
         return $aResult;
     }

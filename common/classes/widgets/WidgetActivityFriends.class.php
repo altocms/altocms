@@ -14,7 +14,7 @@
  */
 
 /**
- * Виджет настройки ленты активности
+ * Виджет настройки ленты активности (друзья)
  *
  * @package widgets
  * @since   1.0
@@ -27,16 +27,12 @@ class WidgetActivityFriends extends Widget {
         /**
          * пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
-
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             // * Получаем и прогружаем необходимые переменные в шаблон
-            $aTypesList = $this->Stream_getTypesList($oUserCurrent->getId());
-            $aUserSubscribes = $this->Stream_getUserSubscribes($oUserCurrent->getId());
-            $aFriends = $this->User_getUsersFriend($oUserCurrent->getId());
-
-            $this->Viewer_Assign('aStreamTypesList', $aTypesList);
-            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes);
-            $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
+            $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
+            if ($aFriends) {
+                E::ModuleViewer()->Assign('aStreamFriends', $aFriends['collection']);
+            }
         }
     }
 }

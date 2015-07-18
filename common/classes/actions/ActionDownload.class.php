@@ -18,7 +18,7 @@ class ActionDownload extends Action {
         /**
          * Проверяем авторизован ли юзер
          */
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
         $this->SetDefaultEvent('file');
     }
 
@@ -37,17 +37,17 @@ class ActionDownload extends Action {
         $sTopicId = $this->GetParam(0);
         $sFieldId = $this->GetParam(1);
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
-        if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
+        if (!($oTopic = E::ModuleTopic()->GetTopicById($sTopicId))) {
             return parent::EventNotFound();
         }
 
-        if (!$this->oType = $this->Topic_getContentType($oTopic->getType())) {
+        if (!$this->oType = E::ModuleTopic()->GetContentType($oTopic->getType())) {
             return parent::EventNotFound();
         }
 
-        if (!($oField = $this->Topic_GetContentFieldById($sFieldId))) {
+        if (!($oField = E::ModuleTopic()->GetContentFieldById($sFieldId))) {
             return parent::EventNotFound();
         }
 
@@ -56,7 +56,7 @@ class ActionDownload extends Action {
         }
 
         //получаем объект файла
-        $oFile = $oTopic->getFile($oField->getFieldId());
+        $oFile = $oTopic->getFieldFile($oField->getFieldId());
         //получаем объект поля топика, содержащий данные о файле
         $oValue = $oTopic->getField($oField->getFieldId());
 
@@ -64,7 +64,7 @@ class ActionDownload extends Action {
 
             if (preg_match("/^(http:\/\/)/i", $oFile->getFileUrl())) {
                 $sFullPath = $oFile->getFileUrl();
-                Router::Location($sFullPath);
+                R::Location($sFullPath);
             } else {
                 $sFullPath = Config::Get('path.root.dir') . $oFile->getFileUrl();
             }
@@ -85,20 +85,19 @@ class ActionDownload extends Action {
             $oValue->setValueSource($sText);
 
             //сохраняем
-            $this->Topic_UpdateContentFieldValue($oValue);
+            E::ModuleTopic()->UpdateContentFieldValue($oValue);
 
             /*
             * Отдаем файл
             */
             header('Content-type: ' . $oFile->getFileExtension());
             header('Content-Disposition: attachment; filename="' . $sFilename . '"');
-            //$this->Topic_readfileChunked($sFullPath);
             F::File_PrintChunked($sFullPath);
 
 
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('content_download_file_error'));
-            return Router::Action('error');
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('content_download_file_error'));
+            return R::Action('error');
         }
 
     }

@@ -31,7 +31,7 @@ class ActionStream extends Action {
      *
      * @var string
      */
-    protected $sMenuItemSelect = 'user';
+    protected $sMenuItemSelect = 'follow';
 
     /**
      * Инициализация
@@ -41,19 +41,19 @@ class ActionStream extends Action {
         /**
          * Личная лента доступна только для авторизованных, для гостей показываем общую ленту
          */
-        $this->oUserCurrent = $this->User_getUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
         if ($this->oUserCurrent) {
-            $this->SetDefaultEvent('user');
+            $this->SetDefaultEvent('follow');
         } else {
             $this->SetDefaultEvent('all');
         }
-        $this->Viewer_Assign('aStreamEventTypes', $this->Stream_getEventTypes());
+        E::ModuleViewer()->Assign('aStreamEventTypes', E::ModuleStream()->GetEventTypes());
 
-        $this->Viewer_Assign('sMenuHeadItemSelect', 'stream');
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', 'stream');
         /**
          * Загружаем в шаблон JS текстовки
          */
-        $this->Lang_AddLangJs(
+        E::ModuleLang()->AddLangJs(
             array(
                  'stream_subscribes_already_subscribed', 'error'
             )
@@ -65,13 +65,16 @@ class ActionStream extends Action {
      *
      */
     protected function RegisterEvent() {
-        $this->AddEvent('user', 'EventUser');
+
+        $this->AddEvent('follow', 'EventFollow');
         $this->AddEvent('all', 'EventAll');
         $this->AddEvent('subscribe', 'EventSubscribe');
         $this->AddEvent('subscribeByLogin', 'EventSubscribeByLogin');
         $this->AddEvent('unsubscribe', 'EventUnSubscribe');
         $this->AddEvent('switchEventType', 'EventSwitchEventType');
-        $this->AddEvent('get_more', 'EventGetMore');
+
+        $this->AddEvent('get_more', 'EventGetMoreFollow');
+        $this->AddEvent('get_more_follow', 'EventGetMoreFollow');
         $this->AddEvent('get_more_user', 'EventGetMoreUser');
         $this->AddEvent('get_more_all', 'EventGetMoreAll');
     }
@@ -80,28 +83,36 @@ class ActionStream extends Action {
      * Список событий в ленте активности пользователя
      *
      */
-    protected function EventUser() {
+    protected function EventFollow() {
         /**
          * Пользователь авторизован?
          */
         if (!$this->oUserCurrent) {
             return parent::EventNotFound();
         }
-        $this->Viewer_AddWidget('right', 'activitySettings');
-        $this->Viewer_AddWidget('right', 'activityFriends');
-        $this->Viewer_AddWidget('right', 'activityUsers');
+        $this->sMenuItemSelect = 'follow';
+
+        $oSkin = E::ModuleSkin()->GetSkin(E::ModuleViewer()->GetConfigSkin());
+        if ($oSkin && $oSkin->GetCompatible() == 'alto') {
+            E::ModuleViewer()->AddWidget('right', 'activitySettings');
+            E::ModuleViewer()->AddWidget('right', 'activityFriends');
+            E::ModuleViewer()->AddWidget('right', 'activityUsers');
+        } else {
+            E::ModuleViewer()->AddWidget('right', 'streamConfig');
+        }
+
         /**
          * Читаем события
          */
-        $aEvents = $this->Stream_Read();
-        $this->Viewer_Assign(
+        $aEvents = E::ModuleStream()->Read();
+        E::ModuleViewer()->Assign(
             'bDisableGetMoreButton',
-            $this->Stream_GetCountByReaderId($this->oUserCurrent->getId()) < Config::Get('module.stream.count_default')
+            E::ModuleStream()->GetCountByReaderId($this->oUserCurrent->getId()) < Config::Get('module.stream.count_default')
         );
-        $this->Viewer_Assign('aStreamEvents', $aEvents);
+        E::ModuleViewer()->Assign('aStreamEvents', $aEvents);
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            $this->Viewer_Assign('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->Assign('iStreamLastId', $oEvenLast->getId());
         }
     }
 
@@ -115,14 +126,14 @@ class ActionStream extends Action {
         /**
          * Читаем события
          */
-        $aEvents = $this->Stream_ReadAll();
-        $this->Viewer_Assign(
-            'bDisableGetMoreButton', $this->Stream_GetCountAll() < Config::Get('module.stream.count_default')
+        $aEvents = E::ModuleStream()->ReadAll();
+        E::ModuleViewer()->Assign(
+            'bDisableGetMoreButton', E::ModuleStream()->GetCountAll() < Config::Get('module.stream.count_default')
         );
-        $this->Viewer_Assign('aStreamEvents', $aEvents);
+        E::ModuleViewer()->Assign('aStreamEvents', $aEvents);
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            $this->Viewer_Assign('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->Assign('iStreamLastId', $oEvenLast->getId());
         }
     }
 
@@ -134,32 +145,40 @@ class ActionStream extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
         if (!$this->oUserCurrent) {
             parent::EventNotFound();
         }
-        if (!getRequest('type')) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!F::GetRequest('type')) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         }
         /**
          * Активируем/деактивируем тип
          */
-        $this->Stream_switchUserEventType($this->oUserCurrent->getId(), getRequestStr('type'));
-        $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
+        E::ModuleStream()->SwitchUserEventType($this->oUserCurrent->getId(), F::GetRequestStr('type'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('stream_subscribes_updated'), E::ModuleLang()->Get('attention'));
+    }
+
+    /*
+     * LS-compatibility
+     */
+    protected function EventGetMore() {
+
+        return $this->EventGetMoreFollow();
     }
 
     /**
      * Погрузка событий (замена постраничности)
      *
      */
-    protected function EventGetMore() {
+    protected function EventGetMoreFollow() {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
@@ -169,28 +188,29 @@ class ActionStream extends Action {
         /**
          * Необходимо передать последний просмотренный ID событий
          */
-        $iFromId = getRequestStr('iLastId');
+        $iFromId = F::GetRequestStr('iLastId');
         if (!$iFromId) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Получаем события
          */
-        $aEvents = $this->Stream_Read(null, $iFromId);
+        $aEvents = E::ModuleStream()->Read(null, $iFromId);
 
-        $oViewer = $this->Viewer_GetLocalViewer();
-        $oViewer->Assign('aStreamEvents', $aEvents);
-        $oViewer->Assign('sDateLast', getRequestStr('sDateLast'));
+        $aVars = array();
+
+        $aVars['aStreamEvents'] = $aEvents;
+        $aVars['sDateLast'] = F::GetRequestStr('sDateLast');
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            $this->Viewer_AssignAjax('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->AssignAjax('iStreamLastId', $oEvenLast->getId());
         }
         /**
          * Возвращаем данные в ajax ответе
          */
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/ActionStream/events.tpl'));
-        $this->Viewer_AssignAjax('events_count', count($aEvents));
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('actions/stream/action.stream.events.tpl', $aVars));
+        E::ModuleViewer()->AssignAjax('events_count', count($aEvents));
     }
 
     /**
@@ -201,7 +221,7 @@ class ActionStream extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
@@ -211,28 +231,29 @@ class ActionStream extends Action {
         /**
          * Необходимо передать последний просмотренный ID событий
          */
-        $iFromId = getRequestStr('iLastId');
+        $iFromId = F::GetRequestStr('iLastId');
         if (!$iFromId) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Получаем события
          */
-        $aEvents = $this->Stream_ReadAll(null, $iFromId);
+        $aEvents = E::ModuleStream()->ReadAll(null, $iFromId);
 
-        $oViewer = $this->Viewer_GetLocalViewer();
-        $oViewer->Assign('aStreamEvents', $aEvents);
-        $oViewer->Assign('sDateLast', getRequestStr('sDateLast'));
+        $aVars = array(
+            'aStreamEvents' => $aEvents,
+            'sDateLast'     => F::GetRequestStr('sDateLast'),
+        );
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            $this->Viewer_AssignAjax('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->AssignAjax('iStreamLastId', $oEvenLast->getId());
         }
         /**
          * Возвращаем данные в ajax ответе
          */
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/ActionStream/events.tpl'));
-        $this->Viewer_AssignAjax('events_count', count($aEvents));
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('actions/stream/action.stream.events.tpl', $aVars));
+        E::ModuleViewer()->AssignAjax('events_count', count($aEvents));
     }
 
     /**
@@ -243,7 +264,7 @@ class ActionStream extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
@@ -253,32 +274,33 @@ class ActionStream extends Action {
         /**
          * Необходимо передать последний просмотренный ID событий
          */
-        $iFromId = getRequestStr('iLastId');
+        $iFromId = F::GetRequestStr('iLastId');
         if (!$iFromId) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        if (!($oUser = $this->User_GetUserById(getRequestStr('iUserId')))) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oUser = E::ModuleUser()->GetUserById(F::GetRequestStr('iUserId')))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Получаем события
          */
-        $aEvents = $this->Stream_ReadByUserId($oUser->getId(), null, $iFromId);
+        $aEvents = E::ModuleStream()->ReadByUserId($oUser->getId(), null, $iFromId);
 
-        $oViewer = $this->Viewer_GetLocalViewer();
-        $oViewer->Assign('aStreamEvents', $aEvents);
-        $oViewer->Assign('sDateLast', getRequestStr('sDateLast'));
+        $aVars = array(
+            'aStreamEvents' => $aEvents,
+            'sDateLast'     => F::GetRequestStr('sDateLast'),
+        );
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            $this->Viewer_AssignAjax('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->AssignAjax('iStreamLastId', $oEvenLast->getId());
         }
         /**
          * Возвращаем данные в ajax ответе
          */
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/ActionStream/events.tpl'));
-        $this->Viewer_AssignAjax('events_count', count($aEvents));
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('actions/stream/action.stream.events.tpl', $aVars));
+        E::ModuleViewer()->AssignAjax('events_count', count($aEvents));
     }
 
     /**
@@ -289,7 +311,7 @@ class ActionStream extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
@@ -299,18 +321,18 @@ class ActionStream extends Action {
         /**
          * Проверяем существование пользователя
          */
-        if (!$this->User_getUserById(getRequestStr('id'))) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->GetUserById(F::GetRequestStr('id'))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         }
-        if ($this->oUserCurrent->getId() == getRequestStr('id')) {
-            $this->Message_AddError($this->Lang_Get('stream_error_subscribe_to_yourself'), $this->Lang_Get('error'));
+        if ($this->oUserCurrent->getId() == F::GetRequestStr('id')) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('stream_error_subscribe_to_yourself'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Подписываем на пользователя
          */
-        $this->Stream_subscribeUser($this->oUserCurrent->getId(), getRequestStr('id'));
-        $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
+        E::ModuleStream()->SubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('stream_subscribes_updated'), E::ModuleLang()->Get('attention'));
     }
 
     /**
@@ -321,42 +343,42 @@ class ActionStream extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
         if (!$this->oUserCurrent) {
             parent::EventNotFound();
         }
-        $sUserLogin = getRequestPostStr('login');
+        $sUserLogin = $this->GetPost('login');
         if (!$sUserLogin) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Проверяем существование пользователя
          */
-        $oUser = $this->User_getUserByLogin($sUserLogin);
+        $oUser = E::ModuleUser()->GetUserByLogin($sUserLogin);
         if (!$oUser) {
-            $this->Message_AddError(
-                $this->Lang_Get('user_not_found', array('login' => htmlspecialchars(getRequestStr('login')))),
-                $this->Lang_Get('error')
+            E::ModuleMessage()->AddError(
+                E::ModuleLang()->Get('user_not_found', array('login' => htmlspecialchars(F::GetRequestStr('login')))),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         if ($this->oUserCurrent->getId() == $oUser->getId()) {
-            $this->Message_AddError($this->Lang_Get('stream_error_subscribe_to_yourself'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('stream_error_subscribe_to_yourself'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Подписываем на пользователя
          */
-        $this->Stream_subscribeUser($this->oUserCurrent->getId(), $oUser->getId());
-        $this->Viewer_AssignAjax('uid', $oUser->getId());
-        $this->Viewer_AssignAjax('user_login', $oUser->getLogin());
-        $this->Viewer_AssignAjax('user_web_path', $oUser->getUserWebPath());
-        $this->Viewer_AssignAjax('user_avatar_48', $oUser->getProfileAvatarPath(48));
-        $this->Message_AddNotice($this->Lang_Get('userfeed_subscribes_updated'), $this->Lang_Get('attention'));
+        E::ModuleStream()->SubscribeUser($this->oUserCurrent->getId(), $oUser->getId());
+        E::ModuleViewer()->AssignAjax('uid', $oUser->getId());
+        E::ModuleViewer()->AssignAjax('user_login', $oUser->getLogin());
+        E::ModuleViewer()->AssignAjax('user_web_path', $oUser->getUserWebPath());
+        E::ModuleViewer()->AssignAjax('user_avatar_48', $oUser->getAvatarUrl(48));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('userfeed_subscribes_updated'), E::ModuleLang()->Get('attention'));
     }
 
     /**
@@ -367,7 +389,7 @@ class ActionStream extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Пользователь авторизован?
          */
@@ -377,14 +399,14 @@ class ActionStream extends Action {
         /**
          * Пользователь с таким ID существует?
          */
-        if (!$this->User_getUserById(getRequestStr('id'))) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->GetUserById(F::GetRequestStr('id'))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         }
         /**
          * Отписываем
          */
-        $this->Stream_unsubscribeUser($this->oUserCurrent->getId(), getRequestStr('id'));
-        $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
+        E::ModuleStream()->UnsubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('stream_subscribes_updated'), E::ModuleLang()->Get('attention'));
     }
 
     /**
@@ -395,7 +417,7 @@ class ActionStream extends Action {
         /**
          * Загружаем в шаблон необходимые переменные
          */
-        $this->Viewer_Assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
     }
 
 }

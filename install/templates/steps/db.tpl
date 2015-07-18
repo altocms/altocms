@@ -1,3 +1,14 @@
+<script>
+	function checkInputs(target){
+		var inputs = document.getElementsByTagName("input");
+		for ( var i = 0; inputs[i]; i++ ) {
+			if ( inputs[i].type=="checkbox" && inputs[i].name != target ) {
+				inputs[i].checked = false;
+			}
+		}
+	}
+</script>
+
 <h3>___LANG_DB_PARAMS___</h3>
 
 <input type="hidden" name="install_db_params" value="1" />
@@ -15,11 +26,10 @@
 </p>
 
 <p>
-	<label><input type="checkbox" class="input-checkbox" name="install_db_create" value="1" ___INSTALL_DB_CREATE_CHECK___ /> ___LANG_DB_PARAMS_CREATE___</label>
-	<!--<label><input type="checkbox" class="input-checkbox" name="install_db_convert" value="1" ___INSTALL_DB_CONVERT_CHECK___ /> ___LANG_DB_PARAMS_CONVERT___</label>
-	<label><input type="checkbox" class="input-checkbox" name="install_db_convert_from_10" value="1" ___INSTALL_DB_CONVERT_FROM_10_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_FROM_10___</label>-->
-	<label><input type="checkbox" class="input-checkbox" name="install_db_convert_to_alto" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_ALTO___</label>
-
+	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_create" value="1" ___INSTALL_DB_CREATE_CHECK___ /> ___LANG_DB_PARAMS_CREATE___</label>
+	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_from_alto_097" value="1" ___INSTALL_DB_CONVERT_FROM_ALTO_097_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_FROM_ALTO_097___</label>
+    <label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_ALTO___</label>
+    <label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto_11" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_11_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_11___</label>
 </p>
 
 <p><label for="install_db_user">___LANG_DB_PARAMS_USER___:</label>

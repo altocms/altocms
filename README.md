@@ -1,4 +1,4 @@
-Alto CMS
+Alto CMS v.1.1.x
 =======
 
 Multifunctional Content Managment System

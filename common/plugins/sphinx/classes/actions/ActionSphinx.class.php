@@ -30,7 +30,7 @@ class PluginSphinx_ActionSphinx extends ActionPlugin {
         $sText = F::File_GetContents($sFile);
 
         $sPath = F::File_NormPath(Config::Get('plugin.sphinx.path') . '/');
-        $sDescription = $this->Lang_Get(
+        $sDescription = E::ModuleLang()->Get(
             'plugin.sphinx.conf_description',
             array(
                  'path'   => $sPath,
@@ -38,7 +38,7 @@ class PluginSphinx_ActionSphinx extends ActionPlugin {
             )
         );
         $sDescription = preg_replace('/\s\s+/', ' ', str_replace("\n", "\n## ", $sDescription));
-        $sTitle = $this->Lang_Get('plugin.sphinx.conf_title');
+        $sTitle = E::ModuleLang()->Get('plugin.sphinx.conf_title');
 
         $aData = array(
             '{{title}}'        => $sTitle,

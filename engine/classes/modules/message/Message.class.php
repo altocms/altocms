@@ -17,7 +17,7 @@
  * Модуль системных сообщений
  * Позволяет показывать пользователю сообщения двух видов - об ошибке и об успешном действии.
  * <pre>
- * $this->Message_AddErrorSingle($this->Lang_Get('not_access'),$this->Lang_Get('error'));
+ * E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'),E::ModuleLang()->Get('error'));
  * </pre>
  *
  * @package engine.modules
@@ -58,11 +58,11 @@ class ModuleMessage extends Module {
             /**
              * Добавляем сообщения и ошибки, которые содержались в сессии
              */
-            $aNoticeSession = $this->Session_Get('message_notice_session');
+            $aNoticeSession = E::ModuleSession()->Get('message_notice_session');
             if (is_array($aNoticeSession) && count($aNoticeSession)) {
                 $this->aMsgNotice = $aNoticeSession;
             }
-            $aErrorSession = $this->Session_Get('message_error_session');
+            $aErrorSession = E::ModuleSession()->Get('message_error_session');
             if (is_array($aErrorSession) && count($aErrorSession)) {
                 $this->aMsgError = $aErrorSession;
             }
@@ -77,11 +77,11 @@ class ModuleMessage extends Module {
         /**
          * Добавляем в сессию те сообщения, которые были отмечены для сессионного использования
          */
-        $this->Session_Set('message_notice_session', $this->GetNoticeSession());
-        $this->Session_Set('message_error_session', $this->GetErrorSession());
+        E::ModuleSession()->Set('message_notice_session', $this->GetNoticeSession());
+        E::ModuleSession()->Set('message_error_session', $this->GetErrorSession());
 
-        $this->Viewer_Assign('aMsgNotice', $this->GetNotice());
-        $this->Viewer_Assign('aMsgError', $this->GetError());
+        E::ModuleViewer()->Assign('aMsgNotice', $this->GetNotice());
+        E::ModuleViewer()->Assign('aMsgError', $this->GetError());
     }
 
     /**

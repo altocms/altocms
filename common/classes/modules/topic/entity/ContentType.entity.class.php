@@ -20,14 +20,38 @@ class ModuleTopic_EntityContentType extends Entity {
 
     protected $aExtra = null;
 
+    public function getId() {
+
+        return $this->getContentId();
+    }
+
+    /**
+     * Get all additional fields of the content type
+     *
+     * @return ModuleTopic_EntityField[]
+     */
     public function getFields() {
 
         if (is_null($this->aFields)) {
             $aFilter = array();
             $aFilter['content_id'] = $this->getContentId();
-            $this->aFields = $this->Topic_getContentFields($aFilter);
+            $this->aFields = E::ModuleTopic()->GetContentFields($aFilter);
         }
         return $this->aFields;
+    }
+
+    /**
+     * Get additional field by ID
+     *
+     * @param $iFieldId
+     *
+     * @return ModuleTopic_EntityField|null
+     */
+    public function getField($iFieldId) {
+
+        $aFields = $this->getFields();
+
+        return isset($aFields[$iFieldId]) ? $aFields[$iFieldId] : null;
     }
 
     public function setFields($data) {
@@ -37,10 +61,12 @@ class ModuleTopic_EntityContentType extends Entity {
 
     public function isAllow($sAllow) {
 
-        if ($this->getExtraValue($sAllow)) {
-            return $this->getExtraValue($sAllow);
+        if ($sAllow == 'poll') {
+            $bResult = $this->getExtraValue('poll') || $this->getExtraValue('question');
+        } else {
+            $bResult = $this->getExtraValue($sAllow);
         }
-        return false;
+        return (bool)$bResult;
     }
 
     /**
@@ -92,6 +118,29 @@ class ModuleTopic_EntityContentType extends Entity {
         return null;
     }
 
+    public function getTemplateName() {
+
+        return $this->getContentUrl();
+    }
+
+    /**
+     * @param  string $sMode
+     *
+     * @return string
+     */
+    public function getTemplate($sMode = null) {
+
+        $sTemplate = $this->getProp('_template_' . $sMode);
+        if (!$sTemplate) {
+            $sTemplate = 'topic.type_' . $this->getTemplateName() . '-' . $sMode . '.tpl';
+            if (!E::ModuleViewer()->TemplateExists('topics/' . $sTemplate)) {
+                $sTemplate = 'topic.type_default-' . $sMode . '.tpl';
+            }
+            $this->setProp('_template_' . $sMode, $sTemplate);
+        }
+        return $sTemplate;
+    }
+
     /**
      * Устанавливает сериализованную строчку дополнительных данных
      *
@@ -107,7 +156,7 @@ class ModuleTopic_EntityContentType extends Entity {
      */
     public function isAccessible() {
 
-        if ($oUser = $this->User_GetUserCurrent()) {
+        if ($oUser = E::ModuleUser()->GetUserCurrent()) {
             if ($this->getContentAccess() == ModuleTopic::CONTENT_ACCESS_ONLY_ADMIN && !$oUser->isAdministrator()) {
                 return false;
             } else {

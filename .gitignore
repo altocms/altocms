@@ -1,3 +1,5 @@
+.idea
+.gitmodules
 uploads/*
 _tmp/*
 !.htaccess
@@ -6,4 +8,7 @@ common/config/config.local.php
 common/config/config.test.php
 app/config/config.php
 app/config/config.local.php
+app/config/jevix.php
+app/config/menu.php
+app/config/widgets.php
 app/plugins/*

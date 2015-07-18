@@ -12,23 +12,62 @@
  * Static class of engine functions
  */
 class Func {
-    const ERROR_LOG = 'error.log';
 
-    static protected $aExtsions = array();
+    const ERROR_LOGFILE = 'error.log';
 
+    const ERROR_LOG_EXTINFO = 1;
+    const ERROR_LOG_CALLSTACK = 2;
+
+    static protected $nFatalErrors;
+
+    static protected $aExtensions = array();
+
+    /**
+     * Errors for logging
+     *
+     * @var int
+     */
+    static protected $nErrorTypes = E_ALL;
+
+    /**
+     * Errors for display
+     *
+     * @var int
+     */
+    static protected $nErrorDisplay = E_ALL;
+
+    static protected $aErrorCollection = array();
+
+    /**
+     * Init function
+     */
     static public function init() {
 
+        static::$nFatalErrors = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
         static::_loadExtension('File');
-        register_shutdown_function('F::done');
-        set_error_handler('F::_errorHandler');
-        set_exception_handler('F::_exceptionHandler');
+        if (!defined('ALTO_INSTALL')) {
+            register_shutdown_function('F::done');
+            set_error_handler('F::_errorHandler');
+            set_exception_handler('F::_exceptionHandler');
+
+            if (ini_get('display_errors')) {
+                self::$nErrorDisplay = error_reporting();
+            } else {
+                self::$nErrorDisplay = 0;
+            }
+        }
     }
 
+    /**
+     * Shutdown function
+     */
     static public function done() {
 
         if ($aError = error_get_last()) {
-            //while (ob_get_level()) ob_end_clean();
-            static::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
+            // Other errors catchs by error handler
+            if ($aError['type'] & static::$nFatalErrors) {
+                static::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
+            }
         }
     }
 
@@ -37,7 +76,7 @@ class Func {
      */
     static public function _errorLogFile() {
 
-        return static::_getConfig('sys.logs.error_file', static::ERROR_LOG);
+        return static::_getConfig('sys.logs.error_file', static::ERROR_LOGFILE);
     }
 
     /**
@@ -45,7 +84,22 @@ class Func {
      */
     static public function _errorLogExtInfo() {
 
-        return (bool)static::_getConfig('sys.logs.error_extinfo', true);
+        $nExtInfo = 0;
+        if ((bool)static::_getConfig('sys.logs.error_extinfo', true)) {
+            $nExtInfo += self::ERROR_LOG_EXTINFO;
+        }
+        if ((bool)static::_getConfig('sys.logs.error_callstack', true)) {
+            $nExtInfo += self::ERROR_LOG_CALLSTACK;
+        }
+        return $nExtInfo;
+    }
+
+    /**
+     * @return bool
+     */
+    static public function _errorLogNoRepeat() {
+
+        return (bool)static::_getConfig('sys.logs.error_norepeat', true);
     }
 
     /**
@@ -53,15 +107,51 @@ class Func {
      */
     static public function _errorLog($sError) {
 
-        $sText = '';
-        if (static::_errorLogExtInfo() && isset($_SERVER) && is_array($_SERVER)) {
-            foreach ($_SERVER as $sKey => $sVal) {
-                if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR')))
-                    $sText .= "  _SERVER['$sKey']=$sVal\n";
+        $sError = mb_convert_encoding($sError, 'UTF-8', 'auto');
+        $sText = $sError;
+        $nErrorExtInfo = static::_errorLogExtInfo();
+        if ($nErrorExtInfo) {
+            $sText .= "\n";
+            if (($nErrorExtInfo & self::ERROR_LOG_EXTINFO) && isset($_SERVER) && is_array($_SERVER)) {
+                $sText .= "--- server vars ---\n";
+                foreach ($_SERVER as $sKey => $sVal) {
+                    if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR'))) {
+                        $sText .= "  _SERVER['$sKey']=";
+                        if (is_scalar($sVal)) {
+                            $sText .= $sVal;
+                        } else {
+                            $sText .= gettype($sVal);
+                            if (is_array($sVal)) {
+                                $sText .= '(';
+                                $nCnt = 0;
+                                foreach ($sVal as $xIdx => $sItem) {
+                                    if ($nCnt++) {
+                                        $sText .= ',';
+                                    }
+                                    if (is_scalar($sItem)) {
+                                        $sText .= $xIdx . '=>' . $sItem;
+                                    } else {
+                                        $sText .= $xIdx . '=>' . gettype($sItem) . '()';
+                                    }
+                                }
+                                $sText .= ')';
+                            } else {
+                                $sText .= '()';
+                            }
+                        }
+                        $sText .= "\n";
+                    }
+                }
             }
-            $sText = "$sError\n---\n$sText\n---\n";
-        } else {
-            $sText = $sError;
+
+            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = static::_callStackError())) {
+                $sText .= "--- call stack ---\n";
+                foreach ($aCallStack as $aCaller) {
+                    $sText .= static::_callerToString($aCaller) . "\n";
+                }
+            }
+
+            $sText .= "--- end ---\n";
         }
 
         if (!static::_log($sText, static::_errorLogFile(), 'ERROR')) {
@@ -79,14 +169,18 @@ class Func {
      */
     static public function _log($sText, $sLogFile, $sLevel = null) {
 
-        if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
+        if (class_exists('ModuleLogger', false) || (class_exists('Loader', false) && Loader::Autoload('ModuleLogger'))) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
-            return E::Logger_Dump($sLogFile, $sText, $sLevel);
+            return E::ModuleLogger()->Dump($sLogFile, $sText, $sLevel);
         } elseif (class_exists('Config', false)) {
             // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
             $sFile = Config::Get('sys.logs.dir') . $sLogFile;
-            $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
-            return F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
+            if (!$sFile) {
+                // Непонятно, куда писать
+            } else {
+                $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
+                return F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
+            }
         }
         return false;
     }
@@ -103,6 +197,45 @@ class Func {
                 echo 'See details in ' . $sLogFile;
             }
         }
+    }
+
+    /**
+     * Push error info into internal collection
+     *
+     * @param int    $nErrNo
+     * @param string $sErrMsg
+     * @param string $sErrFile
+     * @param int    $nErrLine
+     *
+     * @return bool
+     */
+    static protected function _pushError($nErrNo, $sErrMsg, $sErrFile, $nErrLine) {
+
+        $aError = array(
+            'err_no' => $nErrNo,
+            'err_msg' => $sErrMsg,
+            'err_file' => $sErrFile,
+            'err_line' => $nErrLine,
+        );
+        $sKey = md5(serialize($aError));
+        if (!isset(self::$aErrorCollection[$sKey])) {
+            self::$aErrorCollection[$sKey] = $aError;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns info of last error
+     *
+     * @return array|null
+     */
+    static protected function _getLastError() {
+
+        if (self::$aErrorCollection) {
+            return end(self::$aErrorCollection);
+        }
+        return null;
     }
 
     /**
@@ -133,21 +266,25 @@ class Func {
             E_USER_DEPRECATED => 'E_USER_DEPRECATED',
         );
 
-        if ($nErrNo & error_reporting()) {
-            if (F::IsDebug()) {
-                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
-            } else {
-                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
+        if (!static::_errorLogNoRepeat() || static::_pushError($nErrNo, $sErrMsg, $sErrFile, $nErrLine)) {
+            if (($nErrNo & error_reporting()) && ($nErrNo & self::$nErrorDisplay)) {
+                if (F::IsDebug()) {
+                    static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+                } else {
+                    static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
+                }
+            }
+            if ($nErrNo & self::$nErrorTypes) {
+                static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
             }
         }
-        static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
 
         /* Don't execute PHP internal error handler */
         return true;
     }
 
     /**
-     * @param $oException
+     * @param Exception $oException
      */
     static public function _exceptionHandler($oException) {
 
@@ -155,17 +292,52 @@ class Func {
         $sLogMsg = 'Exception: ' . $oException->getMessage();
         if (property_exists($oException, 'sAdditionalInfo')) {
             $sLogMsg .= "\n" . $oException->sAdditionalInfo;
+        } elseif ($oException instanceof SmartyException) {
+            $aTrace = $oException->getTrace();
+            $aTemplateStack = array();
+            foreach ($aTrace as $aCaller) {
+                if (isset($aCaller['args']) && count($aCaller['args'])) {
+                    foreach($aCaller['args'] as $oTpl) {
+                        if(is_object($oTpl) && $oTpl instanceof Smarty_Internal_Template) {
+                            $aTemplateStack = self::_getSmartyTemplateStack($oTpl);
+                            break(2);
+                        }
+                    }
+                }
+            }
+            $sLogMsg .= "\nTemplates stack:\n" . join("\n", $aTemplateStack);
         }
         static::_errorLog($sLogMsg);
     }
 
     /**
-     * @param $sName
-     * @param $aArguments
+     * @param Smarty_Internal_Template $oTpl
+     *
+     * @return array
+     */
+    static protected function _getSmartyTemplateStack($oTpl) {
+
+        $aTemplateStack = array();
+        while ($oTpl) {
+            if (!isset($oTpl->template_resource) || !($sTemplate = $oTpl->template_resource)) {
+                break;
+            }
+            if (isset($oTpl->source) && $oTpl->source->filepath && $oTpl->source->filepath != $sTemplate) {
+                $sTemplate .= ' (' . $oTpl->source->filepath . ')';
+            }
+            $aTemplateStack[] = $sTemplate;
+            $oTpl = $oTpl->parent;
+        }
+        return $aTemplateStack;
+    }
+
+    /**
+     * @param string $sName
+     * @param array  $aArgs
      *
      * @return mixed
      */
-    static public function __callStatic($sName, $aArguments) {
+    static public function __callStatic($sName, $aArgs) {
 
         if ($nPos = strpos($sName, '_')) {
             $sExtension = substr($sName, 0, $nPos);
@@ -174,15 +346,51 @@ class Func {
             $sExtension = 'Main';
             $sMethod = $sName;
         }
-        if (!isset(static::$aExtsions[$sExtension])) {
+        if (!isset(static::$aExtensions[$sExtension])) {
             static::_loadExtension($sExtension);
         }
-        if (isset(static::$aExtsions[$sExtension]) && method_exists(static::$aExtsions[$sExtension], $sMethod)) {
-            return call_user_func_array(static::$aExtsions[$sExtension] . '::' . $sMethod, $aArguments);
+        if (isset(static::$aExtensions[$sExtension]) && method_exists(static::$aExtensions[$sExtension], $sMethod)) {
+            //return call_user_func_array(static::$aExtsions[$sExtension] . '::' . $sMethod, $aArgs);
+            $sClass = static::$aExtensions[$sExtension];
+            switch (count($aArgs)) {
+                case 0:
+                    $xResult = $sClass::$sMethod();
+                    break;
+                case 1:
+                    $xResult = $sClass::$sMethod($aArgs[0]);
+                    break;
+                case 2:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1]);
+                    break;
+                case 3:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2]);
+                    break;
+                case 4:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3]);
+                    break;
+                case 5:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4]);
+                    break;
+                case 6:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5]);
+                    break;
+                case 7:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6]);
+                    break;
+                case 8:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7]);
+                    break;
+                case 9:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7], $aArgs[8]);
+                    break;
+                default:
+                    $xResult = call_user_func_array($sClass . '::' . $sMethod, $aArgs);
+            }
+            return $xResult;
         }
 
         // Function not found
-        $aCaller = static::_Caller(2);
+        $aCaller = static::_getCaller(2);
         $sCallerStr = 'Func::' . $sName . '()';
         $sPosition = '';
         if ($aCaller) {
@@ -198,28 +406,35 @@ class Func {
     }
 
     /**
-     * @param $sExtension
+     * Loads func extension
+     *
+     * @param string $sExtension
      */
     static protected function _loadExtension($sExtension) {
 
-        if (!isset(static::$aExtsions[$sExtension])) {
+        if (!isset(static::$aExtensions[$sExtension])) {
             // сначала проверяем кастомные функции
             if (is_file($sFile = dirname(dirname(__DIR__)) . '/include/functions/' . $sExtension . '.php')) {
                 static::IncludeFile($sFile);
-                static::$aExtsions[$sExtension] = 'AppFunc_' . $sExtension;
+                static::$aExtensions[$sExtension] = 'AppFunc_' . $sExtension;
             } elseif (is_file($sFile = __DIR__ . '/functions/' . $sExtension . '.php')) {
                 static::IncludeFile($sFile);
-                static::$aExtsions[$sExtension] = 'AltoFunc_' . $sExtension;
+                static::$aExtensions[$sExtension] = 'AltoFunc_' . $sExtension;
             } else {
                 static::_FatalError('Cannot found functions set (extension) "' . $sExtension . '"');
             }
         }
     }
 
+    static public function _getExtensions() {
+
+        return static::$aExtensions;
+    }
+
     /**
      * TODO: Не выводить полностью текст ошибки на экран, а логгировать
      *
-     * @param $sMessage
+     * @param string $sMessage
      * @throws Exception
      */
     static protected function _FatalError($sMessage) {
@@ -229,66 +444,116 @@ class Func {
         exit;
     }
 
-    static protected function _CallerStr($nOffset = 2) {
-
-        $aCaller = static::_Caller($nOffset);
-        $sCallerStr = '';
-        $sPosition = '';
-        if ($aCaller) {
-            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
-                $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
-            }
-            if (isset($aCaller['file']) && isset($aCaller['line'])) {
-                $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
-            }
-        }
-        return $sCallerStr . $sPosition;
-    }
-
     /**
+     * Returns caller (class/function) using call stack
+     *
      * @param int  $nOffset
      * @param bool $bString
      *
      * @return string
      */
-    static protected function _Caller($nOffset = 1, $bString = false) {
+    static protected function _getCaller($nOffset = 1, $bString = false) {
 
-        $aData = static::_CallStack($nOffset + 1, 1);
+        $aData = static::_callStack($nOffset + 1, 1);
         if (sizeof($aData)) {
             if ($bString) {
-                if ($aCaller = $aData[0]) {
-                    $sCallerStr = '';
-                    $sPosition = '';
-                    if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
-                        $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
-                    }
-                    if (isset($aCaller['file']) && isset($aCaller['line'])) {
-                        $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
-                    }
-                }
-                return $sCallerStr . $sPosition;
+                return static::_callerToString(reset($aData));
             }
-            return ($aData[0]);
+            return (reset($aData));
         }
+        return null;
     }
 
     /**
+     * Format caller to string
+     *
+     * @param array $aCaller
+     *
+     * @return string
+     */
+    static protected function _callerToString($aCaller) {
+
+        $sResult = 'undefined';
+        if ($aCaller && is_array($aCaller)) {
+            $sCallerStr = '';
+            $sPosition = '';
+            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+                $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
+            } elseif (isset($aCaller['function'])) {
+                $sCallerStr = $aCaller['function'] . '()';
+            }
+            if (isset($aCaller['file']) && isset($aCaller['line'])) {
+                $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
+            }
+            $sResult = $sCallerStr . $sPosition;
+        } elseif ($aCaller) {
+            $sResult = (string)$aCaller;
+        }
+        return $sResult;
+    }
+
+    /**
+     * Returns call stack or part of them
+     *
      * @param int  $nOffset
-     * @param null $nLength
+     * @param int  $nLength
+     * @param bool $bCheckException
      *
      * @return array
      */
-    static protected function _CallStack($nOffset = 1, $nLength = null) {
+    static protected function _callStack($nOffset = 1, $nLength = null, $bCheckException = true) {
 
-        $aStack = array_slice(debug_backtrace(), $nOffset, $nLength);
+        $aStack = array_slice(debug_backtrace(false), $nOffset, $nLength);
+        // if exception then gets trace from it
+        if ($bCheckException) {
+            $aLastCaller = end($aStack);
+            if (isset($aLastCaller['args'][0]) && is_object($aLastCaller['args'][0]) && $aLastCaller['args'][0] instanceof Exception) {
+                $aStack = $aLastCaller['args'][0]->getTrace();
+            }
+        }
         return $aStack;
     }
 
     /**
-     * @param      $sParam
-     * @param null $xDefault
+     * Returns real call stack in error point
      *
-     * @return mixed|null
+     * @return array
+     */
+    static protected function _callStackError() {
+
+        $aStack = static::_callStack();
+        $aLastError = static::_getLastError();
+        if ($aLastError && ($aLastError['err_no'] & ~static::$nFatalErrors)) {
+            foreach ($aStack as $nI => $aCaller) {
+                // find point of error
+                if ((isset($aCaller['args'][0]) && is_numeric($aCaller['args'][0]) && $aCaller['args'][0] == $aLastError['err_no'])
+                    && (isset($aCaller['args'][1]) && $aCaller['args'][1] == $aLastError['err_msg'])
+                    && (isset($aCaller['args'][2]) && $aCaller['args'][2] == $aLastError['err_file'])
+                    && (isset($aCaller['args'][3]) && $aCaller['args'][3] == $aLastError['err_line'])
+                ) {
+                    if (sizeof($aStack) > $nI + 1) {
+                        $aStack = array_slice($aStack, $nI + 1);
+                        if (!isset($aStack[0]['file'])) {
+                            $aStack[0]['file'] = $aLastError['err_file'];
+                        }
+                        if (!isset($aStack[0]['line'])) {
+                            $aStack[0]['line'] = $aLastError['err_line'];
+                        }
+                    } else {
+                        $aStack = array();
+                    }
+                    break;
+                }
+            }
+        }
+        return $aStack;
+    }
+
+    /**
+     * @param string $sParam
+     * @param mixed  $xDefault
+     *
+     * @return mixed
      */
     static public function _getConfig($sParam, $xDefault = null) {
 
@@ -300,24 +565,106 @@ class Func {
         return $xResult;
     }
 
+    /**
+     * Set error types for handler function
+     *
+     * @param int|null $nErrorTypes
+     * @param bool     $bSystem
+     *
+     * @return int
+     */
+    static public function ErrorReporting($nErrorTypes = null, $bSystem = false) {
+
+        if (func_num_args() == 1 && is_bool($nErrorTypes)) {
+            $bSystem  = $nErrorTypes;
+            $nErrorTypes = null;
+        }
+        if ($bSystem) {
+            if (is_integer($nErrorTypes)) {
+                $nResult = error_reporting($nErrorTypes);
+                self::$nErrorTypes = $nErrorTypes;
+            } else {
+                $nResult = error_reporting();
+            }
+        } else {
+            $nResult = self::$nErrorTypes;
+            if (is_integer($nErrorTypes)) {
+                self::$nErrorTypes = $nErrorTypes;
+            }
+        }
+        return $nResult;
+    }
+
+    /**
+     * Set ignored error types for handler function
+     *
+     * @param int       $nErrorTypes
+     * @param bool|null $bSystem
+     *
+     * @return int
+     */
+    static public function ErrorIgnored($nErrorTypes, $bSystem = false) {
+
+        $nOldErrorTypes = static::ErrorReporting(null, $bSystem);
+        static::ErrorReporting($nOldErrorTypes & ~$nErrorTypes, $bSystem);
+        return $nOldErrorTypes;
+    }
+
+    /**
+     * Sets error types for display
+     *
+     * @param int $nErrorTypes
+     *
+     * @return int
+     */
+    static public function SetErrorDisplay($nErrorTypes) {
+
+        $nOldErrorTypes = static::$nErrorDisplay;
+        static::$nErrorDisplay = $nErrorTypes;
+        return $nOldErrorTypes;
+    }
+
+    /**
+     * Sets error types which can not be displayed
+     *
+     * @param int $nErrorTypes
+     *
+     * @return int
+     */
+    static public function SetErrorNoDisplay($nErrorTypes) {
+
+        $nOldErrorTypes = static::$nErrorDisplay;
+        static::$nErrorDisplay = static::$nErrorDisplay & ~$nErrorTypes;
+        return $nOldErrorTypes;
+    }
+    /**
+     * System warning message
+     *
+     * @param string $sMessage
+     */
     static public function SysWarning($sMessage) {
 
-        $aCaller = self::_Caller();
+        $aCaller = static::_getCaller();
+        $nErrorReporting = F::SetErrorNoDisplay(E_USER_WARNING);
         self::_errorHandler(
             E_USER_WARNING,
             $sMessage,
             isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
             isset($aCaller['line']) ? $aCaller['line'] : 0
         );
+        F::ErrorReporting($nErrorReporting);
     }
 
+    /**
+     * @return bool
+     */
     static public function IsDebug() {
 
         return defined('DEBUG') && DEBUG;
     }
 
     /**
-     * @param $sMsg
+     * @param string $sMsg
      *
      * @return bool
      */
@@ -329,27 +676,31 @@ class Func {
     /**
      * Includes PHP-file with statistics
      *
-     * @param   string  $sFile      - file name and path
-     * @param   bool    $bOnce      - once include
-     * @param   bool    $bConfig    - include as config-file
-     * @return  mixed
+     * @param string  $sFile      - file name and path
+     * @param bool    $bOnce      - once include
+     * @param bool    $bConfig    - include as config-file
+     *
+     * @return mixed
      */
     static public function IncludeFile($sFile, $bOnce = true, $bConfig = false) {
 
         $sDir = dirname($sFile);
+        $sRealPath = null;
         if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
-            $aCaller = static::_Caller();
+            $aCaller = static::_getCaller();
             if (isset($aCaller['file'])) {
                 $sRealPath = realpath(dirname($aCaller['file']) . '/' . $sFile);
             }
-        } else {
+        }
+        if (!$sRealPath) {
             $sRealPath = realpath($sFile);
         }
         if ($sRealPath) {
             $sFile = $sRealPath;
         }
-        if (isset(static::$aExtsions['File']) && is_callable($sFunc = static::$aExtsions['File'] . '::IncludeFile')) {
-            return call_user_func_array($sFunc, array($sFile, $bOnce, $bConfig));
+        if (isset(static::$aExtensions['File']) && is_callable($sFunc = static::$aExtensions['File'] . '::IncludeFile')) {
+            $sFuncClass = static::$aExtensions['File'];
+            return $sFuncClass::IncludeFile($sFile, $bOnce, $bConfig);
         } else {
             if ($bOnce) {
                 return include_once($sFile);
@@ -362,8 +713,9 @@ class Func {
     /**
      * Includes PHP-file from library dir
      *
-     * @param   string  $sFile
-     * @param   bool $bOnce
+     * @param string $sFile
+     * @param bool   $bOnce
+     *
      * @return  mixed
      */
     static public function IncludeLib($sFile, $bOnce = true) {
@@ -407,7 +759,7 @@ class Func {
     static public function GetPluginsDatDir() {
 
         if (class_exists('Config', false)) {
-            return Config::Get('path.dir.app') . 'plugins/';
+            return Config::Get('sys.plugins.activation_dir');
         } else {
             return F::File_RootDir() . 'app/plugins/';
         }
@@ -427,47 +779,118 @@ class Func {
         }
     }
 
+    static protected $_aPluginList = array();
+
+    /**
+     * Проверяет плагины на соответствие маске разрешённых url и,
+     * если нужно исключает из списка активных
+     *
+     * @param $aPlugins
+     * @return array
+     */
+    static protected function ExcludeByEnabledMask($aPlugins) {
+
+        $aResult = array();
+        $sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
+        foreach ($aPlugins as $sPluginName => $aPluginData) {
+            $sXmlText = F::File_GetContents($aPluginData['manifest']);
+            if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
+                $sReq = preg_replace('/\/+/', '/', $sRequestUri);
+                $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
+                $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
+                if (preg_match($aMatches[1], $sReq)) {
+                    $aResult[$sPluginName] = $aPluginData;
+                }
+            } else {
+                $aResult[$sPluginName] = $aPluginData;
+            }
+        }
+
+        return $aResult;
+    }
+
     /**
      * Получить список плагинов
      *
-     * @param   bool    $bAll   - все плагины (иначе - только активные)
-     * @return  array
+     * @param bool $bAll     - все плагины (иначе - только активные)
+     * @param bool $bIdOnly  - только Id плагинов (иначе - вся строка с информацией о плагине)
+     *
+     * @return array
      */
-    static public function GetPluginsList($bAll = false) {
+    static public function GetPluginsList($bAll = false, $bIdOnly = true) {
 
-        $sPluginsDir = static::GetPluginsDir();
         $sPluginsDatFile = static::GetPluginsDatFile();
-        $aPlugins = array();
-        $aPluginsRaw = array();
-        if ($bAll) {
-            $aPaths = glob($sPluginsDir . '*', GLOB_ONLYDIR);
-            if ($aPaths)
-                foreach ($aPaths as $sPath) {
-                    $aPluginsRaw[] = basename($sPath);
-                }
+        if (isset(self::$_aPluginList[$sPluginsDatFile][$bAll])) {
+            $aPlugins = self::$_aPluginList[$sPluginsDatFile][$bAll];
         } else {
-            if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
-                $aPluginsRaw = array_map('trim', $aPluginsRaw);
-                $aPluginsRaw = array_unique($aPluginsRaw);
-            }
-        }
-        if ($aPluginsRaw)
-            foreach ($aPluginsRaw as $sPlugin) {
-                $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
-                if (is_file($sPluginXML)) {
-                    $aPlugins[] = $sPlugin;
+            $sCommonPluginsDir = static::GetPluginsDir();
+            $aPlugins = array();
+            $aPluginsRaw = array();
+            if ($bAll) {
+                $aFiles = glob($sCommonPluginsDir . '{*,*/*}/plugin.xml', GLOB_BRACE);
+                if ($aFiles)
+                    foreach ($aFiles as $sXmlFile) {
+                        $aPluginInfo = array();
+                        $sXmlText = F::File_GetContents($sXmlFile);
+                        $sDirName = dirname(F::File_LocalPath($sXmlFile, $sCommonPluginsDir));
+                        if (preg_match('/\<id\>([\w\.\/]+)\<\/id\>/', $sXmlText, $aMatches)) {
+                            $aPluginInfo['id'] = $aMatches[1];
+                        } else {
+                            $aPluginInfo['id'] = $sDirName;
+                        }
+                        $aPluginInfo['dirname'] = $sDirName;
+                        $aPluginInfo['path'] = dirname($sXmlFile) . '/';
+                        $aPluginInfo['manifest'] = $sXmlFile;
+                        $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
+                    }
+            } else {
+                if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
+                    $aPluginsRaw = array_map('trim', $aPluginsRaw);
+                    $aPluginsRaw = array_unique($aPluginsRaw);
+                }
+                if ($aPluginsRaw) {
+                    foreach ($aPluginsRaw as $sPluginStr) {
+                        if (($n = strpos($sPluginStr, ';')) !== false) {
+                            if ($n === 0) {
+                                continue;
+                            }
+                            $sPluginStr = trim(substr($sPluginStr, 0, $n));
+                        }
+                        if ($sPluginStr) {
+                            $aPluginInfo = str_word_count($sPluginStr, 1, '0..9/_');
+                            $aPluginInfo['id'] = $aPluginInfo[0];
+                            if (empty($aPluginInfo[1])) {
+                                $aPluginInfo['dirname'] = $aPluginInfo[0];
+                            } else {
+                                $aPluginInfo['dirname'] = $aPluginInfo[1];
+                            }
+                            $sXmlFile = $sCommonPluginsDir . '/' . $aPluginInfo['dirname'] . '/plugin.xml';
+                            if (is_file($sXmlFile)) {
+                                $aPluginInfo['path'] = dirname($sXmlFile) . '/';
+                                $aPluginInfo['manifest'] = $sXmlFile;
+                                $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
+                            }
+                        }
+                    }
                 }
             }
+            $aPlugins = self::ExcludeByEnabledMask($aPlugins);
+            self::$_aPluginList[$sPluginsDatFile][$bAll] = $aPlugins;
+        }
+        if ($bIdOnly) {
+            $aPlugins = array_keys($aPlugins);
+        }
         return $aPlugins;
     }
 
     /**
      * функция доступа к REQUEST/GET/POST параметрам
      *
-     * @param   string  $sName
-     * @param   mixed   $xDefault
-     * @param   string  $sType
-     * @return  mixed
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
+     *
+     * @return mixed
      */
     static public function GetRequest($sName, $xDefault = null, $sType = null) {
         /**
@@ -497,25 +920,27 @@ class Func {
     }
 
     /**
-     * @param      $sName
-     * @param null $xDefault
-     * @param null $sType
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
      *
      * @return string
      */
     static public function GetRequestStr($sName, $xDefault = null, $sType = null) {
 
-        return (string)static::GetRequest($sName, $xDefault, $sType);
+        $sResult = static::GetRequest($sName, $xDefault, $sType);
+        return (is_array($sResult) ? '' : (string)$sResult);
     }
 
     /**
      * Возвращает значение параметра, переданого методом POST
      *
-     * @param   string  $sName
-     * @param   mixed   $xDefault
-     * @return  bool
+     * @param string  $sName
+     * @param mixed   $xDefault
+     *
+     * @return bool
      */
-    static function GetPost($sName, $xDefault = null) {
+    static public function GetPost($sName, $xDefault = null) {
 
         return static::GetRequest($sName, $xDefault, 'post');
     }
@@ -523,23 +948,29 @@ class Func {
     /**
      * Возвращает значение параметра, переданого методом POST
      *
-     * @param   string  $sName
-     * @param   string  $sDefault
+     * @param string  $sName
+     * @param string  $sDefault
+     *
      * @return  bool
      */
-    static function GetPostStr($sName, $sDefault = null) {
+    static public function GetPostStr($sName, $sDefault = null) {
 
-        if (!is_null($sDefault)) $sDefault = (string)$sDefault;
+        if (is_array($sDefault)) {
+            $sDefault = '';
+        } elseif (!is_null($sDefault)) {
+            $sDefault = (string)$sDefault;
+        }
         return static::GetRequestStr($sName, $sDefault, 'post');
     }
 
     /**
      * Определяет, был ли передан указанный параметр методом POST
      *
-     * @param   string  $sName
-     * @return  bool
+     * @param string  $sName
+     *
+     * @return bool
      */
-    static function isPost($sName) {
+    static public function isPost($sName) {
 
         return (static::GetPost($sName) !== null);
     }
@@ -547,26 +978,30 @@ class Func {
     /**
      * Check if request is ajax
      *
+     * @param bool $bPureAjax
+     *
      * @return  bool
      */
-    static public function AjaxRequest() {
+    static public function AjaxRequest($bPureAjax = false) {
 
-        return (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-            && strtolower(
-                $_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest'
-            ))
-        || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
+        if ($bPureAjax) {
+            return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        } else {
+            return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+            || (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY']) && $_REQUEST['HTTP_X_ALTO_AJAX_KEY'])
+            || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
+        }
     }
 
     /**
      * Аналог ф-ции stripslashes, умеющая обрабатывать массивы
      *
-     * @param   string|array    $xData
+     * @param string|array $xData
      */
     static public function StripSlashes(&$xData) {
 
         if (is_array($xData)) {
-            array_walk($xData, 'static::StripSlashes');
+            array_walk($xData, array(__CLASS__, 'StripSlashes'));
         } else {
             $xData = stripslashes($xData);
         }
@@ -575,13 +1010,12 @@ class Func {
     /**
      * Аналог ф-ции htmlspecialchars, умеющая обрабатывать массивы
      *
-     * @param   mixed   $xData
-     * @return  void
+     * @param mixed $xData
      */
     static public function HtmlSpecialChars(&$xData) {
 
         if (is_array($xData)) {
-            array_walk($xData, 'static::HtmlSpecialChars');
+            array_walk($xData, array(__CLASS__, 'HtmlSpecialChars'));
         } else {
             $xData = htmlspecialchars($xData);
         }
@@ -597,10 +1031,10 @@ class Func {
      * Если $bRealHost == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
      * В противном случае основа адреса - это реальный адрес хоста из $_SERVER['SERVER_NAME']
      *
-     * @param   string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
-     * @param   bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
+     * @param string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
+     * @param bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
      *
-     * @return  string
+     * @return string
      */
     static public function RealUrl($sLocation, $bRealHost = false) {
 
@@ -642,6 +1076,101 @@ class Func {
     }
 
     /**
+     * $url = 'http://username:password@hostname.com/path?arg=value#anchor';
+     *
+     * @param null $sUrl
+     * @param int  $iComponent
+     *
+     * @return array|string
+     */
+    static public function ParseUrl($sUrl = null, $iComponent = -1) {
+
+        if (is_null($sUrl) && isset($_SERVER['HTTP_HOST'])) {
+            $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
+            if (!empty($_SERVER['REQUEST_URI'])) {
+                $sUrl .= $_SERVER['REQUEST_URI'];
+            }
+        }
+        $xResult = array(
+            'scheme' => null,
+            'host' => null,
+            'port' => null,
+            'user' => null,
+            'pass' => null,
+            'path' => null,
+            'query' => null,
+            'fragment' => null,
+            'base' => null,
+        );
+        if ($sUrl) {
+            $xResult = array_merge($xResult, parse_url($sUrl));
+            if ($xResult['host']) {
+                $xResult['base'] = $xResult['host'];
+                if ($xResult['scheme']) {
+                    $xResult['base'] = $xResult['scheme'] . '://' . $xResult['base'];
+                }
+                if ($xResult['port']) {
+                    $xResult['base'] .= ':' . $xResult['port'];
+                }
+            }
+        }
+        if ($iComponent != -1) {
+            if ($iComponent == PHP_URL_SCHEME) {
+                $xResult = $xResult['scheme'];
+            } elseif($iComponent == PHP_URL_HOST) {
+                $xResult = $xResult['host'];
+            } elseif($iComponent == PHP_URL_PORT) {
+                $xResult = $xResult['port'];
+            } elseif($iComponent == PHP_URL_USER) {
+                $xResult = $xResult['user'];
+            } elseif($iComponent == PHP_URL_PASS) {
+                $xResult = $xResult['pass'];
+            } elseif($iComponent == PHP_URL_PATH) {
+                $xResult = $xResult['path'];
+            } elseif($iComponent == PHP_URL_QUERY) {
+                $xResult = $xResult['query'];
+            } elseif($iComponent == PHP_URL_FRAGMENT) {
+                $xResult = $xResult['fragment'];
+            } else {
+                $xResult = false;
+            }
+        }
+        return $xResult;
+    }
+
+    /**
+     * @param bool $bAddSlash
+     *
+     * @return string
+     */
+    static public function UrlScheme($bAddSlash = false) {
+
+        $sResult = 'http';
+        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
+            $sResult = 'https';
+        } elseif (isset($_SERVER['HTTP_SCHEME']) && strtolower($_SERVER['HTTP_SCHEME']) == 'https') {
+            $sResult = 'https';
+        } elseif(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') {
+            $sResult = 'https';
+        }
+        if ($bAddSlash) {
+            $sResult .= '://';
+        }
+        return $sResult;
+    }
+
+    /**
+     * Returns base part of current URL request - scheme, host and port (if exists)
+     *
+     * @return string
+     */
+    static public function UrlBase() {
+
+        $aUrlParts = F::ParseUrl();
+        return !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
+    }
+
+    /**
      * Определение текущего HTTP-протокола для заголовка
      *
      * @return string
@@ -655,9 +1184,9 @@ class Func {
     /**
      * Получает или устанавливает код ответа HTTP
      *
-     * @param null $nResponseCode
+     * @param int|null $nResponseCode
      *
-     * @return int|null
+     * @return int
      */
     static public function HttpResponseCode($nResponseCode = null) {
 
@@ -724,14 +1253,12 @@ class Func {
     }
 
     /**
-     * @param      $sLocation
-     * @param bool $bRealHost
-     *
-     * @return mixed
+     * @param string $sLocation
+     * @param bool   $bRealHost
      */
     static public function HeaderLocation($sLocation, $bRealHost = false) {
 
-        return HttpLocation($sLocation, $bRealHost);
+        static::HttpLocation($sLocation, $bRealHost);
     }
 
     /**
@@ -744,8 +1271,8 @@ class Func {
      * Если $bRealHost == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
      * В противном случае основа адреса - это реальный адрес хоста из $_SERVER['SERVER_NAME']
      *
-     * @param   string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
-     * @param   bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
+     * @param string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
+     * @param bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
      */
     static public function HttpLocation($sLocation, $bRealHost = false) {
 
@@ -767,8 +1294,8 @@ class Func {
     /**
      * Постоянный редирект (с кодом 301)
      *
-     * @param      $sLocation
-     * @param bool $bRealHost
+     * @param string $sLocation
+     * @param bool   $bRealHost
      */
     static public function HttpRedirect($sLocation, $bRealHost = false) {
 
@@ -781,9 +1308,9 @@ class Func {
     /**
      * Отправляет HTTP-заголовки и (опционально) адрес для редиректа
      *
-     * @param   int         $nHttpStatusCode
-     * @param   array|null  $aHeaders
-     * @param   string|null $sUrl
+     * @param int         $nHttpStatusCode
+     * @param array|null  $aHeaders
+     * @param string|null $sUrl
      */
     static public function HttpHeader($nHttpStatusCode, $aHeaders = array(), $sUrl = null) {
 
@@ -836,9 +1363,13 @@ Redirect to <a href="' . $sUrl . '">' . $sUrl . '</a>
         exit;
     }
 
-}
+    static public function StrMatch($xPatterns, $sString, $bCaseInsensitive = false, &$aMatches = array()) {
 
-class F extends Func {
+        $sFuncClass = static::$aExtensions['Main'];
+        return $sFuncClass::StrMatch($xPatterns, $sString, $bCaseInsensitive, $aMatches);
+    }
+
+
 
 }
 
@@ -895,6 +1426,9 @@ if (!function_exists('mb_preg_match_all')) {
     }
 
 }
+
+//class_alias('Func', 'F');
+class F extends Func { }
 
 F::init();
 

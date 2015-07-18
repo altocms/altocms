@@ -67,7 +67,7 @@ class ModuleComment_EntityCommentOnline extends Entity {
      */
     public function setTargetId($data) {
 
-        $this->_aData['target_id'] = $data;
+        $this->setProp('target_id', $data);
     }
 
     /**
@@ -77,7 +77,7 @@ class ModuleComment_EntityCommentOnline extends Entity {
      */
     public function setTargetType($data) {
 
-        $this->_aData['target_type'] = $data;
+        $this->setProp('target_type', $data);
     }
 
     /**
@@ -87,7 +87,7 @@ class ModuleComment_EntityCommentOnline extends Entity {
      */
     public function setCommentId($data) {
 
-        $this->_aData['comment_id'] = $data;
+        $this->setProp('comment_id', $data);
     }
 
     /**
@@ -97,7 +97,7 @@ class ModuleComment_EntityCommentOnline extends Entity {
      */
     public function setTargetParentId($data) {
 
-        $this->_aData['target_parent_id'] = $data;
+        $this->setProp('target_parent_id', $data);
     }
 }
 

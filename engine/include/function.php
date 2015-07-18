@@ -81,7 +81,7 @@ function func_convert_entity_to_array(Entity $oEntity, $aMethods = null, $sPrefi
 }
 
 function func_text_words($sText, $iCountWords) {
-    return F::CatText($sText, $iCountWords);
+    return F::CutText($sText, $iCountWords);
 }
 
 function getRequest($sName, $default = null, $sType = null) {
@@ -110,18 +110,10 @@ function getRequestPostStr($sName, $default = null) {
  */
 
 /**
- * функция вывода отладочных сообщений через "хакерскую" консоль Дмитрия Котерова
+ * Old functions for LS compatibility
  */
 function dump($msg) {
-    if (Config::Get('sys.logs.hacker_console') && !isAjaxRequest()) {
-        if (!class_exists('Debug_HackerConsole_Main')) {
-            require_once Config::Get('path.root.server') . "/engine/lib/external/HackerConsole/Main.php";
-            new Debug_HackerConsole_Main(true);
-        }
-        call_user_func(array('Debug_HackerConsole_Main', 'out'), $msg);
-    } else {
-        //var_dump($msg);
-    }
+    // Nothing
 }
 
 /**

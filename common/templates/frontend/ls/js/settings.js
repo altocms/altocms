@@ -1,4 +1,4 @@
-var ls = ls || {};
+;var ls = ls || {};
 
 /**
 * Различные настройки
@@ -59,6 +59,40 @@ ls.settings = (function ($) {
 	};
 
 	this.getTinymce = function() {
+        if ($('.js-editor-wysiwyg').length) {
+            return {
+                mode:               'specific_textareas',
+                editor_selector:    'js-editor-wysiwyg',
+                theme:              'modern',
+                //content_css:        'plugins/altoimage/css/style.css',
+                //relative_urls: false,
+                relative_urls : false,
+                menubar: false,
+                toolbar: "styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
+                toolbar_items_size: 'small',
+                image_advtab: false,
+                style_formats: [
+                    {title: 'Head 1', block: 'h4'},
+                    {title: 'Head 2', block: 'h5'},
+                    {title: 'Head 3', block: 'h6'}
+                ],
+                object_resizing: true,
+                force_br_newlines: true,
+                forced_root_block: '', // Needed for 3.x
+                force_p_newlines: false,
+                plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
+                //convert_urls: false,
+                extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
+                pagebreak_separator: "<cut>",
+                media_strict: false,
+                language: 'ru',
+                inline_styles: false,
+                formats: {
+                    underline: {inline: 'u', exact: true},
+                    strikethrough: {inline: 's', exact: true}
+                }
+            }
+        }
 		return {
 			mode : 									"specific_textareas",
 			editor_selector : 						"mce-editor",

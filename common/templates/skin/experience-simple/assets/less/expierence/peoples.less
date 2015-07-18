@@ -1,0 +1,95 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.panel-table {
+    table.peoples-table {
+
+        .action-icon {
+            text-align: left;
+            vertical-align: top;
+            width: 26px;
+
+            a {
+                color: @color-85;
+                font-size: 15px;
+                vertical-align: inherit;
+                line-height: 16px;
+            }
+
+            &.action-mail, &.action-mail {
+                a:hover, a.active {
+                    color: @yellow-dark;
+                }
+            }
+
+            &.action-user, &.action-user {
+                a:hover, a.active {
+                    color: @blue-light;
+                }
+            }
+
+            &.action-favourite, &.action-favourite {
+                a:hover, a.active {
+                    color: @blue;
+                }
+            }
+        }
+
+        .user-logo {
+            vertical-align: top;
+            text-align: left;
+            width: 82px;
+        }
+
+        .user-name a {
+            font-weight: bold;
+        }
+
+        .user-name, .user-place {
+            font-family: @font-family-sans-serif;
+            font-size: 12px;
+            color: @color-50;
+            font-weight: 300;
+
+            a {
+                font-family: inherit;
+                font-size: 16px;
+                color: @color-11;
+
+            }
+            i {
+                margin-right: 2px;
+                color: @color-50;
+            }
+            &.admin, &.me {
+                i {
+                    color: @green;
+                }
+            }
+
+        }
+
+        .user-place a {
+            font-size: @font-size-base;
+            font-weight: normal;
+        }
+
+        .user-date-block {
+            text-align: center;
+
+            .user-date {
+                font-size: @font-size-base;
+                color: @color-50;
+            }
+
+            .user-time {
+                font-size: @font-size-base;
+                color: @blue;
+            }
+        }
+
+    }
+
+}
+

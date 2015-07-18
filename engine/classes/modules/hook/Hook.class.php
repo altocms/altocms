@@ -17,7 +17,7 @@
  * Модуль обработки хуков(hooks)
  * В различных местах кода могут быть определеные вызовы хуков, например:
  * <pre>
- * $this->Hook_Run('topic_edit_before', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
+ * E::ModuleHook()->Run('topic_edit_before', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
  * </pre>
  * Данный вызов "вешает" хук "topic_edit_before"
  * Чтобы повесить обработчик на этот хук, его нужно объявить, например, через файл в /classes/hooks/HookTest.class.php
@@ -86,12 +86,47 @@ class ModuleHook extends Module {
      * )
      */
     protected $aHooks = array();
+
+    protected $aHooksOrders = array();
     /**
      * Список объектов обработки хукков, для их кешировани
      *
      * @var array
      */
     protected $aHooksObject = array();
+
+    protected $aObservers = array();
+
+    protected $bStopHandle = false;
+
+    protected $sCurrentHookName;
+
+    protected $aCurrentHookOptions = array();
+
+    protected function _parseCallback($xCallback) {
+
+        $aResult = array(
+            'function' => $xCallback,
+            'class' => null,
+            'object' => null,
+            'method' => null,
+        );
+        if (is_array($xCallback) && sizeof($xCallback) == 2) {
+            list($oObject, $sMethod) = $xCallback;
+            if (is_object($oObject) && is_string($sMethod)) {
+                $aResult['function'] = null;
+                $aResult['class'] = null;
+                $aResult['object'] = $oObject;
+                $aResult['method'] = $sMethod;
+            } elseif (is_string($oObject) && is_string($sMethod)) {
+                $aResult['function'] = null;
+                $aResult['object'] = null;
+                $aResult['class'] = $oObject;
+                $aResult['method'] = $sMethod;
+            }
+        }
+        return $aResult;
+    }
 
     /**
      * Инициализация модуля
@@ -102,9 +137,100 @@ class ModuleHook extends Module {
     }
 
     /**
+     * Возвращает информацию о том, включен хук или нет
+     *
+     * @param string $sHookName
+     *
+     * @return bool
+     */
+    public function IsEnabled($sHookName) {
+
+        return isset($this->aHooks[$sHookName]);
+    }
+
+    /**
+     * Adds handler for hook
+     * Call format:
+     *   AddHandler($sHookName, $xCallBack [, $iPriority] [, $aParams])
+     *
+     * @param string $sHookName Hook name
+     * @param string $xCallBack Callback function to run for the hook
+     * @param int    $iPriority
+     * @param array  $aParams
+     *
+     * @return bool
+     *
+     * @since   1.1
+     */
+    public function AddHandler($sHookName, $xCallBack, $iPriority = 1, $aParams = array()) {
+
+        if (is_array($iPriority) && func_num_args() == 3) {
+            $aParams = $iPriority;
+            $iPriority = null;
+        }
+        $bResult = $this->Add($sHookName, 'function', $xCallBack, $iPriority, $aParams);
+        $aHook = end($this->aHooks[$sHookName]);
+        $this->_notifyObserver(array($aHook), $this->aObservers);
+        return $bResult;
+    }
+
+    /**
+     * Adds observer to be notified of new handlers
+     *
+     * @param string       $sHookName
+     * @param string|array $xCallBack
+     * @param bool         $bStrict
+     */
+    public function AddObserver($sHookName, $xCallBack, $bStrict = false) {
+
+        $this->aObservers[] = array(
+            'hook' => $sHookName,
+            'callback' => $this->_parseCallback($xCallBack),
+            'strict' => $bStrict,
+        );
+        $aObserver = end($this->aObservers);
+        if ($this->aHooks) {
+            $this->_notifyObserver($this->aHooks, array($aObserver));
+        }
+    }
+
+    /**
+     * Notifies observers about hooks
+     *
+     * @param array $aHooks
+     * @param array $aObservers
+     */
+    protected function _notifyObserver($aHooks, $aObservers) {
+
+        foreach ($aObservers as $aObserver) {
+            foreach ($aHooks as $sHookName => $aHookParams) {
+                if ($aObserver['strict']) {
+                    $bNotify = ($sHookName === $aObserver['hook']);
+                } else {
+                    $bNotify = (strpos($sHookName, $aObserver['hook']) === 0);
+                }
+                if ($bNotify) {
+                    if (!empty($aObserver['callback']['object'])) {
+                        $oObject = $aObserver['callback']['object'];
+                        $sMethod = $aObserver['callback']['method'];
+                        $oObject->$sMethod($sHookName);
+                    } elseif (!empty($aObserver['callback']['class'])) {
+                        $sClass = $aObserver['callback']['class'];
+                        $sMethod = $aObserver['callback']['method'];
+                        $oObject = new $sClass();
+                        $oObject->$sMethod($sHookName);
+                    } elseif (!empty($aObserver['callback']['function'])) {
+                        call_user_func($aObserver['callback']['function'], $sHookName);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Добавление обработчика на хук
      *
-     * @param string $sName        Имя хука
+     * @param string $sHookName    Имя хука
      * @param string $sType        Тип хука, возможны: module, function, hook
      * @param string $sCallBack    Функция/метод обработки хука
      * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
@@ -112,18 +238,33 @@ class ModuleHook extends Module {
      *
      * @return bool
      */
-    public function Add($sName, $sType, $sCallBack, $iPriority = 1, $aParams = array()) {
-        $sName = strtolower($sName);
+    public function Add($sHookName, $sType, $sCallBack, $iPriority = 1, $aParams = array()) {
+
+        $sHookName = strtolower($sHookName);
+        // LS-compatibility
+        if ($sHookName == 'init_action') {
+            $sHookName = 'action_before';
+        }
         $sType = strtolower($sType);
         if (!in_array($sType, array('module', 'hook', 'function', 'template'))) {
             return false;
         }
-        $this->aHooks[$sName][] = array(
+        $this->aHooks[$sHookName][] = array(
             'type' => $sType,
             'callback' => $sCallBack,
             'params' => $aParams,
             'priority' => (int)$iPriority
         );
+        if (!empty($this->aHooksOrders)) {
+            $this->aHooksOrders = array();
+        }
+
+        if ($this->aObservers) {
+            $aHook = end($this->aHooks[$sHookName]);
+            $this->_notifyObserver(array($aHook), $this->aObservers);
+        }
+
+        return true;
     }
 
     /**
@@ -139,6 +280,7 @@ class ModuleHook extends Module {
      * @return bool
      */
     public function AddExecModule($sName, $sCallBack, $iPriority = 1) {
+
         return $this->Add($sName, 'module', $sCallBack, $iPriority);
     }
 
@@ -156,6 +298,7 @@ class ModuleHook extends Module {
      * @return bool
      */
     public function AddExecFunction($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
+
         return $this->Add($sName, 'function', $sCallBack, $iPriority, $aParams);
     }
 
@@ -174,145 +317,86 @@ class ModuleHook extends Module {
      * @return bool
      */
     public function AddExecHook($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
-        return $this->Add($sName, 'hook', $sCallBack, $iPriority, $aParams);
-    }
 
-    /**
-     * Добавляет делегирующий обработчик хука с типом "module"
-     * Делегирующий хук применяется для перекрытия метода модуля, результат хука возвращает вместо результата метода модуля
-     * Позволяет в качестве обработчика использовать метод модуля
-     *
-     * @see Add
-     * @see Engine::_CallModule
-     *
-     * @param string $sName        Имя хука
-     * @param string $sCallBack    Полное имя метода обработки хука, например, "Mymodule_CallBack"
-     * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
-     *
-     * @return bool
-     */
-    public function AddDelegateModule($sName, $sCallBack, $iPriority = 1) {
-        return $this->Add($sName, 'module', $sCallBack, $iPriority, array('delegate' => true));
-    }
-
-    /**
-     * Добавляет делегирующий обработчик хука с типом "function"
-     * Делегирующий хук применяется для перекрытия метода модуля, результат хука возвращает вместо результата метода модуля
-     * Позволяет в качестве обработчика использовать функцию
-     *
-     * @see Add
-     *
-     * @param string $sName        Имя хука
-     * @param string $sCallBack    Функция обработки хука, например, "var_dump"
-     * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
-     *
-     * @return bool
-     */
-    public function AddDelegateFunction($sName, $sCallBack, $iPriority = 1) {
-        return $this->Add($sName, 'function', $sCallBack, $iPriority, array('delegate' => true));
-    }
-
-    /**
-     * Добавляет делегирующий обработчик хука с типом "hook"
-     * Делегирующий хук применяется для перекрытия метода модуля, результат хука возвращает вместо результата метода модуля
-     * Позволяет в качестве обработчика использовать метод хука(класса хука из каталога /classes/hooks/)
-     *
-     * @see Add
-     * @see Hook::AddHook
-     *
-     * @param string $sName        Имя хука
-     * @param string $sCallBack    Метод хука, например, "InitAction"
-     * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
-     * @param array  $aParams      Параметры
-     *
-     * @return bool
-     */
-    public function AddDelegateHook($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
-        $aParams['delegate'] = true;
         return $this->Add($sName, 'hook', $sCallBack, $iPriority, $aParams);
     }
 
     /**
      * Запускает обаботку хуков
      *
-     * @param       $sName    Имя хука
-     * @param array $aVars    Список параметров хука, передаются в обработчик
+     * @param string $sName Имя хука
+     * @param array  $aVars Список параметров хука, передаются в обработчик
      *
      * @return array
      */
-    public function Run($sName, &$aVars = array()) {
-        $result = array();
-        $sName = strtolower($sName);
-        $bTemplateHook = strpos($sName, 'template_') === 0 ? true : false;
-        if (isset($this->aHooks[$sName])) {
-            $aHookNum = array();
-            $aHookNumDelegate = array();
+    public function Run($sName, $aVars = array()) {
 
-            // * Все хуки делим на обычные (exec) и делигирующие (delegate)
-            for ($i = 0; $i < count($this->aHooks[$sName]); $i++) {
-                if (isset($this->aHooks[$sName][$i]['params']['delegate'])
-                    && $this->aHooks[$sName][$i]['params']['delegate']
-                ) {
-                    $aHookNumDelegate[$i] = $this->aHooks[$sName][$i]['priority'];
-                } else {
-                    $aHookNum[$i] = $this->aHooks[$sName][$i]['priority'];
+        $xResult = array();
+        $sName = strtolower($sName);
+
+        if (isset($this->aHooks[$sName])) {
+            $this->sCurrentHookName = strtolower($sName);
+            $bTemplateHook = (strpos($this->sCurrentHookName, 'template_') === 0 ? true : false);
+            if (empty($this->aHooksOrders[$this->sCurrentHookName])) {
+                $this->aHooksOrders = array();
+                $iCount = count($this->aHooks[$this->sCurrentHookName]);
+                for ($iHookNum = 0; $iHookNum < $iCount; $iHookNum++) {
+                    $this->aHooksOrders[$this->sCurrentHookName][$iHookNum] = $this->aHooks[$this->sCurrentHookName][$iHookNum]['priority'];
                 }
+                arsort($this->aHooksOrders[$this->sCurrentHookName], SORT_NUMERIC);
             }
-            arsort($aHookNum, SORT_NUMERIC);
-            arsort($aHookNumDelegate, SORT_NUMERIC);
-            /**
-             * Сначала запускаем на выполнение простые
-             */
-            foreach ($aHookNum as $iKey => $iPr) {
-                $aHook = $this->aHooks[$sName][$iKey];
-                if ($bTemplateHook || $aHook['type'] == 'template') {
-                    if (isset($aHook['params']['template']) && !isset($aVars['template'])) {
-                        $aVars['template'] = $aHook['params']['template'];
+
+            $this->bStopHandle = false;
+            // Runs hooks in priority order
+            foreach ($this->aHooksOrders[$this->sCurrentHookName] as $iHookNum => $iPr) {
+                $this->aCurrentHookOptions = $this->aHooks[$this->sCurrentHookName][$iHookNum];
+                if ($bTemplateHook || $this->aCurrentHookOptions['type'] == 'template') {
+                    if (isset($this->aCurrentHookOptions['params']['template']) && !isset($aVars['template'])) {
+                        $aVars['template'] = $this->aCurrentHookOptions['params']['template'];
                     }
                     // * Если это шаблонный хук то сохраняем результат
-                    $result['template_result'][] = $this->RunType($aHook, $aVars);
+                    $xResult['template_result'][] = $this->RunType($this->aCurrentHookOptions, $aVars);
                 } else {
-                    $this->RunType($aHook, $aVars);
+                    $xResult = $this->RunType($this->aCurrentHookOptions, $aVars);
+                }
+                if ($this->bStopHandle) {
+                    break;
                 }
             }
-            /**
-             * Теперь запускаем делигирующие
-             * Делегирующий хук должен вернуть результат в формате:
-             *
-             */
-            foreach ($aHookNumDelegate as $iKey => $iPr) {
-                $aHook = $this->aHooks[$sName][$iKey];
-                $result = array(
-                    'delegate_result' => $this->RunType($aHook, $aVars)
-                );
-                /**
-                 * На данный момент только один хук может быть делегирующим
-                 */
-                break;
-            }
+            $this->sCurrentHookName = null;
         }
-        return $result;
+        return $xResult;
     }
 
     /**
-     * Запускает обработчик хука в зависимости от туипа обработчика
+     * Запускает обработчик хука в зависимости от типа обработчика
      *
-     * @param array $aHook    Данные хука
-     * @param array $aVars    Параметры переданные в хук
+     * @param array $aHookOptions Данные хука
+     * @param array $aVars        Параметры переданные в хук
      *
-     * @return mixed|null
+     * @return mixed
      */
-    protected function RunType($aHook, &$aVars) {
-        $result = null;
-        switch ($aHook['type']) {
+    protected function RunType($aHookOptions, &$aVars) {
+
+        $xResult = null;
+        switch ($aHookOptions['type']) {
             case 'module':
-                $result = call_user_func_array(array($this, $aHook['callback']), array(&$aVars));
+                $xResult = call_user_func_array(array($this, $aHookOptions['callback']), array(&$aVars));
                 break;
             case 'function':
-                $result = call_user_func_array($aHook['callback'], array(&$aVars));
+                $oObject = null;
+                if (is_array($aHookOptions['callback']) && !empty($aHookOptions['callback'][0]) && is_object($aHookOptions['callback'][0])) {
+                    $oObject = $aHookOptions['callback'][0];
+                }
+                if ($oObject && !empty($aHookOptions['callback'][1]) && is_string($aHookOptions['callback'][1])) {
+                    $sMethod = $aHookOptions['callback'][1];
+                    $xResult = $oObject->$sMethod($aVars);
+                } else {
+                    $xResult = call_user_func_array($aHookOptions['callback'], array(&$aVars));
+                }
                 break;
             case 'hook':
-                $sHookClass = isset($aHook['params']['sClassName']) ? $aHook['params']['sClassName'] : null;
+                $sHookClass = isset($aHookOptions['params']['sClassName']) ? $aHookOptions['params']['sClassName'] : null;
                 if ($sHookClass && class_exists($sHookClass)) {
                     if (isset($this->aHooksObject[$sHookClass])) {
                         $oHook = $this->aHooksObject[$sHookClass];
@@ -320,17 +404,57 @@ class ModuleHook extends Module {
                         $oHook = new $sHookClass;
                         $this->aHooksObject[$sHookClass] = $oHook;
                     }
-                    $result = call_user_func_array(array($oHook, $aHook['callback']), array(&$aVars));
+                    //$xResult = call_user_func_array(array($oHook, $aHookOptions['callback']), array(&$aVars));
+                    $sMethod = $aHookOptions['callback'];
+                    $xResult = $oHook->$sMethod($aVars);
                 }
                 break;
             default:
-                if (is_callable($aHook['callback'])) {
-                    $result = call_user_func_array($aHook['callback'], array(&$aVars));
+                if (is_callable($aHookOptions['callback'])) {
+                    $xResult = call_user_func_array($aHookOptions['callback'], array(&$aVars));
                 }
                 break;
         }
-        return $result;
+        return $xResult;
     }
+
+    /**
+     * Returns current hook name
+     *
+     * @return string
+     *
+     * @since   1.1
+     */
+    public function GetHookName() {
+
+        return $this->sCurrentHookName;
+    }
+
+    /**
+     * Returns parameters of current hook handler
+     *
+     * @return array
+     *
+     * @since   1.1
+     */
+    public function GetHookParams() {
+
+        if (isset($this->aCurrentHookOptions['params'])) {
+            return $this->aCurrentHookOptions['params'];
+        }
+        return array();
+    }
+
+    /**
+     * Sets stop handle flag
+     *
+     * @since   1.1
+     */
+    public function StopHookHandle() {
+
+        $this->bStopHandle = true;
+    }
+
 }
 
 // EOF

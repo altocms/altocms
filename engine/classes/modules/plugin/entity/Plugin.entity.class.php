@@ -8,36 +8,68 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModulePlugin_EntityPlugin
+ *
+ * @method string GetId()
+ * @method bool GetIsActive()
+ *
+ * @method SetNum()
+ * @method SetIsActive()
+ */
 class ModulePlugin_EntityPlugin extends Entity {
 
     protected $oXml = null;
 
+    /**
+     * Constractor of entity
+     *
+     * @param bool $aParams
+     */
     public function __construct($aParams = false) {
 
-        if (is_array($aParams)) {
-            $this->_setData($aParams);
-        } elseif($aParams) {
-            $this->LoadFromXmlFile((string)$aParams);
-        }
-        $this->Init();
-        if (!$this->GetNum()) $this->SetNum(-1);
-    }
-
-    public function LoadFromXmlFile($sPluginId, $aData = null) {
-
-        $sPluginXML = $this->Plugin_GetPluginManifest($sPluginId);
-        if (is_null($aData)) {
-            $aData = array(
-                'id' => $sPluginId,
-                'priority' => 0,
+        if (!is_array($aParams)) {
+            // передан ID плагина
+            $aParams = array(
+                'id' => (string)$aParams,
             );
         }
-        $this->LoadFromXml($sPluginXML, $aData);
+
+        $this->setProps($aParams);
+
+        if(empty($aParams['manifest']) && !empty($aParams['id'])) {
+            $aParams['manifest'] = E::ModulePlugin()->GetPluginManifestFile($aParams['id']);
+        }
+        if(!empty($aParams['manifest'])) {
+            $this->LoadFromXmlFile($aParams['manifest'], $aParams);
+        }
+        $this->Init();
+        if (!$this->GetNum()) {
+            $this->SetNum(-1);
+        }
     }
 
-    public function LoadFromXml($sPluginXML, $aData = null) {
+    /**
+     * Load data from XML file
+     *
+     * @param string $sPluginXmlFile
+     * @param array  $aData
+     */
+    public function LoadFromXmlFile($sPluginXmlFile, $aData = null) {
 
-        if ($this->oXml = @simplexml_load_string($sPluginXML)) {
+        $sPluginXmlString = E::ModulePlugin()->GetPluginManifestFrom($sPluginXmlFile);
+        $this->LoadFromXml($sPluginXmlString, $aData);
+    }
+
+    /**
+     * Load data from XML string
+     *
+     * @param string $sPluginXmlString
+     * @param array  $aData
+     */
+    public function LoadFromXml($sPluginXmlString, $aData = null) {
+
+        if ($this->oXml = @simplexml_load_string($sPluginXmlString)) {
             if (is_null($aData)) {
                 $aData = array(
                     'priority' => 0,
@@ -47,10 +79,20 @@ class ModulePlugin_EntityPlugin extends Entity {
             if ($sId = (string)$this->oXml->id) {
                 $aData['id'] = $sId;
             }
-            $aData['priority'] = intval($this->oXml->priority);
+            $sPriority = trim($this->oXml->priority);
+            if ($sPriority) {
+                if (is_numeric($sPriority)) {
+                    $sPriority = intval($sPriority);
+                } else {
+                    $sPriority = strtolower($sPriority);
+                }
+            } else {
+                $sPriority = 0;
+            }
+            $aData['priority'] = $sPriority;
             $aData['property'] = $this->oXml;
 
-            $this->_setData($aData);
+            $this->setProps($aData);
         }
     }
 
@@ -59,19 +101,31 @@ class ModulePlugin_EntityPlugin extends Entity {
      *
      * @param SimpleXMLElement $oXml         - XML узел
      * @param string           $sProperty    - Свойство, которое нужно вернуть
-     * @param string           $sLang        - Название языка
+     * @param string|array     $xLang        - Название языка
      * @param bool             $bHtml        - HTML или текст
      */
-    protected function _xlang($oXml, $sProperty, $sLang, $bHtml = false) {
+    protected function _xlang($oXml, $sProperty, $xLang, $bHtml = false) {
 
         $sProperty = trim($sProperty);
 
-        if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
-            $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+        if (is_array($xLang)) {
+            foreach($xLang as $sLang) {
+                if (count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
+                    break;
+                }
+                if (!count($data)) {
+                    $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+                }
+            }
+        } else {
+            if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$xLang}']"))) {
+                $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+            }
         }
+
         $sText = trim((string)array_shift($data));
         if ($sText) {
-            $oXml->$sProperty->data = ($bHtml ? $this->Text_Parser($sText) : strip_tags($sText));
+            $oXml->$sProperty->data = ($bHtml ? E::ModuleText()->Parser($sText) : strip_tags($sText));
         } else {
             $oXml->$sProperty->data = '';
         }
@@ -90,8 +144,8 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp($sName);
         if (is_null($sResult)) {
-            $sLang = $this->Lang_GetLang();
-            $this->_xlang($this->oXml, $sName, $sLang);
+            $aLangs = E::ModuleLang()->GetLangAliases(true);
+            $this->_xlang($this->oXml, $sName, $aLangs);
             $xProp = $this->_getXmlProperty($sName);
             if ($xProp->data) {
                 $sResult = (string)$xProp->data;
@@ -103,26 +157,41 @@ class ModulePlugin_EntityPlugin extends Entity {
         return $sResult;
     }
 
+    /**
+     * @return string
+     */
     public function GetName() {
 
         return $this->_getXmlLangProperty('name');
     }
 
+    /**
+     * @return string
+     */
     public function GetDescription() {
 
         return $this->_getXmlLangProperty('description');
     }
 
+    /**
+     * @return string
+     */
     public function GetAuthor() {
 
         return $this->_getXmlLangProperty('author');
     }
 
+    /**
+     * @return string
+     */
     public function GetPluginClass() {
 
         return 'Plugin' . ucfirst($this->GetCode());
     }
 
+    /**
+     * @return string
+     */
     public function GetAdminClass() {
 
         $aAdminPanel = $this->getProp('adminpanel');
@@ -133,6 +202,9 @@ class ModulePlugin_EntityPlugin extends Entity {
         }
     }
 
+    /**
+     * @return bool
+     */
     public function HasAdminpanel() {
 
         $sClass = $this->GetAdminClass();
@@ -146,6 +218,9 @@ class ModulePlugin_EntityPlugin extends Entity {
         return false;
     }
 
+    /**
+     * @return array|bool
+     */
     public function GetAdminMenuEvents() {
 
         if ($this->IsActive()) {
@@ -168,76 +243,121 @@ class ModulePlugin_EntityPlugin extends Entity {
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function GetVersion() {
 
         return (string)$this->_getXmlProperty('version');
     }
 
+    /**
+     * @return string
+     */
     public function GetHomepage() {
 
         $sResult = $this->getProp('homepage');
         if (is_null($sResult)) {
-            $sResult = $this->Text_Parser((string)$this->_getXmlProperty('homepage'));
+            $sResult = E::ModuleText()->Parser((string)$this->_getXmlProperty('homepage'));
             $this->setProp('homepage', $sResult);
         }
         return $sResult;
     }
 
+    /**
+     * @return string
+     */
     public function GetSettings() {
 
         $sResult = $this->getProp('settings');
         if (is_null($sResult)) {
-            $sResult = preg_replace('/{([^}]+)}/', Router::GetPath('$1'), $this->oXml->settings);
+            $sResult = preg_replace('/{([^}]+)}/', R::GetPath('$1'), $this->oXml->settings);
             $this->setProp('settings', $sResult);
         }
         return $sResult;
     }
 
+    /**
+     * @return string
+     */
+    public function GetDirname() {
+
+        $sResult = (string)$this->_getXmlProperty('dirname');
+        return $sResult ? $sResult : $this->GetId();
+    }
+
+    /**
+     * @return string
+     */
     public function GetEmail() {
 
         return (string)$this->_getXmlProperty('author')->email;
     }
 
+    /**
+     * @return bool
+     */
     public function IsActive() {
 
         return (bool)$this->getProp('is_active');
     }
 
+    /**
+     * @return bool
+     */
     public function isTop() {
 
         return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
     }
 
+    /**
+     * @return array
+     */
     public function Requires() {
 
         return $this->_getXmlProperty('requires');
     }
 
+    /**
+     * @return string
+     */
     public function RequiredAltoVersion() {
 
         $oRequires = $this->Requires();
         $sAltoVersion = (string)$oRequires->alto->version;
-        if (!$sAltoVersion)
+        if (!$sAltoVersion) {
             $sAltoVersion = (string)$oRequires->alto;
+        }
         return $sAltoVersion;
     }
 
+    /**
+     * @return string
+     */
     public function RequiredPhpVersion() {
 
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
         }
+        return '';
     }
 
+    /**
+     * @return array|SimpleXmlElement
+     */
     public function RequiredPlugins() {
 
         $oRequires = $this->Requires();
         if ($oRequires->plugins) {
             return $oRequires->plugins->children();
         }
+        return array();
     }
 
+    /**
+     * @return bool
+     */
     public function EngineCompatible() {
 
         $oRequires = $this->Requires();
@@ -252,7 +372,6 @@ class ModulePlugin_EntityPlugin extends Entity {
         } else {
             return version_compare($sLsVersion, LS_VERSION, '<=');
         }
-        return false;
     }
 }
 

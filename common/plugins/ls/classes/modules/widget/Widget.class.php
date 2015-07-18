@@ -135,8 +135,8 @@ class PluginLs_ModuleWidget extends PluginLs_Inherit_ModuleWidget {
                                 $aParams = array();
                                 $nPriority = isset($aParams['priority']) ? $aParams['priority'] : 5;
                             } else {
-                                $aParams = isset($aParams['params']) ? $aParams['params'] : array();
                                 $nPriority = isset($aParams['priority']) ? $aParams['priority'] : 5;
+                                $aParams = isset($aParams['params']) ? $aParams['params'] : array();
                             }
                             $aWidgetData = array(
                                 'name' => $sName,
@@ -153,6 +153,24 @@ class PluginLs_ModuleWidget extends PluginLs_Inherit_ModuleWidget {
         }
         return $aResult;
     }
+
+    public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
+
+        $xResult = parent::FileClassExists($sName, $sPlugin, $bReturnClassName);
+        if (!$xResult) {
+            $aPathSeek = F::GetPluginsDir();
+            if ($sPlugin && $aPathSeek) {
+                $sName = ucfirst($sName);
+                $sFile = $sPlugin . '/classes/blocks/Block' . $sName . '.class.php';
+                $sClass = 'Plugin' . ucfirst($sPlugin) . '_Block' . $sName;
+                if (F::File_Exists($sFile, $aPathSeek)) {
+                    return $bReturnClassName ? $sClass : $sFile;
+                }
+            }
+        }
+        return $xResult;
+    }
+
 }
 
 // EOF

@@ -8,31 +8,56 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleSkin_EntitySkin
+ *
+ * @method GetId()
+ */
 class ModuleSkin_EntitySkin extends Entity {
 
     public function __construct($aParams = false) {
 
-        if (is_array($aParams)) {
-            $this->_setData($aParams);
-        } elseif($aParams) {
-            $this->LoadFromXmlFile((string)$aParams);
+        if (!is_array($aParams)) {
+            $aParams['id'] = (string)$aParams;
+        }
+        $this->setProps($aParams);
+        if (!$this->isProp('property') && $this->getId()) {
+            $this->LoadFromXmlFile($this->getId(), $aParams);
         }
         $this->Init();
     }
 
+    /**
+     * @param string $sSkinId
+     * @param array $aData
+     */
     public function LoadFromXmlFile($sSkinId, $aData = null) {
 
-        $sSkinXML = $this->Skin_GetSkinManifest($sSkinId);
-        if (is_null($aData)) {
+        if (isset($aData['dir'])) {
+            $sSkinDir = $aData['dir'];
+        } else {
+            $sSkinDir = null;
+        }
+        $sSkinXML = E::ModuleSkin()->GetSkinManifest($sSkinId, $sSkinDir);
+        if (!is_array($aData)) {
             $aData = array(
                 'id' => $sSkinId,
             );
+        } elseif (!isset($aData['id'])) {
+            $aData['id'] = $sSkinId;
         }
         $this->LoadFromXml($sSkinXML, $aData);
     }
 
+    /**
+     * @param string $sSkinXML
+     * @param array $aData
+     */
     public function LoadFromXml($sSkinXML, $aData = null) {
 
+        if (Is_null($aData)) {
+            $aData = array();
+        }
         $oXml = @simplexml_load_string($sSkinXML);
         if (!$oXml) {
             $sXml = '<?xml version="1.0" encoding="UTF-8"?>
@@ -43,18 +68,18 @@ class ModuleSkin_EntitySkin extends Entity {
         }
 
         // Обрабатываем данные манифеста
-        $sLang = $this->Lang_GetLang();
+        $sLang = E::ModuleLang()->GetLang();
 
         $this->_xlang($oXml, 'name', $sLang);
         $this->_xlang($oXml, 'author', $sLang);
         $this->_xlang($oXml, 'description', $sLang);
-        $oXml->homepage = $this->Text_Parser((string)$oXml->homepage);
+        $oXml->homepage = E::ModuleText()->Parser((string)$oXml->homepage);
 
         if ($sId = (string)$oXml->id) {
             $aData['id'] = $sId;
         }
         $aData['property'] = $oXml;
-        $this->_setData($aData);
+        $this->setProps($aData);
     }
 
     /**
@@ -71,9 +96,14 @@ class ModuleSkin_EntitySkin extends Entity {
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
             $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
         }
-        $oXml->$sProperty->data = $this->Text_Parser(trim((string)array_shift($data)));
+        $oXml->$sProperty->data = E::ModuleText()->Parser(trim((string)array_shift($data)));
     }
 
+    /**
+     * @param string $sKey
+     *
+     * @return string|null
+     */
     protected function _getDataItem($sKey) {
 
         if (isset($this->_aData[$sKey]))
@@ -82,14 +112,23 @@ class ModuleSkin_EntitySkin extends Entity {
             return null;
     }
 
+    /**
+     * @param string $sProp
+     *
+     * @return mixed
+     */
     public function _getDataProperty($sProp = null) {
 
-        if (is_null($sProp))
+        if (is_null($sProp)) {
             return $this->_aData['property'];
-        else
+        } else {
             return $this->_aData['property']->$sProp;
+        }
     }
 
+    /**
+     * @return string
+     */
     public function GetName() {
 
         $xProp = $this->_getDataProperty('name');
@@ -99,6 +138,9 @@ class ModuleSkin_EntitySkin extends Entity {
             return $xProp->lang;
     }
 
+    /**
+     * @return string
+     */
     public function GetDescription() {
 
         $xProp = $this->_getDataProperty('description');
@@ -108,6 +150,9 @@ class ModuleSkin_EntitySkin extends Entity {
             return $xProp->lang;
     }
 
+    /**
+     * @return string
+     */
     public function GetAuthor() {
 
         $xProp = $this->_getDataProperty('author');
@@ -117,21 +162,33 @@ class ModuleSkin_EntitySkin extends Entity {
             return $xProp->lang;
     }
 
+    /**
+     * @return string
+     */
     public function GetVersion() {
 
         return (string)$this->_getDataProperty('version');
     }
 
+    /**
+     * @return string
+     */
     public function GetHomepage() {
 
         return (string)$this->_getDataProperty('homepage');
     }
 
+    /**
+     * @return string
+     */
     public function GetEmail() {
 
         return (string)$this->_getDataProperty('author')->email;
     }
 
+    /**
+     * @return bool
+     */
     public function IsActive() {
 
         return (bool)$this->_getDataItem('is_active');
@@ -142,21 +199,33 @@ class ModuleSkin_EntitySkin extends Entity {
         return $this->_getDataProperty('requires');
     }
 
+    /**
+     * Returns array of screenshots
+     *
+     * @return array
+     */
     public function GetScreenshots() {
 
-        $aData = $this->_getDataProperty('info')->screenshots->screenshot;
         $aResult = array();
-        if (sizeof($aData)) {
-            foreach ($aData as $oProp) {
-                $aResult[] = array(
-                    'preview' => (strtolower($oProp['preview']) === 'yes'),
-                    'file' => (string)$oProp['file'],
-                );
+        if ($this->_getDataProperty('info')->screenshots) {
+            $aData = $this->_getDataProperty('info')->screenshots->screenshot;
+            if (sizeof($aData)) {
+                foreach ($aData as $oProp) {
+                    $aResult[] = array(
+                        'preview' => (strtolower($oProp['preview']) === 'yes'),
+                        'file' => (string)$oProp['file'],
+                    );
+                }
             }
         }
         return $aResult;
     }
 
+    /**
+     * Returns preview from manifest
+     *
+     * @return string|null
+     */
     public function GetPreview() {
 
         $aScreens=$this->GetScreenshots();
@@ -169,14 +238,20 @@ class ModuleSkin_EntitySkin extends Entity {
         return null;
     }
 
+    /**
+     * Returns URL of preview if it exists
+     *
+     * @return string|null
+     */
     public function GetPreviewUrl() {
 
         $aScreen = $this->GetPreview();
         if ($aScreen && isset($aScreen['file'])) {
-            $sFile = Config::Get('path.skins.dir') . $this->GetId() . '/settings/' . $aScreen['file'];
+            $sFile = ($this->getDir() ? $this->getDir() : Config::Get('path.skins.dir') . $this->GetId()) . '/settings/' . $aScreen['file'];
             $sUrl = F::File_Dir2Url($sFile);
             return $sUrl;
         }
+        return null;
     }
 
     /**
@@ -193,11 +268,15 @@ class ModuleSkin_EntitySkin extends Entity {
         }
     }
 
+    /**
+     * Return list of themes
+     *
+     * @return array
+     */
     public function GetThemes() {
 
-        $aData = $this->_getDataProperty('info')->themes->theme;
         $aResult = array();
-        if (sizeof($aData)) {
+        if ($this->_getDataProperty('info')->themes && ($aData = $this->_getDataProperty('info')->themes->theme) && sizeof($aData)) {
             foreach ($aData as $oProp) {
                 $aResult[] = array(
                     'code' => (string)$oProp['code'],
@@ -209,6 +288,26 @@ class ModuleSkin_EntitySkin extends Entity {
         return $aResult;
     }
 
+    /**
+     * Return value of attribute "compatible" of skin
+     *
+     * @return string
+     */
+    public function GetCompatible() {
+
+        $sResult = '';
+        $aProps = $this->getProp('property');
+        if ($aProps) {
+            $sResult = (string)$aProps['compatible'];
+        }
+        return $sResult;
+    }
+
+    /**
+     * What minimal version Alto CMS required
+     *
+     * @return string
+     */
     public function RequiredAltoVersion() {
 
         $oRequires = $this->Requires();
@@ -218,22 +317,38 @@ class ModuleSkin_EntitySkin extends Entity {
         return $sAltoVersion;
     }
 
+    /**
+     * What version of PHP required
+     *
+     * @return string
+     */
     public function RequiredPhpVersion() {
 
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
         }
+        return null;
     }
 
+    /**What plugins required
+     *
+     * @return null
+     */
     public function RequiredPlugins() {
 
         $oRequires = $this->Requires();
         if ($oRequires->Plugins) {
             return $oRequires->Plugins->children();
         }
+        return null;
     }
 
+    /**
+     * Check compatibility of skin with current version of Alto CMS
+     *
+     * @return mixed
+     */
     public function EngineCompatible() {
 
         $oRequires = $this->Requires();
@@ -248,8 +363,44 @@ class ModuleSkin_EntitySkin extends Entity {
         } else {
             return version_compare($sLsVersion, LS_VERSION, '<=');
         }
+    }
+
+    /**
+     * Check the skin compatibility
+     *
+     * @param string|null $sVersion
+     * @param string|null $sOperator
+     *
+     * @return bool
+     */
+    public function SkinCompatible($sVersion = null, $sOperator = null) {
+
+        $sValue = $this->GetCompatible();
+        if ($sValue) {
+            // version of skin edition
+            if (!strpos($sValue, '-')) {
+                $sAlto = $sValue;
+                $sModVersion = null;
+            } else {
+                list($sAlto, $sModVersion) = explode('-', $sValue, 2);
+            }
+            if ($sAlto == 'alto') {
+                if (!$sModVersion) {
+                    $sModVersion = '1.0';
+                }
+                if (!$sVersion) {
+                    return true;
+                } elseif (!$sOperator && version_compare($sModVersion, $sVersion, '==')) {
+                    return true;
+                } elseif ($sOperator) {
+                    return version_compare($sModVersion, $sVersion, $sOperator);
+                }
+            }
+        }
         return false;
     }
+
+
 }
 
 // EOF

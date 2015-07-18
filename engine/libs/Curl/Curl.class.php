@@ -5,9 +5,6 @@
  * Dual License - BSD and GNU GPL v.2
  * See details on license.txt
  * --------------------------------------------------------
- * Engine based on LiveStreet v.0.4.1 by Maxim Mzhelskiy
- * from http://www.livestreetcms.com/
- * --------------------------------------------------------
  * @link www.aloha-cms.com
  * @version v.0.5
  * @copyright Copyright: 2010 Aloha-CMS Team
@@ -23,7 +20,7 @@
  */
 class Curl {
 
-    const VERSION = '1.2';
+    const VERSION = '1.2.2';
 
     const CACHE_ENABLE = 1;
     const CACHE_TIME = 2;
@@ -35,6 +32,7 @@ class Curl {
         = array(
             CURLOPT_VERBOSE        => true,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => 0,
         );
     protected $_sUrl = '';
 
@@ -55,7 +53,7 @@ class Curl {
     protected $_aCacheOptions = array();
 
     /**
-     * Class conetructor
+     * Class constructor
      *
      * @param string|null $sUrl
      * @param array       $aOptions
@@ -115,6 +113,7 @@ class Curl {
             $sUrl = $this->_sUrl;
         }
         $aUrlInfo = parse_url($sUrl);
+        $aOptions = $this->_aOptions;
         if ($aUrlInfo['scheme'] == 'http' || $aUrlInfo['scheme'] == 'https') {
             // this eval for HTTP-requests only
             if (!$sHttpMethod) {
@@ -133,7 +132,6 @@ class Curl {
                     $this->addHttpHeader('Keep-Alive', intval($this->_bKeepAlive));
                 }
             }
-            $aOptions = $this->_aOptions;
             if (!isset($aOptions[CURLOPT_HEADER])) {
                 $aOptions[CURLOPT_HEADER] = 1;
             }
@@ -162,6 +160,8 @@ class Curl {
 
         if ($bCache = $this->cacheEnable()) {
             $aData = $this->_getCache($aOptions);
+        } else {
+            $aData = null;
         }
         if ($aData && isset($aData['version']) && $aData['version'] == self::VERSION) {
             $sResponse = $aData['response'];
@@ -173,9 +173,15 @@ class Curl {
                 $this->_hPointer = curl_init();
             }
 
-            curl_setopt_array($this->_hPointer, $aOptions);var_dump($aOptions);
+            curl_setopt_array($this->_hPointer, $aOptions);
             $sResponse = curl_exec($this->_hPointer);
-            $this->_nError = curl_errno($this->_hPointer);
+            if ($sResponse === false) {
+                $this->_nError = curl_errno($this->_hPointer);
+                $this->_sError = curl_error($this->_hPointer);
+            } else {
+                $this->_nError = 0;
+                $this->_sError = null;
+            }
             $this->_aInfo = curl_getinfo($this->_hPointer);
             $this->_aResponseHeader = null;
             if (isset($aOptions[CURLOPT_HEADER]) && $aOptions[CURLOPT_HEADER]) {
@@ -187,12 +193,12 @@ class Curl {
             if ($bCache) {
                 $this->_setCache(
                     $aOptions, array(
-                                    'version'  => self::VERSION,
-                                    'header'   => $this->_aResponseHeader,
-                                    'response' => $sResponse,
-                                    'error'    => $this->_nError,
-                                    'info'     => $this->_aInfo,
-                               )
+                        'version'  => self::VERSION,
+                        'header'   => $this->_aResponseHeader,
+                        'response' => $sResponse,
+                        'error'    => $this->_nError,
+                        'info'     => $this->_aInfo,
+                    )
                 );
             }
             if (!$this->_bKeepAlive) {
@@ -287,6 +293,7 @@ class Curl {
             $sData = file_get_contents($sFileName);
             return unserialize($sData);
         }
+        return null;
     }
 
     /**
@@ -345,6 +352,7 @@ class Curl {
      * @param $aParams
      */
     public function setParams($aParams) {
+
         $this->_aHttpParams = (array)$aParams;
     }
 
@@ -445,8 +453,8 @@ class Curl {
     /**
      * Sets external cache function and turns on caching
      *
-     * @param $xCallbackSet
-     * @param $xCallbackGet
+     * @param callable $xCallbackSet
+     * @param callable $xCallbackGet
      */
     public function setCacheFunc($xCallbackSet = null, $xCallbackGet = null) {
 
@@ -497,11 +505,11 @@ class Curl {
         if (!$sMethod) {
             $sMethod = $this->_sHttpMethod;
         }
-        // Если запрос не совпадает с предыдущим, то закрываем соединение
+        // If the request is not the same as the previous one, then close the connection
         if ($this->_sLastRequest && $this->_sLastRequest != $this->_sHttpMethod . ' ' . $sUrl) {
             $this->close();
         }
-        // Если соединение закрыто, то инициализируем его
+        // If the connection is closed, then initialize it
         if (!$this->_hPointer) {
             $this->init($sUrl);
         }
@@ -513,6 +521,8 @@ class Curl {
             if ($aParams) {
                 if (!is_string($aParams)) {
                     $sParams = http_build_query((array)$aParams);
+                } else {
+                    $sParams = (string)$aParams;
                 }
                 $sUrl = trim($sUrl, '?&');
                 if (strpos($sUrl, '?')) {
@@ -532,7 +542,7 @@ class Curl {
     }
 
     /**
-     * POST-запрос по переданному (или по ранее заданному) адресу
+     * POST-request to the transferred (or previously given) URL
      *
      * @param null  $sUrl
      * @param array $aParams
@@ -540,12 +550,13 @@ class Curl {
      * @return mixed
      */
     public function requestPost($sUrl = null, $aParams = array()) {
+
         $this->_sHttpMethod = 'POST';
         return $this->request($sUrl, $aParams);
     }
 
     /**
-     * GET-запрос по переданному (или по ранее заданному) адресу
+     * GET-request to the transferred (or previously given) URL
      *
      * @param null  $sUrl
      * @param array $aParams
@@ -553,12 +564,13 @@ class Curl {
      * @return mixed
      */
     public function requestGet($sUrl = null, $aParams = array()) {
+
         $this->_sHttpMethod = 'GET';
         return $this->request($sUrl, $aParams);
     }
 
     /**
-     * Возвращает curl-информацию
+     * Get curl-information
      *
      * @return array
      */
@@ -572,28 +584,53 @@ class Curl {
     }
 
     /**
-     * Возвращает код ошибки
+     * Get response header
+     *
+     * @param bool $bAsArray If true then return as an array otherwise returns as a plain text
+     *
+     * @return array|string
+     */
+    public function getResponseHeader($bAsArray = false) {
+
+        $xResult = $this->_aResponseHeader;
+        if ($bAsArray && $xResult) {
+            $aLines = array_map('trim', explode("\n", $xResult));
+            $aHeaders = array();
+            foreach($aLines as $sLine) {
+                if (strpos($sLine, ':')) {
+                    list($sKey, $sVal) = array_map('trim', explode(':', $sLine, 2));
+                    $aHeaders[$sKey] = $sVal;
+                } else {
+                    $aHeaders[] = $sLine;
+                }
+            }
+            $xResult = $aHeaders;
+        }
+        return $xResult;
+    }
+
+    /**
+     * Get error code
      *
      * @return int
      */
     public function getErrNo() {
+
         return $this->_nError;
     }
 
     /**
-     * Возвращает текст ошибки
+     * Get error text
      *
      * @return string
      */
     public function getError() {
-        if ($this->_nError) {
-            return curl_strerror($this->_nError);
-        }
-        return '';
+
+        return $this->_sError;
     }
 
     /**
-     * Закрывает соединение
+     * Close connection
      */
     public function close() {
 

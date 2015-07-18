@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skin compatible="alto-1.1">
+    <name>
+        <lang name="default">Experience</lang>
+    </name>
+    <author>
+        <lang name="default">Команда разработчиков Alto CMS</lang>
+    </author>
+    <homepage>http://altocms.ru</homepage>
+    <version>1.0.3</version>
+    <requires>
+        <alto>
+            <version>1.1.0b</version>
+        </alto>
+        <system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">Тема оформления для Alto CMS</lang>
+    </description>
+    <info type="site">
+        <screenshots>
+            <screenshot preview="yes" file="screenshot.jpg"/>
+        </screenshots>
+        <themes>
+            <theme code="default" name="default"/>
+        </themes>
+    </info>
+</skin>

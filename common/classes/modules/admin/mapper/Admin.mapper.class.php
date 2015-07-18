@@ -38,21 +38,23 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Ban users by id
      *
-     * @param      $aUsersId
-     * @param      $sDate
-     * @param      $nUnlim
-     * @param null $sComment
+     * @param array  $aUsersId
+     * @param string $sDate
+     * @param bool   $bUnlim
+     * @param string $sComment
      *
      * @return bool
      */
-    public function BanUsers($aUsersId, $sDate, $nUnlim, $sComment = null) {
+    public function BanUsers($aUsersId, $sDate, $bUnlim, $sComment = null) {
 
         $this->UnbanUsers($aUsersId);
         foreach($aUsersId as $nUserId) {
             $sql = "
-                REPLACE INTO ?_adminban
-                SET user_id=?d, bandate=?, banline=?, banunlim=?, bancomment=?, banactive=1";
-            if ($this->oDb->query($sql, $nUserId, F::Now(), $sDate, $nUnlim ? 1 : 0, $sComment) === false)
+                INSERT INTO ?_adminban
+                  (user_id, bandate, banline, banunlim, bancomment, banactive)
+                  VALUES (?d, ?, ?, ?, ?, 1)
+                ";
+            if ($this->oDb->query($sql, $nUserId, F::Now(), $sDate, $bUnlim ? 1 : 0, $sComment) === false)
                 return false;
         }
         return true;
@@ -61,7 +63,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Unban users by id
      *
-     * @param $aUsersId
+     * @param array $aUsersId
      *
      * @return bool
      */
@@ -74,23 +76,23 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Return list of banned users
      *
-     * @param $nCount
-     * @param $nCurrPage
-     * @param $nPerPage
+     * @param int $iCount
+     * @param int $iCurrPage
+     * @param int $iPerPage
      *
      * @return array
      */
-    public function GetBannedUsersId(&$nCount, $nCurrPage, $nPerPage) {
+    public function GetBannedUsersId(&$iCount, $iCurrPage, $iPerPage) {
 
         $sql = "
             SELECT DISTINCT ab.user_id
             FROM
                 ?_adminban AS ab
-            WHERE (ab.user_id>0) AND (ab.banunlim>0 OR (Now()<ab.banline AND ab.banactive=1))
+            WHERE (ab.user_id>0) AND (ab.banunlim>0 OR (ab.banline>? AND ab.banactive=1))
             ORDER BY ab.bandate DESC
             LIMIT ?d, ?d
             ";
-        $aRows = $this->oDb->selectPage($nCount, $sql, ($nCurrPage - 1) * $nPerPage, $nPerPage);
+        $aRows = $this->oDb->selectPage($iCount, $sql, F::Now(), ($iCurrPage - 1) * $iPerPage, $iPerPage);
         $aResult = array();
         if ($aRows)
             foreach($aRows as $aRow) {
@@ -102,9 +104,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Returns list of banned IPs
      *
-     * @param $iCount
-     * @param $iCurrPage
-     * @param $iPerPage
+     * @param int $iCount
+     * @param int $iCurrPage
+     * @param int $iPerPage
      *
      * @return array
      */
@@ -134,34 +136,57 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Ban range of IPs
      *
-     * @param $sIp1
-     * @param $sIp2
-     * @param $dDate
-     * @param $nUnlim
-     * @param $sComment
+     * @param string $sIp1
+     * @param string $sIp2
+     * @param string $sDate
+     * @param bool   $bUnlim
+     * @param string $sComment
      *
      * @return bool
      */
-    public function SetBanIp($sIp1, $sIp2, $dDate, $nUnlim, $sComment) {
+    public function SetBanIp($sIp1, $sIp2, $sDate, $bUnlim, $sComment) {
 
-        $sql = "
+        $sql
+            = "
             INSERT INTO ?_adminips
-                SET
-                    ip1=INET_ATON(?),
-                    ip2=INET_ATON(?),
-                    bandate=?,
-                    banline=?,
-                    banunlim=?d,
-                    bancomment=?,
-                    banactive=1
+                (
+                    ip1,
+                    ip2,
+                    bandate,
+                    banline,
+                    banunlim,
+                    bancomment,
+                    banactive
+                )
+                VALUES (
+                    INET_ATON(?:ip1),
+                    INET_ATON(?:ip2),
+                    ?:bandate,
+                    ?:banline,
+                    ?:banunlim,
+                    ?:bancomment,
+                    ?:banactive
+                )
                     ";
-        return $this->oDb->query($sql, $sIp1, $sIp2, F::Now(), $dDate, $nUnlim, $sComment) !== false;
+        $nId = $this->oDb->sqlQuery(
+            $sql,
+            array(
+                ':ip1'        => $sIp1,
+                ':ip2'        => $sIp2,
+                ':bandate'    => F::Now(),
+                ':banline'    => $sDate,
+                ':banunlim'   => $bUnlim ? 1 : 0,
+                ':bancomment' => $sComment,
+                ':banactive'  => 1,
+            )
+        );
+        return $nId ? $nId : false;
     }
 
     /**
      * Unban range of IPs
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return bool
      */
@@ -170,41 +195,68 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         if (!is_array($aIds)) $aIds = intval($aIds);
         $sql = "
             UPDATE ?_adminips
-            SET banactive=0, banunlim=0 WHERE id IN (?a)";
+            SET banactive=0, banunlim=0
+            WHERE id IN (?a)";
         return $this->oDb->query($sql, $aIds) !== false;
     }
 
     /**
      * Returns list of invites
      *
-     * @param $iCount
-     * @param $iCurrPage
-     * @param $iPerPage
+     * @param int   $iCount
+     * @param int   $iCurrPage
+     * @param int   $iPerPage
+     * @param array $aFilter
      *
      * @return array
      */
-    public function GetInvites(&$iCount, $iCurrPage, $iPerPage) {
+    public function GetInvites(&$iCount, $iCurrPage, $iPerPage, $aFilter = array()) {
 
         $sql =
-            "SELECT invite_id, invite_code, user_from_id, user_to_id,
+            "SELECT
+                invite_id, invite_code, user_from_id, user_to_id,
                 invite_date_add, invite_date_used, invite_used,
                 u1.user_login AS from_login,
                 u2.user_login AS to_login
-              FROM ?_invite AS i
+            FROM ?_invite AS i
                 LEFT JOIN ?_user AS u1 ON i.user_from_id=u1.user_id
                 LEFT JOIN ?_user AS u2 ON i.user_to_id=u2.user_id
+            WHERE
+                1=1
+                {AND invite_used=?d}
+                {AND invite_used=?d}
             ORDER BY invite_id DESC
             LIMIT ?d, ?d";
-        if (($aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage))) {
-            return $aRows;
-        }
-        return array();
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            isset($aFilter['used']) ? 1 : DBSIMPLE_SKIP,
+            isset($aFilter['unused']) ? 0 : DBSIMPLE_SKIP,
+            ($iCurrPage - 1) * $iPerPage,
+            $iPerPage
+        );
+        return $aRows ? $aRows : array();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function GetInvitesCount() {
+
+        $sql =
+            "SELECT
+                COUNT(invite_id) AS cnt,
+                SUM(invite_used) AS used,
+                SUM(CASE WHEN invite_used=0 THEN 1 ELSE 0 END) AS unused
+            FROM ?_invite
+            ";
+        $aResult = $this->oDb->selectRow($sql);
+        $aResult['all'] = $aResult['cnt'];
+        return $aResult;
     }
 
     /**
      * Deletes unused invites
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return bool
      */
@@ -225,11 +277,39 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      */
     public function UpdateCustomConfig($aData) {
 
-        $sql = "REPLACE INTO ?_storage(?#) VALUES(?a)";
-        // multi insert
-        return ($this->oDb->query($sql, array_keys($aData[0]), array_values($aData)) !== false);
+        $sql = "
+            SELECT storage_key FROM ?_storage WHERE storage_key IN (?a) LIMIT ?d
+        ";
+        $aExists = $this->oDb->selectCol($sql, F::Array_Column($aData, 'storage_key'), sizeof($aData));
+        $aInsert = array();
+        $aUpdate = array();
+        foreach($aData as $aItem) {
+            if (in_array($aItem['storage_key'], $aExists)) {
+                $aUpdate[] = $aItem;
+            } else {
+                $aInsert[] = $aItem;
+            }
+        }
+        if ($aInsert) {
+            $sql = "INSERT INTO ?_storage(?#) VALUES(?a)";
+            // multi insert
+            $this->oDb->query($sql, array_keys($aInsert[0]), array_values($aInsert));
+        }
+        if ($aUpdate) {
+            $sql = "UPDATE ?_storage SET storage_val=? WHERE storage_key=?";
+            foreach($aUpdate as $aItem) {
+                $this->oDb->query($sql, $aItem['storage_val'], $aItem['storage_key']);
+            }
+        }
+
+        return true;
     }
 
+    /**
+     * @param string $sPrefix
+     *
+     * @return mixed
+     */
     public function GetCustomConfig($sPrefix = '') {
 
         if ($sPrefix) {
@@ -246,6 +326,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql);
     }
 
+    /**
+     * @param string $sPrefix
+     *
+     * @return bool
+     */
     public function DeleteCustomConfig($sPrefix = '') {
 
         if ($sPrefix) {
@@ -262,6 +347,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->query($sql) !== false;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForUsers() {
 
         $sql = "
@@ -279,6 +367,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForUsers($aBlogIds) {
 
         $sql = "
@@ -289,6 +382,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForCommentsOnline() {
 
         $sql = "
@@ -306,6 +402,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForCommentsOnline($aBlogIds) {
 
         $sql = "
@@ -316,6 +417,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedTopicsForCommentsOnline() {
 
         $sql = "
@@ -332,6 +436,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param array $aTopicsId
+     *
+     * @return mixed
+     */
     public function DelUnlinkedTopicsForCommentsOnline($aTopicsId) {
 
         $sql = "
@@ -342,21 +451,23 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
-    public function SetAdministrator($nUserId) {
+    /**
+     * Устанавливает новую роль пользователя
+     *
+     * @param $oUser
+     * @param $iRole
+     * @return mixed
+     */
+    public function UpdateRole($oUser, $iRole) {
 
-        $sql = "SELECT user_id FROM ?_user_administrator WHERE user_id=?";
-        if (!$this->oDb->selectCell($sql, $nUserId)) {
-            return $this->oDb->query("INSERT INTO ?_user_administrator (user_id) VALUES(?)", $nUserId) !== false;
-        }
-        return false;
+        $sql = "UPDATE ?_user SET user_role = ?d WHERE user_id = ?d";
+        return $this->oDb->query($sql, $iRole, $oUser->getId());
+
     }
 
-    public function UnsetAdministrator($nUserId) {
-
-        $sql = "DELETE FROM ?_user_administrator WHERE user_id=?";
-        return $this->oDb->query($sql, $nUserId) !== false;
-    }
-
+    /**
+     * @return int
+     */
     public function GetNumTopicsWithoutUrl() {
 
         $sql = "
@@ -366,6 +477,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return intval($this->oDb->selectCell($sql));
     }
 
+    /**
+     * @param int $nLimit
+     *
+     * @return mixed
+     */
     public function GetTitleTopicsWithoutUrl($nLimit) {
 
         $sql = "
@@ -379,6 +495,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql, $nLimit);
     }
 
+    /**
+     * @param array $aData
+     *
+     * @return bool
+     */
     public function SaveTopicsUrl($aData) {
 
         $sql = '';
@@ -392,6 +513,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->query($sql, array_keys($aData)) !== false;
     }
 
+    /**
+     * @return mixed
+     */
     public function GetDuplicateTopicsUrl() {
 
         $sql = "
@@ -404,6 +528,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql);
     }
 
+    /**
+     * @param array $aUrls
+     *
+     * @return mixed
+     */
     public function GetTopicsDataByUrl($aUrls) {
 
         $sql = "
@@ -413,6 +542,77 @@ class ModuleAdmin_MapperAdmin extends Mapper {
             ORDER BY topic_date_add ASC
             ";
         return $this->oDb->select($sql, $aUrls);
+    }
+
+    /**
+     * @param $nUserId
+     *
+     * @return bool
+     */
+    public function DelUser($nUserId) {
+        $bOk = true;
+        // Удаление комментов
+
+        // находим комменты удаляемого юзера и для каждого:
+        // нижележащее дерево комментов подтягиваем к родителю удаляемого
+        $sql
+            = "SELECT comment_id AS ARRAY_KEY, comment_pid, target_type, target_id
+                FROM ?_comment
+                WHERE user_id=?d";
+
+        $aTargets = array();
+        while ($aComments = $this->oDb->select($sql, $nUserId)) {
+            if (is_array($aComments) AND sizeof($aComments)) {
+                foreach ($aComments AS $sId => $aCommentData) {
+                    $this->oDb->transaction();
+                    $sql = "UPDATE ?_comment SET comment_pid=?d WHERE comment_pid=?d";
+                    @$this->oDb->query($sql, $aCommentData['comment_pid'], $sId);
+                    $sql = "DELETE FROM ?_comment WHERE comment_id=?d";
+                    @$this->oDb->query($sql, $sId);
+                    if (!isset($aTargets[$aCommentData['target_type'] . '_' . $aCommentData['target_id']])) {
+                        $aTargets[$aCommentData['target_type'] . '_' . $aCommentData['target_id']] = array(
+                            'target_type' => $aCommentData['target_type'],
+                            'target_id'   => $aCommentData['target_id'],
+                        );
+                    }
+                    $this->oDb->commit();
+                }
+            } else {
+                break;
+            }
+        }
+        // Обновление числа комментариев
+        foreach ($aTargets as $aTarget) {
+            E::ModuleTopic()->RecalcCountOfComments($aTarget['target_id']);
+        }
+
+        // удаление остального "хозяйства"
+        //$this->oDb->transaction();
+        $sql = "DELETE FROM ?_topic WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_blog WHERE user_owner_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_vote WHERE user_voter_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_blog_user WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_adminban WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_talk_user WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_user WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        //$this->oDb->commit();
+
+        $bOk = $this->oDb->selectCell("SELECT user_id FROM ?_user WHERE user_id=?d", $nUserId);
+        return !$bOk;
     }
 
 }

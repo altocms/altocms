@@ -1,0 +1,87 @@
+//@import "../var.experience.less";
+
+
+.line-before(@left) {
+    &:before {
+        content: "|";
+        position: absolute;
+        left: @left;
+        top: 9px;
+        color: @light-gray;
+        line-height: 12px;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: "Arial", serif;
+    }
+}
+
+.sized() {
+
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+//    &::after {
+//        content: '';
+//        position: absolute;
+//        right: 0;
+//        top: 0;
+//        width: 40px;
+//        height: 100%;
+        /* Градиент */
+//        background: -moz-linear-gradient(left, rgba(230, 235, 238, 0.03), @light 100%);
+//        background: -webkit-linear-gradient(left, rgba(230, 235, 238, 0.03), @light 100%);
+//        background: -o-linear-gradient(left, rgba(230, 235, 238, 0.03), @light 100%);
+//        background: -ms-linear-gradient(left, rgba(230, 235, 238, 0.03), @light 100%);
+//        background: linear-gradient(to right, rgba(230, 235, 238, 0.03), @light 100%);
+//    }
+
+}
+
+.dark-blue-link() {
+    color: @dark-blue !important;
+    &:hover, &.active {
+        color: @blue !important;
+    }
+}
+
+.link-dark() {
+    color: #1c374c !important;
+    font-size: 13px !important;
+    &:hover {
+        color: @active-link-color !important;
+        i.fa {
+            color: #93a6ad !important;
+        }
+    }
+}
+.link-dark-dashed() {
+    text-decoration: none !important;
+    border-bottom: 1px dashed @dark-blue;
+    &:hover {
+        border-bottom: 1px dashed @active-link-color;
+    }
+}
+.link-dark-dotted() {
+    text-decoration: none !important;
+    border-bottom: 1px dotted @dark-blue;
+    &:hover {
+        border-bottom: 1px dotted @active-link-color;
+    }
+}
+
+.bullet() {
+    width: 0;
+    height: 0;
+    content: '';
+    display: inline-block;
+    position: absolute;
+    -webkit-transform: rotate(450deg);
+    border-color: transparent;
+    border-style: solid;
+    border-width: 0 6px 6px;
+    border-bottom-color: #cccccc;
+    border-bottom-color: rgba(0, 0, 0, 0.15);
+    top: 46%;
+    right: 6px;
+}

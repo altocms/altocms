@@ -1,0 +1,275 @@
+.logo-img {
+    max-height: 64px;
+}
+.logo-name {
+
+}
+
+@media (max-width: 400px) {
+    .hidden-xxs {
+        display: none;
+    }
+    .visible-xxs {
+        display: inline-block;
+    }
+}
+@media (min-width: 400px) {
+    .hidden-xxs {
+        display: inline-block;
+    }
+    .visible-xxs {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        width: 870px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1030px; /* 1000px - container + 30px */
+    }
+}
+
+/* UPLOADER */
+.uploader-actions {
+    position: relative;
+}
+
+.uploader-actions-file {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    height: 20px;
+    cursor: pointer
+}
+
+
+/* СНИППЕТЫ
+____________________________________________________________*/
+.snippet-menu {
+    width: 20px;
+    height: 16px !important;
+    background-image: none !important;
+}
+
+.snippet-menu > a, .snippet-menu > a:hover {
+    //background: url('../images/editor_snippet.png') no-repeat;
+    //width: 20px;
+    //height: 20px;
+    //background-position-x: -2px;
+    //background-position-y: -2px;
+}
+.snippet-menu ul {
+    border: 1px solid #c7c7c7 !important;
+    border-radius: 4px;
+}
+.snippet-menu li {
+    border: 0;
+    border-bottom: 1px solid #c7c7c7 !important;
+    border-radius: 4px !important;
+}
+.snippet-menu li:last-child {
+    border-bottom: 0 !important;
+}
+.snippet-menu li a {
+    background: none;
+    text-align: left;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 0 0 6px !important;
+    width: 160px !important;
+    background: white;
+    color: #434343 !important;
+}
+.snippet-menu li a:hover {
+    background-image: none;
+    background-color: #e6e6e6 !important;
+}
+
+.spoiler {
+    display: block;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.spoiler-title {
+    background: #eee;
+    color: #555;
+    text-align: left;
+    padding-left: 12px;
+    height: 18px;
+    line-height: 18px;
+}
+
+.spoiler-slider {
+    display: inline-block;
+    float: right;
+    width: 100px;
+    text-align: right;
+    padding-right: 12px;
+    color: #555;
+    cursor: pointer;
+}
+
+.spoiler-slider:hover {
+    text-decoration: underline;
+}
+
+.spoiler-text {
+    display: none;
+    padding: 12px;
+}
+
+/* ФОТОСЕТ
+______________________________________________________________*/
+.am-wrapper {
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.am-wrapper img {
+    position: absolute;
+    outline: none;
+}
+.alto-photoset {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+/* ДОБАВЛЕНИЕ КАРТИНКИ В РЕДАКТОР
+____________________________________________________________*/
+.editor-insert-picture {
+    width: 20px;
+    height: 16px !important;
+    background-image: none !important;
+}
+.editor-insert-picture > a, .editor-insert-picture > a:hover {
+    //background: url('../images/editor_insert_image.png') no-repeat;
+    //width: 20px;
+    //height: 20px;
+    //background-position-x: -2px;
+    //background-position-y: -2px;
+}
+.editor-insert-picture ul {
+    border: 1px solid #c7c7c7 !important;
+    border-radius: 4px;
+}
+.editor-insert-picture li {
+    border: 0;
+    border-bottom: 1px solid #c7c7c7 !important;
+    border-radius: 4px !important;
+}
+.editor-insert-picture li:last-child {
+    border-bottom: 0 !important;
+}
+.editor-insert-picture li a {
+    background: none;
+    text-align: left;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 0 0 6px !important;
+    width: 160px !important;
+    background: white;
+    color: #434343 !important;
+}
+.editor-insert-picture li a:hover {
+    background-image: none;
+    background-color: #e6e6e6 !important;
+}
+
+.image-categories-tree {
+    min-height: 230px;
+    border: 1px #d3d3d3;
+}
+li.active.category-show {
+    background-color: #e5e5e5;
+}
+.image-categories-tree span {
+    font-style: italic;
+    float: right;
+    font-weight: normal;
+}
+#image-container img {
+    opacity: 0.8;
+    margin-bottom: 1px;
+}
+#image-container img:hover {
+    opacity: 1;
+}
+#image-container  .masonry-container {
+    padding: 0;
+}
+#image-container  .masonry-item {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+.image-categories-tree .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: #ffffff;
+    background-color: #428bca !important;
+}
+#js-alto-image-manager .modal-dialog{
+    width: 600px;
+}
+#js-alto-image-manager .fileinput .form-control{
+    width: 234px;
+}
+
+.image-categories-nav-trigger {
+    font-size: 13px;
+    color: #93a6ad !important;
+    .options-show { display: inline-block; }
+    .options-hide { display: none; }
+    &.hidden-options {
+        .options-show { display: none; }
+        .options-hide { display: inline-block; }
+    }
+}
+
+
+.mce-snippets button>span {
+    font-size: 18px !important;
+    font-weight: bold;
+    position: relative;
+    top: -1px;
+}
+
+.markItUp a 		    { .transition(0); }
+.markItUp .editor-insert-picture a 		    { background-position: -383px -2px; }
+.markItUp .snippet-menu a 		    { background-position: -402px -2px; }
+
+.top0 {
+    top: 0 !important;
+}
+
+@media (min-width: 772px) and (max-width: 1199px) {
+    .container {
+        width: 100%;
+        padding-right: 36px;
+        padding-left: 36px;
+        & > .row {
+            margin-right: 26px;
+        }
+    }
+}
+
+@media (max-width: 900px) {
+    .container {
+        & > .row {
+            margin-right: 0;
+        }
+    }
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<id>menutest</id>
+    <name>
+        <lang name="default">MenuTest</lang>
+        <lang name="russian">MenuTest</lang>
+    </name>
+    <author>
+        <lang name="default">Alto CMS Team</lang>
+        <lang name="russian">Alto CMS Team</lang>
+    </author>
+    <homepage>http://altocms.com</homepage>
+    <version>1.0.0</version>
+    <dirname>menutest</dirname>
+    <requires>
+        <alto>
+             <version>1.0.0</version>
+        </alto>
+		<system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">Плагин, демонстрирующий работу модуля Menu</lang>
+        <lang name="russian">Плагин, демонстрирующий работу модуля Menu</lang>
+    </description>
+</plugin>

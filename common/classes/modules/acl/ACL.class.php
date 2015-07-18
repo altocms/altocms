@@ -28,6 +28,29 @@ class ModuleACL extends Module {
     const CAN_VOTE_BLOG_FALSE = 0;
     const CAN_VOTE_BLOG_TRUE = 1;
     const CAN_VOTE_BLOG_ERROR_CLOSE = 2;
+    const CAN_VOTE_BLOG_ERROR_BAN = 3;
+    /**
+     * Коды ответов на запрос о возможности
+     * пользователя голосовать за топик
+     */
+    const CAN_VOTE_TOPIC_FALSE = 0;
+    const CAN_VOTE_TOPIC_TRUE = 1;
+    const CAN_VOTE_TOPIC_ERROR_BAN = 2;
+    const CAN_VOTE_TOPIC_NOT_IS_PUBLISHED = 3;
+    /**
+     * Коды ответов на запрос о возможности
+     * пользователя голосовать за комментарий
+     */
+    const CAN_VOTE_COMMENT_FALSE = 0;
+    const CAN_VOTE_COMMENT_TRUE = 1;
+    const CAN_VOTE_COMMENT_ERROR_BAN = 2;
+    /**
+     * Коды ответов на запрос о возможности
+     * пользователя оставлять комментарий
+     */
+    const CAN_TOPIC_COMMENT_FALSE = 0;
+    const CAN_TOPIC_COMMENT_TRUE = 1;
+    const CAN_TOPIC_COMMENT_ERROR_BAN = 2;
     /**
      * Коды механизма удаления блога
      */
@@ -50,9 +73,16 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanCreateBlog(ModuleUser_EntityUser $oUser) {
-        if ($oUser->getRating() >= Config::Get('acl.create.blog.rating')) {
-            return true;
+
+        if ($oUser) {
+            if ($oUser->isAdministrator() || $oUser->isModerator()) {
+                return true;
+            }
+            if ($oUser->getRating() >= Config::Get('acl.create.blog.rating')) {
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -60,13 +90,22 @@ class ModuleACL extends Module {
      * Проверяет может ли пользователь создавать топики в определенном блоге
      *
      * @param ModuleUser_EntityUser $oUser    Пользователь
-     * @param ModuleBlog_EntityBlog $oBlog    Блог
+     * @param ModuleBlog_EntityBlog|null $oBlog    Блог
      *
      * @return bool
      */
-    public function CanAddTopic(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
+    public function CanAddTopic(ModuleUser_EntityUser $oUser, $oBlog) {
+
+        if (!$oUser) {
+            return false;
+        }
+        // Если у пользователя нет ни одного блога, то в эту переменную
+        // передаётся null, соответственно, постинг в никуда запрещаем
+        if (is_null($oBlog)) {
+            return false;
+        }
         // * Если юзер является создателем блога то разрешаем ему постить
-        if ($oUser->getId() == $oBlog->getOwnerId()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator() || ($oUser->getId() == $oBlog->getOwnerId())) {
             return true;
         }
         // * Если рейтинг юзера больше либо равен порогу постинга в блоге то разрешаем постинг
@@ -80,20 +119,41 @@ class ModuleACL extends Module {
      * Проверяет может ли пользователь создавать комментарии
      *
      * @param ModuleUser_EntityUser $oUser
-     * @param null                  $oTopic
+     * @param ModuleTopic_EntityTopic $oTopic
      *
      * @return bool
      */
-    public function CanPostComment(ModuleUser_EntityUser $oUser, $oTopic = null) {
+    public function CanPostComment(ModuleUser_EntityUser $oUser, $oTopic) {
 
-        // * Проверяем на закрытый блог
-        if ($oTopic && !$this->IsAllowShowBlog($oTopic->getBlog(), $oUser)) {
-            return false;
+        if (!$oUser) {
+            return self::CAN_TOPIC_COMMENT_FALSE;
         }
-        if ($oUser->getRating() >= Config::Get('acl.create.comment.rating')) {
-            return true;
+
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
+            return self::CAN_TOPIC_COMMENT_TRUE;
         }
-        return false;
+
+        if ($oTopic) {
+            $oBlog = $oTopic->getBlog();
+            if ($oBlog && $oBlog->getBlogType()) {
+                $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+                if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                    return self::CAN_TOPIC_COMMENT_ERROR_BAN;
+                }
+                if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT) {
+                    return self::CAN_TOPIC_COMMENT_ERROR_BAN;
+                }
+            }
+            // * Проверяем на закрытый блог
+            if (!$this->IsAllowShowBlog($oTopic->getBlog(), $oUser)) {
+                return self::CAN_TOPIC_COMMENT_FALSE;
+            }
+            if ($oUser->getRating() >= Config::Get('acl.create.comment.rating')) {
+                return self::CAN_TOPIC_COMMENT_TRUE;
+            }
+        }
+
+        return self::CAN_TOPIC_COMMENT_FALSE;
     }
 
     /**
@@ -105,6 +165,12 @@ class ModuleACL extends Module {
      */
     public function CanPostCommentTime(ModuleUser_EntityUser $oUser) {
 
+        if (!$oUser) {
+            return false;
+        }
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
+            return true;
+        }
         if (Config::Get('acl.create.comment.limit_time') > 0 && $oUser->getDateCommentLast()) {
             $sDateCommentLast = strtotime($oUser->getDateCommentLast());
             if ($oUser->getRating() < Config::Get('acl.create.comment.limit_time_rating')
@@ -124,8 +190,13 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostTopicTime(ModuleUser_EntityUser $oUser) {
+
+        if (!$oUser) {
+            return false;
+        }
         // Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.topic.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.topic.limit_time_rating')
         ) {
@@ -133,7 +204,7 @@ class ModuleACL extends Module {
         }
 
         // * Проверяем, если топик опубликованный меньше чем acl.create.topic.limit_time секунд назад
-        $aTopics = $this->Topic_GetLastTopicsByUserId($oUser->getId(), Config::Get('acl.create.topic.limit_time'));
+        $aTopics = E::ModuleTopic()->GetLastTopicsByUserId($oUser->getId(), Config::Get('acl.create.topic.limit_time'));
         if (isset($aTopics['count']) && $aTopics['count'] > 0) {
             return false;
         }
@@ -148,8 +219,14 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanSendTalkTime(ModuleUser_EntityUser $oUser) {
+
+        if (!$oUser) {
+            return false;
+        }
+
         // Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.talk.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.talk.limit_time_rating')
         ) {
@@ -157,7 +234,7 @@ class ModuleACL extends Module {
         }
 
         // * Проверяем, если топик опубликованный меньше чем acl.create.topic.limit_time секунд назад
-        $aTalks = $this->Talk_GetLastTalksByUserId($oUser->getId(), Config::Get('acl.create.talk.limit_time'));
+        $aTalks = E::ModuleTalk()->GetLastTalksByUserId($oUser->getId(), Config::Get('acl.create.talk.limit_time'));
         if (isset($aTalks['count']) && $aTalks['count'] > 0) {
             return false;
         }
@@ -172,8 +249,13 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostTalkCommentTime(ModuleUser_EntityUser $oUser) {
+
+        if (!$oUser) {
+            return false;
+        }
         // * Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.talk_comment.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.talk_comment.limit_time_rating')
         ) {
@@ -181,7 +263,7 @@ class ModuleACL extends Module {
         }
 
         // * Проверяем, если топик опубликованный меньше чем acl.create.topic.limit_time секунд назад
-        $aTalkComments = $this->Comment_GetCommentsByUserId($oUser->getId(), 'talk', 1, 1);
+        $aTalkComments = E::ModuleComment()->GetCommentsByUserId($oUser->getId(), 'talk', 1, 1);
 
         // * Если комментариев не было
         if (!is_array($aTalkComments) || $aTalkComments['count'] == 0) {
@@ -205,6 +287,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanUseHtmlInComment(ModuleUser_EntityUser $oUser) {
+
         return true;
     }
 
@@ -217,10 +300,22 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteComment(ModuleUser_EntityUser $oUser, ModuleComment_EntityComment $oComment) {
-        if ($oUser->getRating() >= Config::Get('acl.vote.comment.rating')) {
-            return true;
+
+        if (!C::Get('rating.enabled')) {
+            return self::CAN_VOTE_COMMENT_FALSE;
         }
-        return false;
+        /** @var ModuleBlog_EntityBlog $oBlog */
+        $oBlog = $oComment->getTargetBlog();
+        if ($oBlog && $oBlog->getBlogType()) {
+            $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_VOTE_COMMENT_ERROR_BAN;
+            }
+        }
+        if ($oUser->getRating() >= Config::Get('acl.vote.comment.rating')) {
+            return self::CAN_VOTE_COMMENT_TRUE;
+        }
+        return self::CAN_VOTE_COMMENT_FALSE;
     }
 
     /**
@@ -233,9 +328,15 @@ class ModuleACL extends Module {
      */
     public function CanVoteBlog(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
 
+        if (!C::Get('rating.enabled')) {
+            return self::CAN_VOTE_BLOG_FALSE;
+        }
+        $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+        if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+            return self::CAN_VOTE_BLOG_ERROR_BAN;
+        }
         // * Если блог приватный, проверяем является ли пользователь его читателем
-        if ($oBlog->getBlogType()->IsPrivate()) {
-            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+        if ($oBlog->getBlogType() && $oBlog->getBlogType()->IsPrivate()) {
             if (!$oBlogUser || $oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 return self::CAN_VOTE_BLOG_ERROR_CLOSE;
             }
@@ -256,10 +357,23 @@ class ModuleACL extends Module {
      */
     public function CanVoteTopic(ModuleUser_EntityUser $oUser, ModuleTopic_EntityTopic $oTopic) {
 
-        if ($oUser->getRating() >= Config::Get('acl.vote.topic.rating')) {
-            return true;
+        if (!C::Get('rating.enabled')) {
+            return self::CAN_VOTE_TOPIC_FALSE;
         }
-        return false;
+        if (!$oTopic->getPublish()) {
+            return self::CAN_VOTE_TOPIC_NOT_IS_PUBLISHED;
+        }
+        $oBlog = $oTopic->getBlog();
+        if ($oBlog && $oBlog->getBlogType()) {
+            $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_VOTE_TOPIC_ERROR_BAN;
+            }
+        }
+        if ($oUser->getRating() >= Config::Get('acl.vote.topic.rating')) {
+            return self::CAN_VOTE_TOPIC_TRUE;
+        }
+        return self::CAN_VOTE_TOPIC_FALSE;
     }
 
     /**
@@ -272,6 +386,9 @@ class ModuleACL extends Module {
      */
     public function CanVoteUser(ModuleUser_EntityUser $oUser, ModuleUser_EntityUser $oUserTarget) {
 
+        if (!C::Get('rating.enabled')) {
+            return false;
+        }
         if ($oUser->getRating() >= Config::Get('acl.vote.user.rating')) {
             return true;
         }
@@ -287,7 +404,7 @@ class ModuleACL extends Module {
      */
     public function CanSendInvite(ModuleUser_EntityUser $oUser) {
 
-        if ($this->User_GetCountInviteAvailable($oUser) == 0) {
+        if (E::ModuleUser()->GetCountInviteAvailable($oUser) == 0) {
             return false;
         }
         return true;
@@ -303,17 +420,14 @@ class ModuleACL extends Module {
      */
     public function IsAllowBlog($oBlog, $oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser && ($oUser->isAdministrator() ||$oUser->isModerator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
         }
         if ($oUser->getRating() <= Config::Get('acl.create.topic.limit_rating')) {
             return false;
         }
-        if ($oBlog->getOwnerId() == $oUser->getId()) {
-            return true;
-        }
 
-        return (bool)$this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true);
+        return (bool)E::ModuleBlog()->GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true) && $this->CanAddTopic($oUser, $oBlog);
     }
 
     /**
@@ -326,20 +440,18 @@ class ModuleACL extends Module {
      */
     public function IsAllowShowBlog($oBlog, $oUser) {
 
-        if (!$oBlog->getBlogType()->IsPrivate()) {
+        if ($oUser && ($oUser->isModerator() ||$oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
         }
-        if (!$oUser && !$oBlog->getBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
-            return false;
-        }
-        if ($oUser->isAdministrator()) {
-            return true;
-        }
-        if ($oBlog->getOwnerId() == $oUser->getId()) {
-            return true;
+        if ($oBlogType = $oBlog->getBlogType()) {
+            if ($oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+                return true;
+            } elseif ($oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_USER)) {
+                return $oUser ? true : false;
+            }
         }
 
-        return (bool)$this->Blog_GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
+        return (bool)E::ModuleBlog()->GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
     }
 
     /**
@@ -351,8 +463,12 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowEditTopic($oTopic, $oUser) {
+
+        if (!$oTopic || !$oUser) {
+            return false;
+        }
         // * Разрешаем если это админ сайта или автор топика
-        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator()) {
+        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // * Если владелец блога
@@ -373,8 +489,12 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowDeleteTopic($oTopic, $oUser) {
+
+        if (!$oTopic || !$oUser) {
+            return false;
+        }
         // * Разрешаем если это админ сайта или автор топика
-        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator()) {
+        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // * Если владелец блога
@@ -394,7 +514,8 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanDeleteComment($oUser) {
-        if (!$oUser || !$oUser->isAdministrator()) {
+
+        if (!$oUser || !($oUser->isAdministrator() && $oUser->isModerator())) {
             return false;
         }
         return true;
@@ -408,7 +529,8 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowPublishIndex(ModuleUser_EntityUser $oUser) {
-        if ($oUser->isAdministrator()) {
+
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         return false;
@@ -424,7 +546,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowAdminBlog($oBlog, $oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // * Разрешаем если это владелец блога
@@ -446,7 +568,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowEditBlog($oBlog, $oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // Разрешаем если это владелец блога
@@ -467,8 +589,9 @@ class ModuleACL extends Module {
      * @return bool|int
      */
     public function IsAllowDeleteBlog($oBlog, $oUser) {
+
         // * Разрешаем если это админ сайта
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return self::CAN_DELETE_BLOG_WITH_TOPICS;
         }
         // * Разрешаем владелецу, но только пустой
@@ -476,8 +599,8 @@ class ModuleACL extends Module {
             return self::CAN_DELETE_BLOG_EMPTY_ONLY;
         }
 
-        $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
-        if ($oBlogUser && $oBlogUser->getIsAdministrator()) {
+        $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+        if ($oBlogUser && $oBlogUser->IsBlogAdministrator()) {
             return self::CAN_DELETE_BLOG_EMPTY_ONLY;
         }
         return false;
@@ -495,6 +618,7 @@ class ModuleACL extends Module {
 
         // * Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.wall.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.wall.limit_time_rating')
         ) {
@@ -504,7 +628,7 @@ class ModuleACL extends Module {
             return true;
         }
         // * Получаем последнее сообщение
-        $aWall = $this->Wall_GetWall(array('user_id' => $oWall->getUserId()), array('id' => 'desc'), 1, 1, array());
+        $aWall = E::ModuleWall()->GetWall(array('user_id' => $oWall->getUserId()), array('id' => 'desc'), 1, 1, array());
         // * Если сообщений нет
         if ($aWall['count'] == 0) {
             return true;
@@ -548,12 +672,12 @@ class ModuleACL extends Module {
                         'delete_comment' => true,
                     ),
                     'moderator'     => array(
-                        'control_users' => false,
-                        'edit_blog'     => false,
-                        'edit_content'  => true,
-                        'del_content'   => false,
-                        'edit_comment'  => true,
-                        'delete_comment'   => true,
+                        'control_users'  => false,
+                        'edit_blog'      => false,
+                        'edit_content'   => true,
+                        'del_content'    => false,
+                        'edit_comment'   => true,
+                        'delete_comment' => true,
                     ),
                 ),
             );
@@ -598,24 +722,33 @@ class ModuleACL extends Module {
         $bCurrentUser = false;
         $bResult = false;
 
+        if (!$oBlog) {
+            return false;
+        }
+
         // Если пользователь не передан, то берется текущий
         if (!$oUser) {
-            if ($oUser = $this->User_GetUserCurrent()) {
+            if ($oUser = E::ModuleUser()->GetUserCurrent()) {
                 $bCurrentUser = true;
             } else {
                 return false;
             }
-        } elseif ($this->User_GetUserCurrent() && $this->User_GetUserCurrent()->getId() == $oUser->getId()) {
+        } elseif (E::ModuleUser()->GetUserCurrent() && E::ModuleUser()->GetUserCurrent()->getId() == $oUser->getId()) {
             $bCurrentUser = true;
         }
 
         $sCacheKey = 'acl_blog_user_rights' . serialize(array($oBlog->GetId(), $oUser ? $oUser->GetId() : 0, $bCurrentUser, $sRights));
         // Сначала проверяем кеш
-        if (is_int($xCacheResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
+        if (is_int($xCacheResult = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
             return $xCacheResult;
         }
 
         if ($bCurrentUser) {
+            // Blog owner has any rights
+            if ($oBlog->getUserOwnerId() == $oUser->getId()) {
+                return true;
+            }
+
             // * Для авторизованного пользователя данный код будет работать быстрее
             if ($oBlog->getUserIsAdministrator()) {
                 $sUserRole = 'administrator';
@@ -623,11 +756,11 @@ class ModuleACL extends Module {
                 $sUserRole = 'moderator';
             }
         } else {
-            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog, $oUser->getId());
+            $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog, $oUser->getId());
             if ($oBlogUser) {
-                if ($oBlogUser->getIsAdministrator()) {
+                if ($oBlogUser->IsBlogAdministrator()) {
                     $sUserRole = 'administrator';
-                } elseif ($oBlogUser->getIsModerator()) {
+                } elseif ($oBlogUser->IsBlogModerator()) {
                     $sUserRole = 'moderator';
                 }
             }
@@ -638,7 +771,7 @@ class ModuleACL extends Module {
             $bResult = isset($aUserRights[$sRights]) && (bool)$aUserRights[$sRights];
         }
 
-        $this->Cache_Set($sCacheKey, $bResult ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
+        E::ModuleCache()->Set($sCacheKey, $bResult ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
 
         return $bResult;
     }

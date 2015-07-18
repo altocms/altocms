@@ -29,6 +29,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function AddFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
+
         $sql = "
 			INSERT INTO ?_favourite
 				( target_id, target_type, user_id, tags )
@@ -53,6 +54,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function UpdateFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
+
         $sql = "
 			UPDATE ?_favourite
 				SET tags = ? WHERE user_id = ?d and target_id = ?d and target_type = ?
@@ -70,14 +72,15 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     /**
      * Получить список избранного по списку айдишников
      *
-     * @param  array  $aArrayId       Список ID владельцев
+     * @param  array  $aTargetId       Список ID владельцев
      * @param  string $sTargetType    Тип владельца
      * @param  int    $sUserId        ID пользователя
      *
      * @return array
      */
-    public function GetFavouritesByArray($aArrayId, $sTargetType, $sUserId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+    public function GetFavouritesByArray($aTargetId, $sTargetType, $sUserId) {
+
+        if (!is_array($aTargetId) || count($aTargetId) == 0) {
             return array();
         }
         $sql = "SELECT *
@@ -89,10 +92,8 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					AND
 					target_type = ? ";
         $aFavourites = array();
-        if ($aRows = $this->oDb->select($sql, $sUserId, $aArrayId, $sTargetType)) {
-            foreach ($aRows as $aRow) {
-                $aFavourites[] = Engine::GetEntity('Favourite', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $sUserId, $aTargetId, $sTargetType)) {
+            $aFavourites = E::GetEntityRows('Favourite', $aRows);
         }
         return $aFavourites;
     }
@@ -105,6 +106,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function DeleteFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
+
         $sql = "
 			DELETE FROM ?_favourite
 			WHERE
@@ -131,6 +133,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function DeleteTags($oFavourite) {
+
         $sql = "
 			DELETE FROM ?_favourite_tag
 			WHERE
@@ -157,10 +160,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function AddTag($oTag) {
+
         $sql = "
-			INSERT INTO ?_favourite_tag
-				SET target_id = ?d, target_type = ?, user_id = ?d, is_user = ?d, text =?
-		";
+          INSERT INTO ?_favourite_tag
+          (
+              target_id, target_type, user_id, is_user, text
+          )
+          VALUES (
+              ?d, ?, ?d, ?d, ?
+          )
+        ";
         $bResult = $this->oDb->query(
             $sql,
             $oTag->getTargetId(),
@@ -182,6 +191,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function SetFavouriteTargetPublish($aTargetId, $sTargetType, $iPublish) {
+
         $sql = "
 			UPDATE ?_favourite
 			SET 
@@ -198,7 +208,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     /**
      * Получает список таргетов из избранного
      *
-     * @param  int    $sUserId           ID пользователя
+     * @param  int    $iUserId           ID пользователя
      * @param  string $sTargetType       Тип владельца
      * @param  int    $iCount            Возвращает количество элементов
      * @param  int    $iCurrPage         Номер страницы
@@ -207,7 +217,8 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      *
      * @return array
      */
-    public function GetFavouritesByUserId($sUserId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array()) {
+    public function GetFavouritesByUserId($iUserId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array()) {
+
         $sql = "
 			SELECT target_id
 			FROM ?_favourite
@@ -218,14 +229,14 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND
 					target_type = ? 
 				{ AND target_id NOT IN (?a) }
-            ORDER BY target_id DESC	
+            ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
         $aRows = $this->oDb->selectPage(
             $iCount,
             $sql,
-            $sUserId,
+            $iUserId,
             $sTargetType,
             (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
             ($iCurrPage - 1) * $iPerPage,
@@ -242,15 +253,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     /**
      * Возвращает число таргетов определенного типа в избранном по ID пользователя
      *
-     * @param  int    $sUserId           ID пользователя
+     * @param  int    $iUserId           ID пользователя
      * @param  string $sTargetType       Тип владельца
      * @param  array  $aExcludeTarget    Список ID владельцев для исклчения
      *
      * @return array
      */
-    public function GetCountFavouritesByUserId($sUserId, $sTargetType, $aExcludeTarget) {
+    public function GetCountFavouritesByUserId($iUserId, $sTargetType, $aExcludeTarget) {
+
         $sql = "SELECT
-					count(target_id) as count
+					COUNT(target_id) as cnt
 				FROM 
 					?_favourite
 				WHERE 
@@ -262,25 +274,27 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					{ AND target_id NOT IN (?a) }
 					;";
         $aRow = $this->oDb->selectRow(
-            $sql, $sUserId,
+            $sql, $iUserId,
             $sTargetType,
             (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP)
         );
-        return $aRow ? $aRow['count'] : false;
+        return $aRow ? $aRow['cnt'] : false;
     }
 
     /**
      * Получает список комментариев к записям открытых блогов
      * из избранного указанного пользователя
      *
-     * @param  int $sUserId      ID пользователя
+     * @param  int $iUserId      ID пользователя
      * @param  int $iCount       Возвращает количество элементов
      * @param  int $iCurrPage    Номер страницы
      * @param  int $iPerPage     Количество элементов на страницу
      *
      * @return array
      */
-    public function GetFavouriteOpenCommentsByUserId($sUserId, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetFavouriteOpenCommentsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -301,14 +315,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND 
 					t.blog_id = b.blog_id
 				AND 
-					b.blog_type IN ('open', 'personal')	
-            ORDER BY target_id DESC	
+					b.blog_type IN (?a)
+            ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        $aRows = $this->oDb->selectPage(
-            $iCount, $sql, $sUserId,
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            $iUserId,
+            $aOpenBlogTypes,
+            ($iCurrPage - 1) * $iPerPage,
+            $iPerPage
         );
         if ($aRows) {
             foreach ($aRows as $aFavourite) {
@@ -326,8 +342,10 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return array
      */
     public function GetCountFavouriteOpenCommentsByUserId($sUserId) {
+
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "SELECT
-					count(f.target_id) as count
+					COUNT(f.target_id) as cnt
 				FROM 
 					?_favourite AS f,
 					?_comment AS c,
@@ -346,24 +364,29 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					AND 
 						t.blog_id = b.blog_id
 					AND 
-						b.blog_type IN ('open', 'personal')
+						b.blog_type IN (?a)
 					;";
-        $aRow = $this->oDb->selectRow($sql, $sUserId);
-        return $aRow ? $aRow['count'] : false;
+        $aRow = $this->oDb->selectRow($sql,
+            $sUserId,
+            $aOpenBlogTypes
+        );
+        return $aRow ? $aRow['cnt'] : false;
     }
 
     /**
      * Получает список топиков из открытых блогов
      * из избранного указанного пользователя
      *
-     * @param  int $sUserId      ID пользователя
+     * @param  int $iUserId      ID пользователя
      * @param  int $iCount       Возвращает количество элементов
      * @param  int $iCurrPage    Номер страницы
      * @param  int $iPerPage     Количество элементов на страницу
      *
      * @return array
      */
-    public function GetFavouriteOpenTopicsByUserId($sUserId, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetFavouriteOpenTopicsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -381,14 +404,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND 
 					t.blog_id = b.blog_id
 				AND 
-					b.blog_type IN ('open', 'personal')
+					b.blog_type IN (?a)
             ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        $aRows = $this->oDb->selectPage(
-            $iCount, $sql, $sUserId,
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            $iUserId,
+            $aOpenBlogTypes,
+            ($iCurrPage - 1) * $iPerPage,
+            $iPerPage
         );
         if ($aRows) {
             foreach ($aRows as $aFavourite) {
@@ -401,13 +426,15 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     /**
      * Возвращает число топиков в открытых блогах из избранного по ID пользователя
      *
-     * @param  string $sUserId    ID пользователя
+     * @param  string $iUserId    ID пользователя
      *
      * @return array
      */
-    public function GetCountFavouriteOpenTopicsByUserId($sUserId) {
+    public function GetCountFavouriteOpenTopicsByUserId($iUserId) {
+
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "SELECT
-					count(f.target_id) as count
+					COUNT(f.target_id) as cnt
 				FROM 
 					?_favourite AS f,
 					?_topic AS t,
@@ -423,10 +450,13 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					AND 
 						t.blog_id = b.blog_id
 					AND 
-						b.blog_type IN ('open', 'personal')
+						b.blog_type IN (?a)
 					;";
-        $aRow = $this->oDb->selectRow($sql, $sUserId);
-        return ($aRow ? $aRow['count'] : false);
+        $aRow = $this->oDb->selectRow($sql,
+            $iUserId,
+            $aOpenBlogTypes
+        );
+        return ($aRow ? $aRow['cnt'] : false);
     }
 
     /**
@@ -438,6 +468,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function DeleteFavouriteByTargetId($aTargetsId, $sTargetType) {
+
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
 			DELETE FROM ?_favourite
@@ -457,6 +488,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return  bool
      */
     public function DeleteTagByTarget($aTargetsId, $sTargetType) {
+
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
 			DELETE FROM ?_favourite_tag
@@ -473,15 +505,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      *
      * @param int    $iUserId        ID пользователя
      * @param string $sTargetType    Тип владельца
-     * @param bool   $bIsUser        Возвращает все теги ли только пользовательские
+     * @param bool   $bIsUser        Возвращает все теги или только пользовательские
      * @param int    $iLimit         Количество элементов
      *
      * @return array
      */
     public function GetGroupTags($iUserId, $sTargetType, $bIsUser, $iLimit) {
+
         $sql = "SELECT
 			text,
-			count(text)	as count
+			COUNT(text) AS count
 			FROM
 				?_favourite_tag
 			WHERE
@@ -492,24 +525,23 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			GROUP BY
 				text
 			ORDER BY
-				count desc
+				count DESC
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        $aReturnSort = array();
+
+        $aResult = array();
         $aRows = $this->oDb->select(
             $sql, $iUserId, $sTargetType, is_null($bIsUser) ? DBSIMPLE_SKIP : $bIsUser, $iLimit
         );
         if ($aRows) {
+            $aData = array();
             foreach ($aRows as $aRow) {
-                $aReturn[mb_strtolower($aRow['text'], 'UTF-8')] = $aRow;
+                $aData[mb_strtolower($aRow['text'], 'UTF-8')] = $aRow;
             }
-            ksort($aReturn);
-            foreach ($aReturn as $aRow) {
-                $aReturnSort[] = Engine::GetEntity('ModuleFavourite_EntityTag', $aRow);
-            }
+            ksort($aData);
+            $aResult = E::GetEntityRows('ModuleFavourite_EntityTag', $aData);
         }
-        return $aReturnSort;
+        return $aResult;
     }
 
     /**
@@ -524,6 +556,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return array
      */
     public function GetTags($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
         $aOrderAllow = array('target_id', 'user_id', 'is_user');
         $sOrder = '';
         foreach ($aOrder as $key => $value) {
@@ -563,9 +596,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleFavourite_EntityTag', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleFavourite_EntityTag', $aRows);
         }
         return $aResult;
     }

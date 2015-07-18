@@ -1,0 +1,86 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.panel-table {
+    table {
+        width: 100%;
+        margin-bottom: 24px;
+
+        th {
+            font-family: @font-family-sans-serif;
+            font-size: @font-size-base;
+            font-weight: normal;
+            line-height: 18px;
+            border-bottom: 4px solid @color-90;
+            text-align: center;
+            padding-bottom: 6px;
+            white-space: nowrap;
+            padding-left: 6px;
+            padding-right: 6px;
+
+            a {
+                font-family: inherit;
+            }
+
+            &:first-child {
+                text-align: left;
+            }
+        }
+
+        tbody tr {
+            height: 21px;
+        }
+
+        .first-row {
+            td {
+                padding-top: 14px;
+            }
+        }
+
+        td.last-td {
+            padding-bottom: 14px;
+            border-bottom: 1px solid @color-90;
+        }
+
+        .rating-value {
+            font-weight: 500;
+            font-size: @font-size-base;
+            color: @green;
+            text-align: center;
+        }
+
+    }
+
+    .panel-paginator {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: inline-block;
+            margin-right: 6px;
+
+            &.disabled a {
+                color: @color-50;
+            }
+
+            &.prev {
+                i {
+                    margin-right: 4px;
+                }
+            }
+
+            &.next {
+                margin-right: 24px;
+                i {
+                    margin-left: 4px;
+                }
+            }
+
+            &.last {
+                margin-left: 18px;
+            }
+        }
+    }
+}

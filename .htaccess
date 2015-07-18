@@ -1,7 +1,14 @@
 AddDefaultCharset UTF-8
 Options -Indexes
 RewriteEngine On
+
+# Rule for redirect from www.sitecom to site.com
+# If you want to turn on this rule then delete symbol # in two next lines
+#RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+#RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
 #RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !favicon\.ico
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ ./index.php
@@ -10,14 +17,29 @@ RewriteRule ^(.*)$ ./index.php
 
 # Deny access
 <Files "plugins.dat">
-	order allow,deny
-	deny from all
+    order allow,deny
+    deny from all
 </Files>
 <Files "plugin.xml">
-	order allow,deny
-	deny from all
+    order allow,deny
+    deny from all
 </Files>
 <Files ~ "\.tpl$">
     Order allow,deny
     Deny from all
 </Files>
+
+<IfModule headers_module>
+    <FilesMatch "\.gz\.css$">
+        ForceType "text/css"
+        Header set Content-Encoding: gzip
+        # сервер автоматически пытается сжать уже пожатый css-файл.
+        # Из-за этого файл не может корректно обработаться браузером.
+        # Отключаем отдачу ответа в gzip
+        SetEnv no-gzip 1
+    </FilesMatch>
+    <FilesMatch "\.gz\.js$">
+        ForceType "text/javascript"
+        Header set Content-Encoding: gzip
+    </FilesMatch>
+</IfModule>

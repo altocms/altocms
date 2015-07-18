@@ -70,7 +70,8 @@ class ModuleSession extends Module {
     protected function Start() {
 
         if ($this->bUseStandartSession) {
-            session_name(Config::Get('sys.session.name'));
+            $sSysSessionName = Config::Get('sys.session.name');
+            session_name($sSysSessionName);
             session_set_cookie_params(
                 Config::Get('sys.session.timeout'),
                 Config::Get('sys.session.path'),
@@ -79,30 +80,48 @@ class ModuleSession extends Module {
             if (!session_id()) {
 
                 // * Попытка подменить идентификатор имени сессии через куку
-                if (isset($_COOKIE[Config::Get('sys.session.name')]) && !is_string($_COOKIE[Config::Get('sys.session.name')])) {
-                    unset($_COOKIE[Config::Get('sys.session.name')]);
-                    setcookie(Config::Get('sys.session.name') . '[]', '', 1, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'));
+                if (isset($_COOKIE[$sSysSessionName])) {
+                    if (!is_string($_COOKIE[$sSysSessionName])) {
+                        $this->DelCookie($sSysSessionName . '[]');
+                        $this->DelCookie($sSysSessionName);
+                    } elseif (!preg_match('/^[\-\,a-zA-Z0-9]{1,128}$/', $_COOKIE[$sSysSessionName])) {
+                        $this->DelCookie($sSysSessionName);
+                    }
                 }
 
                 // * Попытка подменить идентификатор имени сессии в реквесте
                 $aRequest = array_merge($_GET, $_POST); // Исключаем попадаение $_COOKIE в реквест
-                if (@ini_get('session.use_only_cookies') === '0' && isset($aRequest[Config::Get('sys.session.name')]) && !is_string($aRequest[Config::Get('sys.session.name')])) {
+                if (@ini_get('session.use_only_cookies') === '0' && isset($aRequest[$sSysSessionName]) && !is_string($aRequest[$sSysSessionName])) {
                     session_name($this->GenerateId());
                 }
 
                 // * Даем возможность флешу задавать id сессии
-                $sUserAgent = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : null;
-                $sSSID = getRequestStr('SSID');
-                if ($sUserAgent && (in_array($sUserAgent, $this->aFlashUserAgent) || strpos($sUserAgent, "Adobe Flash Player") === 0) && $sSSID && preg_match("/^[\w\d]{5,40}$/", $sSSID)) {
-                    session_id(getRequest('SSID'));
+                $sSSID = F::GetRequestStr('SSID');
+                if ($sSSID && $this->_validFlashAgent() && preg_match('/^[\w]{5,40}$/', $sSSID)) {
+                    session_id($sSSID);
+                    session_start();
                 } else {
+                    // wrong session ID, regenerates it
                     session_regenerate_id();
+                    session_start();
                 }
-                session_start();
             }
         } else {
             $this->SetId();
             $this->ReadData();
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function _validFlashAgent() {
+
+        $sUserAgent = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : null;
+        if ($sUserAgent && (in_array($sUserAgent, $this->aFlashUserAgent) || strpos($sUserAgent, 'Adobe Flash Player') === 0)) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -146,7 +165,7 @@ class ModuleSession extends Module {
      */
     public function GetKey() {
 
-        return $this->Security_Salted($this->GetId(), 'sess');
+        return E::ModuleSecurity()->Salted($this->GetId(), 'sess');
     }
 
     /**
@@ -165,7 +184,7 @@ class ModuleSession extends Module {
      */
     protected function ReadData() {
 
-        $this->aData = $this->Cache_Get($this->sId);
+        $this->aData = E::ModuleCache()->Get($this->sId);
     }
 
     /**
@@ -174,7 +193,7 @@ class ModuleSession extends Module {
      */
     protected function Save() {
 
-        $this->Cache_Set($this->aData, $this->sId, array(), Config::Get('sys.session.timeout'));
+        E::ModuleCache()->Set($this->aData, $this->sId, array(), Config::Get('sys.session.timeout'));
     }
 
     /**
@@ -265,16 +284,18 @@ class ModuleSession extends Module {
      *
      * @param   string          $sName
      * @param   string          $sValue
-     * @param   int|string|null $xPeriod  - period in seconds or in string like 'P<..>'
+     * @param   int|string|null $xPeriod - period in seconds or in string like 'P<..>'
+     * @param   bool            $bHttpOnly
+     * @param   bool            $bSecure
      */
-    public function SetCookie($sName, $sValue, $xPeriod = null) {
+    public function SetCookie($sName, $sValue, $xPeriod = null, $bHttpOnly = true, $bSecure = false) {
 
         if ($xPeriod) {
             $nTime = time() + F::ToSeconds($xPeriod);
         } else {
             $nTime = 0;
         }
-        setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), false, true);
+        setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
     }
 
     /**
@@ -298,6 +319,9 @@ class ModuleSession extends Module {
      */
     public function DelCookie($sName) {
 
+        if (isset($_COOKIE[$sName])) {
+            unset($_COOKIE[$sName]);
+        }
         setcookie($sName, '', time() - 3600, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'));
     }
 }

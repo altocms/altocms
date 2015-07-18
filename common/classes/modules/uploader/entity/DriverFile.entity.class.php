@@ -20,25 +20,33 @@ class ModuleUploader_EntityDriverFile extends Entity {
      * @param string $sFile
      * @param string $sDestination
      *
-     * @return bool|string
+     * @return bool|ModuleUploader_EntityItem
      */
     public function Store($sFile, $sDestination = null) {
 
         if (!$sDestination) {
-            $oUser = $this->User_GetUserCurrent();
+            $oUser = E::ModuleUser()->GetUserCurrent();
             if ($oUser) {
                 return false;
             }
-            $sDirUpload = $this->GetUserFileDir($oUser->getId());
-            $sDestination = $this->Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFile)));
+            $sDestination = $this->GetUserFileDir($oUser->getId());
         }
         if ($sDestination) {
             $sMimeType = ModuleImg::MimeType($sFile);
             $bIsImage = (strpos($sMimeType, 'image/') === 0);
-            $nUserId = E::UserId();
-            $sUuid = str_pad($nUserId, 8, '0', STR_PAD_LEFT) . '-' . md5_file($sFile);
-            if ($sStoredFile = $this->Uploader_Move($sFile, $sDestination, true)) {
-                $oStoredItem = Engine::GetEntity(
+            $iUserId = E::UserId();
+            $sExtension = F::File_GetExtension($sFile, true);
+            if (substr($sDestination, -1) == '/') {
+                $sDestinationDir = $sDestination;
+            } else {
+                $sDestinationDir = dirname($sDestination) . '/';
+            }
+
+            $sUuid = ModuleMresource::CreateUuid('file', $sFile, md5_file($sFile), $iUserId);
+            $sDestination = $sDestinationDir . $sUuid . '.' . $sExtension;
+
+            if ($sStoredFile = E::ModuleUploader()->Move($sFile, $sDestination, true)) {
+                $oStoredItem = E::GetEntity(
                     'Uploader_Item',
                     array(
                          'storage'           => 'file',
@@ -46,7 +54,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
                          'original_filename' => basename($sFile),
                          'url'               => $this->Dir2Url($sStoredFile),
                          'file'              => $sStoredFile,
-                         'user_id'           => $nUserId,
+                         'user_id'           => $iUserId,
                          'mime_type'         => $sMimeType,
                          'is_image'          => $bIsImage,
                     )
@@ -54,6 +62,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
                 return $oStoredItem;
             }
         }
+        return false;
     }
 
     /**
@@ -92,15 +101,21 @@ class ModuleUploader_EntityDriverFile extends Entity {
     /**
      * @param string $sUrl
      *
-     * @return bool
+     * @return string
      */
     public function Url2Dir($sUrl) {
 
         if (F::File_LocalUrl($sUrl)) {
-            return F::File_Url2Dir($sUrl);
+            $sDir = F::File_Url2Dir($sUrl);
+            if (strpos($sDir, Config::Get('path.uploads.root')) === 0) {
+                $sDir = F::File_NormPath(Config::Get('path.static.dir') . $sDir);
+            } elseif (Config::Get('path.root.subdir') && strpos($sDir, Config::Get('path.root.subdir') . Config::Get('path.uploads.root')) === 0) {
+                $sRootPath = substr(Config::Get('path.static.dir'), 0, -strlen(Config::Get('path.root.subdir')));
+                $sDir = F::File_NormPath($sRootPath . $sDir);
+            }
+            return $sDir;
         }
     }
-
 
 }
 

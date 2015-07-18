@@ -1,1 +1,0 @@
-<meta HTTP-EQUIV="Refresh" CONTENT="0; URL={cfg name='path.root.web'}">

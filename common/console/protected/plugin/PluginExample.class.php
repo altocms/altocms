@@ -16,10 +16,10 @@ class PluginExample extends Plugin {
              * Замена экшна ActionIndex на ActionSomepage из папки плагина
              *
              * 'template' => array('index.tpl'=>'_my_plugin_index.tpl'),
-             * Замена index.tpl из корня скина файлом /plugins/abcplugin/templates/skin/default/my_plugin_index.tpl
+             * Замена index.tpl из корня скина файлом /common/plugins/abcplugin/templates/skin/default/my_plugin_index.tpl
              *
              * 'template'=>array('actions/ActionIndex/index.tpl'=>'_actions/ActionTest/index.tpl'),
-             * Замена index.tpl из скина из папки actions/ActionIndex/ файлом /plugins/abcplugin/templates/skin/default/actions/ActionTest/index.tpl
+             * Замена index.tpl из скина из папки actions/ActionIndex/ файлом /common/plugins/abcplugin/templates/skin/default/actions/ActionTest/index.tpl
              */
 
 
@@ -74,10 +74,10 @@ class PluginExample extends Plugin {
 
     // Инициализация плагина
     public function Init() {
-        $this->Viewer_AppendStyle(Plugin::GetTemplatePath(__CLASS__)."css/style.css"); // Добавление своего CSS
-        $this->Viewer_AppendScript(Plugin::GetTemplatePath(__CLASS__)."js/script.js"); // Добавление своего JS
+        E::ModuleViewer()->AppendStyle(Plugin::GetTemplateDir(__CLASS__)."assets/css/style.css"); // Добавление своего CSS
+        E::ModuleViewer()->AppendScript(Plugin::GetTemplateDir(__CLASS__)."assets/js/script.js"); // Добавление своего JS
 
-        //$this->Viewer_AddMenu('blog',Plugin::GetTemplatePath(__CLASS__).'menu.blog.tpl'); // например, задаем свой вид меню
+        //E::ModuleViewer()->AddMenu('blog',Plugin::GetTemplateDir(__CLASS__).'menu.blog.tpl'); // например, задаем свой вид меню
     }
 }
 ?>

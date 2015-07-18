@@ -1,0 +1,156 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+/* Описание стилей
+-----------------------------------------------------------*/
+.menu-level-3-container {
+    padding: 0;
+    background-color: @menu-level-3-background-color;
+    border-bottom: 1px solid @menu-level-3-border-bottom-color;
+    .box-shadow(0 5px 16px @color-82);
+
+
+
+    a {
+        outline: none;
+    }
+}
+
+.menu-level-3 {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    height: @menu-level-3-height;
+
+    li {
+        float: left;
+        margin-right: (@menu-level-3-button-margin / 2);
+        white-space: nowrap;
+        position: relative;
+        margin-left: (@menu-level-3-button-margin / 2);
+
+        &:first-child {
+            margin-left: 0;
+            &:before {
+                content: "";
+
+            }
+        }
+
+        &:before {
+            content: ".";
+            position: absolute;
+            left: (-1 * @menu-level-3-button-margin / 2);
+            line-height: @menu-level-3-height - 2;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: "Arial";
+        }
+
+
+        a {
+            font-size: @menu-level-3-button-font-size;
+            height: @menu-level-3-height;
+            line-height: @menu-level-3-height;
+            text-decoration: none;
+            color: @menu-level-3-button-font-color;
+            display: block;
+            padding: 0 4px;
+            font-family: @font-family-sans-serif;
+            font-weight: 300;
+
+            &:hover {
+                border-top: 3px solid @menu-level-3-button-marker-color;
+                line-height: (@menu-level-3-height - 6);
+            }
+
+            i {
+                margin-right: 3px;
+            }
+        }
+
+        &.active {
+            a {
+                border-top: 3px solid @menu-level-3-button-marker-color;
+                line-height: (@menu-level-3-height - 6);
+            }
+        }
+    }
+}
+
+
+/* Адаптивная верстка
+-----------------------------------------------------------------------------*/
+// Large 993-1200
+@media only screen and (min-width: (@screen-md + 1)) and (max-width: @screen-lg) {
+
+}
+
+// Medium 769-992
+@media only screen and (min-width: (@screen-sm + 1)) and (max-width: @screen-md) {
+
+    .menu-level-3 li a { font-size: @font-size-large }
+}
+
+// Extra small 481-768
+@media only screen and (min-width: (@screen-xs + 1)) and (max-width: @screen-sm) {
+//    .menu-level-3 {
+//
+//        li {
+//            margin: 0;
+//
+//            &:before {
+//                left: -1px;
+//            }
+//
+//            a {
+//                font-size: (@font-size-large - 0.2);
+//            }
+//        }
+//
+//    }
+    .menu-level-3 {
+
+        li {
+            margin-left: 0;
+            margin-right: 12px;
+            min-width: 80px;
+            text-align: center;
+
+            &:before {
+                content: "";
+            }
+
+            a {
+                font-size: @font-size-large;
+                //                font-family: @font-family-sans-serif;
+            }
+        }
+
+    }
+}
+
+
+// Small 0-480
+@media only screen and (max-width: @screen-xs) {
+    .menu-level-3 {
+
+        li {
+            margin-left: 0;
+            margin-right: 12px;
+            min-width: 80px;
+            text-align: center;
+
+            &:before {
+                content: "";
+            }
+
+            a {
+                font-size: @font-size-large;
+//                font-family: @font-family-sans-serif;
+            }
+        }
+
+    }
+}

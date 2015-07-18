@@ -6,11 +6,6 @@
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
- * Based on
- *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
- *   Site: www.livestreet.ru
- *   E-mail: rus.engine@gmail.com
- *----------------------------------------------------------------------------
  */
 
 F::IncludeFile('Action.class.php');
@@ -18,7 +13,7 @@ F::IncludeFile('ActionPlugin.class.php');
 
 /**
  * Класс роутинга
- * Инициализирует ядро, определяет какой экшен запустить согласно URL'у и запускает его.
+ * Инициализирует ядро, определяет какой экшен запустить согласно URL'у и запускает его
  *
  * @package engine
  * @since 1.0
@@ -66,7 +61,7 @@ class Router extends LsObject {
      *
      * @var string|null
      */
-    static protected $sPathWebCurrent = null;
+    static protected $sCurrentFullUrl = null;
 
     /**
      * Текущий обрабатываемый путь контроллера
@@ -83,16 +78,22 @@ class Router extends LsObject {
     static protected $sLang = null;
 
     /**
-     * Список параметров ЧПУ url
+     * Список параметров ЧПУ URL
      * <pre>/action/event/param0/param1/../paramN/</pre>
      *
      * @var array
      */
     static protected $aParams = array();
 
+    static protected $aRequestURI = array();
+
+    static protected $aActionPaths = array();
+
     protected $aCurrentUrl = array();
 
     protected $aBackwardUrl = array();
+
+    protected $aDefinedClasses = array();
 
     /**
      * Объект текущего экшена
@@ -144,11 +145,11 @@ class Router extends LsObject {
      */
     static public function getInstance() {
 
-        if (isset(self::$oInstance) && (self::$oInstance instanceof self)) {
-            return self::$oInstance;
+        if (isset(static::$oInstance) && (static::$oInstance instanceof self)) {
+            return static::$oInstance;
         } else {
-            self::$oInstance = new self();
-            return self::$oInstance;
+            static::$oInstance = new static();
+            return static::$oInstance;
         }
     }
 
@@ -168,20 +169,20 @@ class Router extends LsObject {
 
         $this->ParseUrl();
         $this->DefineActionClass(); // Для возможности ДО инициализации модулей определить какой action/event запрошен
-        $this->oEngine = Engine::getInstance();
+        $this->oEngine = E::getInstance();
         $this->oEngine->Init();
 
         // Подгружаем предыдущий URL, если он был
-        $sData = $this->Session_GetCookie(self::BACKWARD_COOKIE);
+        $sData = E::ModuleSession()->GetCookie(static::BACKWARD_COOKIE);
         if ($sData) {
-            $aData = @unserialize($sData);
+            $aData = F::Unserialize($sData);
             if (is_array($aData)) {
                 $this->aBackwardUrl = $aData;
             }
         }
         // И сохраняем текущий, если это не ajax-запрос
         if (!F::AjaxRequest()) {
-            $this->Session_SetCookie(self::BACKWARD_COOKIE, serialize($this->aCurrentUrl));
+            E::ModuleSession()->SetCookie(static::BACKWARD_COOKIE, F::Serialize($this->aCurrentUrl, true));
         }
 
         $this->ExecAction();
@@ -197,7 +198,7 @@ class Router extends LsObject {
 
         $this->AssignVars();
         $this->oEngine->Shutdown();
-        $this->Viewer_Display($this->oAction->GetTemplate());
+        E::ModuleViewer()->Display($this->oAction->GetTemplate());
         if ($bExit) {
             exit();
         }
@@ -206,9 +207,9 @@ class Router extends LsObject {
     /**
      * Парсим URL
      * Пример: http://site.ru/action/event/param1/param2/  на выходе получим:
-     *  self::$sAction='action';
-     *    self::$sActionEvent='event';
-     *    self::$aParams=array('param1','param2');
+     *    static::$sAction='action';
+     *    static::$sActionEvent='event';
+     *    static::$aParams=array('param1','param2');
      *
      */
     protected function ParseUrl() {
@@ -216,24 +217,26 @@ class Router extends LsObject {
         $sReq = $this->GetRequestUri();
         $aRequestUrl = $this->GetRequestArray($sReq);
 
+        // Список доступных языков, которые могут быть указаны в URL
+        $aLangs = array();
         // Только для мультиязычных сайтов
         if (Config::Get('lang.multilang')) {
             // Получаем список доступных языков
             $aLangs = (array)Config::Get('lang.allow');
 
             // Проверка языка в URL
-            if ($aLangs && Config::Get('lang.in_url')) {
+            if ($aRequestUrl && $aLangs && Config::Get('lang.in_url')) {
                 if (sizeof($aLangs) && sizeof($aRequestUrl) && in_array($aRequestUrl[0], $aLangs)) {
-                    self::$sLang = array_shift($aRequestUrl);
+                    static::$sLang = array_shift($aRequestUrl);
                 }
             }
         }
 
-        $aRequestUrl = $this->RewriteRequest($aRequestUrl);
+        static::$aRequestURI = $aRequestUrl = $this->RewriteRequest($aRequestUrl);
 
-        self::$sAction = array_shift($aRequestUrl);
-        self::$sActionEvent = array_shift($aRequestUrl);
-        self::$aParams = $aRequestUrl;
+        static::$sAction = array_shift($aRequestUrl);
+        static::$sActionEvent = array_shift($aRequestUrl);
+        static::$aParams = $aRequestUrl;
 
         // Только для мультиязычных сайтов
         if (Config::Get('lang.multilang')) {
@@ -242,25 +245,34 @@ class Router extends LsObject {
                 $sLangParam = (is_string(Config::Get('lang.in_get')) ? Config::Get('lang.in_get') : 'lang');
                 $sLang = F::GetRequestStr($sLangParam, null, 'get');
                 if ($sLang) {
-                    self::$sLang = $sLang;
+                    static::$sLang = $sLang;
                 }
             }
         }
 
-        $this->aCurrentUrl = parse_url($_SERVER['REQUEST_URI']);
-        if (isset($_SERVER['SERVER_PROTOCOL'])) {
-            list($this->aCurrentUrl['protocol']) = explode('/', $_SERVER['SERVER_PROTOCOL'], 1);
-        } else {
-            $this->aCurrentUrl['protocol'] = 'http';
-        }
+        $this->aCurrentUrl = parse_url(static::$sCurrentFullUrl);
+        $this->aCurrentUrl['protocol'] = F::UrlScheme();
         if (!isset($this->aCurrentUrl['scheme']) && $this->aCurrentUrl['protocol']) {
             $this->aCurrentUrl['scheme'] = $this->aCurrentUrl['protocol'];
         }
+
+        $iPathOffset = intval(C::Get('path.offset_request_url'));
+        $aUrlParts = F::ParseUrl();
+        $sBase = !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
+        if ($sBase && $iPathOffset) {
+            $aPath = explode('/', trim($aUrlParts['path'], '/'));
+            $iPathOffset = min($iPathOffset, sizeof($aPath));
+            for($i = 0; $i < $iPathOffset; $i++) {
+                $sBase .= '/' . $aPath[$i];
+            }
+        }
+
         $this->aCurrentUrl['root'] = F::File_RootUrl();
-        $this->aCurrentUrl['lang'] = self::$sLang;
-        $this->aCurrentUrl['action'] = self::$sAction;
-        $this->aCurrentUrl['event'] = self::$sActionEvent;
-        $this->aCurrentUrl['params'] = implode('/', self::$aParams);
+        $this->aCurrentUrl['base'] = $sBase . '/';
+        $this->aCurrentUrl['lang'] = static::$sLang;
+        $this->aCurrentUrl['action'] = static::$sAction;
+        $this->aCurrentUrl['event'] = static::$sActionEvent;
+        $this->aCurrentUrl['params'] = implode('/', static::$aParams);
     }
 
     /**
@@ -279,9 +291,60 @@ class Router extends LsObject {
         $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
         $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
 
-        // * Формируем $sPathWebCurrent ДО применения реврайтов
-        self::$sPathWebCurrent = F::File_RootUrl() . join('/', $this->GetRequestArray($sReq));
+        // * Формируем $sCurrentFullUrl ДО применения реврайтов
+        if (!empty($this->aConfigRoute['domains']['forward'])) {
+            // маппинг доменов
+            static::$sCurrentFullUrl = strtolower(F::UrlBase() . '/' . join('/', $this->GetRequestArray($sReq)));
+        } else {
+            static::$sCurrentFullUrl = strtolower(F::File_RootUrl() . join('/', $this->GetRequestArray($sReq)));
+        }
+
+        $this->CheckRedirectionRules();
+
         return $sReq . $sLastChar;
+    }
+
+    /**
+     * Checks redirection rules and redirects if there is compliance
+     */
+    protected function CheckRedirectionRules() {
+
+        if (isset($this->aConfigRoute['redirect']) && is_array($this->aConfigRoute['redirect'])) {
+            $sUrl = static::$sCurrentFullUrl;
+
+            $iHttpResponse = 301;
+            foreach($this->aConfigRoute['redirect'] as $sRule => $xTarget) {
+                if ($xTarget) {
+                    if (!is_array($xTarget)) {
+                        $sTarget = $xTarget;
+                        $iCode = 301;
+                    } elseif (sizeof($xTarget) == 1) {
+                        $sTarget = reset($xTarget);
+                        $iCode = 301;
+                    } else {
+                        $sTarget = reset($xTarget);
+                        $iCode = intval(next($xTarget));
+                    }
+                    if ((substr($sRule, 0, 1) == '[') && (substr($sRule, -1) == ']')) {
+                        $sPattern = substr($sRule, 1, strlen($sRule) - 2);
+                        if (preg_match($sPattern, $sUrl)) {
+                            $sUrl = preg_replace($sPattern, $sTarget, $sUrl);
+                            $iHttpResponse = $iCode;
+                        }
+                    } else {
+                        $sPattern = F::StrMatch($sRule, $sUrl, true, $aMatches);
+                        if ($sPattern && isset($aMatches[1])) {
+                            $sUrl = str_replace('*', $aMatches[1], $sTarget);
+                            $iHttpResponse = $iCode;
+                        }
+                    }
+                }
+            }
+            if ($sUrl && ($sUrl != static::$sCurrentFullUrl)) {
+                F::HttpHeader($iHttpResponse, null, $sUrl);
+                exit;
+            }
+        }
     }
 
     /**
@@ -292,7 +355,7 @@ class Router extends LsObject {
      */
     protected function GetRequestArray($sReq) {
 
-        $aRequestUrl = ($sReq == '') ? array() : explode('/', trim($sReq, '/'));
+        $aRequestUrl = ($sReq == '' || $sReq == '/') ? array() : explode('/', trim($sReq, '/'));
         for ($i = 0; $i < Config::Get('path.offset_request_url'); $i++) {
             array_shift($aRequestUrl);
         }
@@ -308,49 +371,143 @@ class Router extends LsObject {
     protected function GetRouterUriRules() {
 
         $aRewrite = (array)Config::Get('router.uri');
-        $sTopicUrlPattern = self::GetTopicUrlPattern();
+        /*
+        $sTopicUrlPattern = static::GetTopicUrlPattern();
         if ($sTopicUrlPattern) {
             $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
         }
-        $sUserUrlPattern = self::GetUserUrlPattern();
+        $sUserUrlPattern = static::GetUserUrlPattern();
         if ($sUserUrlPattern) {
-            if (strpos(self::GetUserUrlMask(), '%user_id%')) {
+            if (strpos(static::GetUserUrlMask(), '%user_id%')) {
                 $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/id-$1'));
-            } elseif (strpos(self::GetUserUrlMask(), '%login%')) {
+            } elseif (strpos(static::GetUserUrlMask(), '%login%')) {
                 $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
             }
         }
+        */
         return $aRewrite;
     }
 
     /**
-     * Применяет к реквесту правила реврайта из конфига Config::Get('router.uri')
+     * Applies config rewrite rules to request URI array, uses Config::Get('router.uri')
      *
-     * @param $aRequestUrl    Массив реквеста
+     * @param array $aRequestUrl Request URI array
+     *
      * @return array
      */
     protected function RewriteRequest($aRequestUrl) {
 
-        // * Правила Rewrite для REQUEST_URI
-        $sReq = implode('/', $aRequestUrl);
-        if ($aRewrite = $this->GetRouterUriRules()) {
+        if (!$aRequestUrl) {
+            return $aRequestUrl;
+        }
+
+        // STAGE 1: Rewrite rules for domains
+        if (!empty($this->aConfigRoute['domains']['forward']) && !F::AjaxRequest()) {
+            // если в запросе есть контроллер и он есть в списке страниц, то доменный маппинг не выполняется
+            if (empty($aRequestUrl[0]) || empty($this->aConfigRoute['page'][$aRequestUrl[0]])) {
+                $sHost = parse_url(self::$sCurrentFullUrl, PHP_URL_HOST);
+                if (isset($this->aConfigRoute['domains']['forward'][$sHost])) {
+                    $aRequestUrl = array_merge(explode('/', $this->aConfigRoute['domains']['forward'][$sHost]), $aRequestUrl);
+                } else {
+                    $aMatches = array();
+                    $sPattern = F::StrMatch($this->aConfigRoute['domains']['forward_keys'], $sHost, true, $aMatches);
+                    if ($sPattern) {
+                        $sNewUrl = $this->aConfigRoute['domains']['forward'][$sPattern];
+                        if (!empty($aMatches[1])) {
+                            $sNewUrl = str_replace('*', $aMatches[1], $sNewUrl);
+                            $aRequestUrl = array_merge(explode('/', $sNewUrl), $aRequestUrl);
+                        }
+                    }
+                }
+            }
+        }
+
+        // STAGE 2: Rewrite rules for REQUEST_URI
+        $sRequest = implode('/', $aRequestUrl);
+
+        $aRouterUriRules = $this->GetRouterUriRules();
+        if ($aRouterUriRules) {
+            foreach ($aRouterUriRules as $sPattern => $sReplace) {
+                if ($sPattern[0] == '[' && substr($sPattern, -1) == ']') {
+                    // regex pattern
+                    $sPattern = substr($sPattern, 1, strlen($sPattern) - 2);
+                    if (preg_match($sPattern, $sRequest)) {
+                        $sRequest = preg_replace($sPattern, $sReplace, $sRequest);
+                        break;
+                    }
+                } else {
+                    if (substr($sPattern, -2) == '/*') {
+                        $bFoundPattern = F::StrMatch(array(substr($sPattern, 0, strlen($sPattern) - 2), $sPattern), $sRequest, true);
+                    } else {
+                        $bFoundPattern = F::StrMatch($sPattern, $sRequest, true);
+                    }
+                    if ($bFoundPattern) {
+                        $sRequest = $sReplace;
+                        break;
+                    }
+                }
+            }
+
+            if (substr($sRequest, 0, 1) == '@') {
+                $this->SpecialAction($sRequest);
+            }
+        }
+
+        // STAGE 3: Internal rewriting (topic URLs etc.)
+        $aRequestUrl = (trim($sRequest, '/') == '') ? array() : explode('/', $sRequest);
+        if ($aRequestUrl) {
+            $aRequestUrl = $this->RewriteInternal($aRequestUrl);
+        }
+
+        // STAGE 4: Rules for actions rewriting
+        if (isset($aRequestUrl[0])) {
+            $sRequestAction = $aRequestUrl[0];
+            if (isset($this->aConfigRoute['rewrite'][$sRequestAction])) {
+                $sRequestAction = $this->aConfigRoute['rewrite'][$sRequestAction];
+                $aRequestUrl[0] = $sRequestAction;
+            }
+        }
+        return $aRequestUrl;
+    }
+
+    /**
+     * Applies internal rewrite rules to request URI array, uses topics' and profiles' patterns
+     *
+     * @param array $aRequestUrl Request URI array
+     *
+     * @return array
+     */
+    protected function RewriteInternal($aRequestUrl) {
+
+        $aRewrite = array();
+        if ($sTopicUrlPattern = static::GetTopicUrlPattern()) {
+            $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
+        }
+        if ($sUserUrlPattern = static::GetUserUrlPattern()) {
+            if (strpos(static::GetUserUrlMask(), '%user_id%')) {
+                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/id-$1'));
+            } elseif (strpos(static::GetUserUrlMask(), '%login%')) {
+                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
+            }
+        }
+        // * Internal rewrite rules for REQUEST_URI
+        if ($aRewrite) {
+            $sReq = implode('/', $aRequestUrl);
             foreach($aRewrite as $sPattern => $sReplace) {
                 if (preg_match($sPattern, $sReq)) {
                     $sReq = preg_replace($sPattern, $sReplace, $sReq);
                     break;
                 }
             }
+            return (trim($sReq, '/') == '') ? array() : explode('/', $sReq);
         }
-        if (substr($sReq, 0, 1) == '@') {
-            $this->SpecialAction($sReq);
-        }
-        return (trim($sReq, '/') == '') ? array() : explode('/', $sReq);
+        return $aRequestUrl;
     }
 
     /**
      * Специальное действие по REQUEST_URI
      *
-     * @param $sReq
+     * @param string $sReq
      */
     protected function SpecialAction($sReq) {
 
@@ -378,12 +535,23 @@ class Router extends LsObject {
 
         //Конфиг роутинга, содержит соответствия URL и классов экшенов
         $this->aConfigRoute = Config::Get('router');
+
         // Переписываем конфиг согласно правилу rewrite
-        foreach ((array)$this->aConfigRoute['rewrite'] as $sPage => $sRewrite) {
-            if (isset($this->aConfigRoute['page'][$sPage])) {
-                $this->aConfigRoute['page'][$sRewrite] = $this->aConfigRoute['page'][$sPage];
-                unset($this->aConfigRoute['page'][$sPage]);
+        if (!empty($this->aConfigRoute['rewrite'])) {
+            foreach ((array)$this->aConfigRoute['rewrite'] as $sRequest => $sTarget) {
+                if (isset($this->aConfigRoute['page'][$sTarget])) {
+                    $this->aConfigRoute['page'][$sRequest] = $this->aConfigRoute['page'][$sTarget];
+                    unset($this->aConfigRoute['page'][$sTarget]);
+                }
             }
+        }
+
+        if (!empty($this->aConfigRoute['domain'])) {
+            $aDomains = $this->aConfigRoute['domain'];
+            $this->aConfigRoute['domains']['forward'] = $aDomains;
+            $this->aConfigRoute['domains']['forward_keys'] = array_keys($aDomains);
+            $this->aConfigRoute['domains']['backward'] = array_flip($aDomains);
+            $this->aConfigRoute['domains']['backward_keys'] = array_keys($this->aConfigRoute['domains']['backward']);
         }
     }
 
@@ -393,10 +561,10 @@ class Router extends LsObject {
      */
     protected function AssignVars() {
 
-        $this->Viewer_Assign('sAction', $this->Standart(self::$sAction));
-        $this->Viewer_Assign('sEvent', self::$sActionEvent);
-        $this->Viewer_Assign('aParams', self::$aParams);
-        $this->Viewer_Assign('PATH_WEB_CURRENT', $this->Tools_Urlspecialchars(self::$sPathWebCurrent));
+        E::ModuleViewer()->Assign('sAction', static::$sAction);
+        E::ModuleViewer()->Assign('sEvent', static::$sActionEvent);
+        E::ModuleViewer()->Assign('aParams', static::$aParams);
+        E::ModuleViewer()->Assign('PATH_WEB_CURRENT', E::ModuleTools()->Urlspecialchars(static::$sCurrentFullUrl));
     }
 
     /**
@@ -407,59 +575,69 @@ class Router extends LsObject {
     public function ExecAction() {
 
         $this->DefineActionClass();
-        /**
-         * Сначала запускаем инициализирующий евент
-         */
-        $this->Hook_Run('init_action');
+
+        // Hook before action
+        E::ModuleHook()->Run('action_before');
 
         $sActionClass = $this->DefineActionClass();
-        /**
-         * Определяем наличие делегата экшена
-         */
-        if ($aChain = $this->Plugin_GetDelegationChain('action', $sActionClass)) {
+
+        // * Определяем наличие делегата экшена
+        if ($aChain = E::ModulePlugin()->GetDelegationChain('action', $sActionClass)) {
             if (!empty($aChain)) {
                 $sActionClass = $aChain[0];
             }
         }
-        self::$sActionClass = $sActionClass;
-        /**
-         * Автозагрузка класса перенесена в автозагрузчик
-         */
-
-        //$sClassName = $sActionClass;
+        static::$sActionClass = $sActionClass;
         if (!class_exists($sActionClass)) {
             throw new Exception('Cannot load class "' . $sActionClass . '"');
         }
-        $this->oAction = new $sActionClass(self::$sAction);
-        /**
-         * Инициализируем экшен
-         */
-        $this->Hook_Run('action_init_' . strtolower($sActionClass) . '_before');
+        $this->oAction = new $sActionClass(static::$sAction);
+
+        // * Инициализируем экшен
         $sInitResult = $this->oAction->Init();
-        $this->Hook_Run('action_init_' . strtolower($sActionClass) . '_after');
 
         if ($sInitResult === 'next') {
             $this->ExecAction();
         } else {
-            /**
-             * Замеряем время работы action`а
-             */
-            $oProfiler = ProfilerSimple::getInstance();
-            if (DEBUG) $iTimeId = $oProfiler->Start('ExecAction', self::$sAction);
+            // Если инициализация экшена прошла успешно и метод провеки доступа вернул
+            // положительный результат то запускаем запрошенный ивент на исполнение.
+            if ($sInitResult !== false && $this->oAction->Access(self::GetActionEvent()) !== false) {
+                $res = $this->oAction->ExecEvent();
+                static::$sActionEventName = $this->oAction->GetCurrentEventName();
 
-            $res = $this->oAction->ExecEvent();
-            self::$sActionEventName = $this->oAction->GetCurrentEventName();
+                $this->oAction->EventShutdown();
 
-            $this->Hook_Run('action_shutdown_' . strtolower($sActionClass) . '_before');
-            $this->oAction->EventShutdown();
-            $this->Hook_Run('action_shutdown_' . strtolower($sActionClass) . '_after');
-
-            if (DEBUG) $oProfiler->Stop($iTimeId);
-
-            if ($res === 'next') {
-                $this->ExecAction();
+                if ($res === 'next') {
+                    $this->ExecAction();
+                }
+            } else {
+                if (!F::AjaxRequest()) {
+                    static::$sAction = $this->aConfigRoute['config']['action_not_found'];
+                    static::$sActionEvent = '404';
+                    $this->ExecAction();
+                }
             }
         }
+        // Hook after action
+        E::ModuleHook()->Run('action_after');
+    }
+
+    /**
+     * Tries to define action class in config and plugins
+     *
+     * @return null|string
+     */
+    protected function FindActionClass() {
+
+        if (!static::$sAction) {
+            $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], static::$sActionEvent);
+            if ($sActionClass) {
+                static::$sAction = $this->aConfigRoute['config']['action_default'];
+            }
+        } else {
+            $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
+        }
+        return $sActionClass;
     }
 
     /**
@@ -469,36 +647,47 @@ class Router extends LsObject {
      */
     protected function DefineActionClass() {
 
-        if (!self::$sAction) {
-            $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], self::$sActionEvent);
-            if ($sActionClass) {
-                self::$sAction = $this->aConfigRoute['config']['action_default'];
-            }
+        if (isset($this->aDefinedClasses[static::$sAction][static::$sActionEvent])) {
+            static::$sActionClass = $this->aDefinedClasses[static::$sAction][static::$sActionEvent];
         } else {
-            $sActionClass = $this->DetermineClass(self::$sAction, self::$sActionEvent);
-        }
-        if (!$sActionClass) {
-            //Если не находим нужного класса то отправляем на страницу ошибки
-            self::$sAction = $this->aConfigRoute['config']['action_not_found'];
-            self::$sActionEvent = '404';
-            $sActionClass = $this->DetermineClass(self::$sAction, self::$sActionEvent);
-        }
-        if ($sActionClass) {
-            self::$sActionClass = $sActionClass;
-        } elseif (!$sActionClass && self::$sAction && isset($this->aConfigRoute['page'][self::$sAction])) {
-            self::$sActionClass = $this->aConfigRoute['page'][self::$sAction];
+            $sActionClass = $this->FindActionClass();
+            /*
+            if (!$sActionClass && static::$aRequestURI) {
+                //Если не находим нужного класса, то проверяем внутренний реврайтинг по паттернам, напр., топики
+                $aRequestUrl = $this->RewriteInternal(static::$aRequestURI);
+                if (static::$aRequestURI !== $aRequestUrl) {
+                    static::$aRequestURI = $aRequestUrl;
+                    static::$sAction = array_shift($aRequestUrl);
+                    static::$sActionEvent = array_shift($aRequestUrl);
+                    static::$aParams = $aRequestUrl;
+                    $sActionClass = $this->FindActionClass();
+                }
+            }
+            */
+            if (!$sActionClass) {
+                //Если не находим нужного класса, то определяем класс экшена-обработчика ошибки
+                static::$sAction = $this->aConfigRoute['config']['action_not_found'];
+                static::$sActionEvent = '404';
+                $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
+            }
+            if ($sActionClass) {
+                static::$sActionClass = $sActionClass;
+            } elseif (!$sActionClass && static::$sAction && isset($this->aConfigRoute['page'][static::$sAction])) {
+                static::$sActionClass = $this->aConfigRoute['page'][static::$sAction];
+            }
+
+            // Если класс экшена так и не определен, то аварийное завершение
+            if (!static::$sActionClass) {
+                die('Action class does not define');
+            }
+            $this->aDefinedClasses[static::$sAction][static::$sActionEvent] = static::$sActionClass;
         }
 
-        // Если класс экшена не определен, то аварийное завершение
-        if (!self::$sActionClass) {
-            die('Action class does not define');
-        }
-
-        return self::$sActionClass;
+        return static::$sActionClass;
     }
 
     /**
-     * Determines action class by action (and event)
+     * Determines action class by action (and optionally by event)
      *
      * @param string $sAction
      * @param string $sEvent
@@ -508,10 +697,18 @@ class Router extends LsObject {
     protected function DetermineClass($sAction, $sEvent = null) {
 
         $sActionClass = null;
-        // Сначала ищем экшен по таблице роутинга
-        if ($sAction && isset($this->aConfigRoute['page'][$sAction])) {
-            $sActionClass = $this->aConfigRoute['page'][$sAction];
+
+        if ($sAction && !$sEvent && strpos($sAction, '/')) {
+            list($sAction, $sEvent, $sParams) = explode('/', $sAction, 3);
         }
+
+        if ($sAction) {
+            // Сначала ищем экшен по таблице роутинга
+            if (isset($this->aConfigRoute['page'][$sAction])) {
+                $sActionClass = $this->aConfigRoute['page'][$sAction];
+            }
+        }
+
         // Если в таблице нет и включено автоопределение роутинга, то ищем по путям и файлам
         if (!$sActionClass && Config::Get('router.config.autodefine')) {
             $sActionClass = Loader::SeekActionClass($sAction, $sEvent);
@@ -524,9 +721,9 @@ class Router extends LsObject {
      * Если ею завершить евент в экшене то запустится новый экшен
      * Примеры:
      * <pre>
-     * return Router::Action('error');
-     * return Router::Action('error', '404');
-     * return Router::Action('error/404');
+     * return R::Action('error');
+     * return R::Action('error', '404');
+     * return R::Action('error/404');
      * </pre>
      *
      * @param string $sAction    Экшен
@@ -546,27 +743,27 @@ class Router extends LsObject {
                 $aParams = array();
             }
         }
-        self::$sAction = self::getInstance()->Rewrite($sAction);
-        self::$sActionEvent = $sEvent;
+        static::$sAction = static::getInstance()->RewritePath($sAction);
+        static::$sActionEvent = $sEvent;
         if (is_array($aParams)) {
-            self::$aParams = $aParams;
+            static::$aParams = $aParams;
         }
         return 'next';
     }
 
     /**
      * LS-compatible
-     * Возвращает текущий ЧПУ url
+     * Возвращает текущий URL
      *
      * @return string
      */
     static public function GetPathWebCurrent() {
 
-        return self::$sPathWebCurrent;
+        return static::RealUrl(false);
     }
 
     /**
-     * Возвращает реальный URL (или локальный путь на сайте) без реврайтов
+     * Returns real URL (or path of URL) without rewrites
      *
      * @param bool $bPathOnly
      *
@@ -574,7 +771,7 @@ class Router extends LsObject {
      */
     static public function RealUrl($bPathOnly = false) {
 
-        $sResult = self::$sPathWebCurrent;
+        $sResult = static::$sCurrentFullUrl;
         if ($bPathOnly) {
             $sResult = F::File_LocalUrl($sResult);
         }
@@ -582,73 +779,73 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает текущий язык
+     * Returns current language
      *
      * @return string
      */
     static public function GetLang() {
 
-        return self::$sLang;
+        return static::$sLang;
     }
 
     /**
-     * Устанавливает текущий язык
+     * Sets language
      *
-     * @param   string  $sLang
+     * @param string $sLang
      */
     static public function SetLang($sLang) {
 
-        self::$sLang = $sLang;
+        static::$sLang = $sLang;
     }
 
     /**
-     * Возвращает текущий экшен
+     * Returns current action
      *
      * @return string
      */
     static public function GetAction() {
 
-        return self::getInstance()->Standart(self::$sAction);
+        return static::$sAction;
     }
 
     /**
-     * Возвращает текущий евент
+     * Returns current action's event
      *
      * @return string
      */
     static public function GetActionEvent() {
 
-        return self::$sActionEvent;
+        return static::$sActionEvent;
     }
 
     /**
-     * Возвращает имя текущего евента
+     * Sets event
+     *
+     * @param string $sEvent
+     */
+    static public function SetActionEvent($sEvent) {
+
+        static::$sActionEvent = $sEvent;
+    }
+
+    /**
+     * Returns current event name
      *
      * @return string
      */
     static public function GetActionEventName() {
 
-        return self::$sActionEventName;
+        return static::$sActionEventName;
     }
 
     /**
-     * Возвращает класс текущего экшена
+     * Returns class name of current action
      *
      * @return string
      */
     static public function GetActionClass() {
 
-        return self::$sActionClass;
-    }
-
-    /**
-     * Устанавливает новый текущий евент
-     *
-     * @param string $sEvent    Евент
-     */
-    static public function SetActionEvent($sEvent) {
-
-        self::$sActionEvent = $sEvent;
+        return static::$sActionClass;
     }
 
     /**
@@ -658,7 +855,7 @@ class Router extends LsObject {
      */
     static public function GetParams() {
 
-        return self::$aParams;
+        return static::$aParams;
     }
 
     /**
@@ -666,39 +863,40 @@ class Router extends LsObject {
      * Нумерация параметров начинается нуля
      *
      * @param int $iOffset
-     * @param mixed|null $def
+     * @param string $sDefault
+     *
      * @return string
      */
-    static public function GetParam($iOffset, $def = null) {
+    static public function GetParam($iOffset, $sDefault = null) {
 
         $iOffset = (int)$iOffset;
-        return isset(self::$aParams[$iOffset]) ? self::$aParams[$iOffset] : $def;
+        return isset(static::$aParams[$iOffset]) ? static::$aParams[$iOffset] : $sDefault;
     }
 
     /**
      * Возвращает текущий обрабатывемый путь контроллера
      *
-     * @return  string
+     * @return string
      */
     static public function GetControllerPath() {
 
-        if (is_null(self::$sControllerPath)) {
-            self::$sControllerPath = self::GetAction() . '/';
-            if (self::GetActionEvent()) self::$sControllerPath .= self::GetActionEvent() . '/';
-            if (self::GetParams()) self::$sControllerPath .= implode('/', self::GetParams()) . '/';
+        if (is_null(static::$sControllerPath)) {
+            static::$sControllerPath = static::GetAction() . '/';
+            if (static::GetActionEvent()) static::$sControllerPath .= static::GetActionEvent() . '/';
+            if (static::GetParams()) static::$sControllerPath .= implode('/', static::GetParams()) . '/';
         }
-        return self::$sControllerPath;
+        return static::$sControllerPath;
     }
 
     /**
      * Устанавливает значение параметра
      *
-     * @param int $iOffset Номер параметра, по идеи может быть не только числом
-     * @param mixed $value
+     * @param int $iOffset Номер параметра, по идее может быть не только числом
+     * @param string $sValue
      */
-    static public function SetParam($iOffset, $value) {
+    static public function SetParam($iOffset, $sValue) {
 
-        self::$aParams[$iOffset] = $value;
+        static::$aParams[$iOffset] = $sValue;
     }
 
     /**
@@ -709,7 +907,7 @@ class Router extends LsObject {
      */
     static public function SetIsShowStats($bState) {
 
-        self::$bShowStats = $bState;
+        static::$bShowStats = $bState;
     }
 
     /**
@@ -719,7 +917,7 @@ class Router extends LsObject {
      */
     static public function GetIsShowStats() {
 
-        return self::$bShowStats;
+        return static::$bShowStats;
     }
 
     /**
@@ -733,19 +931,6 @@ class Router extends LsObject {
     }
 
     /**
-     * Ставим хук на вызов неизвестного метода и считаем что хотели вызвать метод какого либо модуля
-     * @see Engine::_CallModule
-     *
-     * @param string $sName Имя метода
-     * @param array $aArgs Аргументы
-     * @return mixed
-     */
-    public function __call($sName, $aArgs) {
-
-        return $this->oEngine->_CallModule($sName, $aArgs);
-    }
-
-    /**
      * Блокируем копирование/клонирование объекта роутинга
      *
      */
@@ -756,33 +941,105 @@ class Router extends LsObject {
     /**
      * Возвращает правильную адресацию по переданому названию страницы (экшену)
      *
-     * @param  string $action    Экшен
+     * @param  string $sAction Экшен
+     *
      * @return string
      */
-    static public function GetPath($action) {
+    static public function GetPath($sAction) {
+
+        if (empty(static::$aActionPaths[$sAction])) {
+            $sAction = trim($sAction, '/');
+            static::$aActionPaths[$sAction] = static::getInstance()->_getPath($sAction);
+        }
+        return static::$aActionPaths[$sAction];
+    }
+
+    /**
+     * @param string $sAction
+     *
+     * @return string
+     */
+    public function _getPath($sAction) {
 
         // Если пользователь запросил action по умолчанию
-        $sPage = ($action == 'default')
-            ? self::getInstance()->aConfigRoute['config']['action_default']
-            : $action;
+        $sPage = (($sAction == 'default') ? $this->aConfigRoute['config']['action_default'] : $sAction);
 
         // Смотрим, есть ли правило rewrite
-        $sPage = self::getInstance()->Rewrite($sPage);
+        $sPage = static::getInstance()->RestorePath($sPage);
+        // Маппинг доменов
+        if (!empty($this->aConfigRoute['domains']['backward'])) {
+            if (isset($this->aConfigRoute['domains']['backward'][$sPage])) {
+                $sResult = $this->aConfigRoute['domains']['backward'][$sPage];
+                if ($sResult[1] != '/') {
+                    $sResult = '//' . $sResult;
+                    if (substr($sResult, -1) !== '/') {
+                        $sResult .= '/';
+                    }
+                }
+                // Кешируем
+                $this->aConfigRoute['domains']['backward'][$sPage] = $sResult;
+                return $sResult;
+            }
+            $sPattern = F::StrMatch($this->aConfigRoute['domains']['backward_keys'], $sPage, true, $aMatches);
+            if ($sPattern) {
+                $sResult = '//' . $this->aConfigRoute['domains']['backward'][$sPattern];
+                if (!empty($aMatches[1])) {
+                    $sResult = str_replace('*', $aMatches[1], $sResult);
+                }
+                if (substr($sResult, -1) !== '/') {
+                    $sResult .= '/';
+                }
+                // Кешируем
+                $this->aConfigRoute['domains']['backward'][$sPage] = $sResult;
+                return $sResult;
+            }
+        }
         return rtrim(F::File_RootUrl(true), '/') . "/$sPage/";
     }
 
     /**
-     * Try to find rewrite rule for given page.
-     * On success return rigth page, else return given param.
+     * Returns rewrite rule for "from" or for "to" or for both
      *
-     * @param  string $sPage
+     * @param string $sFrom
+     * @param string $sTo
+     *
+     * @return array
+     */
+    protected function _getRewriteRule($sFrom, $sTo) {
+
+        if ($this->aConfigRoute['rewrite']) {
+            if ($sFrom) {
+                if (isset($this->aConfigRoute['rewrite'][$sFrom])) {
+                    if ($sTo) {
+                        if ($this->aConfigRoute['rewrite'][$sFrom] == $sTo) {
+                            return array($sFrom, $sTo);
+                        }
+                    } else {
+                        return array($sFrom, $this->aConfigRoute['rewrite'][$sFrom]);
+                    }
+                }
+            } elseif ($sTo) {
+                $sFrom = array_search($sTo, $this->aConfigRoute['rewrite'], true);
+                if ($sFrom) {
+                    return array($sFrom , $sTo);
+                }
+            }
+        }
+        return array($sFrom, $sTo);
+    }
+
+    /**
+     * Try to find rewrite rule for the path
+     * On success returns right page, otherwise returns given param
+     *
+     * @param  string $sPath
+     *
      * @return string
      */
-    public function Rewrite($sPage) {
+    public function RewritePath($sPath) {
 
-        return (isset($this->aConfigRoute['rewrite'][$sPage]))
-            ? $this->aConfigRoute['rewrite'][$sPage]
-            : $sPage;
+        list ($sFrom, $sTo) = $this->_getRewriteRule($sPath, null);
+        return $sTo ? $sTo : $sPath;
     }
 
     /**
@@ -791,16 +1048,13 @@ class Router extends LsObject {
      * Пытается по переданому экшену найти rewrite rule и
      * вернуть стандартное название ресусрса.
      *
-     * @see    Rewrite
-     * @param  string $sPage
+     * @param  string $sPath
      * @return string
      */
-    public function Standart($sPage) {
+    public function RestorePath($sPath) {
 
-        $aRewrite = array_flip($this->aConfigRoute['rewrite']);
-        return (isset($aRewrite[$sPage]))
-            ? $aRewrite[$sPage]
-            : $sPage;
+        list ($sFrom, $sTo) = $this->_getRewriteRule(null, $sPath);
+        return $sFrom ? $sFrom : $sPath;
     }
 
     /**
@@ -815,17 +1069,17 @@ class Router extends LsObject {
      */
     static public function Location($sLocation) {
 
-        self::getInstance()->oEngine->Shutdown();
+        static::getInstance()->oEngine->Shutdown();
         if (substr($sLocation, 0, 1) !== '/') {
             // Проверка на "виртуальный" путь
             $sRelLocation = trim($sLocation, '/');
             if (preg_match('|^[a-z][\w\-]+$|', $sRelLocation)) {
                 // задан action
-                $sLocation = self::GetPath($sRelLocation);
+                $sLocation = static::GetPath($sRelLocation);
             } elseif (preg_match('|^([a-z][\w\-]+)(\/.+)$|', $sRelLocation)) {
                 // задан action/event/...
                 list($sAction, $sRest) = explode('/', $sLocation, 2);
-                $sLocation = self::GetPath($sAction) . '/' . $sRest;
+                $sLocation = static::GetPath($sAction) . '/' . $sRest;
             }
         }
         F::HttpLocation($sLocation);
@@ -833,7 +1087,7 @@ class Router extends LsObject {
 
     /**
      * @param   array $aData
-     * @param   string $sPart  'url', 'link', 'root', 'path', 'action', 'event', 'params'
+     * @param   string $sPart  One of values: 'url', 'link', 'root', 'path', 'action', 'event', 'params'
      * @return  string
      */
     protected function _getUrlPart($aData, $sPart) {
@@ -870,6 +1124,11 @@ class Router extends LsObject {
         return $sResult;
     }
 
+    /**
+     * @param string|null $sPart
+     *
+     * @return array|string
+     */
     public function GetCurrentUrlInfo($sPart = null) {
 
         if (!$sPart) {
@@ -878,6 +1137,11 @@ class Router extends LsObject {
         return $this->_getUrlPart($this->aCurrentUrl, $sPart);
     }
 
+    /**
+     * @param string|null $sPart
+     *
+     * @return array|string
+     */
     public function GetBackwardUrlInfo($sPart = null) {
 
         if (!$sPart) {
@@ -894,7 +1158,7 @@ class Router extends LsObject {
      */
     static public function Url($sPart = null) {
 
-        return self::getInstance()->GetCurrentUrlInfo($sPart);
+        return static::getInstance()->GetCurrentUrlInfo($sPart);
     }
 
     /**
@@ -905,7 +1169,7 @@ class Router extends LsObject {
      */
     static public function Backward($sPart = null) {
 
-        return self::getInstance()->GetBackwardUrlInfo($sPart);
+        return static::getInstance()->GetBackwardUrlInfo($sPart);
     }
 
     /**
@@ -913,9 +1177,9 @@ class Router extends LsObject {
      */
     static public function GotoBack() {
 
-        $sUrl = self::Backward('link');
-        if ($sUrl) self::Url(('link'));
-        self::Location($sUrl);
+        $sUrl = static::Backward('link');
+        if ($sUrl) static::Url(('link'));
+        static::Location($sUrl);
     }
 
     /**
@@ -926,12 +1190,12 @@ class Router extends LsObject {
      */
     static public function ReturnBack($bSecurity = null) {
 
-        if (!$bSecurity || E::Security_ValidateSendForm(false)) {
+        if (!$bSecurity || E::ModuleSecurity()->ValidateSendForm(false)) {
             if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
-                self::Location($sUrl);
+                static::Location($sUrl);
             }
         }
-        self::GotoBack();
+        static::GotoBack();
     }
 
     /**
@@ -942,7 +1206,7 @@ class Router extends LsObject {
      */
     static public function GetTopicUrlMask($bEmptyIfWrong = true) {
 
-        if (is_null(self::$sTopicUrlMask)) {
+        if (is_null(static::$sTopicUrlMask)) {
             $sUrlMask = Config::Get('module.topic.url');
             if ($sUrlMask) {
                 // WP compatible
@@ -966,9 +1230,9 @@ class Router extends LsObject {
                 }
                 $sUrlMask = preg_replace('#\/+#', '/', $sUrlMask);
             }
-            self::$sTopicUrlMask = $sUrlMask;
+            static::$sTopicUrlMask = $sUrlMask;
         } else {
-            $sUrlMask = self::$sTopicUrlMask;
+            $sUrlMask = static::$sTopicUrlMask;
         }
 
         if ($bEmptyIfWrong && (strpos($sUrlMask, '%topic_id%') === false) && (strpos($sUrlMask, '%topic_url%') === false)) {
@@ -985,7 +1249,7 @@ class Router extends LsObject {
      */
     static public function GetTopicUrlPattern() {
 
-        $sUrlPattern = self::GetTopicUrlMask();
+        $sUrlPattern = static::GetTopicUrlMask();
         if ($sUrlPattern) {
             $sUrlPattern = preg_quote($sUrlPattern);
             $aReplace = array(
@@ -1001,6 +1265,11 @@ class Router extends LsObject {
                 '%topic_id%'   => '(\d+)',
                 '%topic_url%'  => '([\w\-]+)',
             );
+            // brackets in the pattern may be only once
+            if (strpos($sUrlPattern, '%topic_id%') !== false && strpos($sUrlPattern, '%topic_url%') !== false) {
+                // if both of masks are present then %topic_id% is main
+                $aReplace['%topic_url%'] = '[\w\-]+';
+            }
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
             if (substr($sUrlPattern, -1) == '/') {
                 $sUrlPattern .= '?';
@@ -1018,7 +1287,7 @@ class Router extends LsObject {
      */
     static public function GetUserUrlMask($bEmptyIfWrong = true) {
 
-        $sUrlMask = Config::Get('module.user.profile_url');
+        $sUrlMask = ''; //Config::Get('module.user.profile_url');
         if ($bEmptyIfWrong && (strpos($sUrlMask, '%user_id%') === false) && (strpos($sUrlMask, '%login%') === false)) {
             // В маске обязательно должны быть либо '%user_id%', либо '%login%'
             $sUrlMask = '';
@@ -1033,7 +1302,7 @@ class Router extends LsObject {
      */
     static public function GetUserUrlPattern() {
 
-        $sUrlPattern = self::GetUserUrlMask();
+        $sUrlPattern = static::GetUserUrlMask();
         if ($sUrlPattern) {
             $sUrlPattern = preg_quote($sUrlPattern);
             $aReplace = array(
@@ -1054,26 +1323,99 @@ class Router extends LsObject {
      *
      * @see GetControllerPath
      *
-     * @param $aPaths - array of compared paths
+     * @param string|array $aPaths   - array of compared paths
+     * @param bool         $bDefault - default value if $aPaths is empty
      *
      * @return string
      */
-    static public function CompareWithLocalPath($aPaths) {
+    static public function CompareWithLocalPath($aPaths, $bDefault = null) {
 
-        $sControllerPath = self::GetControllerPath();
-        $aPaths = F::Val2Array($aPaths);
         if ($aPaths) {
-            foreach($aPaths as $nKey => $sPath) {
-                if ($sPath == '*') {
-                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
-                } elseif($sPath == '/') {
-                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
-                } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
-                    $aPaths[$nKey] = $sPath . '/*';
+            $sControllerPath = static::GetControllerPath();
+            $aPaths = F::Val2Array($aPaths);
+            if ($aPaths) {
+                foreach($aPaths as $nKey => $sPath) {
+                    if ($sPath == '*') {
+                        $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
+                    } elseif($sPath == '/') {
+                        $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
+                    } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
+                        $aPaths[$nKey] = $sPath . '/*';
+                    }
+                }
+                return F::File_InPath($sControllerPath, $aPaths);
+            }
+        }
+        return $bDefault;
+    }
+
+    /**
+     * Check the local path by allow/disallow rules
+     *
+     * @param string|array|null $aAllowPaths
+     * @param string|array|null $aDisallowPaths
+     *
+     * @return bool
+     */
+    static public function AllowLocalPath($aAllowPaths, $aDisallowPaths) {
+
+        if (static::CompareWithLocalPath($aAllowPaths, true) && !static::CompareWithLocalPath($aDisallowPaths, false)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check the current action and event by rules
+     *
+     * @param $aActions
+     *
+     * @return bool
+     */
+    static public function AllowAction($aActions) {
+
+        $bResult = false;
+        if ($aActions) {
+            $aActions = F::Val2Array($aActions);
+
+            $sCurrentAction = strtolower(static::GetAction());
+            $sCurrentEvent = strtolower(static::GetActionEvent());
+            $sCurrentEventName = strtolower(static::GetActionEventName());
+
+            foreach ($aActions as $sAction => $aEvents) {
+                // приводим к виду action=>array(events)
+                if (is_int($sAction) && !is_array($aEvents)) {
+                    $sAction = (string)$aEvents;
+                    $aEvents = array();
+                }
+                if ($sAction == $sCurrentAction) {
+                    if (!$aEvents) {
+                        $bResult = true;
+                        break;
+                    }
+                }
+                $aEvents = (array)$aEvents;
+                foreach ($aEvents as $sEventPreg) {
+                    if ($sEventPreg == $sCurrentEvent) {
+                        // * Это название event`a
+                        $bResult = true;
+                        break 2;
+                    } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
+                        // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
+                        $bResult = true;
+                        break 2;
+                    } elseif ((substr($sEventPreg, 0, 1) == '[')
+                        && (substr($sEventPreg, -1) == ']')
+                        && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
+                        // * Это регулярное выражение
+                        $bResult = true;
+                        break 2;
+                    }
                 }
             }
-            return F::File_InPath($sControllerPath, $aPaths);
         }
+
+        return $bResult;
     }
 
 }

@@ -1,5 +1,5 @@
 --
--- SQL, которые надо выполнить движку при деактивации плагина админом. Вызывается на исполнение ВРУЧНУЮ в /plugins/PluginXxxxx.class.php в методе Deactivate()
+-- SQL, которые надо выполнить движку при деактивации плагина админом. Вызывается на исполнение ВРУЧНУЮ в /common/plugins/PluginXxxxx.class.php в методе Deactivate()
 -- Например:
 
 -- CREATE TABLE IF NOT EXISTS `prefix_tablename` (

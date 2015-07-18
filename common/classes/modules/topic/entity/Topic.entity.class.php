@@ -14,7 +14,12 @@
  */
 
 /**
- * Объект сущности топика
+ * Class ModuleTopic_EntityTopic Entity of topic/article
+ *
+ *
+ * @method int getTopicIndexIgnore()
+ * @method int getFavourite()
+ * @method string GetTopicUrl()
  *
  * @package modules.topic
  * @since   1.0
@@ -26,7 +31,7 @@ class ModuleTopic_EntityTopic extends Entity {
     const INDEX_IGNORE_LOCK = 2;
 
     /**
-     * Массив объектов(не всегда) для дополнительных типов топиков(линки, опросы, подкасты и т.п.)
+     * Массив для дополнительных параметров топика, которые сериализуются при его сохранении
      *
      * @var array
      */
@@ -38,7 +43,7 @@ class ModuleTopic_EntityTopic extends Entity {
     protected $aValues = null;
 
     /**
-     * Определяем правила валидации
+     * Define of validation rule
      */
     public function Init() {
 
@@ -46,25 +51,25 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->aValidateRules[] = array(
             'topic_title', 'string', 'max' => 200, 'min' => 2,
             'allowEmpty' => false,
-            'label' => $this->Lang_Get('topic_create_title'),
+            'label' => E::ModuleLang()->Get('topic_create_title'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'question_title', 'string', 'max' => 200, 'min' => 2,
             'allowEmpty' => true,
-            'label' => $this->Lang_Get('topic_create_question_title'),
+            'label' => E::ModuleLang()->Get('topic_create_question_title'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'topic_text_source', 'string', 'max' => Config::Get('module.topic.max_length'), 'min' => 2,
             'allowEmpty' => false,
-            'label' => $this->Lang_Get('topic_create_text'),
+            'label' => E::ModuleLang()->Get('topic_create_text'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'topic_tags', 'tags', 'count' => 15,
             'allowEmpty' => Config::Get('module.topic.allow_empty_tags'),
-            'label' => $this->Lang_Get('topic_create_tags'),
+            'label' => E::ModuleLang()->Get('topic_create_tags'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
@@ -82,9 +87,19 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->aValidateRules[] = array(
             'link_url', 'url',
             'allowEmpty' => true,
-            'label' => $this->Lang_Get('topic_link_create_url'),
+            'label' => E::ModuleLang()->Get('topic_link_create_url'),
             'on' => array('topic'),
         );
+    }
+
+    /**
+     * Типы ресурсов, загружаемые в профайле пользователя
+     *
+     * @return array
+     */
+    protected function _getDefaultMediaTypes() {
+
+        return array('topic', 'photoset');
     }
 
     /**
@@ -97,10 +112,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function ValidateTopicType($sValue, $aParams) {
 
-        if ($this->Topic_IsAllowTopicType($sValue)) {
+        if (E::ModuleTopic()->IsAllowTopicType($sValue)) {
             return true;
         }
-        return $this->Lang_Get('topic_create_type_error');
+        return E::ModuleLang()->Get('topic_create_type_error');
     }
 
     /**
@@ -114,11 +129,11 @@ class ModuleTopic_EntityTopic extends Entity {
     public function ValidateTopicUnique($sValue, $aParams) {
 
         $this->setTextHash(md5($this->getType() . $sValue . $this->getTitle()));
-        if ($oTopicEquivalent = $this->Topic_GetTopicUnique($this->getUserId(), $this->getTextHash())) {
+        if ($oTopicEquivalent = E::ModuleTopic()->GetTopicUnique($this->getUserId(), $this->getTextHash())) {
             if ($iId = $this->getId() and $oTopicEquivalent->getId() == $iId) {
                 return true;
             }
-            return $this->Lang_Get('topic_create_text_error_unique');
+            return E::ModuleLang()->Get('topic_create_text_error_unique');
         }
         return true;
     }
@@ -136,28 +151,65 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($sValue == 0) {
             return true; // персональный блог
         }
-        if ($this->Blog_GetBlogById((string)$sValue)) {
+        if (E::ModuleBlog()->GetBlogById((string)$sValue)) {
             return true;
         }
-        return $this->Lang_Get('topic_create_blog_error_unknown');
+        return E::ModuleLang()->Get('topic_create_blog_error_unknown');
     }
 
-    public function getField($id) {
+    /**
+     * @param int $iFieldId
+     *
+     * @return mixed
+     */
+    public function getField($iFieldId) {
 
-        if (isset($this->aValues[$id])) {
-            return $this->aValues[$id];
+        if (isset($this->aValues[$iFieldId])) {
+            return $this->aValues[$iFieldId];
         }
         return null;
     }
 
+    /**
+     * Обрабатывает поле ссылки
+     *
+     * @param int $iFieldId
+     * @param bool $bHtml
+     *
+     * @return null|string
+     */
+    public function getFieldLink($iFieldId, $bHtml = false) {
+
+        if ($this->getField($iFieldId)) {
+            if ($bHtml) {
+                if (strpos($this->getField($iFieldId)->getValue(), 'http://') !== 0) {
+                    return 'http://' . $this->getField($iFieldId)->getValue();
+                }
+            }
+            return $this->getField($iFieldId)->getValue();
+        }
+        return null;
+    }
+
+    /**
+     * @param $data
+     */
     public function setTopicValues($data) {
 
         $this->aValues = $data;
     }
 
+    /**
+     * @return ModuleTopic_EntityContentType
+     */
     public function getContentType() {
 
-        return $this->Topic_GetContentType($this->getType());
+        $oContentType = $this->getProp('_content_type');
+        if (is_null($oContentType)) {
+            $oContentType = E::ModuleTopic()->GetContentType($this->getType());
+            $this->setProp('_content_type', $oContentType);
+        }
+        return $oContentType;
     }
 
     /**
@@ -279,6 +331,29 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getDateEdit() {
 
         return $this->getProp('topic_date_edit');
+    }
+
+    public function getDateShow() {
+
+        return $this->getProp('topic_date_show');
+    }
+
+    /**
+     * Gets topic date publication
+     *
+     * @return null|string
+     */
+    public function getDate() {
+
+        $sDate = $this->getProp('_date');
+        if (is_null($sDate)) {
+            $sDate = $this->getDateShow();
+            if (is_null($sDate)) {
+                $sDate = $this->getDateAdd();
+            }
+            $this->setProp('_date', $sDate);
+        }
+        return $sDate;
     }
 
     /**
@@ -424,12 +499,27 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает массив тегов
      *
+     * @param bool $bTextOnly
      * @return array
      */
-    public function getTagsArray() {
+    public function getTagsArray($bTextOnly = true) {
 
-        if ($this->getTags()) {
-            return explode(',', $this->getTags());
+        if ($sTags = $this->getTags()) {
+            if ($bTextOnly) {
+                return explode(',', $sTags);
+            }
+            $aTexts = explode(',', $sTags);
+            $aData = array();
+            foreach ($aTexts as $nI => $sText) {
+                $aData[] = array(
+                    'topic_tag_id'   => -$nI,
+                    'topic_id'       => $this->getId(),
+                    'user_id'        => $this->getUserId(),
+                    'blog_id'        => $this->getBlogId(),
+                    'topic_tag_text' => $sText,
+                );
+            }
+            return E::GetEntityRows('Topic_TopicTag', $aData);
         }
         return array();
     }
@@ -462,19 +552,30 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getUser() {
 
         if (!$this->getProp('user')) {
-            $this->_aData['user'] = $this->User_GetUserById($this->getUserId());
+            $this->setProp('user', E::ModuleUser()->GetUserById($this->getUserId()));
         }
         return $this->getProp('user');
     }
 
     /**
-     * Возвращает объект блого, в котором находится топик
+     * Returns blog object of the topic
      *
      * @return ModuleBlog_EntityBlog|null
      */
     public function getBlog() {
 
-        return $this->getProp('blog');
+        $oBlog = $this->getProp('blog');
+        if (!$oBlog) {
+            $iBlogId = $this->getBlogId();
+            if ($iBlogId) {
+                $oBlog = E::ModuleBlog()->GetBlogById($iBlogId);
+            } elseif ($iBlogId === 0 || $iBlogId === '0') {
+                $oUser = $this->getUser();
+                $oBlog = $oUser->getBlog();
+            }
+            $this->setProp('blog', $oBlog);
+        }
+        return $oBlog;
     }
 
     /**
@@ -485,23 +586,26 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return  string
      */
-    public function getUrl($sUrlMask = null, $bFullUrl = true) {
+    public function getLink($sUrlMask = null, $bFullUrl = true) {
 
-        $sKey = '-url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
-        if ($this->isProp($sKey)) {
-            return $this->getProp($sKey);
+        $sKey = '_url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
+        $sUrl = $this->getProp($sKey);
+        if (!is_null($sUrl)) {
+            return $sUrl;
         }
 
         if (!$sUrlMask) {
-            $sUrlMask = Router::GetTopicUrlMask();
+            $sUrlMask = R::GetTopicUrlMask();
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию в LS-стиле
             if ($this->getBlog()->getType() == 'personal') {
-                return Router::GetPath('blog') . $this->getId() . '.html';
+                $sUrl = R::GetPath('blog') . $this->getId() . '.html';
             } else {
-                return Router::GetPath('blog') . $this->getBlog()->getUrl() . '/' . $this->getId() . '.html';
+                $sUrl = $this->getBlog()->getLink() . $this->getId() . '.html';
             }
+            $this->setProp($sKey, $sUrl);
+            return $sUrl;
         }
         // ЧПУ по маске
         $sCreateDate = strtotime($this->GetDateAdd());
@@ -522,10 +626,30 @@ class ModuleTopic_EntityTopic extends Entity {
             $sUrlMask .= '/';
         }
 
-        $sUrl = ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
+        $sUrl = strtr($sUrlMask, $aReplace);
+        if ($bFullUrl) {
+            if ($sUrl[0] == '/') {
+                $sUrl = F::File_RootUrl() . substr($sUrl, 1);
+            } else {
+                $sUrl = F::File_RootUrl() . $sUrl;
+            }
+        }
         $this->setProp($sKey, $sUrl);
 
         return $sUrl;
+    }
+
+    /**
+     * Alias for getLink()
+     *
+     * @param string $sUrlMask
+     * @param bool   $bFullUrl
+     *
+     * @return mixed
+     */
+    public function getUrl($sUrlMask = null, $bFullUrl = true) {
+
+        return $this->getLink($sUrlMask, $bFullUrl);
     }
 
     /**
@@ -538,6 +662,9 @@ class ModuleTopic_EntityTopic extends Entity {
         return F::TranslitUrl($this->getTitle());
     }
 
+    /**
+     * @return string
+     */
     public function MakeTopicUrl() {
 
         $sUrl = $this->GetTitleTranslit();
@@ -554,7 +681,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlShort() {
 
-        return Router::GetPath('t') . $this->getId() . '/';
+        return R::GetPath('t') . $this->getId() . '/';
     }
 
     /**
@@ -564,7 +691,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlEdit() {
 
-        return Router::GetPath('content') . 'edit/' . $this->getId() . '/';
+        return R::GetPath('content') . 'edit/' . $this->getId() . '/';
     }
 
     /**
@@ -607,8 +734,8 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getIsAllowDelete() {
 
-        if ($oUser = $this->User_GetUserCurrent()) {
-            return $this->ACL_IsAllowDeleteTopic($this, $oUser);
+        if ($oUser = E::ModuleUser()->GetUserCurrent()) {
+            return E::ModuleACL()->IsAllowDeleteTopic($this, $oUser);
         }
         return false;
     }
@@ -620,8 +747,8 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getIsAllowEdit() {
 
-        if ($oUser = $this->User_GetUserCurrent()) {
-            return $this->ACL_IsAllowEditTopic($this, $oUser);
+        if ($oUser = E::ModuleUser()->GetUserCurrent()) {
+            return E::ModuleACL()->IsAllowEditTopic($this, $oUser);
         }
         return false;
     }
@@ -633,7 +760,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getIsAllowAction() {
 
-        if ($this->User_GetUserCurrent()) {
+        if (E::ModuleUser()->GetUserCurrent()) {
             return $this->getIsAllowEdit() || $this->getIsAllowDelete();
         }
         return false;
@@ -656,10 +783,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getSubscribeNewComment() {
 
-        if (!($oUserCurrent = $this->User_GetUserCurrent())) {
+        if (!($oUserCurrent = E::ModuleUser()->GetUserCurrent())) {
             return null;
         }
-        return $this->Subscribe_GetSubscribeByTargetAndMail(
+        return E::ModuleSubscribe()->GetSubscribeByTargetAndMail(
             'topic_new_comment', $this->getId(), $oUserCurrent->getMail()
         );
     }
@@ -671,29 +798,32 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getTrackNewComment() {
 
-        if (!($oUserCurrent = $this->User_GetUserCurrent())) {
+        if (!($oUserCurrent = E::ModuleUser()->GetUserCurrent())) {
             return null;
         }
-        return $this->Subscribe_GetTrackByTargetAndUser('topic_new_comment', $this->getId(), $oUserCurrent->getId());
+        return E::ModuleSubscribe()->GetTrackByTargetAndUser('topic_new_comment', $this->getId(), $oUserCurrent->getId());
     }
 
     /**
      * Возвращает объект файла, привязанного к топику
      *
-     * @param $nId
+     * @param int $nId
      *
      * @return ModuleTopic_EntityTopicFile|null
      */
-    public function getFile($nId) {
+    public function getFieldFile($nId) {
 
         if ($this->getField($nId)) {
-            return Engine::GetEntity(
+            return E::GetEntity(
                 'ModuleTopic_EntityTopicFile', unserialize($this->getField($nId)->getValueSource())
             );
         }
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getDraftUrl() {
 
         return $this->GetUrl() . '?draft=' . $this->GetUserId() . ':' . $this->getTextHash();
@@ -707,25 +837,37 @@ class ModuleTopic_EntityTopic extends Entity {
         $aResources = array();
         $aPhotos = $this->getPhotosetPhotos();
         if ($aPhotos) {
-            foreach($aPhotos as $oPhoto) {
-                $oMresource = $oPhoto->BuildMresource();
-                $oMresource->setUserId($this->getUserId());
+            foreach($aPhotos as $oMresource) {
                 $aResources[] = $oMresource;
             }
         }
         $aTextLinks = $this->GetTextLinks();
         if ($aTextLinks) {
             foreach($aTextLinks as $aLink) {
-                $oMresource = Engine::GetEntity('Mresource_MresourceRel');
-                $oMresource->setUrl($this->Mresource_NormalizeUrl($aLink['link']));
+                $oMresource = E::GetEntity('Mresource_MresourceRel');
+                $oMresource->setUrl(E::ModuleMresource()->NormalizeUrl($aLink['link']));
                 $oMresource->setType($aLink['type']);
                 $oMresource->setUserId($this->getUserId());
                 $aResources[] = $oMresource;
+                // if image is derived from another image then add original mresource
+                if ($oMresource->isDerivedImage()) {
+                    // get original path and make one more mresorce
+                    $sOriginal = $oMresource->GetOriginalPathUrl();
+
+                    $oMresource = E::GetEntity('Mresource_MresourceRel');
+                    $oMresource->setUrl(E::ModuleMresource()->NormalizeUrl($sOriginal));
+                    $oMresource->setType($aLink['type']);
+                    $oMresource->setUserId($this->getUserId());
+                    $aResources[] = $oMresource;
+                }
             }
         }
-        return $this->Mresource_BuildMresourceHashList($aResources);
+        return E::ModuleMresource()->BuildMresourceHashList($aResources);
     }
 
+    /**
+     * @param array|string $xData
+     */
     public function setTextLinks($xData) {
 
         if (!is_array($xData)) {
@@ -734,14 +876,17 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setExtraValue('intext_links', $xData);
     }
 
+    /**
+     * @return array
+     */
     public function getTextLinks() {
 
         return (array)$this->getExtraValue('intext_links');
     }
 
-    /***************************************************************************************************************************************************
+    /* ****************************************************************************************************************
      * методы расширения типов топика
-     ***************************************************************************************************************************************************
+     * ****************************************************************************************************************
      */
 
     /**
@@ -783,18 +928,21 @@ class ModuleTopic_EntityTopic extends Entity {
         return null;
     }
 
+    /* *** ******************** *** */
+    /* *** SOURCE LINK OF TOPIC *** */
+
     /**
-     * Возвращает URL для топика-ссылки
+     * Returns URL of topic's source link
      *
-     * @param bool $bShort    Укарачивать урл или нет
+     * @param bool $bShort    Shorten URL
      *
      * @return null|string
      */
-    public function getLinkUrl($bShort = false) {
+    public function getSourceLink($bShort = false) {
 
-        if ($this->getExtraValue('url')) {
+        if ($sUrl = $this->getExtraValue('url')) {
             if ($bShort) {
-                $sUrl = htmlspecialchars($this->getExtraValue('url'));
+                $sUrl = htmlspecialchars($sUrl);
                 if (preg_match('/^https?:\/\/(.*)$/i', $sUrl, $aMatch)) {
                     $sUrl = $aMatch[1];
                 }
@@ -803,10 +951,10 @@ class ModuleTopic_EntityTopic extends Entity {
                     return $sUrlShort . '...';
                 }
                 return $sUrl;
-            }
-            $sUrl = $this->getExtraValue('url');
-            if (!preg_match('/^https?:\/\/(.*)$/i', $sUrl, $aMatch)) {
-                $sUrl = 'http://' . $sUrl;
+            } else {
+                if (!preg_match('/^https?:\/\/(.*)$/i', $sUrl, $aMatch)) {
+                    $sUrl = 'http://' . $sUrl;
+                }
             }
             return $sUrl;
         }
@@ -814,39 +962,21 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Устанавливает URL для топика-ссылки
+     * Set URL of topic's source link
      *
      * @param string $data
      */
-    public function setLinkUrl($data) {
+    public function setSourceLink($data) {
 
-        $this->setExtraValue('url', $data);
-    }
-
-    /*
-     * Обрабатывает поле ссылки
-     *
-     * @param string $data
-     */
-    public function getLink($id, $bHtml = false) {
-
-        if ($this->getField($id)) {
-            if ($bHtml) {
-                if (strpos($this->getField($id)->getValue(), 'http://') !== 0) {
-                    return 'http://' . $this->getField($id)->getValue();
-                }
-            }
-            return $this->getField($id)->getValue();
-        }
-        return null;
+        $this->setExtraValue('url', strip_tags($data));
     }
 
     /**
      * Возвращает количество переходов по ссылке в топике-ссылке
      *
-     * @return int|null
+     * @return int
      */
-    public function getLinkCountJump() {
+    public function getSourceLinkCountJump() {
 
         return (int)$this->getExtraValue('count_jump');
     }
@@ -856,10 +986,13 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @param string $data
      */
-    public function setLinkCountJump($data) {
+    public function setSourceLinkCountJump($data) {
 
         $this->setExtraValue('count_jump', $data);
     }
+
+    /* *** ********************** *** */
+    /* *** QUESTIONNAIRE OF TOPIC *** */
 
     /**
      * Устанавливает вопрос
@@ -881,11 +1014,11 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($this->getExtraValue('question_title')) {
             return $this->getExtraValue('question_title');
         }
-        $this->getTitle();
+        return $this->getTitle();
     }
 
     /**
-     * Добавляет вариант ответа в топик-опрос
+     * Добавляет вариант ответа в опросе топика
      *
      * @param string $data
      */
@@ -897,7 +1030,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Очищает варианты ответа в топике-опрос
+     * Очищает варианты ответа в опросе топика
      */
     public function clearQuestionAnswer() {
 
@@ -905,7 +1038,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает варианты ответа в топике-опрос
+     * Возвращает варианты ответа в опросе топика
      *
      * @param bool $bSortVote
      *
@@ -913,23 +1046,20 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getQuestionAnswers($bSortVote = false) {
 
-        if ($this->getExtraValue('answers')) {
-            $aAnswers = $this->getExtraValue('answers');
-            if ($bSortVote) {
-                uasort(
-                    $aAnswers, create_function(
-                        '$a,$b',
-                        "if (\$a['count'] == \$b['count']) { return 0; } return (\$a['count'] < \$b['count']) ? 1 : -1;"
-                    )
-                );
-            }
-            return $aAnswers;
+        $aAnswers = $this->getExtraValue('answers');
+        if ($aAnswers && $bSortVote) {
+            uasort(
+                $aAnswers, create_function(
+                    '$a,$b',
+                    "if (\$a['count'] == \$b['count']) { return 0; } return (\$a['count'] < \$b['count']) ? 1 : -1;"
+                )
+            );
         }
-        return array();
+        return $aAnswers ? $aAnswers : array();
     }
 
     /**
-     * Увеличивает количество ответов на данный вариант в топике-опросе
+     * Увеличивает количество ответов на данный вариант в опросе топика
      *
      * @param int $sIdAnswer  ID варианта ответа
      */
@@ -945,7 +1075,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает максимально количество ответов на вариант в топике-опросе
+     * Возвращает максимально количество ответов на вариант в опросе топика
      *
      * @return int
      */
@@ -973,19 +1103,18 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($aAnswers = $this->getQuestionAnswers()) {
             if (isset($aAnswers[$sIdAnswer])) {
                 $iCountAll = $this->getQuestionCountVote() - $this->getQuestionCountVoteAbstain();
-                if ($iCountAll == 0) {
-                    return 0;
-                } else {
+                if (!$iCountAll == 0) {
                     return number_format(round($aAnswers[$sIdAnswer]['count'] * 100 / $iCountAll, 1), 1, '.', '');
                 }
             }
         }
+        return 0;
     }
 
     /**
-     * Возвращает общее число принявших участие в опросе в топике-опросе
+     * Возвращает общее число принявших участие в опросе в опросе топика
      *
-     * @return int|null
+     * @return int
      */
     public function getQuestionCountVote() {
 
@@ -993,7 +1122,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Устанавливает общее число принявших участие в опросе в топике-опросе
+     * Устанавливает общее число принявших участие в опросе в опросе топика
      *
      * @param int $data
      */
@@ -1003,9 +1132,9 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает число воздержавшихся от участия в опросе в топике-опросе
+     * Возвращает число воздержавшихся от участия в опросе
      *
-     * @return int|null
+     * @return int
      */
     public function getQuestionCountVoteAbstain() {
 
@@ -1013,7 +1142,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Устанавливает число воздержавшихся от участия в опросе в топике-опросе
+     * Устанавливает число воздержавшихся от участия в опросе
      *
      * @param int $data
      *
@@ -1024,37 +1153,114 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setExtraValue('count_vote_abstain', $data);
     }
 
+    /* *** ********************** *** */
+    /* *** PHOTOSET OF TOPIC      *** */
+
     /**
-     * Возвращает фотографии из топика-фотосета
+     * Возвращает фотографии из фотосета топика
      *
      * @param int|null $iFromId    ID с которого начинать  выборку
      * @param int|null $iCount     Количество
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicPhoto[]
      */
     public function getPhotosetPhotos($iFromId = null, $iCount = null) {
 
-        return $this->Topic_getPhotosByTopicId($this->getId(), $iFromId, $iCount);
+        $iPhotosCount = $this->getPhotosetCount();
+        if (!$iPhotosCount) {
+            return array();
+        }
+
+        $aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('photoset', $this->getId());
+        $aResult = array();
+        if ($aPhotos && ($iFromId || $iCount)) {
+            $iCntSet = -1;
+            // Сравнение должно идти по ид. ресурса, а не по ид.
+            // картинки
+            foreach($aPhotos as $oPhoto) {
+                if ($oPhoto->getMresourceId() >= $iFromId) {
+                    if (++$iCntSet >= $iCount) {
+                        break;
+                    }
+                    $aResult[$oPhoto->getMresourceId()] = $oPhoto;
+                }
+            }
+        } else {
+            $aResult = $aPhotos;
+        }
+        return $aResult;
     }
 
     /**
      * Возвращает количество фотографий в фотосете топика
      *
-     * @return int|null
+     * @return int
      */
     public function getPhotosetCount() {
 
-        return $this->getExtraValue('count_photo');
+        return (int)$this->getExtraValue('count_photo');
     }
 
     /**
-     * Возвращает ID главной фото в топике-фотосете
+     * Returns ID of main photo in photoset
      *
      * @return int|null
      */
     public function getPhotosetMainPhotoId() {
 
+        // Топика ещё нет, вернём дефолтное значение (null)
+        if (!$this->getId()) {
+            return NULL;
+        }
+
+        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
+            'target_type' => 'photoset',
+            'target_id'   => $this->getId(),
+            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
+        ), 1, 1);
+
+        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
+            /** @var ModuleMresource_EntityMresource $oMresource */
+            return $oMresource->getMresourceId();
+        }
+
         return $this->getExtraValue('main_photo_id');
+    }
+
+    /**
+     * Returns main photo in photoset
+     *
+     * @return ModuleTopic_EntityTopicPhoto|null
+     */
+    public function getPhotosetMainPhoto($bFirst = FALSE) {
+
+        // Топика ещё нет, вернём дефолтное значение (null)
+        if (!$this->getId()) {
+            return NULL;
+        }
+
+        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
+            'target_type' => 'photoset',
+            'target_id'   => $this->getId(),
+            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
+        ), 1, 1);
+
+        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
+            /** @var ModuleMresource_EntityMresource $oMresource */
+            return $oMresource;
+        }
+
+        return NULL;
+
+    }
+
+    public function getPhotosetMainPhotoUrl($bFirst = false, $sSize='' ) {
+
+        $oMresource = $this->getPhotosetMainPhoto($bFirst);
+        if ($oMresource) {
+            return E::ModuleUploader()->ResizeTargetImage($oMresource->getWebPath(), $sSize);
+        }
+        return null;
     }
 
     /**
@@ -1070,27 +1276,36 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Устанавливает ID главной фото в топике-фотосете
      *
-     * @param int $data
+     * @param int $iPhotoId
      */
-    public function setPhotosetMainPhotoId($data) {
+    public function setPhotosetMainPhotoId($iPhotoId) {
 
-        $this->setExtraValue('main_photo_id', $data);
+        $this->setExtraValue('main_photo_id', $iPhotoId);
+        $this->setProp('_photoset_photos', null);
     }
 
     /**
      * Устанавливает количество фотографий в топике-фотосете
      *
-     * @param int $data
+     * @param int $iCount
      */
-    public function setPhotosetCount($data) {
+    public function setPhotosetCount($iCount) {
 
-        $this->setExtraValue('count_photo', $data);
+        $this->setExtraValue('count_photo', $iCount);
+        $this->setProp('_photoset_photos', null);
     }
 
-    public function setPhotosId($data) {
+    /**
+     * @param $aPhotosId
+     */
+    public function setPhotosId($aPhotosId) {
 
-        $this->setExtraValue('photos_id', $data);
+        $this->setExtraValue('photos_id', $aPhotosId);
+        $this->setProp('_photoset_photos', null);
     }
+
+    /* *** ********************** *** */
+    /* *** OTHERS                 *** */
 
     /**
      * Флаг игнорирования индексации установлен вручную
@@ -1100,6 +1315,65 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getIndexIgnoreLock() {
 
         return intval($this->getTopicIndexIgnore()) == self::INDEX_IGNORE_LOCK;
+    }
+
+    public function getTopicTypeTemplate($sMode) {
+
+        $oContentType = $this->getContentType();
+        return $oContentType->getTemplate($sMode);
+    }
+
+    /**
+     * If the topic is published
+     *
+     * @return bool
+     */
+    public function isPublished() {
+
+        return (bool)$this->getPublish();
+    }
+
+    public function isVoteInfoShow() {
+
+        $bResult = $this->getVote() || E::UserId()==$this->getUserId() || (strtotime($this->getDateAdd())<time()-Config::Get('acl.vote.topic.limit_time'));
+        return $bResult;
+    }
+
+    public function isShowPhotoset() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $this->getShowPhotoset() && $oContentType && $oContentType->isAllow('photoset') && $this->getPhotosetCount();
+    }
+
+    public function isShowPoll() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $oContentType && $oContentType->isAllow('poll') && $this->getQuestionAnswers();
+    }
+
+    public function isShowSourceLink() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $oContentType && $oContentType->isAllow('link') && $this->getSourceLink();
+    }
+
+    public function getShowPhotoset() {
+        // По умолчанию включаем фотосет. поскольку при переносе топиков
+        // и переходе со старых версий в экстре такой записи нет
+        return ($this->getExtraValue('show_photoset')===null) ? TRUE : (bool)$this->getExtraValue('show_photoset');
+    }
+
+    public function getSingleImage($nId, $sSize) {
+
+        if ($this->getField($nId)) {
+
+            return E::ModuleUploader()->GetTargetImageUrl(
+                $this->getField($nId)->getFieldType() . '-' . $nId,
+                $this->getField($nId)->getTargetId(),
+                $sSize);
+
+        }
+        return null;
     }
 
     //***************************************************************************************************************
@@ -1121,6 +1395,11 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function setBlogId($data) {
 
+        if (is_numeric($data)) {
+            $data = intval($data);
+        } else {
+            $data = null;
+        }
         $this->setProp('blog_id', $data);
     }
 
@@ -1171,7 +1450,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function setExtra($data) {
 
-        $this->_aData['topic_extra'] = serialize($data);
+        $this->setProp('topic_extra', serialize($data));
     }
 
     /**
@@ -1222,6 +1501,11 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setDateEdit($data) {
 
         $this->setProp('topic_date_edit', $data);
+    }
+
+    public function setDateShow($data) {
+
+        $this->setProp('topic_date_show', $data);
     }
 
     /**
@@ -1437,6 +1721,55 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setIndexIgnoreLock() {
 
         $this->setTopicIndexIgnore(self::INDEX_IGNORE_LOCK);
+    }
+
+    public function setShowPhotoset($data){
+        $this->setExtraValue('show_photoset', (bool)$data);
+    }
+
+    /**
+     * Can this topic be edited by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanEditedBy($oUser) {
+
+        return E::ModuleACL()->IsAllowEditTopic($this, $oUser);
+    }
+
+    /**
+     * Can this topic be deleted by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanDeletedBy($oUser) {
+
+        return E::ModuleACL()->IsAllowDeleteTopic($this, $oUser);
+    }
+
+    /**
+     * Creates RSS item for the topic
+     *
+     * @return ModuleRss_EntityRssItem
+     */
+    public function CreateRssItem() {
+
+        $aRssItemData = array(
+            'title' => $this->getTitle(),
+            'description' => $this->getText(),
+            'link' => $this->getUrl(),
+            'author' => $this->getUser() ? $this->getUser()->getMail() : '',
+            'guid' => $this->getUrlShort(),
+            'comments' => $this->getUrl() . '#comments',
+            'pub_date' => $this->getDateShow() ? date('r', strtotime($this->getDateShow())) : '',
+        );
+        $oRssItem = E::GetEntity('ModuleRss_EntityRssItem', $aRssItemData);
+
+        return $oRssItem;
     }
 
 }

@@ -14,29 +14,35 @@
  */
 
 /**
- * Плагин для Smarty
- * Позволяет получать данные из конфига
+ * Plugin for Smarty
  *
  * @param   array $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
- * @return  string
+ *
+ * @return  string|null
  */
 function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
 
     if (!isset($aParams['name'])) {
         trigger_error('Parameter "name" does not define in {widget ...} function', E_USER_WARNING);
-        return;
+        return null;
     }
     $sWidgetName = $aParams['name'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
+    foreach ($aParams as $sKey=>$xValue) {
+        if ($sKey != 'name' && $sKey != 'params') {
+            $aWidgetParams[$sKey] = $xValue;
+        }
+    }
 
     $sWidget = ucfirst(basename($sWidgetName));
+    $sTemplate = '';
 
-    $sDelegatedClass = E::Plugin_GetDelegate('widget', $sWidget);
+    $sDelegatedClass = E::ModulePlugin()->GetDelegate('widget', $sWidget);
     if ($sDelegatedClass == $sWidget) {
         // Пробуем получить делегата по старинке, для совместимости с LS
         // * LS-compatible * //
-        $sDelegatedClass = E::Plugin_GetDelegate('block', $sWidget);
+        $sDelegatedClass = E::ModulePlugin()->GetDelegate('block', $sWidget);
     }
 
     // Если делегатов нет, то определаем класс виджета
@@ -47,23 +53,29 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
             $sPlugin = '';
         }
         // Проверяем наличие класса виджета штатными средствами
-        $sWidgetClass = E::Widget_FileClassExists($sWidget, $sPlugin, true);
+        $sWidgetClass = E::ModuleWidget()->FileClassExists($sWidget, $sPlugin, true);
         if ($sWidgetClass) {
             // Проверяем делегирование найденного класса
-            $sWidgetClass = E::Plugin_GetDelegate('widget', $sWidgetClass);
+            $sWidgetClass = E::ModulePlugin()->GetDelegate('widget', $sWidgetClass);
             if ($sPlugin) {
-                $sTemplate = Plugin::GetTemplatePath($sPlugin) . '/widgets/widget.' . $sWidgetName . '.tpl';
-                if (!F::File_Exists($sTemplate)) {
+                $sPluginTplDir = Plugin::GetTemplateDir($sPlugin);
+                $sTemplate = $sPluginTplDir . 'tpls/widgets/widget.' . $sWidgetName . '.tpl';
+                if ($sFound = F::File_Exists('/widgets/widget.' . $sWidgetName . '.tpl', array($sPluginTplDir . 'tpls/', $sPluginTplDir))) {
+                    $sTemplate = $sFound;
+                } else {
                     // * LS-compatible * //
-                    $sTemplate = Plugin::GetTemplatePath($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
+                    $sLsTemplate = Plugin::GetTemplateDir($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
+                    if (F::File_Exists($sLsTemplate)) {
+                        $sTemplate = $sLsTemplate;
+                    }
                 }
             } else {
-                $sTemplate = E::Plugin_GetDelegate('template', 'widgets/widget.' . $sWidgetName . '.tpl');
+                $sTemplate = E::ModulePlugin()->GetDelegate('template', 'widgets/widget.' . $sWidgetName . '.tpl');
                 $sTemplate = F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir());
                 if (!$sTemplate) {
                     // * LS-compatible * //
-                    $sLsTemplate = E::Plugin_GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
-                    if (F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir())) {
+                    $sLsTemplate = E::ModulePlugin()->GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
+                    if (F::File_Exists($sLsTemplate, $oSmartyTemplate->getTemplateDir())) {
                         $sTemplate = $sLsTemplate;
                     }
                 }
@@ -79,7 +91,13 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                 $sWidgetClass = 'Block' . $sWidget;
             }
             // Проверяем делигирование найденного класса
-            $sWidgetClass = E::Plugin_GetDelegate('block', $sWidgetClass);
+            $sWidgetClass = E::ModulePlugin()->GetDelegate('block', $sWidgetClass);
+            if (!$sTemplate) {
+                $sLsTemplate = E::ModulePlugin()->GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
+                if (F::File_Exists($sLsTemplate, $oSmartyTemplate->getTemplateDir())) {
+                    $sTemplate = $sLsTemplate;
+                }
+            }
         }
     } else {
         $sWidgetClass = $sDelegatedClass;
@@ -93,6 +111,9 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
 
     // Если обработчик ничего не вернул, то рендерим шаблон
     if (!$sResult && $sTemplate) {
+        if ($aWidgetParams) {
+            $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
+        }
         $sResult = $oSmartyTemplate->fetch($sTemplate);
     }
 

@@ -1,0 +1,158 @@
+.user-rating-container .vote-total {
+    padding: 12px;
+    margin: 0;
+    border-radius: 24px;
+    color: white;
+}
+
+.user-rating-container span.vote-count-positive, .user-rating-container span.vote-total {
+    background-color: rgb(87, 168, 57) !important;
+}
+
+.user-rating-container span.vote-count-negative, .user-rating-container span.vote-total {
+    background-color: rgb(196, 58, 58);
+}
+
+.user-rating-container .user-rating-header {
+    margin-bottom: 24px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-radius: 0;
+}
+
+.user-info .user-power-container > div {
+    background-color: transparent;
+    margin-top: 0;
+    padding: 0;
+    padding-top: 12px;
+}
+
+.user-power-header, .user-rating-header {
+    line-height: 20px;
+    color: #1c374c;
+    font-size: 18px;
+    margin-bottom: 10.5px;
+}
+
+.user-power-container .user-power {
+    padding: 12px;
+    margin: 0;
+    border-radius: 24px;
+    background-color: #dae2e5;
+}
+
+.vote-popover + .popover {
+    border-radius: 0 !important;
+    padding: 0 !important;
+    max-height: 126px !important;
+    height: 126px !important;
+    max-width: 72px !important;
+    width: 72px !important;
+    margin-left: -3px !important;
+    border: 1px solid rgb(188, 188, 188) !important;
+}
+
+.vote-popover + .popover .arrow::after {
+    border-top-color: rgb(245, 246, 248) !important;
+}
+
+.vote-popover + .popover .popover-content {
+    padding: 0 !important;
+    background: rgb(245, 246, 248) !important;
+    height: 100% !important;
+
+}
+
+.vote-popover + .popover ul {
+    display: block !important;
+    width: 100%;
+    position: absolute;
+    bottom: 12px;
+}
+
+.vote-popover + .popover ul li.positive { color: rgb(87, 168, 57); }
+.vote-popover + .popover ul li.abstain { color: rgb(147, 166, 173)}
+.vote-popover + .popover ul li.negative {  color: rgb(196, 58, 58); }
+.vote-popover + .popover ul li {
+    display: block !important;
+    padding: 2px 0 !important;
+    text-align: center;
+}
+
+
+.graph-container {
+    height: 100px;
+}
+.graph-background {
+    background-color: rgb(147, 166, 173);
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    margin: 11px;
+    border-radius: 48px;
+
+}
+.graph {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    margin: 11px;
+    border-radius: 48px;
+    clip: rect(0px, 48px, 48px, 24px);
+}
+.graph-holder {
+    position: absolute;
+    padding: 15px 0;
+    margin: 15px;
+    z-index: 2;
+    text-align: center;
+    font-size: 13px;
+    color: #1c374c;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 20px;
+}
+.graph > div {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    -o-border-radius: 50px;
+    border-radius: 50px;
+    clip: rect(0px, 24px, 48px, 0px);
+}
+
+.graph-negative {
+    /*-webkit-transform:rotate(0deg);*/
+    /*-moz-transform:rotate(0deg);*/
+    /*-o-transform:rotate(0deg);*/
+    /*transform:rotate(0deg);*/
+}
+.graph-negative > div {
+    background-color: rgb(196, 58, 58);
+    /*-webkit-transform:rotate(120deg);*/
+    /*-moz-transform:rotate(120deg);*/
+    /*-o-transform:rotate(120deg);*/
+    /*transform:rotate(120deg);*/
+}
+
+.graph-positive {
+    /*-webkit-transform:rotate(0deg);*/
+    /*-moz-transform:rotate(0deg);*/
+    /*-o-transform:rotate(0deg);*/
+    /*transform:rotate(0deg);*/
+}
+.graph-positive > div {
+    background-color: rgb(87, 168, 57);
+    /*-webkit-transform:rotate(120deg);*/
+    /*-moz-transform:rotate(120deg);*/
+    /*-o-transform:rotate(120deg);*/
+    /*transform:rotate(120deg);*/
+}
+
+
+
+
+

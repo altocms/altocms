@@ -1,0 +1,120 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.footer-2-container {
+    background-color: @footer-2-background-color;
+    height: @footer-2-height;
+    line-height: @footer-2-height;
+
+    .left-copyright {
+        color: @color-50;
+        margin-top: 1px;
+
+        img {
+            float: left;
+            position: relative;
+            max-height: 18px;
+            top: 11px; // (40-14) / 2
+            margin-right: 8px;
+        }
+
+        span {
+            color: @footer-2-font-color;
+        }
+    }
+
+    .right-copyright {
+        img {
+            position: relative;
+            top: -1px;
+        }
+
+        span {
+            color: @footer-2-font-color;
+            margin-right: 8px;
+        }
+    }
+}
+
+.footer-container {
+    background-color: @footer-background-color;
+    padding: @footer-top-padding 0;
+
+    .footer {
+        min-height: @footer-min-height;
+
+
+        h4 {
+            font-weight: bold;
+            margin-bottom: @footer-header-margin;
+        }
+
+        ul.footer-column {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            li.active {
+                a {
+                    color: @blue;
+                }
+            }
+        }
+
+
+        ul.social-icons {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: @footer-social-font-size;
+            li {
+                margin-left: @footer-social-margin;
+                float: right;
+            }
+        }
+
+        .counter {
+            float: right;
+            clear: right;
+            margin-top: @footer-counter-top-margin;
+        }
+
+    }
+}
+
+/* Адаптивная верстка
+-----------------------------------------------------------------------------*/
+// Small 0-480
+@media only screen and (max-width: @screen-sm) {
+    .footer-container {
+
+        .footer {
+
+            h4 {
+                margin-bottom: @footer-header-margin / 4;
+            }
+
+            ul.footer-column {
+                margin-bottom: @footer-header-margin;
+
+            }
+        }
+    }
+}
+
+#footer-main {
+
+    @media (max-width: @screen-sm-min) {
+        width: 50%
+    }
+
+}
+
+#footer-other {
+
+    @media (max-width: @screen-sm-min) {
+        width: 50%;
+    }
+
+}

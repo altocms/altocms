@@ -35,15 +35,26 @@ class ModuleBlog_MapperBlog extends Mapper {
         $sql
             = "
             INSERT INTO ?_blog
-            SET
-                user_owner_id = ?d,
-                blog_title = ?,
-                blog_description = ?,
-                blog_type = ?,
-                blog_date_add = ?,
-                blog_limit_rating_topic = ?,
-                blog_url = ?,
-                blog_avatar = ?
+            (
+                user_owner_id,
+                blog_title,
+                blog_description,
+                blog_type,
+                blog_date_add,
+                blog_limit_rating_topic,
+                blog_url,
+                blog_avatar
+            )
+            VALUES (
+                ?d,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )
         ";
         $nId = $this->oDb->query(
             $sql,
@@ -107,18 +118,18 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает список блогов по ID
      *
-     * @param array|int  $aArrayId    Список ID блогов
+     * @param array|int  $aBlogId    Список ID блогов
      * @param array|null $aOrder      Сортировка блогов
      *
      * @return array
      */
-    public function GetBlogsByArrayId($aArrayId, $aOrder = null) {
+    public function GetBlogsByArrayId($aBlogId, $aOrder = null) {
 
-        if (!$aArrayId) {
+        if (!$aBlogId) {
             return array();
         }
-        if (!is_array($aArrayId)) {
-            $aArrayId = array(intval($aArrayId));
+        if (!is_array($aBlogId)) {
+            $aBlogId = array(intval($aBlogId));
         }
 
         if (!is_array($aOrder)) {
@@ -134,24 +145,25 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
         $sOrder = trim($sOrder, ',');
+        $nLimit = sizeof($aBlogId);
 
         $sql
             = "SELECT
-                    *
+                    b.blog_id AS ARRAY_KEYS,
+                    b.*
                 FROM 
-                    ?_blog
+                    ?_blog AS b
                 WHERE 
                     blog_id IN(?a)
-                ORDER BY
-                    { FIELD(blog_id,?a) }
             ";
         if ($sOrder != '') {
-            $sql .= $sOrder;
+            $sql .= 'ORDER BY ' . $sOrder;
         }
+        $sql .= ' LIMIT ' . $nLimit;
 
         $aBlogs = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sOrder == '' ? $aArrayId : DBSIMPLE_SKIP)) {
-            $aBlogs = Engine::GetEntityRows('Blog', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aBlogId)) {
+            $aBlogs = E::GetEntityRows('Blog', $aRows, !$sOrder ? $aBlogId : null);
         }
         return $aBlogs;
     }
@@ -167,10 +179,16 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql = "
             INSERT INTO ?_blog_user
-            SET
-                blog_id = ?d,
-                user_id = ?d,
-                user_role = ?d
+            (
+                blog_id,
+                user_id,
+                user_role
+            )
+            VALUES (
+                ?d,
+                ?d,
+                ?d
+            )
             ";
         $xResult = $this->oDb->query($sql, $oBlogUser->getBlogId(), $oBlogUser->getUserId(), $oBlogUser->getUserRole());
         return $xResult !== false;
@@ -226,7 +244,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      * @param int   $iCurrPage       Номер текущейс страницы
      * @param int   $iPerPage        Количество элементов на одну страницу
      *
-     * @return array
+     * @return ModuleBlog_EntityBlogUser[]
      */
     public function GetBlogUsers($aFilter, &$iCount = null, $iCurrPage = null, $iPerPage = null) {
 
@@ -262,7 +280,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $aBlogUsers = array();
         if ($aRows) {
-            $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
+            $aBlogUsers = E::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
     }
@@ -270,17 +288,17 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает список отношений пользователя к блогам
      *
-     * @param array $aArrayId Список ID блогов
-     * @param int   $sUserId  ID блогов
+     * @param array $aBlogId Список ID блогов
+     * @param int   $nUserId  ID блогов
      *
-     * @return array
+     * @return ModuleBlog_EntityBlogUser[]
      */
-    public function GetBlogUsersByArrayBlog($aArrayId, $sUserId) {
+    public function GetBlogUsersByArrayBlog($aBlogId, $nUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aBlogId) || count($aBlogId) == 0) {
             return array();
         }
-
+        $nLimit = sizeof($aBlogId);
         $sql = "SELECT
                     bu.*
                 FROM 
@@ -288,10 +306,11 @@ class ModuleBlog_MapperBlog extends Mapper {
                 WHERE 
                     bu.blog_id IN(?a)
                     AND
-                bu.user_id = ?d ";
+                    bu.user_id = ?d
+                LIMIT $nLimit";
         $aBlogUsers = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
-            $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aBlogId, $nUserId)) {
+            $aBlogUsers = E::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
     }
@@ -301,7 +320,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @param $nBlogId
      *
-     * @return array
+     * @return int[]
      */
     public function GetAuthorsIdByBlogId($nBlogId) {
 
@@ -319,20 +338,21 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает ID персонального блога пользователя
      *
-     * @param   int     $nUserId ID пользователя
+     * @param   int     $iUserId ID пользователя
      *
      * @return  int|null
      */
-    public function GetPersonalBlogByUserId($nUserId) {
+    public function GetPersonalBlogByUserId($iUserId) {
 
         $aCriteria = array(
             'filter' => array(
-                'user_id' => intval($nUserId),
+                'user_id' => intval($iUserId),
                 'blog_type' => 'personal',
             ),
             'limit' => 1,
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+
         return $aResult['data'] ? $aResult['data'][0] : null;
     }
 
@@ -376,39 +396,75 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает блог по URL
      *
-     * @param   string $sUrl   - URL блога
+     * @param   string $xUrl   - URL блога
      *
      * @return ModuleBlog_EntityBlog|null
      */
-    public function GetBlogByUrl($sUrl) {
+    public function GetBlogByUrl($xUrl) {
+
+        return $this->GetBlogsIdByUrl($xUrl);
+    }
+
+    /**
+     * Returns ID of blog or array of IDs
+     *
+     * @param string|array $xUrl
+     *
+     * @return int|array
+     */
+    public function GetBlogsIdByUrl($xUrl) {
 
         $aCriteria = array(
             'filter' => array(
-                'blog_url' => $sUrl,
+                'blog_url' => $xUrl,
             ),
-            'limit'  => 1,
         );
+        if (is_array($xUrl)) {
+            $aCriteria['limit'] = sizeof($xUrl);
+            $bSingle = false;
+        } else {
+            $aCriteria['limit'] = 1;
+            $bSingle = true;
+        }
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
-        return $aResult['data'] ? $aResult['data'][0] : null;
+        if ($bSingle) {
+            return $aResult['data'] ? $aResult['data'][0] : null;
+        } else {
+            return $aResult['data'] ? $aResult['data'] : array();
+        }
+    }
+
+    public function GetBlogsByOwnerId($iUserId) {
+
+        return $this->GetBlogsIdByOwnerId($iUserId);
     }
 
     /**
      * Получить список блогов по хозяину
      *
-     * @param   int $nUserId    - ID пользователя
+     * @param   int $iUserId    - ID пользователя
      *
      * @return  array
      */
-    public function GetBlogsByOwnerId($nUserId) {
+    public function GetBlogsIdByOwnerId($iUserId) {
 
+        $aFilter = E::ModuleBlog()->GetNamedFilter('default');
+        $aFilter['user_id'] = intval($iUserId);
         $aCriteria = array(
-            'filter' => array(
-                'user_id'       => intval($nUserId),
-                'not_blog_type' => 'personal',
-            ),
+            'filter' => $aFilter,
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
         return $aResult['data'];
+    }
+
+    /**
+     * @deprecated
+     *
+     * LS-compatibility
+     */
+    public function GetBlogs() {
+
+        return $this->GetBlogsId();
     }
 
     /**
@@ -416,12 +472,11 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  array
      */
-    public function GetBlogs() {
+    public function GetBlogsId() {
 
+        $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aCriteria = array(
-            'filter' => array(
-                'not_blog_type' => 'personal',
-            ),
+            'filter' => $aFilter,
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
         return $aResult['data'];
@@ -470,10 +525,9 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogsRating(&$iCount, $iCurrPage, $iPerPage) {
 
+        $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aCriteria = array(
-            'filter' => array(
-                'not_blog_type' => 'personal',
-            ),
+            'filter' => $aFilter,
             'order'  => array(
                 'blog_rating' => 'DESC',
             ),
@@ -510,7 +564,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 LIMIT 0, ?d";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
-            $aResult = Engine::GetEntityRows('Blog', $aRows);
+            $aResult = E::GetEntityRows('Blog', $aRows);
         }
         return $aResult;
     }
@@ -518,12 +572,12 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает список блогов, которые создал пользователь
      *
-     * @param int $sUserId   ID пользователя
+     * @param int $nUserId   ID пользователя
      * @param int $nLimit    Ограничение на выборку элементов
      *
      * @return array
      */
-    public function GetBlogsRatingSelf($sUserId, $nLimit) {
+    public function GetBlogsRatingSelf($nUserId, $nLimit) {
 
         $sql = "SELECT
                     b.*
@@ -536,26 +590,44 @@ class ModuleBlog_MapperBlog extends Mapper {
                 ORDER BY b.blog_rating DESC
                 LIMIT 0, ?d";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $sUserId, $nLimit)) {
-            $aReturn = Engine::GetEntityRows('Blog', $aRows);
+        if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
+            $aResult = E::GetEntityRows('Blog', $aRows);
         }
         return $aResult;
     }
 
     /**
-     * Возвращает полный список закрытых блогов
+     * LS-compatibility
+     */
+    public function GetCloseBlogs($oUser = null) {
+
+        return $this->GetCloseBlogsId($oUser);
+    }
+
+    /**
+     * Returns array of IDs of blogs that closed for user
+     *
+     * @param ModuleUser_EntityUser $oUser
      *
      * @return array
      */
-    public function GetCloseBlogs() {
+    public function GetCloseBlogsId($oUser = null) {
 
-        $aCriteria = array(
-            'filter' => array(
-                'blog_type' => 'close',
-            ),
-        );
-        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
-        return $aResult['data'];
+        // Gets an array of types of blogs that closed for user
+        $aTypes = E::ModuleBlog()->GetCloseBlogTypes($oUser);
+
+        // If array is not empty...
+        if ($aTypes) {
+            $aCriteria = array(
+                'filter' => array(
+                    //'blog_type' => 'close',
+                    'blog_type' => $aTypes,
+                ),
+            );
+            $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+            return $aResult['data'];
+        }
+        return array();
     }
 
     /**
@@ -595,11 +667,11 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Пересчитывает число топиков в блогах
      *
-     * @param int|null $nBlogId ID блога
+     * @param int|array|null $aBlogId - ID of blog | IDs of blogs
      *
      * @return bool
      */
-    public function RecalculateCountTopic($nBlogId = null) {
+    public function RecalculateCountTopic($aBlogId = null) {
 
         $sql = "
                 UPDATE ?_blog b
@@ -613,8 +685,12 @@ class ModuleBlog_MapperBlog extends Mapper {
                 )
                 WHERE 1=1
                     { AND b.blog_id = ?d }
+                    { AND b.blog_id IN (?a) }
             ";
-        $bResult = $this->oDb->query($sql, is_null($nBlogId) ? DBSIMPLE_SKIP : $nBlogId);
+        $bResult = $this->oDb->query($sql,
+            (is_null($aBlogId) || is_array($aBlogId)) ? DBSIMPLE_SKIP : $aBlogId,
+            (is_null($aBlogId) || is_int($aBlogId)) ? DBSIMPLE_SKIP : $aBlogId
+        );
         return $bResult !== false;
     }
 
@@ -639,13 +715,19 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage = null, $iPerPage = null) {
 
         $aCriteria = array(
             'filter' => array(),
             'order'  => array(),
-            'limit'  => array(($iCurrPage - 1) * $iPerPage, $iPerPage),
         );
+        if (!is_null($iPerPage)) {
+            $iCurrPage = intval($iCurrPage);
+            if ($iCurrPage < 1) {
+                $iCurrPage = 1;
+            }
+            $aCriteria['limit'] = array(($iCurrPage - 1) * $iPerPage, $iPerPage);
+        }
 
         if (isset($aFilter['type']) && !isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['type'];
@@ -683,7 +765,7 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Возвращает объекты типов блогов
      *
-     * @return  array(ModuleBlog_BlogType)
+     * @return  ModuleBlog_BlogType[]
      */
     public function GetBlogTypes() {
 
@@ -697,20 +779,154 @@ class ModuleBlog_MapperBlog extends Mapper {
             $sql,
             isset($aFilter['allow_add']) ? ($aFilter['allow_add'] ? 1 : 0) : DBSIMPLE_SKIP
         );
-        if ($aRows) {
-            $aResult = array();
-            $aStat = $this->GetBlogCountsByTypes();
-            foreach ($aRows as $aType) {
-                if (isset($aStat[$aType['type_code']])) {
-                    $aType['blogs_count'] = $aStat[$aType['type_code']]['blogs_count'];
-                } else {
-                    $aType['blogs_count'] = 0;
-                }
-                $aResult[] = Engine::GetEntity('Blog_BlogType', $aType);
+
+        // Получим типы контента
+        $aResult = E::GetEntityRows('Blog_BlogType', $aRows);
+
+        // Если вернули хотя бы один тип контента. то можно делать
+        // дополнительные запросы
+        if ($aResult) {
+
+            $aBlogTypeKeys = array();
+            foreach ($aResult as $oBlogType) {
+                $aBlogTypeKeys[] = $oBlogType->getId();
             }
-            return $aResult;
+
+            // Сделаем дополнительные запросы по количеству и типам контента, если нужно
+            $aStat = $this->GetBlogCountsByTypes();
+            $aContentType = $this->GetBlogTypeContentByArrayId($aBlogTypeKeys);
+
+            /**
+             * Установим доп. данные в свойства типов контента
+             *
+             * @var int $iId
+             * @var ModuleBlog_EntityBlogType $oBlogType
+             */
+            foreach ($aResult as $oBlogType) {
+                if (isset($aContentType[$oBlogType->getId()])) {
+                    $oBlogType->setContentTypes($aContentType[$oBlogType->getId()]);
+                }
+
+                $oBlogType->setBlogsCount(
+                    isset($aStat[$oBlogType->getTypeCode()])
+                        ? intval($aStat[$oBlogType->getTypeCode()])
+                        : 0
+                );
+            }
+
         }
-        return array();
+
+        return $aResult;
+    }
+
+    /**
+     * Получает массив типов контента для укзанных в параметре типов блогов
+     *
+     * @param ModuleBlog_EntityBlogType[] $aBlogTypeId
+     *
+     * @return ModuleTopic_EntityContentType[][]
+     */
+    public function GetBlogTypeContentByArrayId($aBlogTypeId) {
+
+        $sql =
+            "SELECT
+                  bct.blog_type_id blog_type_id,
+                  ct.*
+              FROM
+                  ?_blog_type_content bct,
+                  ?_content ct
+              WHERE
+                  ct.content_id = bct.content_id
+                  AND bct.blog_type_id IN ( ?a )
+
+                  -- Здесь такой манёвр: тип контента должен быть либо привязан к типу
+                  -- блога по таблице ?_blog_type_content, либо, из соображений свместимости
+                  -- с версией Alto 1.0, должен храниться в соответствующем свойстве типа блога
+                  -- запрос на выборку из этого всего уникальных не делаю, поскольку варианта
+                  -- тут два - либо контент в свойстве типа блога и тогда по нему работает
+                  -- второй подзапрос, либо только в таблице связей - тогда работает первый.
+              UNION
+                  SELECT
+                    bt.id blog_type_id,
+                    ct.*
+                  FROM
+                    ?_blog_type bt, ?_content ct
+                  WHERE
+                    bt.content_type = ct.content_url AND bt.id IN ( ?a )";
+
+        /** @var ModuleTopic_EntityContentType $aContentType */
+        $aContentType = E::GetEntityRows(
+            'Topic_ContentType',
+            $this->oDb->select($sql, $aBlogTypeId, $aBlogTypeId)
+        );
+
+        $aResult = array();
+        foreach ($aContentType as $oContentType) {
+            $aResult[$oContentType->getBlogTypeId()][] = $oContentType;
+    }
+
+        return $aResult;
+    }
+
+    /**
+     * Удаляет связанные с типом блога типы контента
+     *
+     * @param $iBlogTypeId
+     * @return bool
+     */
+    public function DeleteBlogTypeContent($iBlogTypeId) {
+
+        return $this->oDb->query(
+            "DELETE FROM ?_blog_type_content WHERE blog_type_id = ?d",
+            $iBlogTypeId
+        ) !== false;
+
+    }
+
+    /**
+     * Удаляет связанные с типом блога типы контента по массиву кодов типа блога
+     *
+     * @param $aBlogTypes
+     * @return bool
+     */
+    public function DeleteBlogTypeContentByTypeCode($aBlogTypes) {
+
+        return $this->oDb->query(
+            "DELETE FROM
+                ?_blog_type_content
+            WHERE
+                blog_type_id IN (
+                  SELECT bt.id FROM ?_blog_type bt WHERE bt.type_code IN ( ?a )
+                )",
+            $aBlogTypes
+        ) !== false;
+
+    }
+
+    /**
+     * Сохраняет связь между типом блога и типом контента
+     *
+     * @param int $iBlogTypeId
+     * @param int[]|ModuleTopic_EntityContentType[] $aContentType
+     */
+    public function SetBlogTypeContent($iBlogTypeId, $aContentType) {
+
+        // Сначала удалим старые связи
+        $this->DeleteBlogTypeContent($iBlogTypeId);
+
+        // И создадим новые
+        foreach ($aContentType as $iContentTypeId) {
+            if (is_object($iContentTypeId)) {
+                $iContentTypeId = $iContentTypeId->getId();
+            }
+            // Подставляем различные значения параметров.
+            $this->oDb->query(
+                'INSERT INTO ?_blog_type_content (blog_type_id, content_id) VALUES(?d, ?d)',
+                $iBlogTypeId,
+                $iContentTypeId
+            );
+        }
+
     }
 
     /**
@@ -727,24 +943,26 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
         $sql
             = "
-            SELECT DISTINCT blog_type AS ARRAY_KEY, Count( blog_id ) AS blogs_count
+            SELECT
+              DISTINCT blog_type AS ARRAY_KEY,
+              Count(blog_id) AS blogs_count
             FROM ?_blog
-            GROUP BY blog_type
             {WHERE blog_type IN (?a)}
+            GROUP BY blog_type
             ORDER BY blog_type
             ";
-        $aRows = $this->oDb->select($sql, $aTypes ? $aTypes : DBSIMPLE_SKIP);
+        $aRows = $this->oDb->selectCol($sql, $aTypes ? $aTypes : DBSIMPLE_SKIP);
         return $aRows;
     }
 
     /**
      * Возвращает объект типа блога по ID
      *
-     * @param $nId
+     * @param $nBlogTypeId
      *
      * @return ModuleBlog_BlogType|null
      */
-    public function GetBlogTypeById($nId) {
+    public function GetBlogTypeById($nBlogTypeId) {
 
         $sql
             = "
@@ -752,9 +970,22 @@ class ModuleBlog_MapperBlog extends Mapper {
             FROM ?_blog_type AS bt
             WHERE bt.id=?d
             ";
-        $aRow = $this->oDb->selectRow($sql, $nId);
+        $aRow = $this->oDb->selectRow($sql, $nBlogTypeId);
         if ($aRow) {
-            return Engine::GetEntity('Blog_BlogType', $aRow);
+
+            /** @var ModuleBlog_EntityBlogType $oBlogType */
+            $oBlogType = E::GetEntity('Blog_BlogType', $aRow);
+
+            /** @var ModuleTopic_EntityContentType[] $aContentType */
+            $aContentType = $this->GetBlogTypeContentByArrayId(array($oBlogType->getId()));
+
+            if (isset($aContentType[$oBlogType->getId()])) {
+                // Установим полученые типы контента типу блога
+                $oBlogType->setContentTypes($aContentType[$oBlogType->getId()]);
+            }
+
+            return $oBlogType;
+
         }
         return null;
     }
@@ -762,7 +993,7 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Добавляет тип блога
      *
-     * @param $oBlogType
+     * @param ModuleBlog_EntityBlogType $oBlogType
      *
      * @return bool
      */
@@ -770,26 +1001,48 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql = "
             INSERT INTO ?_blog_type
-            SET
-                type_code = ?:type_code,
-                type_name = ?:type_name,
-                type_description = ?:type_description,
-                allow_add = ?d:allow_add,
-                min_rate_add = ?f:min_rate_add,
-                allow_list = ?d:allow_list,
-                min_rate_list = ?f:min_rate_list,
-                index_ignore = ?d:index_ignore,
-                membership = ?d:membership,
-                acl_write = ?d:acl_write,
-                acl_read = ?d:acl_read,
-                acl_comment = ?d:acl_comment,
-                min_rate_write = ?f:min_rate_write,
-                min_rate_read = ?f:min_rate_read,
-                min_rate_comment = ?f:min_rate_comment,
-                content_type = ?:content_type,
-                active = ?d:active,
-                norder = ?d:norder,
-                candelete = ?d:candelete
+            (
+                type_code,
+                type_name,
+                type_description,
+                allow_add,
+                min_rate_add,
+                allow_list,
+                min_rate_list,
+                index_ignore,
+                membership,
+                acl_write,
+                acl_read,
+                acl_comment,
+                min_rate_write,
+                min_rate_read,
+                min_rate_comment,
+                content_type,
+                active,
+                norder,
+                candelete
+            )
+            VALUES (
+                ?:type_code,
+                ?:type_name,
+                ?:type_description,
+                ?d:allow_add,
+                ?f:min_rate_add,
+                ?d:allow_list,
+                ?f:min_rate_list,
+                ?d:index_ignore,
+                ?d:membership,
+                ?d:acl_write,
+                ?d:acl_read,
+                ?d:acl_comment,
+                ?f:min_rate_write,
+                ?f:min_rate_read,
+                ?f:min_rate_comment,
+                ?:content_type,
+                ?d:active,
+                ?d:norder,
+                ?d:candelete
+            )
         ";
         $nId = $this->oDb->sqlQuery(
             $sql,
@@ -816,13 +1069,22 @@ class ModuleBlog_MapperBlog extends Mapper {
                  ':id'               => $oBlogType->getId()
             )
         );
-        return $nId ? $nId : false;
+
+        /** @var int $iBlogTypeId Ид. Созданного типа блога*/
+        $iBlogTypeId = $nId ? $nId : false;
+
+        // Теперь зафиксируем типы контента для нашего типа блога
+        if ($iBlogTypeId) {
+            $this->SetBlogTypeContent($iBlogTypeId, $oBlogType->getContentTypes());
+    }
+
+        return $iBlogTypeId;
     }
 
     /**
      * Обновляет тип блога
      *
-     * @param $oBlogType
+     * @param ModuleBlog_EntityBlogType $oBlogType
      *
      * @return bool
      */
@@ -879,7 +1141,45 @@ class ModuleBlog_MapperBlog extends Mapper {
                  ':id'               => $oBlogType->getId()
             )
         );
-        return $xResult !== false;
+
+        $bResult = $xResult !== false;
+
+        // Теперь зафиксируем типы контента для нашего типа блога
+        if ($bResult && $oBlogType->getContentTypes()) {
+            $this->SetBlogTypeContent($oBlogType->getId(), $oBlogType->getContentTypes());
+        } elseif (!$oBlogType->getContentTypes()) {
+            $this->DeleteBlogTypeContent($oBlogType->getId());
+    }
+
+
+        return $bResult;
+    }
+
+    /**
+     * @param array $aBlogTypes
+     *
+     * @return bool
+     */
+    public function DeleteBlogType($aBlogTypes) {
+
+        if (!is_array($aBlogTypes)) {
+            $aBlogTypes = array((string)$aBlogTypes);
+        }
+        $sql = "
+            DELETE FROM ?_blog_type
+            WHERE type_code IN(?a)
+        ";
+        $xResult = $this->oDb->query($sql, $aBlogTypes);
+
+        $bResult = $xResult !== false;
+
+        // Теперь зафиксируем типы контента для нашего типа блога
+        if ($bResult) {
+            $this->DeleteBlogTypeContentByTypeCode($aBlogTypes);
+        }
+
+        return $bResult;
+
     }
 
     /**
@@ -912,7 +1212,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             ";
         $aBlogs = array();
         if ($aRows = $this->oDb->select($sql, $aExcludeTypes)) {
-            $aBlogs = Engine::GetEntityRows('Blog', $aRows);
+            $aBlogs = E::GetEntityRows('Blog', $aRows);
         }
         return $aBlogs;
     }
@@ -952,6 +1252,12 @@ class ModuleBlog_MapperBlog extends Mapper {
             if (substr($aFilter['blog_title_like'], -1) !== '%') {
                 $aFilter['blog_title_like'] .= '%';
             }
+        }
+        if (isset($aFilter['exclude_type']) && !isset($aFilter['not_blog_type'])) {
+            $aFilter['not_blog_type'] = $aFilter['exclude_type'];
+        }
+        if (isset($aFilter['include_type']) && !isset($aFilter['blog_type'])) {
+            $aFilter['blog_type'] = $aFilter['include_type'];
         }
 
         // Сортировка
@@ -1012,7 +1318,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
 
-        // Необходимость JOIN'а
+        // Необходимость JOIN'ов
         $aBlogTypeFields = array(
             'allow_add', 'min_rate_add', 'allow_list', 'min_rate_list', 'acl_read', 'min_rate_read', 'acl_write',
             'min_rate_write', 'acl_comment', 'min_rate_comment', 'index_ignore', 'membership',
@@ -1022,11 +1328,20 @@ class ModuleBlog_MapperBlog extends Mapper {
         } else {
             $bBlogTypeJoin = false;
         }
+        $aBlogUserFields = array(
+            'user_role',
+        );
+        if ($aFilter && array_intersect(array_keys($aFilter), $aBlogUserFields)) {
+            $bBlogUserJoin = true;
+        } else {
+            $bBlogUserJoin = false;
+        }
 
         $sql = "
             SELECT b.blog_id
             FROM ?_blog AS b
                 { INNER JOIN ?_blog_type AS bt ON bt.type_code=b.blog_type AND 1=?d }
+                { INNER JOIN ?_blog_user AS bu ON bu.blog_id=b.blog_id AND 1=?d }
             WHERE
                 1 = 1
                 { AND (b.blog_id = ?d) }
@@ -1034,11 +1349,14 @@ class ModuleBlog_MapperBlog extends Mapper {
                 { AND (b.blog_id NOT IN (?a)) }
                 { AND (b.user_owner_id = ?d) }
                 { AND (b.user_owner_id IN (?a)) }
+                { AND (b.user_owner_id = ?d) }
+                { AND (b.user_owner_id IN (?a)) }
                 { AND (b.blog_type = ?) }
                 { AND (b.blog_type IN (?a)) }
                 { AND (b.blog_type != ?) }
                 { AND (b.blog_type NOT IN (?a)) }
                 { AND blog_url = ? }
+                { AND blog_url IN(?a) }
                 { AND blog_title = ? }
                 { AND blog_title LIKE ? }
                 { AND (bt.allow_add = ?d) }
@@ -1053,19 +1371,24 @@ class ModuleBlog_MapperBlog extends Mapper {
                 { AND (bt.min_rate_comment >= ?d) }
                 { AND (bt.index_ignore = ?d) }
                 { AND (bt.membership = ?d) }
+                { AND (bu.user_role = ?d) }
         " . $sSqlOrder . ' ' . $sSqlLimit;
         $aData = $this->oDb->selectCol($sql,
             $bBlogTypeJoin ? 1 : DBSIMPLE_SKIP,
+            $bBlogUserJoin ? 1 : DBSIMPLE_SKIP,
             (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
             isset($aFilter['not_blog_id']) ? $aFilter['not_blog_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_owner_id']) && !is_array($aFilter['user_owner_id'])) ? $aFilter['user_owner_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_owner_id']) && is_array($aFilter['user_owner_id'])) ? $aFilter['user_owner_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_type']) && !is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['not_blog_type']) && !is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['not_blog_type']) && is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
-            isset($aFilter['blog_url']) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_url']) && !is_array($aFilter['blog_url'])) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_url']) && is_array($aFilter['blog_url'])) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
             isset($aFilter['blog_title']) ? $aFilter['blog_title'] : DBSIMPLE_SKIP,
             isset($aFilter['blog_title_like']) ? $aFilter['blog_title_like'] : DBSIMPLE_SKIP,
             isset($aFilter['allow_add']) ? ($aFilter['allow_add'] ? 1 : 0) : DBSIMPLE_SKIP,
@@ -1079,20 +1402,25 @@ class ModuleBlog_MapperBlog extends Mapper {
             isset($aFilter['acl_comment']) ? $aFilter['acl_comment'] : DBSIMPLE_SKIP,
             isset($aFilter['min_rate_comment']) ? $aFilter['min_rate_comment'] : DBSIMPLE_SKIP,
             isset($aFilter['index_ignore']) ? ($aFilter['index_ignore'] ? 1 : 0) : DBSIMPLE_SKIP,
-            isset($aFilter['membership']) ? ($aFilter['membership'] ? 1 : 0) : DBSIMPLE_SKIP
+            isset($aFilter['membership']) ? ($aFilter['membership'] ? 1 : 0) : DBSIMPLE_SKIP,
+            isset($aFilter['user_role']) ? $aFilter['user_role'] : DBSIMPLE_SKIP
         );
         $aResult = array(
             'data' => $aData ? $aData : array(),
             'total' => -1,
         );
         if ($nCalcTotal) {
-            $sLastQuery = trim($this->Database_GetLastQuery());
-            $n = strpos($sLastQuery, ' LIMIT ');
-            if ($n) {
-                $sql = str_replace('SELECT b.blog_id', 'SELECT COUNT(*) AS cnt', substr($sLastQuery, 0, $n));
-                $aData = $this->oDb->select($sql);
-                if ($aData) {
-                    $aResult['total'] = $aData[0]['cnt'];
+            if (($nOffset == 0) && ($nLimit > 0) && (sizeof($aResult['data']) < $nLimit)) {
+                $aResult['total'] = sizeof($aResult['data']);
+            } else {
+                $sLastQuery = trim(E::ModuleDatabase()->GetLastQuery());
+                $n = strpos($sLastQuery, ' LIMIT ');
+                if ($n) {
+                    $sql = str_replace('SELECT b.blog_id', 'SELECT COUNT(*) AS cnt', substr($sLastQuery, 0, $n));
+                    $aData = $this->oDb->select($sql);
+                    if ($aData) {
+                        $aResult['total'] = $aData[0]['cnt'];
+                    }
                 }
             }
         }

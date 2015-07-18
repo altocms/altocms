@@ -13,7 +13,7 @@
  *
  * All changes of settings you need to do in application
  * configuration file, which usually placed here:
- * /app/config/config.php
+ * /app/config/config.local.php
  ********************************************************/
 
 /********************************************************
@@ -21,80 +21,72 @@
  *
  * Все изменения настроек нужно выполнять в файле
  * конфигурации приложения, который обычно находится здесь:
- * /app/config/config.php
+ * /app/config/config.local.php
  ********************************************************/
 
-/**
- * Настройки HTML вида
+/*
+ * Базовые настройки внешнего вида
  */
-$config['view']['skin']             = 'synio';                      // скин
+$config['view']['skin']             = 'experience-simple';          // скин
 $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
-$config['view']['description']      = 'Description your site';      // meta tag description
-$config['view']['keywords']         = 'site, google, internet';     // meta tag keywords
 $config['view']['wysiwyg']          = false;    // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;     // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
+
+/* Obsolete from Alto CMS 1.1.0
+ * @see $config['module']['uploader']['images']['default']
 $config['view']['img_resize_width'] = 570;      // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
 $config['view']['img_max_width']    = 5000;     // максимальная ширина загружаемых изображений в пикселях
 $config['view']['img_max_height']   = 5000;     // максимальная высота загружаемых изображений в пикселях
 $config['view']['img_max_size_url'] = 500;      // максимальный размер картинки в kB для загрузки по URL
+*/
 
-/**
- * Настройки СЕО для вывода топиков
- */
-$config['seo']['description_words_count'] = 20;               // количество слов из топика для вывода в метатег description
+$config['view']['html']['description'] = 'Description of your site';   // meta tag description
+$config['view']['html']['keywords']    = 'site, google, internet';     // meta tag keywords
 
-/**
- * Настройка основных блоков
- */
-$config['block']['stream']['row'] = 20;                       // сколько записей выводить в блоке "Прямой эфир"
-$config['block']['stream']['show_tip'] = true;                // выводить или нет всплывающие сообщения в блоке "Прямой эфир"
-$config['block']['blogs']['row']  = 10;                       // сколько записей выводить в блоке "Блоги"
-$config['block']['tags']['tags_count'] = 70;                  // сколько тегов выводить в блоке "теги"
-$config['block']['tags']['personal_tags_count'] = 70;         // сколько тегов пользователя выводить в блоке "теги"
+$config['view']['html']['description_max_words'] = 20; // количество слов из топика для вывода в метатег description
+
+//$config['view']['html']['title']       = '___view.name___';  // строка, которая всегда добавляется в конец тега <title>
+$config['view']['html']['title_max']   = 0;       // максимальное число частей, из которых состоит тег <title>
+$config['view']['html']['title_sep']   = ' / ';   // разделитель для формирования тега <title>
+
+$config['view']['skill_length'] = 2;// Длинна представления силы пользователя 0, 1, 2 или 3 знака после запятой. Округление идёт в большую сторону.
+$config['view']['rating_length'] = 2;// Длинна представления рейтинга пользователя 0, 1, или 2 знака после запятой. Округление идёт в большую сторону.
 
 /**
  * Настройка пагинации
  */
-$config['pagination']['pages']['count'] = 4;                  // количество ссылок на другие страницы в пагинации
+$config['pagination']['pages']['count'] = 9;                  // количество ссылок на другие страницы в пагинации
 
 
-/**
+/* ----------------------------------------------------------------------------
  * Настройка путей
- * Если необходимо установить движек в директорию(не корень сайта) то следует сделать так:
- * $config['path']['root']['web']    = 'http://'.$_SERVER['HTTP_HOST'].'/subdir';
- * $config['path']['root']['server'] = $_SERVER['DOCUMENT_ROOT'].'/subdir';
- * и возможно придётся увеличить значение $config['path']['offset_request_url'] на число вложенных директорий,
- * например, для директории первой вложенности www.site.ru/community/ поставить значение равное 1
  *
  * Как правило полный путь до папки или файла содержит в названии 'dir'
  * URL-путь содержит в названии 'url'
  */
-if (isset($_SERVER['HTTP_HOST'])) {
-    $config['path']['root']['url']      = 'http://'. $_SERVER['HTTP_HOST'] . '/';   // полный WEB адрес сайта
-} else {
-    // for CLI scripts. or you can append "HTTP_HOST=http://yoursite.url" before script run command
-    $config['path']['root']['url']      = null;
-}
+
+$config['path']['root']['url'] = F::UrlBase() . '/';
 $config['path']['root']['dir'] = ALTO_DIR . '/';
+
+$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
 
 /**
  * Параметры сервера для статики. По умолчанию совпадают с основным сервером
  */
-$config['path']['static']['url']        = '___path.root.url___';        // Полный URL до static-сервера
-$config['path']['static']['dir']        = '___path.root.dir___';        // Полный путь до static-сервера в файловой системе
+$config['path']['static']['url']        = '___path.root.url___';               // Полный URL до static-сервера
+$config['path']['static']['dir']        = '___path.root.dir___';               // Полный путь до static-сервера в файловой системе
 
-$config['path']['root']['engine_lib']   = '___path.root.web___/engine/lib/';  // Путь до библиотек в файловой системе
+$config['path']['root']['engine_lib']   = '___path.root.web___/engine/libs/';  // Путь до библиотек в файловой системе
 
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
 $config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
-$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
-
-$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';           // путь к папке для временных файлов
-$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';           // путь к папке для runtime-файлов
-$config['path']['runtime']['url']       = '___path.root.url___/_run/';              // путь к папке для runtime-файлов
+$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';         // путь к папке для временных файлов
+$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';         // путь к папке для runtime-файлов
+//$config['path']['runtime']['url']       = '___path.root.url___/_run/';         // URL для runtime-файлов
+$config['path']['runtime']['url']       = '/_run/';         // URL для runtime-файлов
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
 $config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
@@ -108,12 +100,12 @@ $config['path']['skin']['assets']['dir']= '___path.runtime.dir___assets/skin/___
 
 /**
  * Следующие параметры определяем для совместимости с LS
- * LS-compatible
+ * LS-compatibility
  */
 $config['path']['root']['web']          = '___path.root.url___';        // Определяем для совместимости с LS
 $config['path']['root']['server']       = '___path.root.dir___';        // Определяем для совместимости с LS
 $config['path']['static']['root']       = '___path.static.url___';      // Определяем для совместимости с LS
-$config['path']['root']['engine']       = '___path.root.dir___/engine/';// Определяем для совместимости с LS
+$config['path']['root']['engine']       = '___path.dir.engine___/';     // Определяем для совместимости с LS
 $config['path']['static']['skin']       = '___path.skin.url___/';       // Определяем для совместимости с LS
 
 /**
@@ -122,7 +114,7 @@ $config['path']['static']['skin']       = '___path.skin.url___/';       // Оп�
 $config['path']['smarty']['template'] = '___path.skins.dir___/___view.skin___/';
 $config['path']['smarty']['compiled'] = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/compiled/';
 $config['path']['smarty']['cache']    = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/cache/';
-$config['path']['smarty']['plug']     = '___path.root.engine___/classes/modules/viewer/plugs/';
+$config['path']['smarty']['plug']     = '___path.dir.engine___/classes/modules/viewer/plugs/';
 
 $config['smarty']['compile_check']          = true;   // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
 $config['smarty']['force_compile']          = false;  // Принудительно компилировать шаблоны (отменяет действие 'compile_check')
@@ -132,6 +124,7 @@ $config['smarty']['cache_lifetime']         = false;  // Кеширование 
 /**
  * Настройки плагинов
  */
+$config['sys']['plugins']['activation_dir'] = '___path.dir.app___plugins/'; // файл со списком активных плагинов в каталоге /plugins/
 $config['sys']['plugins']['activation_file'] = 'plugins.dat'; // файл со списком активных плагинов в каталоге /plugins/
 
 /**
@@ -156,6 +149,7 @@ $config['sys']['mail']['type']             = 'mail';                        // �
 $config['sys']['mail']['from_email']       = 'admin@admin.adm';             // Мыло с которого отправляются все уведомления
 $config['sys']['mail']['from_name']        = 'Почтовик ___view.name___';    // Имя с которого отправляются все уведомления
 $config['sys']['mail']['charset']          = 'UTF-8';                // Какую кодировку использовать в письмах
+$config['sys']['mail']['encoding']         = 'quoted-printable';     // Какое кодирование использовать в письмах: 8bit, 7bit, binary, base64, quoted-printable
 $config['sys']['mail']['smtp']['host']     = 'localhost';            // Настройки SMTP - хост
 $config['sys']['mail']['smtp']['port']     = 25;                     // Настройки SMTP - порт
 $config['sys']['mail']['smtp']['user']     = '';                     // Настройки SMTP - пользователь
@@ -225,13 +219,14 @@ $config['sys']['logs']['sql_error']      = true;            // логирова�
 $config['sys']['logs']['sql_error_file'] = 'sql_error.log'; // файл лога ошибок SQL
 $config['sys']['logs']['cron']           = true;            // логировать или нет cron скрипты
 $config['sys']['logs']['cron_file']      = 'cron.log';      // файл лога запуска крон-процессов
-$config['sys']['logs']['profiler']       = false;           // логировать или нет профилирование процессов
-$config['sys']['logs']['profiler_file']  = 'profiler.log';  // файл лога профилирования процессов
 
-$config['sys']['logs']['error_file']  = 'error.log';        // файл лога ошибок
-$config['sys']['logs']['error_extinfo']  = false;           // выводить ли дополнительную информацию в лог ошибок
+$config['sys']['logs']['error_file']        = 'error.log';  // файл лога ошибок
+$config['sys']['logs']['error_extinfo']     = false;        // выводить ли дополнительную информацию в лог ошибок
+$config['sys']['logs']['error_callstack']   = false;        // выводить стек вызовов в лог ошибок
+$config['sys']['logs']['error_norepeat']    = true;         // не повторять вывод одинаковых ошибок
 
-$config['sys']['logs']['hacker_console']  = false;          // позволяет удобно выводить логи дебага через функцию dump(), использя "хакерскую" консоль Дмитрия Котерова
+$config['sys']['logs']['size_for_rotate'] = 1000000;        // максимальный размер для ротации логов (если 0 - без ротации)
+$config['sys']['logs']['count_for_rotate'] = 99;            // максимальное число файлов в ротации (если 0 - без ограничений)
 
 /*
  * Параметры для определения IP-адрес посетителя:
@@ -240,22 +235,29 @@ $config['sys']['logs']['hacker_console']  = false;          // позволяе�
  *   'multi_backward'   - если в $_SERVER[<key>] несколько адресов, то выбираем с конца
  *   'exclude'          - список исключаемых IP-адресов
  *   'exclude_server'   - IP-адрес посетителя не может совпадать с IP-адресом сервера
+ *   'exclude_private'  - исключать IP частных сетей
  *   'default'          - если IP так и не определен
  */
-$config['sys']['ip']['trusted'] = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
-$config['sys']['ip']['non_trusted'] = array();
-$config['sys']['ip']['backward'] = true;
-$config['sys']['ip']['exclude'] = array('127.0.0.1', 'fe80::1', '::1');
-$config['sys']['ip']['exclude_server'] = true;
-$config['sys']['ip']['default'] = '127.0.0.1';
+$config['sys']['ip']['trusted']         = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
+$config['sys']['ip']['non_trusted']     = array();
+$config['sys']['ip']['backward']        = true;
+$config['sys']['ip']['exclude']         = array('127.0.0.1', 'fe80::1', '::1');
+$config['sys']['ip']['exclude_server']  = true;
+$config['sys']['ip']['exclude_private'] = true;
+$config['sys']['ip']['default']         = '127.0.0.1';
+
+$config['sys']['include']['check_file'] = false; // Проверка подключаемых файлов на "UTF-8 without BOM"
 
 /**
  * Общие настройки
  */
-$config['general']['close']             = false; // использовать закрытый режим работы сайта, сайт будет доступен только авторизованным пользователям
+$config['general']['close']['mode']     = false; // использовать закрытый режим работы сайта, сайт будет доступен только авторизованным пользователям
+$config['general']['close']['actions']  = array('login', 'registration', 'captcha'); // enabled actions in closed mode
 $config['general']['rss_editor_mail']   = '___sys.mail.from_email___'; // мыло редактора РСС
 $config['general']['reg']['invite']     = false; // использовать режим регистрации по приглашению или нет. Если использовать, то регистрация будет доступна ТОЛЬКО по приглашениям!
 $config['general']['reg']['activation'] = false; // использовать активацию при регистрации или нет
+
+$config['general']['show']['stats'] = array(1); // Показывать статистику: false - никому, true - всем, array(1) - список ID юзеров, крму показывать
 
 /**
  * Настройки ACL(Access Control List — список контроля доступа)
@@ -290,22 +292,141 @@ $config['module']['blog']['personal_good']   = -5;                  // Рейт�
 $config['module']['blog']['collective_good'] = -3;                  // рейтинг топика в коллективных блогах ниже которого он считается плохим
 $config['module']['blog']['index_good']      =  8;                  // Рейтинг топика выше которого(включительно) он попадает на главную
 $config['module']['blog']['encrypt']         = 'alto';              // Ключ XXTEA шифрования идентификаторов в ссылках приглашения в блоги
-$config['module']['blog']['avatar_size'] = array(100,64,48,24,0);   // Список размеров аватаров у блога. 0 - исходный размер
+$config['module']['blog']['avatar_size'] = array(100,64,48,24,0);   // Список размеров аватаров у блога. 0 - исходный размер ** Old templates compatibility
 
 // Модуль Topic
 $config['module']['topic']['new_time']   = 60*60*24*1;              // Время в секундах в течении которого топик считается новым
 $config['module']['topic']['per_page']   = 10;                      // Число топиков на одну страницу
+$config['module']['topic']['images_per_page']   = 12;               // Число картинок на одну страницу
+$config['module']['topic']['group_images_per_page']   = 6;          // Число картинок группы на одну страницу
 $config['module']['topic']['max_length'] = 15000;                   // Максимальное количество символов в одном топике
 $config['module']['topic']['link_max_length'] = 500;                // Максимальное количество символов в одном топике-ссылке
 $config['module']['topic']['question_max_length'] = 500;            // Максимальное количество символов в одном топике-опросе
 $config['module']['topic']['allow_empty_tags'] = true;              // Разрешать или нет не заполнять теги
-$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
-$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
+//$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
+//$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
 $config['module']['topic']['draft_link'] = false;                   // разрешить показывать черновик по прямой ссылке
+$config['module']['topic']['on_duplicate_url'] = 1;                 // 0 - игнорировать; 1 - добавлять порядковый номер;
 
-// Модуль Upload
-$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
-$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
+// Модуль Uploader
+/*
+ * Obsolete from Alto CMS 1.1.0
+ */
+//$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
+//$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
+
+// Default options for file uploading
+$config['module']['uploader']['files']['default'] = array(
+    'file_maxsize'    => '5Mb', // максимальный размер загружаемого файла
+    'file_extensions' => array( //расширения файлов, которые можно прикреплять к топикам
+        'zip','rar','gz','mp3',
+        'doc', 'docx', 'xls', 'xlsx', 'pdf','djv','djvu',
+        'gif', 'png', 'jpg', 'jpeg',
+    ),
+    'upload'          => array( // параметры сохранения при загрузке
+        'return_url' => true,   // возвращает URL загруженного файла
+    ),
+);
+
+$config['module']['uploader']['images']['default'] = array(
+    '$extends$' => '___module.uploader.files.default___',
+    'image_extensions' => array('gif', 'png', 'jpg', 'jpeg'),
+    'max_width'  => 8000, // максимальная ширина загружаемых изображений в пикселях
+    'max_height' => 6000, // максимальная высота загружаемых изображений в пикселях
+    'url_maxsize' => '2Mb', // максимальный размер изображения для загрузки по URL
+    'original' => array(
+        'save' => false,            // надо ли сохрагять оригинальное изображение
+        'suffix' => '-original',    // суффикс оригинального изображения
+    ),
+    // параметры сохранения при загрузке
+    'transform' => array(
+        'max_width'  => 800,        // максимальная ширина сохраняемого изображения
+        'max_height' => 600,        // максимальная высота сохраняемого изображения
+        'bg_color'  => '#ffffff',   // цвет фона при преобразовании изображений
+        'watermark' => array(
+            'enable' => false,
+            'image' => array(
+                'path' => '___path.static.dir___/___path.uploads.root___',
+                'file' => 'altocms.png',
+                'topleft' => false,
+                'position' => '0,0',
+            ),
+        ),
+        '@mime(jpeg)' => array(
+            'quality' => 80,
+        ),
+        '@mime(gif)'  => array(
+            'animation' => false,
+        ),
+        '@mime(png)'  => array(
+            //'save_as' => 'jpg',
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['profile_avatar'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'size' => array('large' => '96x96crop', 'medium' => '64x64crop', 'small' => '32x32crop'),
+    'transform' => array(
+        'max_width'  => 250,        // максимальная ширина сохраняемой аватары
+        'max_height' => 250,        // максимальная высота сохраняемой аватары
+        'aspect_ratio' => '1',      // соотношение ширины и высоты
+        'watermark' => array(
+            'enable' => false,
+        ),
+        '@mime(gif)'  => array(
+            'animation' => true,
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['profile_photo'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'aspect_ratio' => '1',      // соотношение ширины и высоты
+    )
+);
+
+$config['module']['uploader']['images']['topic'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'watermark' => array(
+            'enable' => false,
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['photoset'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'watermark' => array(
+            'enable' => true,
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['video'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'max_width'  => 640,        // максимальная ширина фрейма
+        'max_height' => 360,        // максимальная высота фрейма
+        'aspect_ratio' => '16:9',   // соотношение ширины и высоты фрейма
+        'watermark' => array(
+            'enable' => false,
+        ),
+    ),
+);
+
+
+// Модуль Image
+$config['module']['image']['autoresize'] = true;
+
+$config['module']['image']['libs'] = 'Gmagick,Imagick,GD'; // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
+
+// Модуль Menu
+$config['module']['menu']['default_length'] = 20;
+$config['module']['menu']['blog_logo_size'] = '24x24crop';
+$config['module']['menu']['admin'] = array( 'main', 'user', 'topics', 'login', 'image_insert','footer_site_menu', 'footer_info');
 
 /*
  * Настройка ЧПУ топика
@@ -336,10 +457,14 @@ $config['module']['user']['avatar_size'] = array(100,64,48,24,0); // Списо�
 
 $config['module']['user']['login']['min_size'] = 3;             // Минимальное количество символов в логине
 $config['module']['user']['login']['max_size'] = 30;            // Максимальное количество символов в логине
-$config['module']['user']['login']['charset'] = '0-9a-z_\-';    // Допустимые в имени пользователя символы
+$config['module']['user']['login']['charset'] = '0-9a-z_\-';    // Допустимые в логине пользователя символы
 $config['module']['user']['login']['disabled'] = array('admin', 'administrator', 'moderator', 'new');  // недопустимые имена логинов
 
+$config['module']['user']['display_name'] = '%%login%%';        // Допустимые подстановки - %%login%%, %%profilename%%
+
 $config['module']['user']['profile_url'] = 'profile/%login%';   // ссылка на профиль пользователя
+$config['module']['user']['profile_photo_size'] = '240x340';    // размер фотопрофиля по умолчанию
+$config['module']['user']['profile_avatar_size'] = 100;         // размер аватара по умолчанию
 
 $config['module']['user']['time_active'] = 60*60*24*7;          // Число секунд с момента последнего посещения пользователем сайта, в течение которых он считается активным
 $config['module']['user']['usernote_text_max'] = 250;           // Максимальный размер заметки о пользователе
@@ -350,6 +475,13 @@ $config['module']['user']['name_max'] = 30;                     // максим�
 $config['module']['user']['captcha_use_registration'] = true;   // проверять поле капчи при регистрации пользователя
 $config['module']['user']['max_session_history'] = 50;          // число хранимых сессий пользователя, если 0, то хранятся все сессии
 
+$config['module']['user']['pass_recovery_delay'] = 60 * 60 * 24 * 7;  // Время, в течение которого действует ссылка на восстановление пароля
+
+$config['module']['user']['logout']['show_exit'] = 0;           // Время, в течение которого показывается страница выхода (0 - не показывается)
+//$config['module']['user']['logout']['redirect'] = '/';        // Безусловный редирект после выхода
+
+$config['module']['user']['online_time'] = 60 * 10;           // Время, в течение которого пользователь считается в онлайне, если 0 - учитывается только явный выход
+
 // Модуль Comment
 $config['module']['comment']['per_page'] = 20;          // Число комментариев на одну страницу(это касается только полного списка комментариев прямого эфира)
 $config['module']['comment']['bad']      = -5;          // Рейтинг комментария, начиная с которого он будет скрыт
@@ -358,13 +490,17 @@ $config['module']['comment']['use_nested'] = false;     // Использова�
 $config['module']['comment']['nested_per_page'] = 0;    // Число комментов на одну страницу в топике, актуально только при use_nested = true
 $config['module']['comment']['nested_page_reverse'] = true;     // Определяет порядок вывода страниц. true - последние комментарии на первой странице, false - последние комментарии на последней странице
 $config['module']['comment']['favourite_target_allow'] = array('topic'); // Список типов комментов, которые разрешено добавлять в избранное
-$config['module']['comment']['edit']['enable'] = '5 minutes';   // В течение какого времени можно редактировать комментарии
+$config['module']['comment']['edit']['enable'] = '500 minutes';   // В течение какого времени можно редактировать комментарии
 $config['module']['comment']['edit']['rest_time'] = true;       // Показывать ли оставшееся время для редактирования комментария
+$config['module']['comment']['min_length'] = 2;             // Min length of comments
+$config['module']['comment']['max_length'] = 16000;         // Max length of comments (0 - no limit)
 
 // Модуль Talk
 $config['module']['talk']['per_page']   = 30;       // Число приватных сообщений на одну страницу
 $config['module']['talk']['encrypt']    = 'alto';   // Ключ XXTEA шифрования идентификаторов в ссылках
 $config['module']['talk']['max_users']  = 15;       // Максимальное число адресатов в одном личном сообщении
+$config['module']['talk']['min_length']  = 2;       // Min length of message
+$config['module']['talk']['max_length']  = 4000;    // Max length of message (0 - no limit)
 
 // Модуль Lang
 $config['module']['lang']['delete_undefined'] = true;   // Если установлена true, то модуль будет автоматически удалять из языковых конструкций переменные вида %%var%%, по которым не была произведена замена
@@ -374,48 +510,7 @@ $config['module']['notify']['delayed']      = false;    // Указывает н
 $config['module']['notify']['insert_single']= false;    // Если опция установлена в true, систему будет собирать записи заданий удаленной публикации, для вставки их в базу единым INSERT
 $config['module']['notify']['per_process']  = 10;       // Количество отложенных заданий, обрабатываемых одним крон-процессом
 $config['module']['notify']['dir']          = 'emails'; // Относительный (относительно папки скина) путь до папки с шаблонами писем
-$config['module']['notify']['prefix']       = 'email';  // Префикс шаблонов емэйлов
-
-// Модуль Image
-$config['module']['image']['default']['watermark_use']        = false;
-$config['module']['image']['default']['watermark_type']       = 'text';
-$config['module']['image']['default']['watermark_position']   = '0,24';
-$config['module']['image']['default']['watermark_text']       = '(c) Alto CMS';
-$config['module']['image']['default']['watermark_font']       = 'arial';
-$config['module']['image']['default']['watermark_font_color'] = '255,255,255';
-$config['module']['image']['default']['watermark_font_size']  = '10';
-$config['module']['image']['default']['watermark_font_alfa']  = '0';
-$config['module']['image']['default']['watermark_back_color'] = '0,0,0';
-$config['module']['image']['default']['watermark_back_alfa']  = '40';
-$config['module']['image']['default']['watermark_image']      = false;
-$config['module']['image']['default']['watermark_min_width']  = 200;
-$config['module']['image']['default']['watermark_min_height'] = 130;
-$config['module']['image']['default']['round_corner']         = false;
-$config['module']['image']['default']['round_corner_radius']  = '18';
-$config['module']['image']['default']['round_corner_rate']    = '40';
-$config['module']['image']['default']['path']['watermarks']   = '___path.dir.libs___/LiveImage/watermarks/';
-$config['module']['image']['default']['path']['fonts']        = '___path.dir.libs___/LiveImage/fonts/';
-$config['module']['image']['default']['jpg_quality']          = 95;  // Число от 0 до 100
-
-$config['module']['image']['foto']['watermark_use']  = false;
-$config['module']['image']['foto']['round_corner']   = false;
-
-$config['module']['image']['topic']['watermark_use']  = false;
-$config['module']['image']['topic']['round_corner']   = false;
-
-// Параметры для загружаемых изображений по умолчанию
-$config['module']['image']['preset']['default'] = array(
-    'driver' => 'Gmagick,Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
-    'jpg_quality' => 70,
-    'watermark' => array(
-        'use' => false,
-        'type' => 'text',
-    ),
-    'size' => array(
-        'width' => 1200,
-        'height' => 700,
-    ),
-);
+$config['module']['notify']['prefix']       = 'email.'; // Префикс шаблонов емэйлов
 
 // Модуль Security
 $config['module']['security']['hash']  = 'alto_security_key'; // "примесь" к строке, хешируемой в качестве security-кода
@@ -439,38 +534,25 @@ $config['module']['rating']['blog']['count_users']      =0.2;   //Коэффиц
 $config['module']['rating']['blog']['topic_count']      =0.15;  //Коэффициент количества топиков в блоге для расчета рейтинга блога
 
 /**
- * Настройка топика-фотосета
+ * Настройка фотосета топика
  */
-$config['module']['image']['photoset']['jpg_quality'] = 100;        // настройка модуля Image, качество обработки фото
+//$config['module']['image']['photoset']['jpg_quality'] = 100;        // настройка модуля Image, качество обработки фото
 $config['module']['topic']['photoset']['photo_max_size'] = 6*1024;  // максимально допустимый размер фото, Kb
 $config['module']['topic']['photoset']['count_photos_min'] = 2;     // минимальное количество фоток
-$config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток
+$config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток (если 0, то без ограничений)
 $config['module']['topic']['photoset']['per_page'] = 20;            // число фоток для одновременной загрузки
-$config['module']['topic']['photoset']['size'] = array(             // список размеров превью, которые необходимо делать при загрузке фото
-    array(
-        'w'    => 1000,
-        'h'    => null,
-        'crop' => false,
-    ),
-    array(
-        'w'    => 500,
-        'h'    => null,
-        'crop' => false,
-    ),
-    array(
-        'w'    => 100,
-        'h'    => 65,
-        'crop' => true,
-    ),
-    array(
-        'w'    => 50,
-        'h'    => 50,
-        'crop' => true,
-    )
-);
 
 // Какие модули должны быть загружены на старте
 $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');
+
+
+/**
+ * Настройки модуля API
+ */
+$config['module']['api']['ajax'] = true;        // Не авторизованный аякс запрос клиента сайта
+$config['module']['api']['get'] = false;        // Сторонний get-запрос на получение данных
+$config['module']['api']['post'] = false;       // Сторонний post-зпрос на изменение данных
+
 
 /**
  * Настройка базы данных
@@ -481,6 +563,7 @@ $config['db']['params']['user']   = 'root';
 $config['db']['params']['pass']   = '';
 $config['db']['params']['type']   = 'mysqli';    // mysql, mypdo, postgresql, mssql, sqlite, ibase
 $config['db']['params']['dbname'] = 'alto';
+$config['db']['params']['charset'] = 'utf8mb4';
 
 $config['db']['params']['lazy'] = true; // "ленивое" подключение к базе
 
@@ -492,60 +575,17 @@ $config['db']['table']['prefix'] = 'prefix_';
 /*
  * Можно не объявлять таблицы, если их названия совпадают с именами в SQL-запросах,
  * тогда в запросах достаточно подставлять в качестве имени таблицы ?_table_name
- * Либо можно явно определить имя таблицы и использовать так: Config::Get('db.table.table_name)
+ * Либо можно явно определить имя таблицы и использовать так: Config::Get('db.table.user)
  *
 $config['db']['table']['user']                  = '___db.table.prefix___user';
-$config['db']['table']['blog']                  = '___db.table.prefix___blog';
-$config['db']['table']['topic']                 = '___db.table.prefix___topic';
-$config['db']['table']['topic_tag']             = '___db.table.prefix___topic_tag';
-$config['db']['table']['content']               = '___db.table.prefix___content';
-$config['db']['table']['content_field']         = '___db.table.prefix___content_field';
-$config['db']['table']['content_values']        = '___db.table.prefix___content_values';
-$config['db']['table']['comment']               = '___db.table.prefix___comment';
-$config['db']['table']['vote']                  = '___db.table.prefix___vote';
-$config['db']['table']['topic_read']            = '___db.table.prefix___topic_read';
-$config['db']['table']['blog_user']             = '___db.table.prefix___blog_user';
-$config['db']['table']['favourite']             = '___db.table.prefix___favourite';
-$config['db']['table']['favourite_tag']         = '___db.table.prefix___favourite_tag';
-$config['db']['table']['talk']                  = '___db.table.prefix___talk';
-$config['db']['table']['talk_user']             = '___db.table.prefix___talk_user';
-$config['db']['table']['talk_blacklist']        = '___db.table.prefix___talk_blacklist';
-$config['db']['table']['friend']                = '___db.table.prefix___friend';
-$config['db']['table']['topic_content']         = '___db.table.prefix___topic_content';
-$config['db']['table']['topic_question_vote']   = '___db.table.prefix___topic_question_vote';
-$config['db']['table']['user_administrator']    = '___db.table.prefix___user_administrator';
-$config['db']['table']['comment_online']        = '___db.table.prefix___comment_online';
-$config['db']['table']['invite']                = '___db.table.prefix___invite';
-$config['db']['table']['page']                  = '___db.table.prefix___page';
-$config['db']['table']['reminder']              = '___db.table.prefix___reminder';
-$config['db']['table']['session']               = '___db.table.prefix___session';
-$config['db']['table']['notify_task']           = '___db.table.prefix___notify_task';
-$config['db']['table']['userfeed_subscribe']    = '___db.table.prefix___userfeed_subscribe';
-$config['db']['table']['stream_subscribe']      = '___db.table.prefix___stream_subscribe';
-$config['db']['table']['stream_event']          = '___db.table.prefix___stream_event';
-$config['db']['table']['stream_user_type']      = '___db.table.prefix___stream_user_type';
-$config['db']['table']['user_field']            = '___db.table.prefix___user_field';
-$config['db']['table']['user_field_value']      = '___db.table.prefix___user_field_value';
-$config['db']['table']['topic_photo']           = '___db.table.prefix___topic_photo';
-$config['db']['table']['subscribe']             = '___db.table.prefix___subscribe';
-$config['db']['table']['track']                 = '___db.table.prefix___track';
-$config['db']['table']['wall']                  = '___db.table.prefix___wall';
-$config['db']['table']['user_note']             = '___db.table.prefix___user_note';
-$config['db']['table']['geo_country']           = '___db.table.prefix___geo_country';
-$config['db']['table']['geo_region']            = '___db.table.prefix___geo_region';
-$config['db']['table']['geo_city']              = '___db.table.prefix___geo_city';
-$config['db']['table']['geo_target']            = '___db.table.prefix___geo_target';
-$config['db']['table']['user_changemail']       = '___db.table.prefix___user_changemail';
-$config['db']['table']['adminban']              = '___db.table.prefix___adminban';
-$config['db']['table']['adminips']              = '___db.table.prefix___adminips';
-$config['db']['table']['storage']               = '___db.table.prefix___storage';
 */
 
 $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
+
 /**
  * Настройка memcache
  */
-$config['memcache']['servers'][0]['host'] = 'localhost';
+$config['memcache']['servers'][0]['host'] = '127.0.0.1';
 $config['memcache']['servers'][0]['port'] = '11211';
 $config['memcache']['servers'][0]['persistent'] = true;
 $config['memcache']['compression'] = true;
@@ -553,19 +593,35 @@ $config['memcache']['compression'] = true;
 /**
  * Настройки роутинга
  */
-$config['router']['rewrite'] = array();
+// Redirection
+$config['router']['redirect'] = array(
+    //'http://*' => 'https://*', // simple matching, redirect from HTTP to HTTPS
+    //'http://site.com/perm-path/*.html' => array('http://site.com/temp-path/*.html', 302), // redirect with code 302
+    //'[~(.+/)blabla/(\d+).html$~]' => '$1$2.html', // regular expression in brackets
+);
+
+// Domain mapping
+$config['router']['domain'] = array(
+    //'*.site.com' => 'blog/*',
+    //'public.site.com' => 'blog/public',
+);
+
+// Rewrite rules
+$config['router']['rewrite'] = array(
+    //'secret-admin' => 'admin',
+);
 
 // Правила реврайта для REQUEST_URI
+// Регулярные выражения необходимо заключать в квадратные скобки
 $config['router']['uri'] = array(
-    '~^(uploads/images/[\w\/\_\-\.]+\.(png|jpg|jpeg|gif)\/?$)~i' => 'img/$1',
-    '~^_run/assets/([\w\-\.]+/.+)$~i' => 'asset/$1',
+    '[~^_run/assets/([\w\-\.]+/.+)$~i]' => 'asset/$1',
     // запрет обработки статичных файлов с заданными расширениями
     /* допустимые значения:
      *  - @ignore   - запрос игнорируется и его обработка прекращается
      *  - @die(msg) - обработка запроса прекращается с выдачей сообщения msg
      *  - @404      - обработка прекращается с выдачей кода 404
      */
-    '~.+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i' => '@404',
+    '[~.+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i]' => '@404',
 );
 
 // Распределение action
@@ -573,7 +629,7 @@ $config['router']['page']['error']         = 'ActionError';
 $config['router']['page']['registration']  = 'ActionRegistration';
 $config['router']['page']['profile']       = 'ActionProfile';
 $config['router']['page']['my']            = 'ActionMy';
-$config['router']['page']['blog']          = 'ActionBlog';
+//$config['router']['page']['blog']          = 'ActionBlog';
 $config['router']['page']['page']          = 'ActionPage';
 $config['router']['page']['index']         = 'ActionIndex';
 $config['router']['page']['content']       = 'ActionContent';
@@ -593,6 +649,8 @@ $config['router']['page']['feed']          = 'ActionUserfeed';
 $config['router']['page']['stream']        = 'ActionStream';
 $config['router']['page']['subscribe']     = 'ActionSubscribe';
 $config['router']['page']['img']           = 'ActionImg';
+$config['router']['page']['homepage']      = 'ActionHomepage';
+$config['router']['page']['captcha']       = 'ActionCaptcha';
 
 // Глобальные настройки роутинга
 $config['router']['config']['action_default']   = 'homepage';
@@ -616,62 +674,108 @@ $config['router']['config']['autodefine'] = true;
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */
-    '___path.frontend.dir___/libs/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.browser.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
-    //'___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
-    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.placeholder.min.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.charcount.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.imagesloaded.js',
-    '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
-    '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
-    '___path.frontend.dir___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
-    '___path.frontend.dir___/libs/js/vendor/parsley/parsley.js',
-    '___path.frontend.dir___/libs/js/vendor/parsley/i18n/messages.ru.js',
-    '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
+    '___path.frontend.dir___/libs/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
+    '___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',
+    '___path.frontend.dir___/libs/vendor/jquery.browser.js',
+    '___path.frontend.dir___/libs/vendor/jquery.scrollto.js',
+    '___path.frontend.dir___/libs/vendor/jquery.rich-array.min.js',
+    '___path.frontend.dir___/libs/vendor/jquery.form.js',
+    //'___path.frontend.dir___/libs/vendor/jquery.jqplugin.js',
+    '___path.frontend.dir___/libs/vendor/jquery.cookie.js',
+    '___path.frontend.dir___/libs/vendor/jquery.serializejson.js',
+    '___path.frontend.dir___/libs/vendor/jquery.file.js',
+    '___path.frontend.dir___/libs/vendor/jquery.placeholder.min.js',
+    '___path.frontend.dir___/libs/vendor/jquery.charcount.js',
+    '___path.frontend.dir___/libs/vendor/jquery.imagesloaded.js',
+    '___path.frontend.dir___/libs/vendor/jquery.montage.min.js',
+    '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.js',
+    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js',
+    '___path.frontend.dir___/libs/vendor/notifier/jquery.notifier.js',
+    '___path.frontend.dir___/libs/vendor/prettify/prettify.js',
+    '___path.frontend.dir___/libs/vendor/nprogress/nprogress.js',
+    '___path.frontend.dir___/libs/vendor/syslabel/syslabel.js',
+    '___path.frontend.dir___/libs/vendor/prettyphoto/js/jquery.prettyphoto.js',
+    '___path.frontend.dir___/libs/vendor/rowgrid/jquery.row-grid.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/parsley/parsley.js',
+    '___path.frontend.dir___/libs/vendor/parsley/i18n/messages.ru.js',
+    //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/bootbox/bootbox.js',
 
-    /* */
-    '___path.frontend.dir___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
+    //'___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
+
+    /* swfupload */
+    '___path.frontend.dir___/libs/vendor/swfobject/plugin/swfupload.js' => array(
         'name'    => 'swfobject/plugin/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js'        => array(
+    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.js'        => array(
         'name'    => 'swfupload/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.swf'       => array(
+    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.swf'       => array(
         'name'     => 'swfupload/swfupload.swf',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false
     ),
 
+    /* markitUp */
+    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/markitup/',
+        'name'     => 'markitup',
+    ),
+
+    /* tinyMCE */
+    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'name'     => 'tinymce_4',
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'   => true,
+        'compress'  => false,
+        'merge'     => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/',
+        'prepare'   => true,
+        'merge'    => false,
+    ),
+
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',
+    '___path.frontend.dir___/libs/js/core/modal.js',
     '___path.frontend.dir___/libs/js/core/hook.js',
 
-    /* User Interface */
-    '___path.frontend.dir___/libs/js/ui/over.js',
-    '___path.frontend.dir___/libs/js/ui/dropdown.js',
-    '___path.frontend.dir___/libs/js/ui/tooltip.js',
-    '___path.frontend.dir___/libs/js/ui/popover.js',
-    '___path.frontend.dir___/libs/js/ui/tab.js',
-    '___path.frontend.dir___/libs/js/ui/modal.js',
-    '___path.frontend.dir___/libs/js/ui/toolbar.js',
+    '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
     /* Engine */
     '___path.frontend.dir___/libs/js/engine/favourite.js',
-    '___path.frontend.dir___/libs/js/engine/blocks.js',
+    '___path.frontend.dir___/libs/js/engine/widgets.js',
     '___path.frontend.dir___/libs/js/engine/pagination.js',
     '___path.frontend.dir___/libs/js/engine/editor.js',
     '___path.frontend.dir___/libs/js/engine/talk.js',
@@ -686,19 +790,29 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/engine/user.js',
     '___path.frontend.dir___/libs/js/engine/userfeed.js',
     '___path.frontend.dir___/libs/js/engine/stream.js',
+    '___path.frontend.dir___/libs/js/engine/swfuploader.js',
     '___path.frontend.dir___/libs/js/engine/photoset.js',
     '___path.frontend.dir___/libs/js/engine/toolbar.js',
     '___path.frontend.dir___/libs/js/engine/settings.js',
     '___path.frontend.dir___/libs/js/engine/topic.js',
-    '___path.frontend.dir___/libs/js/engine/admin.js',
-    '___path.frontend.dir___/libs/js/engine/admin.userfield.js',
-    '___path.frontend.dir___/libs/js/engine/captcha.js',
+    //'___path.frontend.dir___/libs/js/engine/admin.js',
+    '___path.frontend.dir___/libs/js/engine/userfield.js',
     '___path.frontend.dir___/libs/js/engine/init.js',
+    '___path.frontend.dir___/libs/js/engine/altoUploader.js',
+
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.min.js',
+//    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.exif.js',
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/jquery.fileapi.js',
+    '___path.frontend.dir___/libs/js/engine/altoMultiUploader.js',
+    '___path.frontend.dir___/libs/js/engine/altoImageManager.js',
+    '___path.frontend.dir___/libs/js/engine/altoTooltip.js',
+    '___path.frontend.dir___/libs/vendor/masonry.pkgd.js',
+    '___path.frontend.dir___/libs/vendor/imagesloaded.pkgd.js',
 );
 
 //потенциально проблемные файлы выводим в футере
 $config['footer']['default']['js'] = array(
-    'http://yandex.st/share/share.js',
+    '//yandex.st/share/share.js',
 );
 
 $config['head']['default']['css'] = array(
@@ -714,13 +828,17 @@ $config['head']['default']['css'] = array(
     //'___path.frontend.dir___/libs/css/tooltip.css',
     '___path.frontend.dir___/libs/css/popover.css',
     '___path.frontend.dir___/libs/css/alerts.css',
-    '___path.frontend.dir___/libs/css/toolbar.css'
+    '___path.frontend.dir___/libs/css/toolbar.css',
+    '___path.frontend.dir___/libs/vendor/nprogress/nprogress.css',
+    '___path.frontend.dir___/libs/vendor/syslabel/syslabel.css',
+    '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
 );
 
 /**
  * Параметры компрессии css-файлов
  */
 $config['compress']['css']['merge'] = true;         // указывает на необходимость слияния файлов по указанным блокам.
+$config['compress']['css']['gzip'] = false;         // указывает на необходимость отдачи css в виде gzip
 $config['compress']['css']['use']   = false;        // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
 $config['compress']['css']['force']  = false;       // если заданно 'compress.css.merge', то слияние выполняется, даже если результирующий файл есть
 $config['compress']['css']['csstidy']['case_properties']     = 1;
@@ -733,6 +851,7 @@ $config['compress']['css']['csstidy']['template']            = 'highest_compress
  * Параметры компрессии js-файлов
  */
 $config['compress']['js']['merge']  = false;         // указывает на необходимость слияния файлов по указанным блокам.
+$config['compress']['js']['gzip']  = false;         // указывает на необходимость отдачи js в виде gzip
 $config['compress']['js']['use']    = false;         // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
 $config['compress']['js']['force']  = false;        // если заданно 'compress.js.merge', то слияние выполняется, даже если результирующий файл есть
 
@@ -758,11 +877,20 @@ $config['lang']['aliases'] = array(                                         // �
 $config['lang']['in_url'] = true;                                           // проверка языка в URL
 $config['lang']['in_get'] = true;                                           // проверка языка в GET-параметре: 'lang=ru'
 //$config['lang']['in_get'] = 'language';                                   // то же, но задает параметр: 'language=ru'
-$config['lang']['save'] = '1 year';                                         // сохранение языка в куки, задает время хранения; если 0 (или false), то не сохраняется
+//$config['lang']['save'] = '1 year';                                         // сохранение языка в куки, задает время хранения; если 0 (или false), то не сохраняется
 
 $config['lang']['default'] = 'ru';                                          // язык, который будет использоваться на сайте по умолчанию, если не наййдены тексты для текущего языка
 $config['lang']['current'] = 'ru';                                          // основной язык сайта
-$config['lang']['load_to_js'] = array();                                    // Массив текстовок, которые необходимо прогружать на страницу в виде JS хеша, позволяет использовать текстовки внутри js
+
+// Массив текстовок, которые необходимо прогружать на страницу в виде JS хеша, позволяет использовать текстовки внутри js
+$config['lang']['load_to_js'] = array(
+    'text_yes',
+    'text_no',
+    'text_confirm',
+    'text_cancel',
+    'topic_delete_confirm_title',
+    'topic_delete_confirm_text',
+);
 
 // пути до языковых файлов
 $config['lang']['paths']    = array(
@@ -786,7 +914,20 @@ $config['config_load'] = array(
     'classes',      // Определения классов
     'jevix',        // Настройки типографа текста Jevix
     'widgets',      // Виджеты
+    'menu',         // Меню
 );
+
+/**
+ * Настройки автокомплита пользователей
+ */
+$config['autocomplete']['user']['show_avatar'] = true;  // Добавлять аватар?
+$config['autocomplete']['user']['avatar_size'] = 24;    // Размер аватара
+
+/**
+ * Доступна ли стстема рейтинга. Эту настройку менять НЕ нужно,
+ * она устанавливается в true только плагинами рейтинга
+ */
+$config['rating']['enabled'] = false;
 
 return $config;
 

@@ -62,7 +62,7 @@ class ModuleGeo_EntityGeo extends Entity {
             return $oCountry;
         }
         if ($this->getCountryId()) {
-            $oCountry = $this->Geo_GetCountryById($this->getCountryId());
+            $oCountry = E::ModuleGeo()->GetCountryById($this->getCountryId());
             $this->setProp('country', $oCountry);
             return $oCountry;
         }
@@ -83,8 +83,9 @@ class ModuleGeo_EntityGeo extends Entity {
             return $oRegion;
         }
         if ($this->getRegionId()) {
-            $oRegion = $this->Geo_GetRegionById($this->getRegionId());
-            return $this->setProp('region', $oRegion);
+            $oRegion = E::ModuleGeo()->GetRegionById($this->getRegionId());
+            $this->setProp('region', $oRegion);
+            return $oRegion;
         }
         return null;
     }
@@ -103,8 +104,9 @@ class ModuleGeo_EntityGeo extends Entity {
             return $oCity;
         }
         if ($this->getCityId()) {
-            $oCity = $this->Geo_GetCityById($this->getCityId());
-            return $this->setProp('city', $oCity);
+            $oCity = E::ModuleGeo()->GetCityById($this->getCityId());
+            $this->setProp('city', $oCity);
+            return $oCity;
         }
         return null;
     }

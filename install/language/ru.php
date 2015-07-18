@@ -52,7 +52,7 @@ return array(
     'step'                             => 'Шаг',
 
     'start_paragraph'                  => '<p>Добро пожаловать в установку Alto CMS. Ознакомьтесь с результатами и следуйте подсказкам.</p>
-	                    <p><b>Внимание.</b> Для успешной иснталяции вы должны переименовать файл
+	                    <p><b>Внимание.</b> Для успешной инсталяции вы должны переименовать файл
 	                    /app/config/config.local.php.txt в /app/config/config.local.php и дать этому файлу права на запись.</p>
 	                    <p><b>Внимание.</b> Папки /_tmp, /_run, /uploads должны иметь права на запись.</p>',
 
@@ -62,6 +62,7 @@ return array(
     'php_params_utf8'                  => 'Поддержка UTF8 в PCRE',
     'php_params_mbstring'              => 'Поддержка Mbstring',
     'php_params_simplexml'             => 'Поддержка SimpleXML',
+    'php_params_graphic_packages'      => 'Графические пакеты (Gmagick, Imagick или GD)',
 
     'local_config'                     => 'Локальная конфигурация',
     'local_file_is_writable'           => 'Файл %%file%% существует и доступен для записи',
@@ -71,6 +72,7 @@ return array(
     'local_runtime_dir'                => 'Папка /_run существует и доступна для записи',
     'local_uploads_dir'                => 'Папка /uploads существует и доступна для записи',
     'local_plugins_dir'                => 'Папка /app/plugins существует и доступна для записи',
+    'local_plugins_dat'                => 'Файл /app/plugins/plugins.dat существует и доступен для записи',
 
     'db_params'                        => 'Настройка базы данных',
     'db_params_host'                   => 'Имя сервера БД',
@@ -80,7 +82,9 @@ return array(
     'db_params_create'                 => 'Создать базу данных',
     'db_params_convert'                => 'Конвертировать базу LiveStreet 0.5.1 в 1.0.3',
     'db_params_convert_from_10'        => 'Конвертировать базу LiveStreet 1.0 в 1.0.3',
-    'db_params_convert_to_alto'        => 'Конвертировать базу LiveStreet 1.0.3 в Alto CMS',
+    'db_params_convert_to_alto'        => 'Конвертировать базу LiveStreet 1.0.3 в Alto CMS 1.0',
+    'db_params_convert_to_11'          => 'Конвертировать базу Alto CMS 1.0 в Alto CMS 1.1',
+    'db_params_convert_from_alto_097'  => 'Конвертировать базу Alto CMS 0.9.7 в Alto CMS 1.0',
     'db_params_user'                   => 'Имя пользователя',
     'db_params_password'               => 'Пароль',
     'db_params_prefix'                 => 'Префикс таблиц',
@@ -89,13 +93,15 @@ return array(
     'db_params_engine_notice'          => 'Рекомендуется использовать InnoDB',
 
     'error_table_select'               => 'Ошибка запроса на выборку данных из таблицы %%table%%',
-    'error_database_converted_already' => 'Конвертация отменена, так как структура базы данных соответствует версии 1.0.3',
+    'error_database_converted_already' => 'Конвертация отменена, так как структура базы данных соответствует версии 1.0',
 
     'admin_params'                     => 'Настройка данных администратора',
     'admin_params_login'               => 'Логин',
     'admin_params_mail'                => 'E-mail',
     'admin_params_pass'                => 'Пароль',
     'admin_params_repass'              => 'Еще раз',
+    'admin_params_skip'                => 'Пропустить установку администратора',
+    'admin_params_skip_txt'            => 'Если Вы конвертировали базу данных, где администратор уже задан, Вы можете пропустить этот шаг',
 
     'end_paragraph'                    => 'Поздравляем! Alto CMS успешно установлена.<br /><br />
 	                    Для обеспечения безопасности работы Вашего сайта удалите папку <strong>install</strong>.<br /><br />

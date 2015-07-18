@@ -14,7 +14,7 @@
  */
 
 /**
- * Блок настройки ленты активности
+ * Виджет настройки ленты активности (события)
  *
  * @package blocks
  * @since   1.0
@@ -27,12 +27,10 @@ class WidgetActivitySettings extends Widget {
         /**
          * пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
-            /**
-             * Получаем и прогружаем необходимые переменные в шаблон
-             */
-            $aTypesList = $this->Stream_getTypesList($oUserCurrent->getId());
-            $this->Viewer_Assign('aStreamTypesList', $aTypesList);
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
+            // * Получаем и прогружаем необходимые переменные в шаблон
+            $aTypesList = E::ModuleStream()->GetTypesList($oUserCurrent->getId());
+            E::ModuleViewer()->Assign('aStreamTypesList', $aTypesList ? $aTypesList : array());
         }
     }
 }

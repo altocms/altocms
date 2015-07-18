@@ -21,6 +21,17 @@
  */
 class ModuleFavourite_EntityTag extends Entity {
 
+    public function getLink() {
+
+        $oUser = $this->getProp('user');
+        if (!$oUser) {
+            $oUser = E::User();
+        }
+        if ($oUser) {
+            return $oUser->getProfileUrl() . 'favourites/topics/tag/' . F::UrlEncode($this->getText()) . '/';
+        }
+    }
+
 }
 
 // EOF

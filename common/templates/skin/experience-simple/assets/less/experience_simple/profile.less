@@ -1,0 +1,288 @@
+//@import "../var.experience_simple.less";
+@import "../bootstrap/mixins";
+@import "mixins";
+
+
+@profile-widget-image-border-radius: 200px;// Радиус картинки пользователя
+@profile-widget-online-left: 80%;// Левое положение индикатора онлайна
+@profile-widget-online-top: 10%;// Верхнее положение индикатора онлайна
+@profile-widget-menu-font-size: @font-size-small;// Размер шрифта панели
+
+@profile-widget-time-background: @lighten-gray;// Цвет фона информации о явке
+@profile-widget-time-color: @main-gray;// Цвет шрифта информации о явке
+@profile-widget-time-height: 40px;// Высота блока информации о явке
+
+@profile-widget-menu-height: 40px;// Высота элемента меню
+@profile-widget-menu-color: @dark-blue;// Цвет шрифта элемента меню
+@profile-widget-menu-active-color: @blue;// Цвет шрифта наведенного и активного элемента меню
+@profile-widget-menu-counter-color: @blue;// Цвет счётчика элемента меню
+
+@profile-panel-user-activity-font-size: @font-size-small; // Размер шрифта на панели пользовательской активности
+@profile-panel-info-font-size: @font-size-small; // Размер шрифта на панели информации о пользователе
+
+
+/** ФОТОГРАФИИ ПОЛЬЗОВАТЕЛЯ
+______________________________________________________*/
+#js-profile-user-photos {
+    // Меню
+    #image-categories-tree-container {
+        margin-bottom: 24px;
+        display: block;
+        min-height: 32px !important;
+
+        ul {
+            .clearfix();
+            li {
+                margin-right: 12px;
+                float: left;
+                background-color: @white;
+                a {
+                    font-size: 13px;
+                    line-height: 20px;
+
+                    color: @dark-blue !important;
+                    border-bottom: 1px dashed @dark-blue;
+                    text-decoration: none;
+                    &:hover, &.active {
+                        color: @blue !important;
+                        border-bottom: 1px dashed @blue;
+                    }
+                    span {
+                        margin-left: 4px;
+                        font-size: @font-size-very-small;
+                    }
+                }
+
+                &:hover, &.active {
+                    background-color: @white !important;
+                    a {
+                        color: @blue !important;
+                        border-bottom: 1px dashed @blue;
+                    }
+                }
+            }
+        }
+    }
+
+    .image-loading {
+        padding: 24px 0;
+        color: fadein(@main-gray, 40%);
+    }
+
+    // Менюшка управления
+    .image-categories-nav {
+        a {
+            .dark-blue-link();
+        }
+    }
+
+    .media-text {
+        font-size: @font-size-small;
+    }
+}
+
+.user-info {
+    // Имя пользовтеля
+    .user-login {
+        font-size: 22px;
+    }
+    // Лототип
+    .user-logo {
+        border-radius: 50%;
+    }
+    // Подвал панели
+    .panel-footer {
+        padding-right: 0;
+    }
+    // Кнопка разворачивания
+    .user-info-show-button {
+        a {
+            vertical-align: top;
+            i {
+                color: @dark-blue !important;
+            }
+        }
+    }
+    // Текстовка о пользователе
+    .user-about {
+        h5 {
+            font-weight: 600;
+        }
+    }
+    .user-more {
+        th, thead {
+            border-bottom: 0 !important;
+        }
+        tr {
+            border: 0 !important;
+            border-bottom: none !important;
+        }
+        td {
+            font-size: @profile-panel-info-font-size !important;
+            padding: 4px;
+            border: 0 !important;
+        }
+    }
+    // Блок с надписью об отсутствии информации
+    .empty-info {
+        text-align: left;
+        font-size: @profile-panel-info-font-size;
+    }
+
+}
+
+// Блок с активностью
+.panel-user-activity {
+
+    .table-profile-info * {
+        font-size: @profile-panel-user-activity-font-size !important;
+    }
+}
+
+// Блок с друзьями
+.user-friends {
+    .panel-body {
+        padding-bottom: 48px;
+    }
+}
+
+.friend {
+    border-radius: 60px;
+    a {
+        display: block;
+    }
+    img {
+        border-radius: 60px;
+        width: 100%;
+    }
+    span {
+        width: 18px;
+        height: 18px;
+        display: block;
+        border: 2px solid white;
+        border-radius: 16px !important;
+        position: absolute;
+        left: 80%;
+        top: 10%;
+        opacity: 1;
+        &.success {
+            background-color: @green;
+        }
+        &.danger {
+            background-color: @red;
+        }
+    }
+}
+
+
+/** ВИДЖЕТ ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ
+______________________________________________________*/
+.user-panel {
+    .panel-content {
+        margin-bottom: 22px;
+    }
+
+    // Фотография
+    .profile-logo-container {
+        border-radius: @profile-widget-image-border-radius;
+        position: relative;
+        .profile-photo {
+            border-radius: @profile-widget-image-border-radius;
+            width: 100%;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .profile-online-status {
+            width: 30px;
+            height: 30px;
+            display: block;
+            border: 4px solid white;
+            border-radius: 16px !important;
+            position: absolute;
+            left: @profile-widget-online-left;
+            top: @profile-widget-online-top;
+            opacity: 1;
+            &.success {
+                background-color: @green;
+            }
+            &.danger {
+                background-color: @red;
+            }
+        }
+    }
+
+    // Кнопки управления
+    .profile-photo-menu {
+        font-size: @profile-widget-menu-font-size;
+    }
+
+    // Информация о явках
+    .time-info {
+        font-size: @font-size-small;
+        color: @profile-widget-time-color;
+        background-color: @profile-widget-time-background;
+        margin-left: -18px;
+        margin-right: -18px;
+        line-height: @profile-widget-time-height;
+        padding: 0 18px;
+        margin-top: 18px;
+        border-bottom: 1px solid @profile-widget-time-background;
+    }
+
+    // Меню профиля
+    .user-nav {
+        margin-top: 0;
+        margin-left: -18px;
+        margin-right: -18px;
+        background-color: @white;
+        li {
+            line-height: @profile-widget-menu-height;
+            border-radius: 0;
+            //            background-color: @lighten-gray;
+            border-bottom: 1px solid @lighten-gray;
+            margin-top: 0;
+
+            &.active a:hover {
+                background-color: @white !important;
+            }
+            &.active {
+                a {
+                    color: @profile-widget-menu-active-color !important;
+                }
+            }
+            a {
+                padding: 0 18px;
+                line-height: @profile-widget-menu-height;
+                border-radius: 0;
+                background-color: @white;
+                font-size: @profile-widget-menu-font-size;
+                color: @profile-widget-menu-color !important;
+                i {
+                    color: @profile-widget-menu-color !important;
+                }
+                span {
+                    background-color: @profile-widget-menu-counter-color;
+                    font-weight: normal;
+                    position: relative;
+                    top: 12px;
+                    font-size: @profile-widget-menu-font-size;
+                }
+                &:hover, &:active {
+                    color: @profile-widget-menu-active-color !important;
+                    .fa {
+                        color: @profile-widget-menu-active-color !important;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+.profile-avatar {
+    border-radius: 100px !important;
+}
+
+.profile-avatar-menu {
+    font-size: @profile-widget-menu-font-size;
+}

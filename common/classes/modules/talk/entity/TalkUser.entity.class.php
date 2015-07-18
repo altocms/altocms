@@ -26,6 +26,7 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return int|null
      */
     public function getTalkId() {
+
         return $this->getProp('talk_id');
     }
 
@@ -35,6 +36,7 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return int|null
      */
     public function getUserId() {
+
         return $this->getProp('user_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return string|null
      */
     public function getDateLast() {
+
         return $this->getProp('date_last');
     }
 
@@ -53,6 +56,7 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return int|null
      */
     public function getCommentIdLast() {
+
         return $this->getProp('comment_id_last');
     }
 
@@ -62,6 +66,7 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return int|null
      */
     public function getCommentCountNew() {
+
         return $this->getProp('comment_count_new');
     }
 
@@ -71,8 +76,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return int
      */
     public function getUserActive() {
-        return $this->getProp('talk_user_active') ? $this->getProp('talk_user_active')
-            : ModuleTalk::TALK_USER_ACTIVE;
+
+        return $this->getProp('talk_user_active', ModuleTalk::TALK_USER_ACTIVE);
     }
 
     /**
@@ -81,6 +86,7 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @return ModuleUser_EntityUser | null
      */
     public function getUser() {
+
         return $this->getProp('user');
     }
 
@@ -91,7 +97,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param int $data
      */
     public function setTalkId($data) {
-        $this->_aData['talk_id'] = $data;
+
+        $this->setProp('talk_id', $data);
     }
 
     /**
@@ -100,7 +107,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user_id'] = $data;
+
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -109,7 +117,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param string $data
      */
     public function setDateLast($data) {
-        $this->_aData['date_last'] = $data;
+
+        $this->setProp('date_last', $data);
     }
 
     /**
@@ -118,7 +127,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param int $data
      */
     public function setCommentIdLast($data) {
-        $this->_aData['comment_id_last'] = $data;
+
+        $this->setProp('comment_id_last', $data);
     }
 
     /**
@@ -127,7 +137,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param int $data
      */
     public function setCommentCountNew($data) {
-        $this->_aData['comment_count_new'] = $data;
+
+        $this->setProp('comment_count_new', $data);
     }
 
     /**
@@ -136,7 +147,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param int $data
      */
     public function setUserActive($data) {
-        $this->_aData['talk_user_active'] = $data;
+
+        $this->setProp('talk_user_active', $data);
     }
 
     /**
@@ -145,7 +157,8 @@ class ModuleTalk_EntityTalkUser extends Entity {
      * @param ModuleUser_EntityUser $data
      */
     public function setUser($data) {
-        $this->_aData['user'] = $data;
+
+        $this->setProp('user', $data);
     }
 
 }

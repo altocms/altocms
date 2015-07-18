@@ -31,7 +31,7 @@ class ModulePage extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -46,9 +46,9 @@ class ModulePage extends Module {
         if ($sId = $this->oMapper->AddPage($oPage)) {
             $oPage->setId($sId);
             //чистим зависимые кеши
-            $this->Cache_Clean(
+            E::ModuleCache()->Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-                array('page_change', "page_change_{$oPage->getId()}", "page_change_urlfull_{$oPage->getUrlFull()}")
+                array('page_new', 'page_update', "page_update_{$oPage->getId()}", "page_update_urlfull_{$oPage->getUrlFull()}")
             );
             return true;
         }
@@ -66,9 +66,9 @@ class ModulePage extends Module {
 
         if ($this->oMapper->UpdatePage($oPage)) {
             //чистим зависимые кеши
-            $this->Cache_Clean(
+            E::ModuleCache()->Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-                array('page_change', "page_change_{$oPage->getId()}", "page_change_urlfull_{$oPage->getUrlFull()}")
+                array('page_update', "page_update_{$oPage->getId()}", "page_update_urlfull_{$oPage->getUrlFull()}")
             );
             return true;
         }
@@ -85,15 +85,15 @@ class ModulePage extends Module {
      */
     public function GetPageByUrlFull($sUrlFull, $iActive = 1) {
 
-        if (false === ($data = $this->Cache_Get("page_{$sUrlFull}_{$iActive}"))) {
+        if (false === ($data = E::ModuleCache()->Get("page_{$sUrlFull}_{$iActive}"))) {
             $data = $this->oMapper->GetPageByUrlFull($sUrlFull, $iActive);
             if ($data) {
-                $this->Cache_Set(
-                    $data, "page_{$sUrlFull}_{$iActive}", array("page_change_{$data->getId()}"), 60 * 60 * 24 * 5
+                E::ModuleCache()->Set(
+                    $data, "page_{$sUrlFull}_{$iActive}", array("page_update_{$data->getId()}"), 60 * 60 * 24 * 5
                 );
             } else {
-                $this->Cache_Set(
-                    $data, "page_{$sUrlFull}_{$iActive}", array("page_change_urlfull_{$sUrlFull}"), 60 * 60 * 24 * 5
+                E::ModuleCache()->Set(
+                    $data, "page_{$sUrlFull}_{$iActive}", array("page_update_urlfull_{$sUrlFull}"), 60 * 60 * 24 * 5
                 );
             }
         }
@@ -121,7 +121,12 @@ class ModulePage extends Module {
     public function GetPages($aFilter = array()) {
 
         $aPages = array();
-        $aPagesRow = $this->oMapper->GetPages($aFilter);
+        $sCacheKey = 'page_getpages' . serialize($aFilter);
+        if (false === ($aPagesRow = E::ModuleCache()->Get($sCacheKey))) {
+            $aPagesRow = $this->oMapper->GetPages($aFilter);
+            E::ModuleCache()->Set($aPagesRow, $sCacheKey, array('page_new', 'page_update'), 'P1D');
+        }
+
         if (count($aPagesRow)) {
             $aPages = $this->BuildPagesRecursive($aPagesRow);
         }
@@ -148,7 +153,7 @@ class ModulePage extends Module {
             $aTemp = $aPage;
             $aTemp['level'] = $iLevel;
             unset($aTemp['childNodes']);
-            $aResultPages[] = Engine::GetEntity('Page', $aTemp);
+            $aResultPages[] = E::GetEntity('Page', $aTemp);
             if (isset($aPage['childNodes']) and count($aPage['childNodes']) > 0) {
                 $iLevel++;
                 $this->BuildPagesRecursive($aPage['childNodes'], false);
@@ -211,7 +216,7 @@ class ModulePage extends Module {
                 $this->SetPagesPidToNull($aPages);
             }
             //чистим зависимые кеши
-            $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_change', "page_change_{$nId}"));
+            E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_update', "page_update_{$nId}"));
             return true;
         }
         return false;
@@ -288,7 +293,7 @@ class ModulePage extends Module {
     public function getListOfActivePages(&$iCount, $iCurrPage, $iPerPage) {
 
         return $this->oMapper->getListOfActivePages(
-            $iCount, $iCurrPage, Config::Get('plugin.sitemap.objects_per_page')
+            $iCount, $iCurrPage, Config::Get('plugin.sitemap.items_per_page')
         );
     }
 

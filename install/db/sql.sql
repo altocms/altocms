@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `prefix_blog` (
 --
 
 INSERT INTO `prefix_blog` (`blog_id`, `user_owner_id`, `blog_title`, `blog_description`, `blog_type`, `blog_date_add`, `blog_date_edit`, `blog_rating`, `blog_count_vote`, `blog_count_user`, `blog_count_topic`, `blog_limit_rating_topic`, `blog_url`, `blog_avatar`) VALUES
-(1, 1, 'Blog by admin', 'This is your personal blog.', 'personal', '2012-08-07 00:00:00', NULL, 0.000, 0, 0, 0, -1000.000, NULL, '0');
+(1, 1, 'Blog by admin', 'This is your personal blog.', 'personal', NOW(), NULL, 0.000, 0, 0, 0, -1000.000, NULL, '0');
 
 -- --------------------------------------------------------
 
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `prefix_blog_type` (
 --
 
 INSERT INTO `prefix_blog_type` (`id`, `type_code`, `type_name`, `type_description`, `allow_add`, `min_rate_add`, `allow_list`, `min_rate_list`, `index_ignore`, `membership`, `acl_write`, `min_rate_write`, `acl_read`, `min_rate_read`, `acl_comment`, `min_rate_comment`, `content_type`, `active`, `norder`, `candelete`) VALUES
-(1, 'personal', '{{blogtypes_type_personal_name}}', '{{blogtypes_type_personal_description}}', 0, 0, 1, NULL, 0, 0, 0, 0, 1, 0, 2, -10, '', 1, 0, 0),
+(1, 'personal', '{{blogtypes_type_personal_name}}', '{{blogtypes_type_personal_description}}', 0, 0, 1, NULL, 0, 0, 0, -100, 1, 0, 2, -10, '', 1, 0, 0),
 (2, 'open', '{{blogtypes_type_open_name}}', '{{blogtypes_type_open_description}}', 1, 1, 1, NULL, 0, 1, 2, -10, 1, 0, 2, -10, NULL, 1, 0, 0),
 (3, 'close', '{{blogtypes_type_close_name}}', '{{blogtypes_type_close_description}}', 1, 1, 1, NULL, 1, 2, 4, 0, 4, 0, 4, -10, NULL, 1, 0, 0),
 (4, 'hidden', '{{blogtypes_type_hidden_name}}', '{{blogtypes_type_hidden_description}}', 0, 10, 0, NULL, 1, 4, 4, 0, 4, 0, 4, -10, NULL, 1, 0, 0);
@@ -88,9 +88,11 @@ INSERT INTO `prefix_blog_type` (`id`, `type_code`, `type_name`, `type_descriptio
 --
 
 CREATE TABLE IF NOT EXISTS `prefix_blog_user` (
+  `blog_user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `blog_id` int(11) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `user_role` int(3) DEFAULT '1',
+  PRIMARY KEY (`blog_user_id`),
   UNIQUE KEY `blog_id_user_id_uniq` (`blog_id`,`user_id`),
   KEY `blog_id` (`blog_id`),
   KEY `user_id` (`user_id`)
@@ -300,7 +302,7 @@ CREATE TABLE IF NOT EXISTS `prefix_mresource_target` (
   `mresource_id` int(11) NOT NULL,
   `target_type` varchar(32) NOT NULL,
   `target_id` int(11) NOT NULL,
-  `date_add` int(11) NOT NULL,
+  `date_add` datetime NOT NULL,
   `target_tmp` varchar(32) DEFAULT NULL,
   `description` text,
   `incount` int(11) DEFAULT '1',
@@ -584,6 +586,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   KEY `blog_id` (`blog_id`),
   KEY `topic_count_comment` (`topic_count_comment`),
   KEY `topic_date_add` (`topic_date_add`),
+  KEY `topic_date_show` (`topic_date_show`),
   KEY `topic_publish` (`topic_publish`),
   KEY `topic_rating` (`topic_rating`),
   KEY `topic_text_hash` (`topic_text_hash`),
@@ -670,7 +673,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic_read` (
   `topic_id` int(11) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `date_read` datetime NOT NULL,
-  `comment_count_last` int(10) unsigned NOT NULL DEFAULT '0',
+  `comment_count_last` int(11) unsigned NOT NULL DEFAULT '0',
   `comment_id_last` int(11) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `topic_id_user_id` (`topic_id`,`user_id`),
   KEY `user_id` (`user_id`)
@@ -714,7 +717,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic_tag` (
 CREATE TABLE IF NOT EXISTS `prefix_user` (
   `user_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_login` varchar(30) NOT NULL,
-  `user_password` varchar(50) NOT NULL,
+  `user_password` varchar(100) NOT NULL,
   `user_mail` varchar(50) NOT NULL,
   `user_skill` float(9,3) unsigned NOT NULL DEFAULT '0.000',
   `user_date_register` datetime NOT NULL,
@@ -731,7 +734,7 @@ CREATE TABLE IF NOT EXISTS `prefix_user` (
   `user_profile_country` varchar(30) DEFAULT NULL,
   `user_profile_region` varchar(30) DEFAULT NULL,
   `user_profile_city` varchar(30) DEFAULT NULL,
-  `user_profile_birthday` datetime DEFAULT NULL,
+  `user_profile_birthday` date DEFAULT NULL,
   `user_profile_about` text,
   `user_profile_date` datetime DEFAULT NULL,
   `user_profile_avatar` varchar(250) DEFAULT NULL,
@@ -742,12 +745,14 @@ CREATE TABLE IF NOT EXISTS `prefix_user` (
   `user_settings_notice_reply_comment` tinyint(1) NOT NULL DEFAULT '1',
   `user_settings_notice_new_friend` tinyint(1) NOT NULL DEFAULT '1',
   `user_settings_timezone` varchar(6) DEFAULT NULL,
+  `user_role` INT UNSIGNED DEFAULT 1 NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_login` (`user_login`),
   UNIQUE KEY `user_mail` (`user_mail`),
   KEY `user_activate_key` (`user_activate_key`),
   KEY `user_activate` (`user_activate`),
   KEY `user_rating` (`user_rating`),
+  KEY `user_role` (`user_role`),
   KEY `user_profile_sex` (`user_profile_sex`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
@@ -756,7 +761,7 @@ CREATE TABLE IF NOT EXISTS `prefix_user` (
 --
 
 INSERT INTO `prefix_user` (`user_id`, `user_login`, `user_password`, `user_mail`, `user_skill`, `user_date_register`, `user_date_activate`, `user_date_comment_last`, `user_ip_register`, `user_rating`, `user_count_vote`, `user_activate`, `user_activate_key`, `user_profile_name`, `user_profile_sex`, `user_profile_country`, `user_profile_region`, `user_profile_city`, `user_profile_birthday`, `user_profile_about`, `user_profile_date`, `user_profile_avatar`, `user_profile_foto`, `user_settings_notice_new_topic`, `user_settings_notice_new_comment`, `user_settings_notice_new_talk`, `user_settings_notice_reply_comment`, `user_settings_notice_new_friend`, `user_settings_timezone`) VALUES
-(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'admin@admin.adm', 0.000, '2012-04-10 00:00:00', NULL, NULL, '127.0.0.1', 0.000, 0, 1, NULL, NULL, 'other', NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, 1, 1, 1, 1, 1, NULL);
+(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'admin@admin.adm', 0.000, NOW(), NULL, NULL, '127.0.0.1', 0.000, 0, 1, NULL, NULL, 'other', NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, 1, 1, 1, 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -903,17 +908,19 @@ CREATE TABLE IF NOT EXISTS `prefix_user_note` (
 --
 
 CREATE TABLE IF NOT EXISTS `prefix_vote` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `target_id` int(11) unsigned NOT NULL DEFAULT '0',
   `target_type` varchar(30) NOT NULL DEFAULT 'topic',
   `user_voter_id` int(11) unsigned NOT NULL,
   `vote_direction` tinyint(2) DEFAULT '0',
   `vote_value` float(9,3) NOT NULL DEFAULT '0.000',
   `vote_date` datetime NOT NULL,
-  `vote_ip` varchar(40) NOT NULL DEFAULT '',
-  PRIMARY KEY (`target_id`,`target_type`,`user_voter_id`),
+  `vote_ip` varchar(15) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `target_id_type` (`target_id`,`target_type`),
   KEY `user_voter_id` (`user_voter_id`),
   KEY `vote_ip` (`vote_ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
 
 --
 -- Дамп данных таблицы `prefix_vote`
@@ -961,6 +968,7 @@ CREATE TABLE IF NOT EXISTS `prefix_page` (
   `page_url_full` varchar(254) NOT NULL,
   `page_title` varchar(200) NOT NULL,
   `page_text` text NOT NULL,
+  `page_text_source` text NOT NULL,
   `page_date_add` datetime NOT NULL,
   `page_date_edit` datetime DEFAULT NULL,
   `page_seo_keywords` varchar(250) DEFAULT NULL,
@@ -979,7 +987,7 @@ CREATE TABLE IF NOT EXISTS `prefix_page` (
 
 
 INSERT INTO `prefix_page` (`page_id`, `page_pid`, `page_url`, `page_url_full`, `page_title`, `page_text`, `page_date_add`, `page_date_edit`, `page_seo_keywords`, `page_seo_description`, `page_active`, `page_main`, `page_sort`, `page_auto_br`) VALUES
-(1, NULL, 'about', 'about', 'about', 'edit this page http://yousite/page/admin/', '2010-06-06 02:29:28', NULL, '', '', 1, 1, 1, 1);
+(1, NULL, 'about', 'about', 'about', 'This is a test page', NOW(), NULL, '', '', 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -1042,7 +1050,7 @@ CREATE TABLE IF NOT EXISTS `prefix_content` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `prefix_content` (`content_id`, `content_title`, `content_title_decl`, `content_sort`, `content_url`, `content_active`, `content_candelete`, `content_config`) VALUES
-(1, 'Топик','Топики','1',  'topic', '1', '0', 'a:3:{s:8:"photoset";i:1;s:8:"question";i:1;s:4:"link";i:1;}');
+(1, 'Статья','Статьи','1',  'topic', '1', '0', 'a:3:{s:8:"photoset";i:1;s:8:"question";i:1;s:4:"link";i:1;}');
 
 -- --------------------------------------------------------
 
@@ -1317,3 +1325,56 @@ ALTER TABLE `prefix_vote`
 ALTER TABLE `prefix_wall`
   ADD CONSTRAINT `prefix_wall_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `prefix_user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `prefix_wall_ibfk_1` FOREIGN KEY (`wall_user_id`) REFERENCES `prefix_user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+--
+-- Версия 1.1
+--
+-- Таблица связей типов блогов и типов контента
+CREATE TABLE prefix_blog_type_content
+(
+  content_id   INT UNSIGNED NOT NULL,
+  blog_type_id INT UNSIGNED NOT NULL
+);
+CREATE UNIQUE INDEX content_type_id_blog_type_id_index ON prefix_blog_type_content (content_id, blog_type_id);
+CREATE INDEX blog_type_id_index ON prefix_blog_type_content (blog_type_id);
+CREATE INDEX content_type_id_index ON prefix_blog_type_content (content_id);
+
+-- Поменялась логика, теперь тип контена блога берется из связанной
+-- таблицы а не из поля. Соответственно нужнол заполнить таблицу связей
+-- всеми типами контента в тех типах блогов, где был разрешен
+-- любой контент. Где стоял один ниего делать не нужно, обновление
+-- работает корректно
+INSERT INTO prefix_blog_type_content
+(content_id, blog_type_id)
+  (SELECT
+     ct.content_id AS content_id,
+     bt.id         AS blog_type_id
+   FROM
+     prefix_content AS ct,
+     prefix_blog_type AS bt
+   WHERE
+     isnull(bt.content_type) OR bt.content_type = '');
+
+ALTER TABLE  `prefix_blog` ADD  `blog_order` INT NULL DEFAULT  '0',
+ADD INDEX (  `blog_order` ) ;
+
+ALTER TABLE  `prefix_topic` ADD  `topic_order` INT NULL DEFAULT  '0',
+ADD INDEX (  `topic_order` ) ;
+
+-- Изменение формата таблицы 'prefix_storage'
+ALTER TABLE  `prefix_storage` CHANGE  `storage_val`  `storage_val` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
+ALTER TABLE  `prefix_storage` ADD  `storage_ord` INT NOT NULL DEFAULT  '1';
+-- ADD INDEX (  `storage_aut` ) ;
+ALTER TABLE  `prefix_storage` DROP PRIMARY KEY ;
+ALTER TABLE  `prefix_storage` ADD  `storage_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
+ALTER TABLE  `prefix_storage` ADD  `storage_src` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER  `storage_id` ,
+ADD INDEX (  `storage_src` ) ;
+
+###################################################################################################################
+# МОДУЛЬ UPLOAD - УНИВЕРСАЛЬНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЙ
+#
+ALTER TABLE `prefix_content_values` CHANGE `value_type` `value_type` ENUM('string','text','number','single-image-uploader') NULL DEFAULT NULL;
+ALTER TABLE `prefix_mresource` ADD  `sort` INT NULL DEFAULT '0';
+
+UPDATE prefix_user SET user_role = 3 WHERE user_id = 1;

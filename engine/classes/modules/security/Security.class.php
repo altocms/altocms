@@ -6,19 +6,14 @@
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
- * Based on
- *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
- *   Site: www.livestreet.ru
- *   E-mail: rus.engine@gmail.com
- *----------------------------------------------------------------------------
  */
 
 /**
  * Модуль безопасности
  * Необходимо использовать перед обработкой отправленной формы:
  * <pre>
- * if (getRequest('submit_add')) {
- *    $this->Security_ValidateSendForm();
+ * if (F::GetRequest('submit_add')) {
+ *    E::ModuleSecurity()->ValidateSendForm();
  *    // далее код обработки формы
  *  ......
  * }
@@ -29,17 +24,17 @@
  */
 class ModuleSecurity extends Module {
 
-    protected $sKeyName;
-    protected $sKeyLen;
+    protected $sSecurityKeyName;
+    protected $sSecurityKeyLen;
 
     /**
-     * Инициализируем модуль
+     * Initializes the module
      *
      */
     public function Init() {
 
-        $this->sKeyName = 'ALTO_SECURITY_KEY';
-        $this->sKeyLen = 32;
+        $this->sSecurityKeyName = 'ALTO_SECURITY_KEY';
+        $this->sSecurityKeyLen = 32;
     }
 
     /**
@@ -51,7 +46,7 @@ class ModuleSecurity extends Module {
      */
     public function ValidateSendForm($bBreak = true) {
 
-        if (!($this->ValidateSessionKey())) {
+        if (!($this->ValidateSecurityKey())) {
             if ($bBreak) {
                 die('Hacking attempt!');
             } else {
@@ -80,65 +75,71 @@ class ModuleSecurity extends Module {
     }
 
     /**
-     * Проверяет наличие security-ключа в сессии
+     * Verifies security key from argument or from request
      *
-     * @param   string|null $sCode  - Код для проверки, если нет то берется из реквеста
+     * @param   string|null $sKey  - Security key for verifying. If it is ommited then it extracts from request
      *
      * @return  bool
      */
-    public function ValidateSessionKey($sCode = null) {
+    public function ValidateSecurityKey($sKey = null) {
 
-        if (!$sCode) {
+        if (!$sKey) {
             if (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY'])) {
-                $sCode = (string)$_SERVER['HTTP_X_ALTO_AJAX_KEY'];
+                $sKey = (string)$_SERVER['HTTP_X_ALTO_AJAX_KEY'];
             } else {
-                if (!($sCode = getRequestStr('security_key'))) {
-                    $sCode = getRequestStr('security_ls_key');
+                if (!($sKey = F::GetRequestStr('security_key'))) {
+                    // LS-compatibility
+                    $sKey = F::GetRequestStr('security_ls_key');
                 }
             }
         }
-        return ($sCode == $this->GetSessionKey());
+        return ($sKey == $this->GetSecurityKey());
     }
 
-    public function GetSessionKey() {
+    /**
+     * Returns security key from the session
+     *
+     * @return string
+     */
+    public function GetSecurityKey() {
 
-        $sSessionKey = $this->Session_Get($this->sKeyName);
-        if (is_null($sSessionKey)) {
-            $sSessionKey = $this->_generateSessionKey();
+        $sSecurityKey = E::ModuleSession()->Get($this->sSecurityKeyName);
+        if (is_null($sSecurityKey)) {
+            $sSecurityKey = $this->_generateSecurityKey();
         }
-        return $sSessionKey;
+        return $sSecurityKey;
     }
 
     /**
-     * Устанавливает security-ключ в сессию
+     * Set security key in the session
      *
      * @return string
      */
-    public function SetSessionKey() {
+    public function SetSecurityKey() {
 
-        $sSessionKey = $this->_generateSessionKey();
+        $sSecurityKey = $this->_generateSecurityKey();
 
-        $this->Session_Set($this->sKeyName, $sSessionKey);
-        $this->Viewer_Assign($this->sKeyName, $sSessionKey);
+        E::ModuleSession()->Set($this->sSecurityKeyName, $sSecurityKey);
+        E::ModuleViewer()->Assign($this->sSecurityKeyName, $sSecurityKey);
 
-        return $sSessionKey;
+        return $sSecurityKey;
     }
 
     /**
-     * Генерирует текущий security-ключ
+     * Generates security key for the current session
      *
      * @return string
      */
-    protected function _generateSessionKey() {
+    protected function _generateSecurityKey() {
 
         // Сохраняем текущий ключ для ajax-запросов
-        if (F::AjaxRequest() && ($sKey = $this->Session_Get($this->sKeyName))) {
+        if (F::AjaxRequest() && ($sKey = E::ModuleSession()->Get($this->sSecurityKeyName))) {
             return $sKey;
         }
         if (Config::Get('module.security.randomkey')) {
-            return F::RandomStr($this->sKeyLen);
+            return F::RandomStr($this->sSecurityKeyLen);
         } else {
-            //return md5($this->Session_GetId().Config::Get('module.security.hash'));
+            //return md5(E::ModuleSession()->GetId().Config::Get('module.security.hash'));
             return md5($this->GetUniqKey() . $this->GetClientHash() . Config::Get('module.security.hash'));
         }
     }
@@ -173,28 +174,49 @@ class ModuleSecurity extends Module {
 
         if (substr($sSalted, 0, 3) == '0x:') {
             return $sSalted == $this->Salted($sData, $sType);
+        } elseif (substr($sSalted, 0, 3) == 'Jx:' && $sType == 'pass') {
+            list($sHash, $sSalt) = explode(':', substr($sSalted, 3), 2);
+            if ($sHash && $sSalt && is_string($sData)) {
+                return $sHash === md5($sData . $sSalt);
+            }
+            return false;
         } else {
-            return $sSalted == md5($sData);
+            return $sSalted === md5($sData);
         }
     }
 
+    /**
+     * Calcs hash of user agent
+     *
+     * @return string
+     */
     public function GetUserAgentHash() {
 
         $sUserAgent = ((isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '');
         return $this->Salted($sUserAgent, 'auth');
     }
 
+    /**
+     * Calcs hash of client
+     *
+     * @return string
+     */
     public function GetClientHash() {
 
         $sClientHash = $this->GetUserAgentHash();
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $sClientHash .= $_SERVER['REMOTE_ADDR'];
         }
-        //if ($sVizId = $this->Session_GetCookie('visitor_id')) $sClientHash .= $sVizId;
+        //if ($sVizId = E::ModuleSession()->GetCookie('visitor_id')) $sClientHash .= $sVizId;
 
         return $this->Salted($sClientHash, 'auth');
     }
 
+    /**
+     * Generates depersonalized unique key of the site
+     *
+     * @return string
+     */
     public function GenerateUniqKey() {
 
         $sData = serialize(Config::Get('path.root'));
@@ -204,6 +226,11 @@ class ModuleSecurity extends Module {
         return $this->Salted(md5($sData), 'auth');
     }
 
+    /**
+     * Returns depersonalized unique key of the site
+     *
+     * @return string
+     */
     public function GetUniqKey() {
 
         $sUniqKey = Config::Get('alto.uniq_key');
@@ -216,11 +243,11 @@ class ModuleSecurity extends Module {
     }
 
     /**
-     * Завершение модуля
+     * Shutdowns the module
      */
     public function Shutdown() {
-        // перенесено во Viewer, т.к. новый ключ нужно задавать только при рендеринге
-        //$this->SetSessionKey();
+
+        // nothing
     }
 }
 

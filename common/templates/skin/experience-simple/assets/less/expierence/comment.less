@@ -1,0 +1,355 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.comment-self *, .comment-new *{
+    background-color: @yellow-light;
+}
+
+
+.comment-current * {
+    background-color: @light-green !important;
+}
+
+.comment-level-2 {
+    margin-left: @comment-level-margin;
+}
+.wrapper-level-2 .comment-reply {
+    margin-left: @comment-level-margin;
+}
+.comment-level-3 {
+    margin-left: @comment-level-margin*2;
+}
+.wrapper-level-3 .comment-reply {
+    margin-left: @comment-level-margin*2;
+}
+.comment-level-4 {
+    margin-left: @comment-level-margin*3;
+}
+.wrapper-level-4 .comment-reply {
+    margin-left: @comment-level-margin*3;
+}
+.comment-level-5 {
+    margin-left: @comment-level-margin*4;
+}
+.wrapper-level-5 .comment-reply {
+    margin-left: @comment-level-margin*4;
+}
+.comment-level-6 {
+    margin-left: @comment-level-margin*4;
+}
+.wrapper-level-6 .comment-reply {
+    margin-left: @comment-level-margin*4;
+}
+.comment-level-7 {
+    margin-left: @comment-level-margin*4;
+}
+.wrapper-level-7 .comment-reply {
+    margin-left: @comment-level-margin*4;
+}
+
+.topic-comment-controls {
+    margin-top: 13px;
+    margin-bottom: 36px;
+}
+
+.panel.comment {
+    margin-bottom: 12px;
+
+    textarea {
+        min-height: 120px;
+    }
+
+    .panel-body {
+        position: relative;
+    }
+
+    &.active {
+        background-color: @yellow-light;
+    }
+
+    .comment-count {
+        font-size: @font-size-large;
+        color: @color-11;
+        font-weight: 500;
+        line-height: 20px;
+    }
+    .comment-subscribe {
+        float: right;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: inline-block;
+            color: @color-11;
+            margin-left: 18px;
+            font-size: @font-size-base;
+
+            &.short-text {
+                display: none;
+            }
+
+            label {
+                padding: 0;
+                margin: 0 6px 0 0;
+
+                input {
+                    margin: 0;
+                    vertical-align: text-bottom;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    .collapse-block {
+        float: left;
+        font-size: 14px;
+        position: absolute;
+        left: 7px;
+        top: 25px;
+
+
+        a {
+            color: @color-65;
+        }
+    }
+
+    .answer_inject img {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .comment-content {
+        margin-left: 0;
+
+        .comment-tools {
+            margin-bottom: 8px;
+            ul {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+
+                li {
+                    display: inline-block;
+                    font-size: @font-size-small;
+
+                    a {
+                        font-size: @font-size-small;
+                    }
+
+                    &.comment-user {
+                        margin-right: 6px;
+                        a {
+                            font-weight: 500;
+                            margin-left: 8px;
+                            font-size: @font-size-base;
+                        }
+                    }
+
+                    .comment-repair, .comment-delete {
+                        font-family: FontAwesome;
+                    }
+
+                    &.comment-date-block {
+                        margin-left: 6px;
+                        position: relative;
+                        margin-right: 12px;
+
+                        &:before {
+                            content: ".";
+                            position: absolute;
+                            left: -10px;
+                            line-height: 12px;
+                            font-size: 12px;
+                            font-weight: bold;
+                            font-family: "Arial";
+                        }
+
+                        .topic-date {
+                            font-size: 11px;
+                            color: @color-50;
+                        }
+
+                        .topic-time {
+                            font-size: 11px;
+                            color: @blue;
+                        }
+                    }
+
+                    &.comment-up, &.comment-down {
+
+                        a {
+                            padding: 0 0 0 6px;
+                        }
+
+                    }
+
+
+
+                    &.comment-anchor, &.comment-favourite {
+                        margin-left: 4px;
+                    }
+
+                    &.topic-rating {
+                        * {
+                            line-height: 12px;
+                            font-size: @font-size-small;
+                            font-weight: normal;
+                        }
+                        .vote-total {
+                            margin: 0 4px;
+
+                            &.positive, &.voted-up {
+                                color: @green;
+                            }
+
+                            &.negative, &.voted-down {
+                                color: @red;
+                            }
+                        }
+
+                        .vote-down {
+                            &:hover {
+                                color: @red;
+                            }
+                        }
+
+                        .vote-up {
+                            &:hover {
+                                color: @green;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        .comment-text {
+            font-family: @font-family-serif;
+            font-size: @font-size-small;
+            line-height: 18px;
+            white-space: normal;
+
+            img[align="center"] {
+                width: 100%;
+                margin: 0 0 @topic-preview-margin-bottom 0;
+
+            }
+            img.image-center   { display: block; margin: 0 auto; }
+            img {
+                max-width: 100%;
+                width: 100%;
+                margin: 0 0 @topic-preview-margin-bottom 0;
+            }
+
+            img[align="left"] {
+                margin: 0 @topic-preview-margin-bottom @topic-preview-margin-bottom 0;
+            }
+
+
+            img[align="right"] {
+                margin: 0 0  @topic-preview-margin-bottom @topic-preview-margin-bottom;
+            }
+
+            .comment-reply {
+                margin-left: 12px;
+                i {
+                    margin-right: 6px;
+                    color: @color-65;
+                }
+            }
+        }
+
+    }
+
+    .editor {
+        margin-top: 24px;
+    }
+}
+
+.comment-reply {
+    margin-bottom: 24px;
+
+    & > .form-group {
+        margin-bottom: 0;
+    }
+}
+
+/* Адаптивная верстка
+-----------------------------------------------------------------------------*/
+// Large 993-1200
+@media only screen and (min-width: (@screen-md + 1)) and (max-width: @screen-lg) {
+
+}
+
+// Medium 769-992
+@media only screen and (max-width: @screen-md) {
+    .content {
+        .topic {
+            .topic-text {
+                .topic-preview {
+                    max-width: 100%;
+                    width: 100%;
+                    display: block;
+                }
+            }
+        }
+    }
+    .panel.comment {
+        .comment-subscribe {
+
+            li {
+
+                &.short-text {
+                    display: inline-block;
+                }
+
+                &.long-text {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+
+// Extra small 481-768
+@media only screen and (min-width: (@screen-xs + 1)) and (max-width: @screen-sm) {
+    .panel.comment {
+        .comment-subscribe {
+
+            li {
+
+                &.short-text {
+                    display: inline-block;
+                }
+
+                &.long-text {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+// Small 0-480
+@media only screen and (max-width: @screen-xs) {
+    .panel.comment {
+        .comment-subscribe {
+
+            li {
+
+                &.short-text {
+                    display: inline-block;
+                }
+
+                &.long-text {
+                    display: none;
+                }
+            }
+        }
+    }
+}

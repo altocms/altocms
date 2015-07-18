@@ -6,6 +6,16 @@
  * @subpackage plugins
  */
 
+function smarty_modifier_declension_english($forms, $count) {
+
+    return smarty_modifier_declension_en($forms, $count);
+}
+
+function smarty_modifier_declension_russian($forms, $count) {
+
+    return smarty_modifier_declension_ru($forms, $count);
+}
+
 /**
  * Модификатор declension: склонение существительных по правилам английского языка
  *
@@ -14,7 +24,7 @@
  *
  * @return string
  */
-function smarty_modifier_declension_english($forms, $count) {
+function smarty_modifier_declension_en($forms, $count) {
 
     if ($count == 1) {
         return $forms[0];
@@ -31,7 +41,7 @@ function smarty_modifier_declension_english($forms, $count) {
  *
  * @return string
  */
-function smarty_modifier_declension_russian($forms, $count) {
+function smarty_modifier_declension_ru($forms, $count) {
 
     $mod100 = $count % 100;
     switch ($count % 10) {
@@ -72,7 +82,7 @@ function smarty_modifier_declension_russian($forms, $count) {
 function smarty_modifier_declension($count, $forms, $language = '') {
 
     if (!$language) {
-        $language = Engine::getInstance()->Lang_GetLang();
+        $language = E::ModuleLang()->GetLang();
     }
 
     $count = abs($count);

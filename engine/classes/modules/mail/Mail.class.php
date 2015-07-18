@@ -18,11 +18,11 @@ F::IncludeLib('phpMailer/class.phpmailer.php');
 /**
  * Модуль для отправки почты(e-mail) через phpMailer
  * <pre>
- * $this->Mail_SetAdress('claus@mail.ru','Claus');
- * $this->Mail_SetSubject('Hi!');
- * $this->Mail_SetBody('How are you?');
- * $this->Mail_setHTML();
- * $this->Mail_Send();
+ * E::ModuleMail()->SetAdress('claus@mail.ru','Claus');
+ * E::ModuleMail()->SetSubject('Hi!');
+ * E::ModuleMail()->SetBody('How are you?');
+ * E::ModuleMail()->SetHTML();
+ * E::ModuleMail()->Send();
  * </pre>
  *
  * @package engine.modules
@@ -88,6 +88,12 @@ class ModuleMail extends Module {
      */
     protected $sCharSet;
     /**
+     * Кодирование писем
+     *
+     * @var string
+     */
+    protected $sEncoding;
+    /**
      * Делать или нет перенос строк в письме
      *
      * @var int
@@ -147,6 +153,9 @@ class ModuleMail extends Module {
         // * Кодировка писем
         $this->sCharSet = Config::Get('sys.mail.charset');
 
+        // * Кодирование писем
+        $this->sEncoding = Config::Get('sys.mail.encoding');
+
         // * Мыло от кого отправляется вся почта
         $this->sFrom = Config::Get('sys.mail.from_email');
 
@@ -154,7 +163,7 @@ class ModuleMail extends Module {
         $this->sFromName = Config::Get('sys.mail.from_name');
 
         // * Создаём объект phpMailer и устанвливаем ему необходимые настройки
-        $this->oMailer = new phpmailer();
+        $this->oMailer = new PHPMailer();
         $this->oMailer->Host = $this->sHost;
         $this->oMailer->Port = $this->iPort;
         $this->oMailer->Username = $this->sUsername;
@@ -164,9 +173,13 @@ class ModuleMail extends Module {
         $this->oMailer->Mailer = $this->sMailerType;
         $this->oMailer->WordWrap = $this->iWordWrap;
         $this->oMailer->CharSet = $this->sCharSet;
+        $this->oMailer->Encoding = $this->sEncoding;
 
-        $this->oMailer->From = $this->sFrom;
-        $this->oMailer->FromName = $this->sFromName;
+        // see https://github.com/altocms/altocms/issues/259
+        //$this->oMailer->From = $this->sFrom;
+        //$this->oMailer->FromName = $this->sFromName;
+
+        $this->oMailer->SetFrom($this->sFrom, $this->sFromName);
     }
 
     /**
@@ -303,7 +316,7 @@ class ModuleMail extends Module {
      */
     public function Shutdown() {
 
-        while ($sError = $this->GetError()) {
+        while ($sError = $this->GetError(true)) {
             F::SysWarning($sError);
         }
     }

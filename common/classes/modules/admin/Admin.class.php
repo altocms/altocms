@@ -19,67 +19,111 @@ class ModuleAdmin extends Module {
     /** @var ModuleAdmin_MapperAdmin */
     protected $oMapper;
 
+    /**
+     * Initialization
+     */
     public function Init() {
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
+    /**
+     * Grt stats of the site
+     *
+     * @return array
+     */
     public function GetSiteStat() {
+
         $sCacheKey = 'adm_site_stat';
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetSiteStat();
-            $this->Cache_Set($data, $sCacheKey, array('user_new', 'blog_new', 'topic_new', 'comment_new'), 60 * 15);
+            E::ModuleCache()->Set($data, $sCacheKey, array('user_new', 'blog_new', 'topic_new', 'comment_new'), 60 * 15);
         }
         return $data;
     }
 
+    /**
+     * @param array  $aUsers
+     * @param int    $nDays
+     * @param string $sComment
+     *
+     * @return bool
+     */
     public function BanUsers($aUsers, $nDays = null, $sComment = null) {
+
         $aUserIds = $this->_entitiesId($aUsers);
-        // для все юзеров, добавляемых в бан, закрываются сессии
-        foreach ($aUserIds as $nUserId) {
-            if ($nUserId) {
-                $this->Session_Drop($nUserId);
-                $this->User_CloseAllSessions($nUserId);
+        $bOk = true;
+        if ($aUserIds) {
+            // для все юзеров, добавляемых в бан, закрываются сессии
+            foreach ($aUserIds as $nUserId) {
+                if ($nUserId) {
+                    E::ModuleSession()->Drop($nUserId);
+                    E::ModuleUser()->CloseAllSessions($nUserId);
+                }
             }
+            if (!$nDays) {
+                $nUnlim = 1;
+                $dDate = null;
+            } else {
+                $nUnlim = 0;
+                $dDate = date('Y-m-d H:i:s', time() + 3600 * 24 * $nDays);
+            }
+            $bOk = $this->oMapper->BanUsers($aUserIds, $dDate, $nUnlim, $sComment);
+            E::ModuleCache()->CleanByTags(array('user_update'));
         }
-        if (!$nDays) {
-            $nUnlim = 1;
-            $dDate = null;
-        } else {
-            $nUnlim = 0;
-            $dDate = date('Y-m-d H:i:s', time() + 3600 * 24 * $nDays);
-        }
-        $bOk = $this->oMapper->BanUsers($aUserIds, $dDate, $nUnlim, $sComment);
-        $this->Cache_CleanByTags(array('user_update'));
         return $bOk;
     }
 
+    /**
+     * @param array $aUsers
+     *
+     * @return bool
+     */
     public function UnbanUsers($aUsers) {
+
         $aUserIds = $this->_entitiesId($aUsers);
-        $bOk = $this->oMapper->UnbanUsers($aUserIds);
-        $this->Cache_CleanByTags(array('user_update'));
+        $bOk = true;
+        if ($aUserIds) {
+            $bOk = $this->oMapper->UnbanUsers($aUserIds);
+            E::ModuleCache()->CleanByTags(array('user_update'));
+        }
         return $bOk;
     }
 
-    public function GetUsersBanList($nCurrPage, $nPerPage) {
-        $sCacheKey = 'adm_banlist_' . $nCurrPage . '_' . $nPerPage;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $aUsersId = $this->oMapper->GetBannedUsersId($iCount, $nCurrPage, $nPerPage);
+    /**
+     * @param int $iCurrPage
+     * @param int $iPerPage
+     *
+     * @return array
+     */
+    public function GetUsersBanList($iCurrPage, $iPerPage) {
+
+        $sCacheKey = 'adm_banlist_' . $iCurrPage . '_' . $iPerPage;
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $aUsersId = $this->oMapper->GetBannedUsersId($iCount, $iCurrPage, $iPerPage);
             if ($aUsersId) {
-                $aUsers = $this->User_GetUsersByArrayId($aUsersId);
+                $aUsers = E::ModuleUser()->GetUsersByArrayId($aUsersId);
                 $data = array('collection' => $aUsers, 'count' => $iCount);
             } else {
                 $data = array('collection' => array(), 'count' => 0);
             }
-            $this->Cache_Set($data, $sCacheKey, array('adm_banlist', 'user_update'), 60 * 15);
+            E::ModuleCache()->Set($data, $sCacheKey, array('adm_banlist', 'user_update'), 60 * 15);
         }
         return $data;
     }
 
+    /**
+     * @param int $iCurrPage
+     * @param int $iPerPage
+     *
+     * @return array
+     */
     public function GetIpsBanList($iCurrPage, $iPerPage) {
+
         $sCacheKey = 'adm_banlist_ips_' . $iCurrPage . '_' . $iPerPage;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array('collection' => $this->oMapper->GetIpsBanList($iCount, $iCurrPage, $iPerPage), 'count' => $iCount);
-            $this->Cache_Set($data, $sCacheKey, array('adm_banlist_ip'), 60 * 15);
+            E::ModuleCache()->Set($data, $sCacheKey, array('adm_banlist_ip'), 60 * 15);
         }
         return $data;
     }
@@ -87,32 +131,34 @@ class ModuleAdmin extends Module {
     /**
      * Бан диапазона IP-адресов
      *
-     * @param      $sIp1
-     * @param      $sIp2
-     * @param null $nDays
-     * @param null $sComment
+     * @param string $sIp1
+     * @param string $sIp2
+     * @param int    $nDays
+     * @param string $sComment
      *
      * @return bool
      */
     public function SetBanIp($sIp1, $sIp2, $nDays = null, $sComment = null) {
-        if (!$nDays) {
-            $nUnlim = 1;
-            $dDate = null;
-        } else {
+
+        $nDays = ($nDays ? intval($nDays) : null);
+        if ($nDays) {
             $nUnlim = 0;
             $dDate = date('Y-m-d H:i:s', time() + 3600 * 24 * $nDays);
+        } else {
+            $nUnlim = 1;
+            $dDate = null;
         }
 
         //чистим зависимые кеши
         $bResult = $this->oMapper->SetBanIp($sIp1, $sIp2, $dDate, $nUnlim, $sComment);
-        $this->Cache_CleanByTags(array('adm_banlist_ip'));
+        E::ModuleCache()->CleanByTags(array('adm_banlist_ip'));
         return $bResult;
     }
 
     /**
      * Снятие бана с диапазона IP-адресов
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return bool
      */
@@ -121,7 +167,7 @@ class ModuleAdmin extends Module {
         if (!is_array($aIds)) $aIds = intval($aIds);
         $bResult = $this->oMapper->UnsetBanIp($aIds);
         //чистим зависимые кеши
-        $this->Cache_CleanByTags(array('adm_banlist_ip'));
+        E::ModuleCache()->CleanByTags(array('adm_banlist_ip'));
         return $bResult;
     }
 
@@ -129,21 +175,32 @@ class ModuleAdmin extends Module {
     /**
      * Получить все инвайты
      *
-     * @param   integer $nCurrPage
-     * @param   integer $nPerPage
-     * @return  array
+     * @param integer $nCurrPage
+     * @param integer $nPerPage
+     * @param array   $aFilter
+     *
+     * @return array
      */
-    public function GetInvites($nCurrPage, $nPerPage) {
+    public function GetInvites($nCurrPage, $nPerPage, $aFilter = array()) {
 
         // Инвайты не кешируются, поэтому работаем напрямую с БД
-        $data = array('collection' => $this->oMapper->GetInvites($iCount, $nCurrPage, $nPerPage), 'count' => $iCount);
-        return $data;
+        $aResult = array('collection' => $this->oMapper->GetInvites($iCount, $nCurrPage, $nPerPage, $aFilter), 'count' => $iCount);
+
+        return $aResult;
+    }
+
+    /**
+     * @return array
+     */
+    public function GetInvitesCount() {
+
+        return $this->oMapper->GetInvitesCount();
     }
 
     /**
      * Удаляет инвайты по списку ID
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return mixed
      */
@@ -159,8 +216,9 @@ class ModuleAdmin extends Module {
      * @return  bool
      */
     public function UpdateCustomConfig($aConfig) {
+
         $bResult = $this->oMapper->UpdateCustomConfig($aConfig);
-        $this->Cache_CleanByTags(array('config_update'));
+        E::ModuleCache()->CleanByTags(array('config_update'));
         return $bResult;
     }
 
@@ -173,9 +231,9 @@ class ModuleAdmin extends Module {
     public function GetCustomConfig($sKeyPrefix = null) {
 
         $sCacheKey = 'config_' . $sKeyPrefix;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetCustomConfig($sKeyPrefix);
-            $this->Cache_Set($data, $sCacheKey, array('config_update'), 'P1M');
+            E::ModuleCache()->Set($data, $sCacheKey, array('config_update'), 'P1M');
         }
         return $data;
     }
@@ -193,62 +251,143 @@ class ModuleAdmin extends Module {
         // Удаляем в базе
         $bResult = $this->oMapper->DeleteCustomConfig($sKeyPrefix);
         // Чистим кеш
-        $this->Cache_CleanByTags(array($sCacheKey));
+        E::ModuleCache()->CleanByTags(array($sCacheKey));
         return $bResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForUsers() {
+
         return $this->oMapper->GetUnlinkedBlogsForUsers();
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForUsers($aBlogIds) {
+
         $bResult = $this->oMapper->DelUnlinkedBlogsForUsers($aBlogIds);
-        $this->Cache_Clean();
+        E::ModuleCache()->Clean();
         return $bResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForCommentsOnline() {
+
         return $this->oMapper->GetUnlinkedBlogsForCommentsOnline();
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForCommentsOnline($aBlogIds) {
+
         $bResult = $this->oMapper->DelUnlinkedBlogsForCommentsOnline($aBlogIds);
-        $this->Cache_Clean();
+        E::ModuleCache()->Clean();
         return $bResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedTopicsForCommentsOnline() {
+
         return $this->oMapper->GetUnlinkedTopicsForCommentsOnline();
     }
 
+    /**
+     * @param array $aTopicIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedTopicsForCommentsOnline($aTopicIds) {
+
         $bResult = $this->oMapper->DelUnlinkedTopicsForCommentsOnline($aTopicIds);
-        $this->Cache_Clean();
+        E::ModuleCache()->Clean();
         return $bResult;
     }
 
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
     public function SetAdministrator($nUserId) {
-        $bOk = $this->oMapper->SetAdministrator($nUserId);
-        if ($bOk) {
-            $oUser = $this->User_GetUserById($nUserId);
-            if ($oUser) $this->User_Update($oUser);
+
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        $bOk = false;
+        if ($oUser && $oUser->getRole() != ($oUser->getRole() | ModuleUser::USER_ROLE_ADMINISTRATOR)) {
+            $bOk = $this->oMapper->UpdateRole($oUser, $oUser->getRole() | ModuleUser::USER_ROLE_ADMINISTRATOR);
         }
+
         return $bOk;
+
     }
 
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
     public function UnsetAdministrator($nUserId) {
-        $bOk = $this->oMapper->UnsetAdministrator($nUserId);
-        if ($bOk) {
-            $oUser = $this->User_GetUserById($nUserId);
-            if ($oUser) $this->User_Update($oUser);
+
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        if ($oUser) {
+            return $this->oMapper->UpdateRole($oUser, $oUser->getRole() ^ ModuleUser::USER_ROLE_ADMINISTRATOR);
         }
+        return false;
+
+    }
+
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
+    public function SetModerator($nUserId) {
+
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        $bOk = false;
+        if ($oUser && $oUser->getRole() != ($oUser->getRole() | ModuleUser::USER_ROLE_MODERATOR)) {
+            $bOk = $this->oMapper->UpdateRole($oUser, $oUser->getRole() | ModuleUser::USER_ROLE_MODERATOR);
+        }
+
         return $bOk;
+
+    }
+
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
+    public function UnsetModerator($nUserId) {
+
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        if ($oUser) {
+            return $this->oMapper->UpdateRole($oUser, $oUser->getRole() ^ ModuleUser::USER_ROLE_MODERATOR);
+        }
+        return false;
+
     }
 
     /**
      * Число топиков без URL
      */
     public function GetNumTopicsWithoutUrl() {
+
         return $this->oMapper->GetNumTopicsWithoutUrl();
     }
 
@@ -280,7 +419,11 @@ class ModuleAdmin extends Module {
             }
         }
         if ($nResult == 0) {
-            $this->CheckDuplicateTopicsUrl();
+            // нужно ли проверять ссылки на дубликаты
+            $iOnDuplicateUrl = Config::Val('module.topic.on_duplicate_url', 1);
+            if ($iOnDuplicateUrl) {
+                $this->CheckDuplicateTopicsUrl();
+            }
         } else {
             $nResult = $this->GetNumTopicsWithoutUrl();
         }
@@ -293,6 +436,7 @@ class ModuleAdmin extends Module {
      * @return bool
      */
     public function CheckDuplicateTopicsUrl() {
+
         $aData = $this->oMapper->GetDuplicateTopicsUrl();
         if ($aData) {
             $aUrls = array();
@@ -316,6 +460,53 @@ class ModuleAdmin extends Module {
         }
         return true;
     }
+
+    /**
+     * @param   int|object $oUserId
+     *
+     * @return  bool
+     */
+    public function DelUser($oUserId) {
+
+        if (is_object($oUserId)) {
+            $nUserId = $oUserId->getId();
+        } else {
+            $nUserId = intval($oUserId);
+        }
+
+        // Удаляем блоги
+        $aBlogsId = E::ModuleBlog()->GetBlogsByOwnerId($nUserId, true);
+        if ($aBlogsId) {
+            E::ModuleBlog()->DeleteBlog($aBlogsId);
+        }
+        $oBlog = E::ModuleBlog()->GetPersonalBlogByUserId($nUserId);
+        if ($oBlog) {
+            E::ModuleBlog()->DeleteBlog($oBlog->getId());
+        }
+
+        // Удаляем переписку
+        $iPerPage = 10000;
+        do {
+            $aTalks = E::ModuleTalk()->GetTalksByFilter(array('user_id' => $nUserId), 1, $iPerPage);
+            if ($aTalks['count']) {
+                $aTalksId = array();
+                foreach ($aTalks['collection'] as $oTalk) {
+                    $aTalksId[] = $oTalk->getId();
+                }
+                if ($aTalksId) {
+                    E::ModuleTalk()->DeleteTalkUserByArray($aTalksId, $nUserId);
+                }
+            }
+        } while ($aTalks['count'] > $iPerPage);
+
+        $bOk = $this->oMapper->DelUser($nUserId);
+
+        // Слишком много взаимосвязей, поэтому просто сбрасываем кеш
+        E::ModuleCache()->Clean();
+
+        return $bOk;
+    }
+
 
 }
 

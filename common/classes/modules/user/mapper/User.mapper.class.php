@@ -43,7 +43,7 @@ class ModuleUser_MapperUser extends Mapper {
 		";
         $nUserId = $this->oDb->query(
             $sql, $oUser->getLogin(), $oUser->getPassword(), $oUser->getMail(), $oUser->getDateRegister(),
-            $oUser->getIpRegister(), $oUser->getActivate(), $oUser->getActivateKey()
+            $oUser->getIpRegister(), $oUser->getActivate(), $oUser->getActivationKey()
         );
         return $nUserId ? $nUserId : false;
     }
@@ -99,7 +99,7 @@ class ModuleUser_MapperUser extends Mapper {
             $oUser->getRating(),
             $oUser->getCountVote(),
             $oUser->getActivate(),
-            $oUser->getActivateKey(),
+            $oUser->getActivationKey(),
             $oUser->getProfileName(),
             $oUser->getProfileSex(),
             $oUser->getProfileCountry(),
@@ -156,26 +156,54 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function CreateSession(ModuleUser_EntitySession $oSession) {
 
-        $sql
-            = "REPLACE INTO ?_session
-			SET
-				session_key = ? ,
-				user_id = ?d ,
-				session_ip_create = ? ,
-				session_ip_last = ? ,
-				session_date_create = ? ,
-				session_date_last = ? ,
-				session_agent_hash = ?
-		";
-        $bResult = $this->oDb->query(
+        $sql = "SELECT session_key FROM ?_session WHERE session_key=? LIMIT 1";
+        if ($this->oDb->select($sql, $oSession->getKey())) {
+            $sql
+                = "UPDATE ?_session
+                    SET
+                        user_id = ?d:user_id ,
+                        session_ip_create = ?:ip_create ,
+                        session_ip_last = ?:ip_last ,
+                        session_date_create = ?:date_create ,
+                        session_date_last = ?:date_last ,
+                        session_agent_hash = ?:agent_hash
+                    WHERE
+                        session_key = ?:key
+            ";
+        } else {
+            $sql
+                = "INSERT INTO ?_session
+                    (
+                        session_key,
+                        user_id,
+                        session_ip_create,
+                        session_ip_last,
+                        session_date_create,
+                        session_date_last,
+                        session_agent_hash
+                    )
+                    VALUES (
+                        ?:key ,
+                        ?d:user_id ,
+                        ?:ip_create ,
+                        ?:ip_last ,
+                        ?:date_create ,
+                        ?:date_last ,
+                        ?:agent_hash
+                    )
+            ";
+        }
+        $bResult = $this->oDb->sqlQuery(
             $sql,
-            $oSession->getKey(),
-            $oSession->getUserId(),
-            $oSession->getIpCreate(),
-            $oSession->getIpLast(),
-            $oSession->getDateCreate(),
-            $oSession->getDateLast(),
-            $oSession->getUserAgentHash()
+            array(
+                 ':key'         => $oSession->getKey(),
+                 ':user_id'     => $oSession->getUserId(),
+                 ':ip_create'   => $oSession->getIpCreate(),
+                 ':ip_last'     => $oSession->getIpLast(),
+                 ':date_create' => $oSession->getDateCreate(),
+                 ':date_last'   => $oSession->getDateLast(),
+                 ':agent_hash'  => $oSession->getUserAgentHash()
+            )
         );
         return ($bResult !== false);
     }
@@ -212,6 +240,7 @@ class ModuleUser_MapperUser extends Mapper {
             ";
             $this->oDb->query($sql, $nUserId, $sDate);
         }
+        return true;
     }
 
     /**
@@ -238,6 +267,25 @@ class ModuleUser_MapperUser extends Mapper {
     }
 
     /**
+     * Close session of user
+     *
+     * @param $oSession
+     *
+     * @return bool
+     */
+    public function CloseSession($oSession) {
+
+        $sql
+            = "
+            UPDATE ?_session
+            SET
+                session_exit = ?
+            WHERE session_key = ? AND (session_exit IS NULL OR session_exit = '')
+            ";
+        return ($this->oDb->query($sql, F::Now(), $oSession->getSessionKey()) !== false);
+    }
+
+    /**
      * Closes all sessions of specifier user
      *
      * @param   object|int $oUser
@@ -257,79 +305,95 @@ class ModuleUser_MapperUser extends Mapper {
             UPDATE ?_session
             SET
                 session_exit = ?
-            WHERE user_id = ?
+            WHERE user_id = ? AND (session_exit IS NULL OR session_exit = '')
             ";
         return ($this->oDb->query($sql, F::Now(), $nUserId) !== false);
     }
 
     /**
-     * Список сессий юзеров по ID
+     * Return list of session by user ID and (optionally) by session ID
      *
-     * @param   array $aArrayId    Список ID пользователей
+     * @param array  $aUserId     Список ID пользователей
+     * @param string $sSessionKey Список ID пользователей
      *
-     * @return  array
+     * @return ModuleUser_EntitySession[]
      */
-    public function GetSessionsByArrayId($aArrayId) {
+    public function GetSessionsByArrayId($aUserId, $sSessionKey = null) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aUserId) || count($aUserId) == 0) {
             return array();
         }
 
+        if ($sSessionKey) {
+            $iLimit = count($aUserId) * 2;
+        } else {
+            $iLimit = count($aUserId);
+        }
         $sql
             = "
             SELECT
 				s.*
 			FROM
-			    ?_user as u
-				INNER JOIN ?_session as s ON s.session_key=u.user_last_session
+			    ?_session AS s
+				INNER JOIN ?_user AS u ON s.user_id=u.user_id
 			WHERE
-				u.user_id IN(?a)
-			LIMIT " . count($aArrayId) . "
+				s.user_id IN(?a)
+				{AND s.session_key=u.user_last_session AND 1=?d}
+				{AND s.session_key=?}
+			LIMIT " . $iLimit . "
 			";
-        $aRes = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId)) {
-            foreach ($aRows as $aRow) {
-                $aRes[] = Engine::GetEntity('User_Session', $aRow);
-            }
+        $aResult = array();
+        $aRows = $this->oDb->select($sql,
+            $aUserId,
+            !$sSessionKey ? 1 : DBSIMPLE_SKIP,
+            $sSessionKey ? $sSessionKey : DBSIMPLE_SKIP);
+        if ($aRows) {
+            $aResult = E::GetEntityRows('User_Session', $aRows);
         }
-        return $aRes;
+        return $aResult;
     }
 
     /**
      * Список юзеров по ID
      *
-     * @param array $aArrayId Список ID пользователей
+     * @param array $aUsersId Список ID пользователей
      *
      * @return array
      */
-    public function GetUsersByArrayId($aArrayId) {
+    public function GetUsersByArrayId($aUsersId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aUsersId) || count($aUsersId) == 0) {
             return array();
         }
 
         $sql
             = "
             SELECT
+                u.user_id AS ARRAY_KEY,
 				u.*,
-				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
-				ab.banline, ab.banunlim, ab.banactive
+				ab.banline, ab.banunlim, ab.banactive, ab.bancomment
 			FROM
 				?_user as u
-				LEFT JOIN ?_user_administrator AS ua ON u.user_id=ua.user_id
 				LEFT JOIN ?_adminban AS ab ON u.user_id=ab.user_id AND ab.banactive=1
 			WHERE
 				u.user_id IN(?a)
-			ORDER BY FIELD(u.user_id,?a)
-			LIMIT " . count($aArrayId) . "
+			LIMIT ?d
 			";
         $aUsers = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
-            foreach ($aRows as $aUser) {
-                $aUsers[] = Engine::GetEntity('User', $aUser);
-            }
+        if ($aRows = $this->oDb->select($sql, $aUsersId, count($aUsersId))) {
+            $aUsers = E::GetEntityRows('User', $aRows, $aUsersId);
         }
         return $aUsers;
+    }
+
+    /**
+     * LS-compatibility
+     * @deprecated
+     * @see GetUserByActivationKey()
+     */
+    public function GetUserByActivateKey($sKey) {
+
+        return $this->GetUserByActivationKey($sKey);
     }
 
     /**
@@ -339,7 +403,7 @@ class ModuleUser_MapperUser extends Mapper {
      *
      * @return int|null
      */
-    public function GetUserByActivateKey($sKey) {
+    public function GetUserByActivationKey($sKey) {
 
         $sql
             = "
@@ -426,28 +490,35 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получить список юзеров по дате последнего визита
      *
-     * @param int $iLimit Количество
+     * @param int $iLimit
+     * @param bool|null $bSessionExit
+     * @param string|null $sSessionTime
      *
      * @return array
      */
-    public function GetUsersByDateLast($iLimit) {
+    public function GetUsersByDateLast($iLimit, $bSessionExit = null, $sSessionTime = null) {
 
         $sql
-            = "SELECT
-			user_id
+            = "SELECT u.user_id
 			FROM
-				?_session
+			    ?_user AS u
+				INNER JOIN ?_session AS s
+				  ON s.session_key = u.user_last_session
+				  {AND session_exit IS ?}
+				  {AND session_exit IS NOT ?}
+				  {AND session_date_last >= ?}
 			ORDER BY
-				session_date_last DESC
+				s.session_date_last DESC
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
-        return $aReturn;
+        $aResult = $this->oDb->selectCol(
+            $sql,
+            ($bSessionExit === false) ? NULL : DBSIMPLE_SKIP,
+            ($bSessionExit === true) ? NULL : DBSIMPLE_SKIP,
+            $sSessionTime ? $sSessionTime : DBSIMPLE_SKIP,
+            $iLimit
+        );
+        return $aResult ? $aResult : array();
     }
 
     /**
@@ -470,30 +541,36 @@ class ModuleUser_MapperUser extends Mapper {
 				user_id DESC
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
-        return $aReturn;
+        $aResult = $this->oDb->selectCol($sql, $iLimit);
+        return $aResult ? $aResult : array();
     }
+
+//    /**
+//     * Возвращает общее количество пользователй
+//     *
+//     * @return int
+//     */
+//    public function GetCountUsers() {
+
+//        $sql = "SELECT count(*) as count FROM ?_user";
+//        return $this->oDb->selectCell($sql);
+//    }
+
+//    public function GetCountAdmins() {
+
+//        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
+//        return $this->oDb->selectCell($sql);
+//    }
 
     /**
-     * Возвращает общее количество пользователй
-     *
-     * @return int
+     * Возвращает количество пользователей по роли
+     * @param $iRole
      */
-    public function GetCountUsers() {
+    public function GetCountByRole($iRole) {
 
-        $sql = "SELECT count(*) as count FROM ?_user";
-        return $this->oDb->selectCell($sql);
-    }
+        $sql = "SELECT count(user_id) as count FROM ?_user WHERE user_role & ?d";
+        return $this->oDb->selectCell($sql, $iRole);
 
-    public function GetCountAdmins() {
-
-        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
-        return $this->oDb->selectCell($sql);
     }
 
     /**
@@ -544,13 +621,8 @@ class ModuleUser_MapperUser extends Mapper {
 				user_login LIKE ?
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $sUserLogin . '%', $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
-        return $aReturn;
+        $aResult = $this->oDb->selectCol($sql, $sUserLogin . '%', $iLimit);
+        return $aResult ? $aResult : array();
     }
 
     /**
@@ -670,7 +742,7 @@ class ModuleUser_MapperUser extends Mapper {
         if ($aRows) {
             foreach ($aRows as $aRow) {
                 $aRow['user'] = $nUserId;
-                $aRes[] = Engine::GetEntity('User_Friend', $aRow);
+                $aRes[] = E::GetEntity('User_Friend', $aRow);
             }
         }
         return $aRes;
@@ -849,7 +921,7 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = "SELECT * FROM ?_invite WHERE invite_code = ? AND invite_used = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode, $iUsed)) {
-            return Engine::GetEntity('User_Invite', $aRow);
+            return E::GetEntity('User_Invite', $aRow);
         }
         return null;
     }
@@ -986,20 +1058,39 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddReminder(ModuleUser_EntityReminder $oReminder) {
 
-        $sql
-            = "REPLACE ?_reminder
-			SET
-				reminder_code = ? ,
-				user_id = ? ,
-				reminder_date_add = ? ,
-				reminder_date_used = ? ,
-				reminder_date_expire = ? ,
-				reminde_is_used = ?
-		";
-        return $this->oDb->query(
-            $sql, $oReminder->getCode(), $oReminder->getUserId(), $oReminder->getDateAdd(), $oReminder->getDateUsed(),
-            $oReminder->getDateExpire(), $oReminder->getIsUsed()
+        $sql = "
+            DELETE FROM ?_reminder WHERE reminder_code=? OR user_id=?d
+        ";
+        $this->oDb->query($sql, $oReminder->getCode(), $oReminder->getUserId());
+        $sql = "
+            INSERT INTO ?_reminder
+            (
+                reminder_code,
+                user_id,
+                reminder_date_add,
+                reminder_date_used,
+                reminder_date_expire,
+                reminde_is_used
+            )
+            VALUES (
+                ? ,
+                ? ,
+                ? ,
+                ? ,
+                ? ,
+                ?
+            )
+        ";
+        $xResult = $this->oDb->query(
+            $sql,
+            $oReminder->getCode(),
+            $oReminder->getUserId(),
+            $oReminder->getDateAdd(),
+            $oReminder->getDateUsed(),
+            $oReminder->getDateExpire(),
+            $oReminder->getIsUsed()
         );
+        return $xResult !== false;
     }
 
     /**
@@ -1033,7 +1124,7 @@ class ModuleUser_MapperUser extends Mapper {
 				LIMIT 1
 				";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('User_Reminder', $aRow);
+            return E::GetEntity('User_Reminder', $aRow);
         }
         return null;
     }
@@ -1057,7 +1148,7 @@ class ModuleUser_MapperUser extends Mapper {
         }
         $aResult = array();
         foreach ($aFields as $aField) {
-            $aResult[$aField['id']] = Engine::GetEntity('User_Field', $aField);
+            $aResult[$aField['id']] = E::GetEntity('User_Field', $aField);
         }
         return $aResult;
     }
@@ -1100,7 +1191,7 @@ class ModuleUser_MapperUser extends Mapper {
         }
         /*
          * Если запрашиваем без типа, то необходимо вернуть ВСЕ возможные поля с этим типом,
-         * в не звависимости, указал ли их пользователь у себя в профили или нет
+         * в не звависимости, указал ли их пользователь у себя в профиле или нет
          * Выглядит костыльно
          */
         if (is_array($aType) && count($aType) == 1 && $aType[0] == '') {
@@ -1127,7 +1218,7 @@ class ModuleUser_MapperUser extends Mapper {
                 if ($bOnlyNoEmpty && !$aRow['value']) {
                     continue;
                 }
-                $aResult[] = Engine::GetEntity('User_Field', $aRow);
+                $aResult[] = E::GetEntity('User_Field', $aRow);
             }
         }
         return $aResult;
@@ -1152,7 +1243,7 @@ class ModuleUser_MapperUser extends Mapper {
             $aRow = $this->oDb->selectRow($sql, $nUserId, $iId);
             $iCount = isset($aRow['c']) ? $aRow['c'] : 0;
             if ($iCount < $iCountMax) {
-                $sql = "INSERT INTO ?_user_field_value SET value = ?, user_id = ?d, field_id = ?";
+                $sql = "INSERT INTO ?_user_field_value(value, user_id, field_id) VALUES (?, ?d, ?)";
             } elseif ($iCount == $iCountMax && $iCount == 1) {
                 $sql = "UPDATE ?_user_field_value SET value = ? WHERE user_id = ?d AND field_id = ?";
             } else {
@@ -1174,15 +1265,23 @@ class ModuleUser_MapperUser extends Mapper {
         $sql
             = "
             INSERT INTO ?_user_field
-            SET
-                name = ?,
-                title = ?,
-                pattern = ?,
-                type = ?";
+            (
+                name,
+                title,
+                pattern,
+                type
+            )
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?
+            )
+            ";
         $xResult = $this->oDb->query(
             $sql, $oField->getName(), $oField->getTitle(), $oField->getPattern(), $oField->getType()
         );
-        return $xResult !== false;
+        return $xResult ? $xResult : false;
     }
 
     /**
@@ -1312,13 +1411,11 @@ class ModuleUser_MapperUser extends Mapper {
 				user_id = ?d
 			ORDER BY id DESC
 			LIMIT ?d, ?d ";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('ModuleUser_EntityNote', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -1354,7 +1451,7 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = "SELECT * FROM ?_user_note WHERE target_user_id = ?d AND user_id = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $iTargetUserId, $iUserId)) {
-            return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
+            return E::GetEntity('ModuleUser_EntityNote', $aRow);
         }
         return null;
     }
@@ -1375,7 +1472,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $iId)) {
-            return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
+            return E::GetEntity('ModuleUser_EntityNote', $aRow);
         }
         return null;
     }
@@ -1401,13 +1498,11 @@ class ModuleUser_MapperUser extends Mapper {
 				WHERE target_user_id IN (?a) AND user_id = ?d
 				";
         $aRows = $this->oDb->select($sql, $aArrayId, $nUserId);
-        $aRes = array();
+        $aResult = array();
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aRes[] = Engine::GetEntity('ModuleUser_EntityNote', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
-        return $aRes;
+        return $aResult;
     }
 
     /**
@@ -1432,11 +1527,9 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddUserNote($oNote) {
 
-        $sql = "INSERT INTO ?_user_note SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oNote->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_user_note(?#) VALUES(?a)";
+        $iId = $this->oDb->query($sql, $oNote->getKeyProps(), $oNote->getValProps());
+        return $iId ? $iId : false;
     }
 
     /**
@@ -1467,11 +1560,9 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddUserChangemail($oChangemail) {
 
-        $sql = "INSERT INTO ?_user_changemail SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oChangemail->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_user_changemail(?#) VALUES (?a)";
+        $iId = $this->oDb->query($sql, $oChangemail->getKeyProps(), $oChangemail->getValProps());
+        return $iId ? $iId : false;
     }
 
     /**
@@ -1514,7 +1605,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
+            return E::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
         return null;
     }
@@ -1535,7 +1626,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
+            return E::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
         return null;
     }
@@ -1588,7 +1679,7 @@ class ModuleUser_MapperUser extends Mapper {
 					u.user_id
 				FROM
 					?_user AS u
-				    LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
+				    -- LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
 				WHERE
 					1 = 1
 					{ AND u.user_id = ?d }
@@ -1602,8 +1693,11 @@ class ModuleUser_MapperUser extends Mapper {
 					{ AND user_login IN (?a) }
 					{ AND user_date_register LIKE ? }
 					{ AND user_profile_name LIKE ? }
-					{ AND NOT a.user_id IS NULL AND ?d > -1}
-					{ AND a.user_id IS NULL AND ?d > -1}
+					{ AND user_role & ?d}
+					{ AND user_role & ~ ?d}
+					{ AND user_role & ?d}
+					{ AND user_role & ~ ?d}
+					{ AND user_role & ?d}
 				ORDER by {$sOrder}
 				LIMIT ?d, ?d ;
 					";
@@ -1622,8 +1716,11 @@ class ModuleUser_MapperUser extends Mapper {
             (isset($aFilter['login']) && is_array($aFilter['login'])) ? $aFilter['login'] : DBSIMPLE_SKIP,
             (isset($aFilter['regdate']) && $aFilter['regdate']) ? $aFilter['regdate'] : DBSIMPLE_SKIP,
             isset($aFilter['profile_name']) ? $aFilter['profile_name'] : DBSIMPLE_SKIP,
-            (isset($aFilter['admin']) && $aFilter['admin']) ? $aFilter['admin'] : DBSIMPLE_SKIP,
-            (isset($aFilter['admin']) && !$aFilter['admin']) ? $aFilter['admin'] : DBSIMPLE_SKIP,
+            (isset($aFilter['admin']) && $aFilter['admin']) ? ModuleUser::USER_ROLE_ADMINISTRATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['admin']) && !$aFilter['admin']) ? ModuleUser::USER_ROLE_ADMINISTRATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['moderator']) && $aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['moderator']) && !$aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['role']) && $aFilter['role']) ? $aFilter['role'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
@@ -1652,13 +1749,37 @@ class ModuleUser_MapperUser extends Mapper {
 				user_activate = 1
 			GROUP BY prefix
 			ORDER BY prefix ";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $iPrefixLength)) {
             foreach ($aRows as $aRow) {
-                $aReturn[] = mb_strtoupper($aRow['prefix'], 'utf-8');
+                $aResult[] = mb_strtoupper($aRow['prefix'], 'utf-8');
             }
         }
-        return $aReturn;
+        return $aResult;
+    }
+
+    /**
+     * issue 258 {@link https://github.com/altocms/altocms/issues/258}
+     * Проверяет забанен ли пользователь или нет
+     *
+     * @param $sIp
+     * @return bool
+     */
+    public function IpIsBanned($sIp) {
+
+        $sql = "SELECT id FROM ?_adminips WHERE
+                    INET_ATON(?) >= ip1 AND INET_ATON(?) <= ip2
+                    AND banactive = ?d
+                    AND banline > ?";
+
+        $aRows = $this->oDb->select($sql, $sIp, $sIp, 1, date('Y-m-d H:i:s'));
+
+        if ($aRows) {
+            return TRUE;
+        }
+
+        return FALSE;
+
     }
 
 }

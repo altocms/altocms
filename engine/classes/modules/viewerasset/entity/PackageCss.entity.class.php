@@ -38,10 +38,10 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
         if (Config::Get('compress.css.use')) {
             F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
-            // * Получаем параметры из конфигурации
             $this->oCompressor = new csstidy();
 
             if ($this->oCompressor) {
+                // * Получаем параметры из конфигурации
                 $aParams = Config::Get('compress.css.csstidy');
                 // * Устанавливаем параметры
                 foreach ($aParams as $sKey => $sVal) {
@@ -59,8 +59,35 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
     public function Compress($sContents) {
 
+        /*
+        $nErrorReporting = F::ErrorIgnored(E_NOTICE, true);
         $this->oCompressor->parse($sContents);
         $sContents = $this->oCompressor->print->plain();
+        F::ErrorReporting($nErrorReporting);
+        */
+
+        $nErrorReporting = F::ErrorIgnored(E_NOTICE, true);
+        if (strpos($sContents, $this->sMarker)) {
+            $oCompressor = $this->oCompressor;
+            $sContents = preg_replace_callback(
+                '|\/\*\[' . preg_quote($this->sMarker) . '\s(?P<file>[\w\-\.\/]+)\sbegin\]\*\/(?P<content>.+)\/\*\[' . preg_quote($this->sMarker) . '\send\]\*\/\s*|sU',
+                function($aMatches) use($oCompressor) {
+                    if (substr($aMatches['file'], -8) != '.min.css') {
+                        $oCompressor->parse($aMatches['content']);
+                        $sResult = $oCompressor->print->plain();
+                    } else {
+                        $sResult = $aMatches['content'];
+                    }
+                    return $sResult;
+                },
+                $sContents
+            );
+        } else {
+            $this->oCompressor->parse($sContents);
+            $sContents = $this->oCompressor->print->plain();
+        }
+        F::ErrorReporting($nErrorReporting);
+
         return $sContents;
     }
 
@@ -82,22 +109,39 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         if ($this->aFiles) {
             $this->InitCompressor();
         }
-        parent::PreProcess();
+        return parent::PreProcess();
+    }
+
+    public function BuildLink($aLink) {
+
+        if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
+            $aLink['link'] = $aLink['link']
+                . ((isset($_SERVER['HTTP_ACCEPT_ENCODING']) && stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'GZIP') !== FALSE) ? '.gz.css' : '');
+        }
+
+        return parent::BuildLink($aLink);
+
     }
 
     public function Process() {
 
+        $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
-            if (isset($aLinkData['compress']) && $aLinkData['compress']) {
-                $sFile = $aLinkData['file'];
-                $sExtension = 'min.' . F::File_GetExtension($sFile);
-                $sCompressedFile = F::File_SetExtension($sFile, $sExtension);
+            if (empty($aLinkData['throw']) && !empty($aLinkData['compress'])) {
+                $sAssetFile = $aLinkData['asset_file'];
+                $sExtension = 'min.' . F::File_GetExtension($sAssetFile);
+                $sCompressedFile = F::File_SetExtension($sAssetFile, $sExtension);
                 if (!$this->CheckDestination($sCompressedFile)) {
-                    if (($sContents = F::File_GetContents($sFile))) {
+                    if (($sContents = F::File_GetContents($sAssetFile))) {
                         $sContents = $this->Compress($sContents);
                         if (F::File_PutContents($sCompressedFile, $sContents)) {
-                            F::File_Delete($sFile);
+                            F::File_Delete($sAssetFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                            if (C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
+                                // Сохраним gzip
+                                $sCompressedContent = gzencode($sContents, 9);
+                                F::File_PutContents($sCompressedFile . '.gz.css', $sCompressedContent);
+                            }
                         }
                     }
                 } else {
@@ -105,6 +149,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 }
             }
         }
+        return $bResult;
     }
 
     public function PrepareFile($sFile, $sDestination) {
@@ -117,20 +162,28 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
             }
         }
         F::SysWarning('Can not prepare asset file "' . $sFile . '"');
+        return null;
     }
 
     public function PrepareContents($sContents, $sSource) {
 
         if ($sContents) {
             $sContents = $this->_convertUrlsInCss($sContents, dirname($sSource) . '/');
+            if (C::Get('compress.css.use')) {
+                $sFile = F::File_LocalDir($sSource);
+                $sContents = '/*[' . $this->sMarker . ' ' . $sFile . ' begin]*/' . PHP_EOL
+                    . $sContents
+                    . PHP_EOL . '/*[' . $this->sMarker . ' end]*/' . PHP_EOL;
+            }
         }
+
         return $sContents;
     }
 
     protected function _convertUrlsInCss($sContent, $sSourceDir) {
 
         // Есть ли в файле URLs
-        if (!preg_match_all('/(?<src>src:)?url\((?<url>.*?)\)/is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
+        if (!preg_match_all('/(?P<src>src:)?url\((?P<url>.*?)\)/is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
             return $sContent;
         }
 
@@ -151,20 +204,25 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 continue;
             }
 
-            if ($n = strpos($sPath, '?')) {
+            if (($n = strpos($sPath, '?')) || ($n = strpos($sPath, '#'))) {
                 $sPath = substr($sPath, 0, $n);
                 $sFileParam = substr($sPath, $n);
             } else {
                 $sFileParam = '';
             }
-            $sRealPath = realpath($sSourceDir . $sPath);
-            $sDestination = $this->Viewer_GetAssetDir() . $this->_crc(dirname($sRealPath)) . '/' . basename($sRealPath);
-            $aUrls[$sPath] = array(
-                'source'      => $sRealPath,
-                'destination' => $sDestination,
-                'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
-            );
-            F::File_Copy($sRealPath, $sDestination);
+            if (!isset($aUrls[$sPath])) {
+                // if url didn't prepare...
+                $sRealPath = realpath($sSourceDir . $sPath);
+                if ($sRealPath) {
+                    $sDestination = F::File_GetAssetDir() . F::Crc32(dirname($sRealPath), true) . '/' . basename($sRealPath);
+                    $aUrls[$sPath] = array(
+                        'source'      => $sRealPath,
+                        'destination' => $sDestination,
+                        'url'         => E::ModuleViewerAsset()->AssetFileDir2Url($sDestination) . $sFileParam,
+                    );
+                    F::File_Copy($sRealPath, $sDestination);
+                }
+            }
         }
         if ($aUrls) {
             $sContent = str_replace(array_keys($aUrls), F::Array_Column($aUrls, 'url'), $sContent);

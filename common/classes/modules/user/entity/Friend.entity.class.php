@@ -24,7 +24,7 @@ class ModuleUser_EntityFriend extends Entity {
      * При переданном параметре $sUserId возвращает тот идентификатор,
      * который не равен переданному
      *
-     * @param string|null $sUserId    ID пользователя
+     * @param string|null $sUserId ID пользователя
      *
      * @return string
      */
@@ -106,7 +106,7 @@ class ModuleUser_EntityFriend extends Entity {
     /**
      * Возвращает статус дружбы для конкретного пользователя
      *
-     * @param int $sUserId    ID пользователя
+     * @param int $sUserId ID пользователя
      *
      * @return bool|int
      */
@@ -174,8 +174,8 @@ class ModuleUser_EntityFriend extends Entity {
     /**
      * Возвращает статус дружбы для конкретного пользователя
      *
-     * @param int $data       Статус
-     * @param int $sUserId    ID пользователя
+     * @param int $data    Статус
+     * @param int $sUserId ID пользователя
      *
      * @return bool
      */
@@ -190,6 +190,72 @@ class ModuleUser_EntityFriend extends Entity {
             return true;
         }
         return false;
+    }
+
+    /**
+     * User is real friend
+     *
+     * @return bool
+     */
+    public function isFriend() {
+
+        return ($this->getFriendStatus() == ModuleUser::USER_FRIEND_ACCEPT + ModuleUser::USER_FRIEND_OFFER) OR
+        ($this->getFriendStatus() == ModuleUser::USER_FRIEND_ACCEPT + ModuleUser::USER_FRIEND_ACCEPT);
+    }
+
+    /**
+     * Wait for acception of friendship's request
+     *
+     * @return bool
+     */
+    public function AcceptionWait() {
+
+        return ($this->getStatusTo() == ModuleUser::USER_FRIEND_REJECT AND
+            $this->getStatusFrom() == ModuleUser::USER_FRIEND_OFFER AND $this->getUserTo() == E::UserId()) OR
+        ($this->getFriendStatus() == ModuleUser::USER_FRIEND_OFFER + ModuleUser::USER_FRIEND_NULL AND
+            $this->getUserTo() == E::UserId());
+    }
+
+    /**
+     * Friendship's request was sent
+     *
+     * @return bool
+     */
+    public function RequestSent() {
+
+        return ($this->getFriendStatus() == ModuleUser::USER_FRIEND_OFFER + ModuleUser::USER_FRIEND_NULL) AND
+        ($this->getUserFrom() == E::UserId());
+    }
+
+    /**
+     * Friendship's request was rejected
+     *
+     * @return bool
+     */
+    public function RequestRejected() {
+
+        return ($this->getFriendStatus() == ModuleUser::USER_FRIEND_OFFER + ModuleUser::USER_FRIEND_REJECT) AND
+        ($this->getUserTo() != E::UserId());
+    }
+
+    /**
+     * Friendship was cancelled
+     *
+     * @return bool
+     */
+    public function isCancelled() {
+
+        return ($this->getStatusFrom() == ModuleUser::USER_FRIEND_DELETE) AND ($this->getUserFrom() != E::UserId());
+    }
+
+    /**
+     * User was deleted from friends list
+     *
+     * @return bool
+     */
+    public function isDeleted() {
+
+        return ($this->getStatusFrom() == ModuleUser::USER_FRIEND_DELETE) AND ($this->getUserFrom() == E::UserId());
     }
 }
 

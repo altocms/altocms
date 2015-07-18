@@ -14,11 +14,12 @@
  */
 
 /**
- * Плагин для Smarty
- * Работа с группой виджетов
+ * Plugin for Smarty
+ * Display widget group
  *
- * @param   array $aParams
+ * @param   array                    $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
@@ -36,10 +37,10 @@ function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
     $sWidgetGroup = $aParams['group'];
-    $aWidgets = Engine::getInstance()->Viewer_GetWidgets();
+    $aWidgets = E::ModuleViewer()->GetWidgets();
 
     $sResult = '';
     if (isset($aWidgets[$sWidgetGroup])) {

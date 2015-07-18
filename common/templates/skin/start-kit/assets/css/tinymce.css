@@ -1,0 +1,14 @@
+/* TinyMCE Content
+---------------------------------------------------- */
+
+body {
+    font-family: Verdana, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 20pt;
+}
+img {
+    max-width: 100%;
+}
+.mce-pagebreak {
+    width: 99%;
+}

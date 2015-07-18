@@ -31,6 +31,10 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected $oCompressor;
 
+    protected $aMapDir = array();
+
+    protected $sMarker;
+
     public function __construct($aParams = array()) {
 
         if (isset($aParams['out_type'])) {
@@ -43,18 +47,34 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $this->bMerge = (bool)Config::Get('compress.' . $this->sOutType . '.merge');
             $this->bCompress = (bool)Config::Get('compress.' . $this->sOutType . '.use');
         }
+        $this->sMarker = uniqid('alto-asset-marker-', true);
     }
 
+    /**
+     * @param string $sDir
+     *
+     * @return string
+     */
+    protected function _makeSubdir($sDir) {
+
+        if (!isset($this->aMapDir[$sDir])) {
+            $s=F::Crc32($sDir, true);
+            $this->aMapDir[$sDir] = F::Crc32($sDir, true);
+        }
+        return $this->aMapDir[$sDir];
+    }
+
+    /**
+     * Initialization
+     */
     public function Init() {
 
         $this->aHtmlLinkParams = array();
     }
 
-    protected function _crc($sPath) {
-
-        return str_pad(dechex(F::Crc32($sPath)), 8, '0', STR_PAD_LEFT);
-    }
-
+    /**
+     * @return string
+     */
     public function GetHash() {
 
         return $this->sAssetType . '-' . md5(serialize($this->aFiles));
@@ -63,14 +83,14 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Добавляет ссылку в набор
      *
-     * @param       $sOutType
-     * @param       $sLink
-     * @param array $aParams
+     * @param string $sOutType
+     * @param string $sLink
+     * @param array  $aParams
      */
     public function AddLink($sOutType, $sLink, $aParams = array()) {
 
         if ($sOutType != $this->sOutType) {
-            $this->ViewerAsset_AddLink('*', $sLink, $aParams);
+            E::ModuleViewerAsset()->AddLinksToAssets('*', array($sLink => $aParams));
         } else {
             $this->aLinks[] = array_merge($aParams, array('link' => $sLink));
         }
@@ -79,9 +99,9 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Сжатие контента
      *
-     * @param $sContents
+     * @param string $sContents
      *
-     * @return mixed
+     * @return string
      */
     public function Compress($sContents) {
 
@@ -91,10 +111,10 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Обработка файла
      *
-     * @param $sFile
-     * @param $sDestination
+     * @param string $sFile
+     * @param string $sDestination
      *
-     * @return mixed
+     * @return string
      */
     public function PrepareFile($sFile, $sDestination) {
 
@@ -104,8 +124,8 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Обработка контента
      *
-     * @param $sContents
-     * @param $sSource
+     * @param string $sContents
+     * @param string $sSource
      *
      * @return string
      */
@@ -117,29 +137,40 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Создание ресурса из одиночного файла
      *
-     * @param $sAsset
-     * @param $aFileParams
+     * @param string $sAsset
+     * @param array  $aFileParams
      *
      * @return bool
      */
     public function MakeSingle($sAsset, $aFileParams) {
 
         $sFile = $aFileParams['file'];
-        if ($aFileParams['merge']) {
-            $sSubdir = $this->_crc($sAsset . dirname($sFile));
+        if (isset($aFileParams['dir_from'])) {
+            $sLocalPath = F::File_LocalPath(dirname($sFile), $aFileParams['dir_from']);
+            $sDir = $aFileParams['dir_from'];
         } else {
-            $sSubdir = $this->_crc(dirname($sFile));
+            $sLocalPath = '';
+            $sDir = dirname($sFile);
         }
-        $sDestination = $this->Viewer_GetAssetDir() . $sSubdir . '/' . basename($sFile);
+        if ($aFileParams['merge']) {
+            $sSubdir = $this->_makeSubdir($sAsset . $sDir);
+        } else {
+            $sSubdir = $this->_makeSubdir($sDir);
+        }
+        if ($sLocalPath) {
+            $sSubdir .= '/' . $sLocalPath;
+        }
+        $sDestination = F::File_GetAssetDir() . $sSubdir . '/' . basename($sFile);
+        $aFileParams['asset_file'] = $sDestination;
         if (!$this->CheckDestination($sDestination)) {
             if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
-                $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+                $this->AddLink($aFileParams['info']['extension'], E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aFileParams);
             } else {
                 F::SysWarning('Can not prepare asset file "' . $sFile . '"');
                 return false;
             }
         } else {
-            $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+            $this->AddLink($aFileParams['info']['extension'], E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aFileParams);
         }
         return true;
     }
@@ -147,20 +178,20 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Создание ресурса из множества файлов
      *
-     * @param $sAsset
-     * @param $aFiles
+     * @param string $sAsset
+     * @param array  $aFiles
      *
      * @return bool
      */
     public function MakeMerge($sAsset, $aFiles) {
 
-        $sDestination = $this->Viewer_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
+        $sDestination = F::File_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
         if (!$this->CheckDestination($sDestination)) {
             $sContents = '';
-            $bCompress = true;
+            $bCompress = $this->bCompress;
             $bPrepare = null;
             foreach ($aFiles as $aFileParams) {
-                $sFileContents = F::File_GetContents($aFileParams['file']);
+                $sFileContents = trim(F::File_GetContents($aFileParams['file']));
                 $sContents .= $this->PrepareContents($sFileContents, $aFileParams['file']) . PHP_EOL;
                 if (isset($aFileParams['compress'])) {
                     $bCompress = $bCompress && (bool)$aFileParams['compress'];
@@ -174,10 +205,11 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $aParams = array(
                     'file' => $sDestination,
                     'asset' => $sAsset,
+                    'asset_file' => $sDestination,
                     'compress' => $bCompress,
                     'prepare' => is_null($bPrepare) ? false : $bPrepare,
                 );
-                $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
+                $this->AddLink($this->sOutType, E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aParams);
             } else {
                 F::SysWarning('Can not write asset file "' . $sDestination . '"');
                 return false;
@@ -186,10 +218,11 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $aParams = array(
                 'file' => $sDestination,
                 'asset' => $sAsset,
+                'asset_file' => $sDestination,
                 'compress' => $this->bCompress,
                 'prepare' => false,
             );
-            $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
+            $this->AddLink($this->sOutType, E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aParams);
         }
         return true;
     }
@@ -197,7 +230,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     /**
      * Проверка итогового файла назначения
      *
-     * @param $sDestination
+     * @param string $sDestination
      *
      * @return bool
      */
@@ -218,6 +251,8 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      * Препроцессинг
      */
     public function PreProcess() {
+
+        $bResult = true;
 
         // Создаем окончательные наборы, сливая prepend и append
         $this->aAssets = array();
@@ -246,8 +281,8 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 // Одиночный файл
                 $aFileParams = array_shift($aFiles);
                 if ($aFileParams['throw']) {
-                    // Throws without prepare
-                    $this->AddLink($aFileParams['info']['extension'], $aFileParams['file'], $aFileParams);
+                    // Throws without prepare (e.c. external links)
+                    $this->AddLink($this->sOutType, $aFileParams['file'], $aFileParams);
                 } else {
                     // Prepares single file
                     $this->MakeSingle($sAsset, $aFileParams);
@@ -257,16 +292,37 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $this->MakeMerge($sAsset, $aFiles);
             }
         }
+
+        return $bResult;
     }
 
+    /**
+     * Processing of asset package
+     *
+     * @return bool
+     */
     public function Process() {
 
+        return true;
     }
 
+    /**
+     * Postprocessing of asset package
+     *
+     * @return bool
+     */
     public function PostProcess() {
 
+        return true;
     }
 
+    /**
+     * @param string $sFileName
+     * @param array  $aFileParams
+     * @param string $sAssetName
+     *
+     * @return array
+     */
     protected function _prepareParams($sFileName, $aFileParams, $sAssetName) {
 
         // Проверка набора параметров файла
@@ -295,7 +351,12 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $aFileParams['merge'] = true;
         }
         if (!isset($aFileParams['compress'])) {
-            $aFileParams['compress'] = $this->bCompress;
+            // Dont need to minify minified files
+            if (substr($aFileParams['info']['filename'], -4) == '.min') {
+                //$aFileParams['compress'] = false;
+            } else {
+                $aFileParams['compress'] = $this->bCompress;
+            }
         }
         if ($this->bMerge && $aFileParams['merge']) {
             // Определяем имя набора
@@ -327,8 +388,20 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return $aFileParams;
     }
 
-    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = false) {
+    /**
+     * @param string $sFileName
+     * @param array  $aFileParams
+     * @param string $sAssetName
+     * @param bool   $bPrepend
+     * @param bool   $bReplace
+     *
+     * @return int
+     */
+    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            $bReplace = (isset($aFileParams['replace']) ? (bool)$aFileParams['replace'] : false);
+        }
         $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
         $sName = $aFileParams['name'];
         $sAssetName = $aFileParams['asset'];
@@ -358,13 +431,22 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return 1;
     }
 
-    public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = false) {
+    /**
+     * @param array  $aFiles
+     * @param string $sAssetName
+     * @param bool   $bPrepend
+     * @param bool   $bReplace
+     */
+    public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = null) {
 
         foreach ($aFiles as $sName => $aFileParams) {
             $this->_add($sName, $aFileParams, $sAssetName, $bPrepend, $bReplace);
         }
     }
 
+    /**
+     * @param string $sAssetName
+     */
     public function Clear($sAssetName = null) {
 
         if ($sAssetName) {
@@ -376,6 +458,10 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
+    /**
+     * @param array  $aFiles
+     * @param string $sAssetName
+     */
     public function Exclude($aFiles, $sAssetName = null) {
 
         foreach ($aFiles as $sFileName => $aFileParams) {
@@ -392,12 +478,28 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
+    /**
+     * @param int $nStage
+     *
+     * @return bool
+     */
     protected function _stageBegin($nStage) {
 
-        $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
+        $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
+
         if ($aCheckFiles = glob($sFile . '.{1,2,3}.begin.tmp', GLOB_BRACE)) {
-            return false;
-        } elseif (($nStage == 2) && ($aCheckFiles = glob($sFile . '.{2,3}.end.tmp', GLOB_BRACE))) {
+            $sCheckFile = reset($aCheckFiles);
+            // check time of tmp file
+            $nTime = filectime($sCheckFile);
+            if (!$nTime) {
+                $nTime = F::File_GetContents($sCheckFile);
+            }
+            if (time() < $nTime + ModuleViewerAsset::TMP_TIME) {
+                return false;
+            }
+        }
+
+        if (($nStage == 2) && ($aCheckFiles = glob($sFile . '.{2,3}.end.tmp', GLOB_BRACE))) {
             return false;
         } elseif (($nStage == 3) && F::File_Exists($sFile . '.3.end.tmp')) {
             return false;
@@ -405,9 +507,13 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', time());
     }
 
+    /**
+     * @param int  $nStage
+     * @param bool $bFinal
+     */
     protected function _stageEnd($nStage, $bFinal = false) {
 
-        $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
+        $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
         F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time());
         for ($n = 1; $n <= $nStage; $n++) {
             F::File_Delete($sFile . '.' . $n . '.begin.tmp');
@@ -417,36 +523,57 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
+    /**
+     * @return bool
+     */
     public function PreProcessBegin() {
 
         return $this->_stageBegin('1');
     }
 
+    /**
+     *
+     */
     public function PreProcessEnd() {
 
         return $this->_stageEnd('1');
     }
 
+    /**
+     * @return bool
+     */
     public function ProcessBegin() {
 
         return $this->_stageBegin('2');
     }
 
+    /**
+     *
+     */
     public function ProcessEnd() {
 
         return $this->_stageEnd('2');
     }
 
+    /**
+     * @return bool
+     */
     public function PostProcessBegin() {
 
         return $this->_stageBegin('3');
     }
 
+    /**
+     *
+     */
     public function PostProcessEnd() {
 
         return $this->_stageEnd('3', true);
     }
 
+    /**
+     *
+     */
     public function Prepare() {
 
         if ($this->PreProcessBegin()) {
@@ -463,14 +590,20 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
-    public function GetLinks($bPreparedOnly = null) {
+    /**
+     * @param string $bPreparedOnly
+     * @param bool   $bSkipWithoutName
+     *
+     * @return array
+     */
+    public function GetLinks($bPreparedOnly = null, $bSkipWithoutName = false) {
 
         if (is_null($bPreparedOnly)) {
             return $this->aLinks;
         } else {
             $aResult = array();
             foreach ($this->aLinks as $sIdx => $aLinkData) {
-                if ($aLinkData['prepare'] == (bool)$bPreparedOnly) {
+                if (($aLinkData['prepare'] == (bool)$bPreparedOnly) && (!$bSkipWithoutName || $aLinkData['file'] != $aLinkData['name'])) {
                     $aResult[$sIdx] = $aLinkData;
                 }
             }
@@ -478,11 +611,19 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
+    /**
+     * @return array
+     */
     public function GetBrowserLinks() {
 
         return $this->aBrowserLinks;
     }
 
+    /**
+     * @param array $aLink
+     *
+     * @return string
+     */
     public function BuildLink($aLink) {
 
         $sResult = '<' . $this->aHtmlLinkParams['tag'] . ' ';
@@ -504,9 +645,15 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return $sResult;
     }
 
-    public function GetLinksArray($bPreparedOnly = null) {
+    /**
+     * @param bool $bPreparedOnly
+     * @param bool $bSkipWithoutName
+     *
+     * @return array
+     */
+    public function GetLinksArray($bPreparedOnly = null, $bSkipWithoutName = false) {
 
-        $aLinks = $this->GetLinks($bPreparedOnly);
+        $aLinks = $this->GetLinks($bPreparedOnly, $bSkipWithoutName);
         $aResult = array();
         foreach($aLinks as $aLinkData) {
             $aResult[$this->sOutType][$aLinkData['name']] = $aLinkData['link'];
@@ -514,6 +661,11 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return $aResult;
     }
 
+    /**
+     * @param bool $bPreparedOnly
+     *
+     * @return array
+     */
     public function BuildHtmlLinks($bPreparedOnly = false) {
 
         $aResult = array();

@@ -30,15 +30,15 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      */
     public function AddSubscribe($oSubscribe) {
 
-        $sql = "INSERT INTO ?_subscribe SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oSubscribe->_getData())) {
+        $sql = "INSERT INTO ?_subscribe(?#) VALUES(?a)";
+        if ($iId = $this->oDb->query($sql, $oSubscribe->getKeyProps(), $oSubscribe->getValProps())) {
             return $iId;
         }
         return false;
     }
 
     /**
-     * Получение подписки по типы и емайлу
+     * Получение подписки по типу и емейлу
      *
      * @param string $sType    Тип
      * @param string $sMail    Емайл
@@ -49,7 +49,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
 
         $sql = "SELECT * FROM ?_subscribe WHERE target_type = ? AND mail = ?";
         if ($aRow = $this->oDb->selectRow($sql, $sType, $sMail)) {
-            return Engine::GetEntity('Subscribe', $aRow);
+            return E::GetEntity('Subscribe', $aRow);
         }
         return null;
     }
@@ -144,7 +144,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
-        if ($aRows = $this->oDb->selectPage(
+        $aRows = $this->oDb->selectPage(
             $iCount, $sql,
             isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
             isset($aFilter['target_id']) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
@@ -154,11 +154,9 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
             isset($aFilter['key']) ? $aFilter['key'] : DBSIMPLE_SKIP,
             isset($aFilter['status']) ? $aFilter['status'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('Subscribe', $aRow);
-            }
+        );
+        if ($aRows) {
+            $aResult = E::GetEntityRows('Subscribe', $aRows);
         }
         return $aResult;
     }
@@ -173,11 +171,9 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      */
     public function AddTrack($oTrack) {
 
-        $sql = "INSERT INTO ?_track SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oTrack->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_track (?#) VALUES (?a) ";
+        $iId = $this->oDb->query($sql, $oTrack->getKeyProps(), $oTrack->getValProps());
+        return $iId ? $iId : false;
     }
 
     /**
@@ -252,7 +248,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
 					                         ?_topic as t
 					                  WHERE   t.topic_id = trc.target_id
 					                  AND t.topic_id = tr.topic_id
-					                  AND (t.topic_count_comment - tr.comment_count_last) > 0
+					                  AND (t.topic_count_comment > tr.comment_count_last)
 					                  AND  tr.user_id = trc.user_id
 					                  ) }
 				ORDER by {$sOrder}
@@ -272,9 +268,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleSubscribe_EntityTrack', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleSubscribe_EntityTrack', $aRows);
         }
         return $aResult;
     }

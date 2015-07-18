@@ -8,7 +8,37 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleMresource_EntityMresource
+ *
+ * @method setUserId(int)
+ * @method setTargetId(int)
+ * @method setLink(string)
+ * @method setHashFile(string)
+ * @method setHashUrl(string)
+ * @method setPathFile(string)
+ * @method setPathUrl(string)
+ * @method setType(int)
+ * @method setStorage(string)
+ *
+ * @method int getUserId()
+ * @method int getTargetId()
+ * @method string getLink()
+ * @method string getHashFile()
+ * @method string getHashUrl()
+ * @method string getPathFile()
+ * @method string getPathUrl()
+ * @method int getType()
+ * @method string getStorage()
+ */
 class ModuleMresource_EntityMresource extends Entity {
+
+    /**
+     * Массив параметров ресурса
+     *
+     * @var array
+     */
+    protected $aParams = null;
 
     public function __construct($aParam = null) {
 
@@ -63,6 +93,21 @@ class ModuleMresource_EntityMresource extends Entity {
         return $this->IsType(ModuleMresource::TYPE_IMAGE);
     }
 
+    /**
+     * Checks if resource is image
+     *
+     * @return bool
+     */
+    public function IsGraphicFile() {
+
+        return $this->IsType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO | ModuleMresource::TYPE_PHOTO_PRIMARY);
+    }
+
+    /**
+     * Checks if resource can be deleted
+     *
+     * @return bool
+     */
     public function CanDelete() {
 
         return (bool)$this->getProp('candelete');
@@ -133,7 +178,7 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns ID of media resource
      *
-     * @return mixed|null
+     * @return string|null
      */
     public function GetId() {
 
@@ -143,7 +188,7 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns full url to media resource
      *
-     * @return mixed
+     * @return string
      */
     public function GetUrl() {
 
@@ -157,7 +202,7 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns full dir path to media resource
      *
-     * @return mixed
+     * @return string
      */
     public function GetFile() {
 
@@ -168,12 +213,17 @@ class ModuleMresource_EntityMresource extends Entity {
         return $sPathFile;
     }
 
+    /**
+     * Returns uniq ID of mresource
+     *
+     * @return string
+     */
     public function GetUuid() {
 
         $sResult = $this->getProp('uuid');
         if (!$sResult) {
             if ($this->GetStorage() == 'file') {
-                $sResult = str_pad($this->GetUserId(), 8, '0', STR_PAD_LEFT) . '-' . $this->GetHashFile();
+                $sResult = ModuleMresource::CreateUuid($this->GetStorage(), $this->GetPathFile(), $this->GetHashFile(), $this->GetUserId());
             } elseif (!$this->GetStorage()) {
                 $sResult = $this->GetHashUrl();
             }
@@ -182,6 +232,11 @@ class ModuleMresource_EntityMresource extends Entity {
         return $sResult;
     }
 
+    /**
+     * Returns storage name and uniq ID of mresource
+     *
+     * @return string
+     */
     public function GetStorageUuid() {
 
         return '[' . $this->getStorage() . ']' . $this->GetUuid();
@@ -198,7 +253,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sHashFile = null;
         }
         if ($sPathUrl = $this->GetPathUrl()) {
-            $sHashUrl = $this->Mresource_CalcUrlHash($sPathUrl);
+            $sHashUrl = E::ModuleMresource()->CalcUrlHash($sPathUrl);
         } else {
             $sHashUrl = null;
         }
@@ -206,51 +261,112 @@ class ModuleMresource_EntityMresource extends Entity {
         $this->SetHashFile($sHashFile);
     }
 
+    /**
+     * Returns hash of mresoutce
+     *
+     * @return string
+     */
     public function GetHash() {
 
         return $this->GetHashUrl();
     }
 
-    public function GetImgUrl($xSize) {
+    /**
+     * Checks if mresource local image and its derived from another image
+     *
+     * @return bool
+     */
+    public function isDerivedImage() {
 
-        $sPropKey = '-img-url-' . $xSize;
-        $sUrl = $this->getProp($sPropKey);
-        if ($sUrl) {
+        return $this->GetHash() !== $this->GetOriginalHash();
+    }
+
+    /**
+     * Returns original image path (if mresoutce is local image)
+     *
+     * @return string
+     */
+    public function GetOriginalPathUrl() {
+
+        $sPropKey = '-original-url';
+        if (!$this->isProp($sPropKey)) {
+            $sUrl = $this->GetPathUrl();
+            if (!$this->IsLink() && $this->IsImage() && $sUrl) {
+                $aOptions = array();
+                $sOriginal = E::ModuleImg()->OriginalFile($sUrl, $aOptions);
+                if ($sOriginal !== $sUrl) {
+                    $sUrl = $sOriginal;
+                }
+            }
+            $this->setProp($sPropKey, $sUrl);
+        }
+        return $this->getProp($sPropKey);
+    }
+
+    /**
+     * Returns hash of original local image
+     * If mresource isn't a local image then returns ordinary hash
+     *
+     * @return string
+     */
+    public function GetOriginalHash() {
+
+        $sPropKey = '-original-hash';
+        if (!$this->isProp($sPropKey)) {
+            $sHash = $this->GetHash();
+            if (($sPathUrl = $this->GetPathUrl()) && ($sOriginalUrl = $this->GetOriginalPathUrl())) {
+                if ($sOriginalUrl !== $sPathUrl) {
+                    $sHash = E::ModuleMresource()->CalcUrlHash($sOriginalUrl);
+                }
+            }
+            $this->setProp($sPropKey, $sHash);
+        }
+        return $this->getProp($sPropKey);
+    }
+
+    /**
+     * Returns image URL with requested size
+     *
+     * @param string|int $xSize
+     *
+     * @return string
+     */
+    public function GetImgUrl($xSize = null) {
+
+        $sUrl = $this->GetUrl();
+        if (!$xSize) {
             return $sUrl;
         }
 
-        if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE)) {
-            if (is_string($xSize)) {
-                $xSize = strtolower($xSize);
-                $aSize = explode('x', $xSize);
-                if (count($aSize) > 1) {
-                    $nW = array_shift($aSize);
-                    $nH = array_shift($aSize);
-                } else {
-                    $nW = array_shift($aSize);
-                    $nH = $nW;
+        $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
+
+        $sPropKey = '_img-url-' . ($sModSuffix ? $sModSuffix : $xSize);
+        $sResultUrl = $this->getProp($sPropKey);
+        if ($sResultUrl) {
+            return $sResultUrl;
+        }
+
+        if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO)) {
+            if (F::File_IsLocalUrl($sUrl) && $sModSuffix) {
+                $sUrl = $sUrl . $sModSuffix;
+                if (Config::Get('module.image.autoresize')) {
+                    $sFile = E::ModuleUploader()->Url2Dir($sUrl);
+                    if (!F::File_Exists($sFile)) {
+                        E::ModuleImg()->Duplicate($sFile);
+                    }
                 }
-            } else {
-                $nW = $nH = intval($xSize);
             }
-            $sUrl = $this->GetUrl();
-            if ($nW || $nH) {
-                if ($nW) {
-                    $nW = $nH;
-                }
-                if ($nH) {
-                    $nH = $nW;
-                }
-                $sUrl .= '-' . $nW . 'x' . $nH . '.' . F::File_GetExtension($sUrl);
-            }
-        } else {
-            $sUrl = $this->GetUrl();
         }
         $this->setProp($sPropKey, $sUrl);
 
         return $sUrl;
     }
 
+    /**
+     * Check if current mresource exists in storage
+     *
+     * @return bool
+     */
     public function Exists() {
 
         if ($this->GetStorage() == 'file') {
@@ -258,9 +374,106 @@ class ModuleMresource_EntityMresource extends Entity {
         } else {
             $sCheckUuid = $this->GetStorageUuid();
         }
-        return $this->Uploader_Exists($sCheckUuid);
+        return E::ModuleUploader()->Exists($sCheckUuid);
     }
 
+    public function getWebPath($xSize=FALSE) {
+
+        $sUrl = str_replace('@', Config::Get('path.root.web'), $this->getPathUrl());
+
+        if (!$xSize) {
+            return $sUrl;
+        }
+
+        return E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+
+    }
+
+    /**
+     * Возвращает сериализованную строку дополнительных данных ресурса
+     *
+     * @return string
+     */
+    public function getParams() {
+
+        $sResult = $this->getProp('params');
+        return !is_null($sResult) ? $sResult : serialize('');
+    }
+
+    /**
+     * Устанавливает сериализованную строчку дополнительных данных
+     *
+     * @param string $data
+     */
+    public function setParams($data) {
+
+        $this->setProp('params', serialize($data));
+    }
+
+    /**
+     * Получает описание ресурса
+     *
+     * @return mixed|null
+     */
+    public function getDescription() {
+        return $this->getParamValue('description');
+    }
+
+    /**
+     * Устанавливает описание ресурса
+     * @param $sValue
+     */
+    public function setDescription($sValue) {
+        $this->setParamValue('description', $sValue);
+    }
+
+
+    public function IsCover() {
+        return $this->getType() == ModuleMresource::TYPE_PHOTO_PRIMARY;
+    }
+    /* ****************************************************************************************************************
+ * методы расширения типов топика
+ * ****************************************************************************************************************
+ */
+
+    /**
+     * Извлекает сериализованные данные топика
+     */
+    protected function extractParams() {
+
+        if (is_null($this->aParams)) {
+            $this->aParams = @unserialize($this->getParams());
+        }
+    }
+
+    /**
+     * Устанавливает значение нужного параметра
+     *
+     * @param string $sName    Название параметра/данных
+     * @param mixed  $data     Данные
+     */
+    protected function setParamValue($sName, $data) {
+
+        $this->extractParams();
+        $this->aParams[$sName] = $data;
+        $this->setParams($this->aParams);
+    }
+
+    /**
+     * Извлекает значение параметра
+     *
+     * @param string $sName    Название параметра
+     *
+     * @return null|mixed
+     */
+    protected function getParamValue($sName) {
+
+        $this->extractParams();
+        if (isset($this->aParams[$sName])) {
+            return $this->aParams[$sName];
+        }
+        return null;
+    }
 }
 
 // EOF

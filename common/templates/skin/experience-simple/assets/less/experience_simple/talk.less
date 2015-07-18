@@ -1,0 +1,66 @@
+@import "mixins";
+@import "../bootstrap/mixins";
+
+
+.user-toggle-publication-block {
+    margin-top: 24px;
+    a {
+        width: 100%;
+    }
+}
+
+.table-talk {
+    table-layout: fixed;
+    td {
+        width: auto;
+    }
+    .cell-checkbox {
+        padding-top: 12px;
+        width: 40px;
+        text-align: left;
+    }
+    .cell-favourite {
+        padding-top: 14px;
+        width: 40px;
+        text-align: center;
+    }
+    .table-talk-addressee, .cell-recipients {
+        vertical-align: middle;
+        width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .table-talk-content {
+        vertical-align: middle;
+
+        & > div {
+            //max-width: 300px;
+            width: 100%;
+            .sized();
+        }
+    }
+    .cell-recipients {
+        //max-width: 120px;
+    }
+    .table-talk-count {
+        vertical-align: middle;
+        width: 64px;
+        text-align: right;
+    }
+    .cell-date {
+        width: 120px;
+        vertical-align: middle;
+    }
+    .date {
+        color: @dark-blue !important;
+        font-size: @panel-font-size - 1;
+    }
+    .time {
+        font-size: @panel-font-size - 1;
+        color: @blue !important;
+    }
+    .new-talk {
+        background-color: @light-gray;
+    }
+
+}

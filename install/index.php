@@ -16,6 +16,7 @@
 error_reporting(E_ALL);
 
 define('ALTO_NO_LOADER', 1);
+define('ALTO_INSTALL', 1);
 define('ALTO_DIR', dirname(dirname(__FILE__)));
 
 require_once(ALTO_DIR . '/engine/loader.php');
@@ -73,7 +74,7 @@ class Install {
      *
      * @var array
      */
-    protected $aSteps = array(0 => 'Start', 1 => 'Db', 2 => 'Admin', 3 => 'End', 4 => 'Extend', 5 => 'Finish');
+    protected $aSteps = array(0 => 'Start', 1 => 'Db', 2 => 'Admin', 3 => 'End', 4 => 'Finish');
 
     /**
      * Шаги в обычном режиме инсталляции
@@ -95,6 +96,13 @@ class Install {
      * @var array
      */
     protected $aMessages = array();
+
+    /**
+     * Массив ошибок
+     *
+     * @var array
+     */
+    protected $aErrors = array();
 
     /**
      * Директория с шаблонами
@@ -134,8 +142,6 @@ class Install {
      */
     protected $aValidEnv
         = array(
-            //'safe_mode' => array('0', 'off', ''),
-            'register_globals' => array('0', 'off', ''),
             'allow_url_fopen'  => array('1', 'on'),
             'UTF8_support'     => '1',
             'http_input'       => array('', 'pass'),
@@ -186,6 +192,8 @@ class Install {
      */
     protected $aLang = array();
 
+    protected $bSkipAdmin = false;
+
     /**
      * Инициализация основных настроек
      *
@@ -197,9 +205,8 @@ class Install {
         $this->sLangDir = ALTO_DIR . '/common/templates/language';
 
         $this->sLangDefault = $this->SelectDefaultLang($this->sLangDefault);
-        /**
-         * Загружаем языковые файлы
-         */
+
+        // * Загружаем языковые файлы
         $this->LoadLanguageFile($this->sLangDefault);
         if ($sLang = $this->GetRequest('lang')) {
             $this->sLangCurrent = $sLang;
@@ -207,9 +214,7 @@ class Install {
                 $this->LoadLanguageFile($this->sLangCurrent);
             }
         }
-        /**
-         * Передаем языковые тикеты во вьювер
-         */
+        // * Передаем языковые тикеты во вьювер
         foreach ($this->aLang as $sKey => $sItem) {
             $this->Assign("lang_{$sKey}", $sItem);
         }
@@ -217,20 +222,20 @@ class Install {
 
     protected function SelectDefaultLang($sLangDefault) {
 
-        $aClentLang = array();
+        $aClientLang = array();
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && ($list = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']))) {
             if (preg_match_all('/([a-z]{1,8}(?:-[a-z]{1,8})?)(?:;q=([0-9.]+))?/', $list, $list)) {
-                $aClentLang = array_combine($list[1], $list[2]);
-                foreach ($aClentLang as $n => $v) {
-                    $aClentLang[$n] = $v ? $v : 1;
+                $aClientLang = array_combine($list[1], $list[2]);
+                foreach ($aClientLang as $n => $v) {
+                    $aClientLang[$n] = $v ? $v : 1;
                 }
-                arsort($aClentLang, SORT_NUMERIC);
+                arsort($aClientLang, SORT_NUMERIC);
             }
         }
-        if ($aClentLang) {
-            foreach (array_keys($aClentLang) as $sClentLang) {
-                if (in_array($sClentLang, $this->aLangAvailable)) {
-                    return $sClentLang;
+        if ($aClientLang) {
+            foreach (array_keys($aClientLang) as $sClientLang) {
+                if (in_array($sClientLang, $this->aLangAvailable)) {
+                    return $sClientLang;
                 }
             }
         }
@@ -386,20 +391,16 @@ class Install {
      *
      * @param  string $sTemplate
      *
-     * @return null
+     * @return bool
      */
     protected function Layout($sTemplate) {
 
         if (!$sLayoutContent = $this->Fetch($sTemplate)) {
             return false;
         }
-        /**
-         * Рендерим сообщения по списку
-         */
+        // * Рендерим сообщения по списку
         if (count($this->aMessages)) {
-            /**
-             * Уникализируем содержимое списка сообщений
-             */
+            // * Уникализируем содержимое списка сообщений
             $aMessages = array();
             foreach ($this->aMessages as &$sMessage) {
                 if (array_key_exists('type', $sMessage) && array_key_exists('text', $sMessage)) {
@@ -421,6 +422,8 @@ class Install {
 
         $this->Assign('content', $sLayoutContent);
         print $this->Fetch('layout.tpl');
+
+        return true;
     }
 
     /**
@@ -433,14 +436,19 @@ class Install {
      * @return bool
      */
     protected function SaveConfig($sName, $sVar, $sPath) {
+
         if (!file_exists($sPath)) {
-            $this->aMessages[] = array('type' => 'error',
-                                       'text' => $this->Lang('config_file_not_exists', array('path' => $sPath)));
+            $this->aMessages[] = array(
+                'type' => 'error',
+                'text' => $this->Lang('config_file_not_exists', array('path' => $sPath)),
+            );
             return false;
         }
         if (!is_writeable($sPath)) {
-            $this->aMessages[] = array('type' => 'error',
-                                       'text' => $this->Lang('config_file_not_writable', array('path' => $sPath)));
+            $this->aMessages[] = array(
+                'type' => 'error',
+                'text' => $this->Lang('config_file_not_writable', array('path' => $sPath)),
+            );
             return false;
         }
 
@@ -448,12 +456,9 @@ class Install {
         $sName = '$config[\'' . implode('\'][\'', explode('.', $sName)) . '\']';
         $sVar = $this->ConvertToString($sVar);
 
-        /**
-         * Если переменная уже определена в конфиге,
-         * то меняем значение.
-         */
+        // * Если переменная уже определена в конфиге, то меняем значение.
         if (substr_count($sConfig, $sName)) {
-            $sConfig = preg_replace('~' . preg_quote($sName) . '.+;~Ui', $sName . ' = ' . $sVar . ';', $sConfig);
+            $sConfig = preg_replace('~([\n\r]+)' . preg_quote($sName) . '.+;~Ui', '$1' . $sName . ' = ' . $sVar . ';', $sConfig, 1);
         } else {
             $sConfig = str_replace(
                 'return $config;',
@@ -472,6 +477,7 @@ class Install {
      * @return string
      */
     protected function ConvertToString($mVar) {
+
         switch (true) {
             case is_string($mVar):
                 return "'" . addslashes($mVar) . "'";
@@ -495,25 +501,24 @@ class Install {
     /**
      * Получает значение переданных параметров
      *
-     * @param      $sName
-     * @param null $default
-     * @param null $bSession
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param bool   $bSession
      *
      * @return mixed|null|string
      */
-    protected function GetRequest($sName, $default = null, $bSession = null) {
+    protected function GetRequest($sName, $xDefault = null, $bSession = null) {
+
         if (array_key_exists($sName, $_REQUEST)) {
             $sResult = (is_string($_REQUEST[$sName]))
                 ? trim(stripslashes($_REQUEST[$sName]))
                 : $_REQUEST[$sName];
         } else {
             $sResult = ($bSession == self::GET_VAR_FROM_SESSION)
-                ? $this->GetSessionVar($sName, $default)
-                : $default;
+                ? $this->GetSessionVar($sName, $xDefault)
+                : $xDefault;
         }
-        /**
-         * При необходимости сохраняем в сессию
-         */
+        // * При необходимости сохраняем в сессию
         if ($bSession == self::SET_VAR_IN_SESSION) {
             $this->SetSessionVar($sName, $sResult);
         }
@@ -524,6 +529,8 @@ class Install {
     /**
      * Функция отвечающая за проверку входных параметров
      * и передающая управление на фукнцию текущего шага
+     *
+     * @param string $sStepName
      *
      * @call $this->Step{__Name__}
      */
@@ -540,9 +547,8 @@ class Install {
         }
 
         $iKey = array_search($sStepName, $this->aSteps);
-        /**
-         * Если была нажата кнопка "Назад", перемещаемся на шаг назад
-         */
+
+        // * Если была нажата кнопка "Назад", перемещаемся на шаг назад
         if ($this->GetRequest('install_step_prev') && $iKey != 0) {
             $sStepName = $this->aSteps[--$iKey];
             $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, $sStepName);
@@ -551,20 +557,16 @@ class Install {
         $this->Assign('next_step_display', ($iKey == count($this->aSteps) - 1) ? 'none' : 'inline-block');
         $this->Assign('prev_step_display', ($iKey == 0) ? 'none' : 'inline-block');
 
-        /**
-         * Если шаг отновиться к simple mode, то корректируем количество шагов
-         */
+        // * Если шаг относится к simple mode, то корректируем количество шагов
         if (in_array($sStepName, $this->aSimpleModeSteps)) {
             $this->SetStepCount(count($this->aSimpleModeSteps));
         }
-        /**
-         * Передаем во вьевер данные для формирование таймлайна шагов
-         */
+
+        // * Assign variables for viewer
         $this->Assign('install_step_number', $iKey + 1);
         $this->Assign('install_step_count', is_null($this->iStepCount) ? count($this->aSteps) : $this->iStepCount);
-        /**
-         * Пердаем управление на метод текущего шага
-         */
+
+        // * Go to the current step
         $sFunctionName = 'Step' . $sStepName;
         if (@method_exists($this, $sFunctionName)) {
             $this->$sFunctionName();
@@ -578,14 +580,12 @@ class Install {
     /**
      * Сохраняет данные о текущем шаге и передает их во вьювер
      *
-     * @param $sStepName
-     *
-     * @return null
+     * @param string $sStepName
      */
     protected function SetStep($sStepName) {
 
         if (!$sStepName || !in_array($sStepName, $this->aSteps)) {
-            return null;
+            return;
         }
         $this->Assign('install_step_number', array_search($sStepName, $this->aSteps) + 1);
     }
@@ -606,16 +606,15 @@ class Install {
      */
     protected function StepStart() {
 
-        if (!$this->ValidateEnviroment()) {
+        if (!$this->ValidateEnvironment()) {
             $this->Assign('next_step_disabled', 'disabled');
         } else {
-            /**
-             * Прописываем в конфигурацию абсолютные пути
-             */
+            // * Прописываем в конфигурацию абсолютные пути
             $this->SavePath();
 
             if ($this->GetRequest('install_step_next')) {
-                return $this->Run('Db');
+                $this->Run('Db');
+                return;
             }
         }
         $this->SetStep('Start');
@@ -629,9 +628,8 @@ class Install {
     protected function StepDb() {
 
         if (!$this->GetRequest('install_db_params')) {
-            /**
-             * Получаем данные из сессии (если они туда были вложены на предыдущих итерациях шага)
-             */
+
+            // * Получаем данные из сессии (если они туда были вложены на предыдущих итерациях шага)
             $this->Assign('install_db_server', 'localhost', self::GET_VAR_FROM_SESSION);
             $this->Assign('install_db_port', '3306', self::GET_VAR_FROM_SESSION);
             $this->Assign('install_db_name', 'alto', self::GET_VAR_FROM_SESSION);
@@ -646,17 +644,16 @@ class Install {
             $this->Layout('steps/db.tpl');
             return true;
         }
-        /**
-         * Если переданны данные формы, проверяем их на валидность
-         */
+
+        // * Если переданны данные формы, проверяем их на валидность
         $aParams['server'] = $this->GetRequest('install_db_server', '');
         $aParams['port'] = $this->GetRequest('install_db_port', '');
         $aParams['name'] = $this->GetRequest('install_db_name', '');
         $aParams['user'] = $this->GetRequest('install_db_user', '');
         $aParams['password'] = $this->GetRequest('install_db_password', '');
         $aParams['create'] = $this->GetRequest('install_db_create', 0);
-        $aParams['convert'] = $this->GetRequest('install_db_convert', 0);
-        $aParams['convert_from_10'] = $this->GetRequest('install_db_convert_from_10', 0);
+        $aParams['convert_from_097'] = $this->GetRequest('install_db_convert_from_alto_097', 0);
+        $aParams['convert_to_alto_11'] = $this->GetRequest('install_db_convert_to_alto_11', 0);
         $aParams['convert_to_alto'] = $this->GetRequest('install_db_convert_to_alto', 0);
         $aParams['prefix'] = $this->GetRequest('install_db_prefix', 'prefix_');
         $aParams['engine'] = $this->GetRequest('install_db_engine', 'InnoDB');
@@ -670,21 +667,20 @@ class Install {
             'install_db_create_check', (($aParams['create']) ? 'checked="checked"' : ''), self::SET_VAR_IN_SESSION
         );
         $this->Assign(
-            'install_db_convert_check', (($aParams['convert']) ? 'checked="checked"' : ''), self::SET_VAR_IN_SESSION
-        );
-        $this->Assign(
-            'install_db_convert_from_10_check', (($aParams['convert_from_10']) ? 'checked="checked"' : ''),
+            'install_db_convert_to_alto_check', (($aParams['convert_to_alto']) ? 'checked="checked"' : ''),
             self::SET_VAR_IN_SESSION
         );
         $this->Assign(
-            'install_db_convert_to_alto_check', (($aParams['convert_to_alto']) ? 'checked="checked"' : ''),
+            'install_db_convert_from_alto_097_check', (($aParams['convert_from_097']) ? 'checked="checked"' : ''),
+            self::SET_VAR_IN_SESSION
+        );
+        $this->Assign(
+            'install_db_convert_to_alto_11_check', (($aParams['convert_to_alto_11']) ? 'checked="checked"' : ''),
             self::SET_VAR_IN_SESSION
         );
         $this->Assign('install_db_prefix', $aParams['prefix'], self::SET_VAR_IN_SESSION);
         $this->Assign('install_db_engine', $aParams['engine'], self::SET_VAR_IN_SESSION);
-        /**
-         * Передаем данные о выделенном пункте в списке tables engine
-         */
+        // * Передаем данные о выделенном пункте в списке tables engine
         $this->Assign(
             'install_db_engine_innodb', ($aParams['engine'] == 'InnoDB') ? 'selected="selected"' : '',
             self::SET_VAR_IN_SESSION
@@ -695,10 +691,9 @@ class Install {
         );
 
         if ($oDb = $this->ValidateDBConnection($aParams)) {
-            $bSelect = $this->SelectDatabase($aParams['name'], $aParams['create']);
-            /**
-             * Если не удалось выбрать базу данных, возвращаем ошибку
-             */
+            $bSelect = $this->SelectDatabase($oDb, $aParams['name'], $aParams['create']);
+
+            // * Если не удалось выбрать базу данных, возвращаем ошибку
             if (!$bSelect) {
                 if ($aParams['create']) {
                     $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('error_db_invalid'));
@@ -709,9 +704,7 @@ class Install {
                 return false;
             }
 
-            /**
-             * Сохраняем в config.local.php настройки соединения
-             */
+            // * Сохраняем в config.local.php настройки соединения
             $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
             if (!file_exists($sLocalConfigFile)) {
                 $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('error_local_config_invalid'));
@@ -728,12 +721,11 @@ class Install {
             $this->SaveConfig('db.table.prefix', $aParams['prefix'], $sLocalConfigFile);
 
             if ($aParams['engine'] == 'InnoDB') {
-                /**
-                 * Проверяем поддержку InnoDB в MySQL
-                 */
+
+                // * Проверяем поддержку InnoDB в MySQL
                 $aParams['engine'] = 'MyISAM';
-                if ($aRes = @mysql_query('SHOW ENGINES')) {
-                    while ($aRow = mysql_fetch_assoc($aRes)) {
+                if ($aRes = @mysqli_query($oDb, 'SHOW ENGINES')) {
+                    while ($aRow = mysqli_fetch_assoc($aRes)) {
                         if ($aRow['Engine'] == 'InnoDB' && in_array($aRow['Support'], array('DEFAULT', 'YES'))) {
                             $aParams['engine'] = 'InnoDB';
                         }
@@ -741,81 +733,71 @@ class Install {
                 }
             }
             $this->SaveConfig('db.tables.engine', $aParams['engine'], $sLocalConfigFile);
-            /**
-             * Сохраняем данные в сессию
-             */
+
+            // * Сохраняем данные в сессию
             $this->SetSessionVar('INSTALL_DATABASE_PARAMS', $aParams);
-            /**
-             * Проверяем была ли проведена установка базы в течении сеанса.
-             * Открываем .sql файл и добавляем в базу недостающие таблицы
-             */
-            if ($this->GetSessionVar('INSTALL_DATABASE_DONE', '') != md5(
-                    serialize(array($aParams['server'], $aParams['name']))
-                )
-            ) {
-                /**
-                 * Отдельным файлом запускаем создание GEO-базы
-                 */
-                $aRes = $this->CreateTables('geo_base.sql', array_merge($aParams, array('check_table' => 'geo_city')));
-                if ($aRes) {
-                    list($bResult, $aErrors) = array_values($aRes);
+
+            // * Проверяем была ли проведена установка базы в течении сеанса.
+            // * Открываем .sql файл и добавляем в базу недостающие таблицы
+            if ($this->GetSessionVar('INSTALL_DATABASE_DONE', '') != md5(serialize(array($aParams['server'], $aParams['name'])))) {
+
+                // * Отдельным файлом запускаем создание GEO-базы
+                $bResult = $this->CreateTables($oDb, 'geo_base.sql', array_merge($aParams, array('check_table' => 'geo_city')));
+                if (!$bResult && $this->aErrors) {
+                    foreach ($this->aErrors as $sError) {
+                        $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                    }
+                    $this->Layout('steps/db.tpl');
+                    return false;
+                }
+
+                if (!$aParams['convert_from_097'] && !$aParams['convert_to_alto'] && !$aParams['convert_to_alto_11']) {
+                    $bResult = $this->CreateTables($oDb, 'sql.sql', array_merge($aParams, array('check_table' => 'topic')));
                     if (!$bResult) {
-                        foreach ($aErrors as $sError) {
+                        foreach ($this->aErrors as $sError) {
                             $this->aMessages[] = array('type' => 'error', 'text' => $sError);
                         }
                         $this->Layout('steps/db.tpl');
                         return false;
-                    }
-                }
-
-                if (!$aParams['convert'] && !$aParams['convert_from_10'] && !$aParams['convert_to_alto']) {
-                    $aRes = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
-                    if ($aRes) {
-                        list($bResult, $aErrors) = array_values($aRes);
-                        if (!$bResult) {
-                            foreach ($aErrors as $sError) {
-                                $this->aMessages[] = array('type' => 'error', 'text' => $sError);
-                            }
-                            $this->Layout('steps/db.tpl');
-                            return false;
-                        }
                     } else {
                         return $this->StepAdmin();
                     }
-                } elseif ($aParams['convert']) {
-                    /**
-                     * Если указана конвертация старой базы данных
-                     */
-                    list($bResult, $aErrors) = array_values(
-                        $this->ConvertDatabase('convert_0.5.1_to_1.0.3.sql', $aParams)
-                    );
-                    if (!$bResult) {
-                        foreach ($aErrors as $sError) {
-                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
-                        }
-                        $this->Layout('steps/db.tpl');
-                        return false;
-                    }
-                } elseif ($aParams['convert_from_10']) {
-                    /**
-                     * Если указана конвертация старой базы данных (1.0 -> 1.0.3)
-                     */
-                    list($bResult, $aErrors) = array_values(
-                        $this->ConvertDatabaseFrom10('convert_1.0_to_1.0.3.sql', $aParams)
-                    );
-                    if (!$bResult) {
-                        foreach ($aErrors as $sError) {
-                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
-                        }
-                        $this->Layout('steps/db.tpl');
-                        return false;
-                    }
                 } elseif ($aParams['convert_to_alto']) {
-                    /**
-                     * Если указана конвертация Livestreet 1.0.3 to Alto CMS
-                     */
+
+                    // * Если указана конвертация Livestreet 1.0.3 to Alto CMS
                     list($bResult, $aErrors) = array_values(
-                        $this->ConvertDatabaseToAlto('convert_1.0.3_to_alto.sql', $aParams)
+                        $this->ConvertDatabaseToAlto($oDb, 'convert_1.0.3_to_alto.sql', $aParams)
+                    );
+                    if ($bResult) {
+                        list($bResult, $aErrors) = array_values(
+                            $this->ConvertDatabaseToAlto($oDb, 'convert_1.0_to_1.1.sql', $aParams)
+                        );
+                    }
+                    if (!$bResult) {
+                        foreach ($aErrors as $sError) {
+                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                        }
+                        $this->Layout('steps/db.tpl');
+                        return false;
+                    }
+                } elseif ($aParams['convert_from_097']) {
+
+                    // * Если указана конвертация AltoCMS 0.9.7 в Alto CMS 1.0
+                    list($bResult, $aErrors) = array_values(
+                        $this->ConvertDatabaseToAlto10($oDb, 'convert_0.9.7_to_1.0.sql', $aParams)
+                    );
+                    if (!$bResult) {
+                        foreach ($aErrors as $sError) {
+                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                        }
+                        $this->Layout('steps/db.tpl');
+                        return false;
+                    }
+                } elseif ($aParams['convert_to_alto_11']) {
+
+                    // * Если указана конвертация AltoCMS 1.1 в Alto CMS 1.1
+                    list($bResult, $aErrors) = array_values(
+                        $this->ConvertDatabaseToAlto11($oDb, 'convert_1.0_to_1.1.sql', $aParams)
                     );
                     if (!$bResult) {
                         foreach ($aErrors as $sError) {
@@ -826,14 +808,12 @@ class Install {
                     }
                 }
             }
-            /**
-             * Сохраняем в сессии информацию о том, что преобразование базы данных уже было выполнено.
-             * При этом сохраняем хеш сервера и названия базы данных, для последующего сравнения.
-             */
+
+            // * Сохраняем в сессии информацию о том, что преобразование базы данных уже было выполнено.
+            // * При этом сохраняем хеш сервера и названия базы данных, для последующего сравнения.
             $this->SetSessionVar('INSTALL_DATABASE_DONE', md5(serialize(array($aParams['server'], $aParams['name']))));
-            /**
-             * Передаем управление на следующий шаг
-             */
+
+            // * Передаем управление на следующий шаг
             $this->aMessages[] = array('type' => 'notice', 'text' => $this->Lang('ok_db_created'));
             return $this->StepAdmin();
         } else {
@@ -848,11 +828,11 @@ class Install {
      *
      */
     protected function StepAdmin() {
+
         $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Admin');
         $this->SetStep('Admin');
-        /**
-         * Передаем данные из запроса во вьювер, сохраняя значение в сессии
-         */
+
+        // * Передаем данные из запроса во вьювер, сохраняя значение в сессии
         $this->Assign(
             'install_admin_login', $this->GetRequest('install_admin_login', 'admin', self::GET_VAR_FROM_SESSION),
             self::SET_VAR_IN_SESSION
@@ -862,15 +842,13 @@ class Install {
             $this->GetRequest('install_admin_mail', 'admin@admin.adm', self::GET_VAR_FROM_SESSION),
             self::SET_VAR_IN_SESSION
         );
-        /**
-         * Если данные формы не были отправлены, передаем значения по умолчанию
-         */
+
+        // * Если данные формы не были отправлены, передаем значения по умолчанию
         if (!$this->GetRequest('install_admin_params', false)) {
             return $this->Layout('steps/admin.tpl');
         }
-        /**
-         * Проверяем валидность введенных данных
-         */
+
+        // * Проверяем валидность введенных данных
         list($bResult, $aErrors) = $this->ValidateAdminFields();
         if (!$bResult) {
             foreach ($aErrors as $sError) {
@@ -879,318 +857,75 @@ class Install {
             $this->Layout('steps/admin.tpl');
             return false;
         }
-        $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
 
-        // make and save "salt"
-        $aSalt = array();
-        $this->SaveConfig('security.salt_sess', $aSalt['sess'] = F::RandomStr(64, false), $sLocalConfigFile);
-        $this->SaveConfig('security.salt_pass', $aSalt['pass'] = F::RandomStr(64, false), $sLocalConfigFile);
-        $this->SaveConfig('security.salt_auth', $aSalt['auth'] = F::RandomStr(64, false), $sLocalConfigFile);
-        /**
-         * Подключаемся к базе данных и сохраняем новые данные администратора
-         */
+        // * Подключаемся к базе данных и сохраняем новые данные администратора
         $aParams = $this->GetSessionVar('INSTALL_DATABASE_PARAMS');
-        if (!$this->ValidateDBConnection($aParams)) {
+        $oDb = $this->ValidateDBConnection($aParams);
+        if (!$oDb) {
             $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('error_db_connection_invalid'));
             $this->Layout('steps/admin.tpl');
             return false;
         }
-        $this->SelectDatabase($aParams['name']);
+        $this->SelectDatabase($oDb, $aParams['name']);
 
-        // make salted password
-        $sPass = F::DoSalt($this->GetRequest('install_admin_pass'), $aSalt['pass']);
+        $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
 
-        $bUpdated = $this->UpdateDBUser(
-            $this->GetRequest('install_admin_login'),
-            $sPass,
-            $this->GetRequest('install_admin_mail'),
-            $aParams['prefix']
-        );
-        if (!$bUpdated) {
-            $this->aMessages[] = array(
-                'type' => 'error',
-                'text' => $this->Lang('error_db_saved') . '<br />' . mysql_error()
+        if (!$this->bSkipAdmin) {
+
+            // make and save "salt"
+            $aSalt = array();
+            $this->SaveConfig('security.salt_sess', $aSalt['sess'] = F::RandomStr(64, false), $sLocalConfigFile);
+            $this->SaveConfig('security.salt_pass', $aSalt['pass'] = F::RandomStr(64, false), $sLocalConfigFile);
+            $this->SaveConfig('security.salt_auth', $aSalt['auth'] = F::RandomStr(64, false), $sLocalConfigFile);
+
+            // make salted password
+            $sPass = F::DoSalt($this->GetRequest('install_admin_pass'), $aSalt['pass']);
+
+            $bUpdated = $this->UpdateDBUser(
+                $oDb,
+                $this->GetRequest('install_admin_login'),
+                $sPass,
+                $this->GetRequest('install_admin_mail'),
+                $aParams['prefix']
             );
-            $this->Layout('steps/admin.tpl');
-            return false;
-        }
-        /**
-         * Обновляем данные о пользовательском блоге
-         */
-        $this->UpdateUserBlog('Blog by ' . $this->GetRequest('install_admin_login'), $aParams['prefix']);
+            if (!$bUpdated) {
+                $this->aMessages[] = array(
+                    'type' => 'error',
+                    'text' => $this->Lang('error_db_saved') . '<br />' . mysqli_error($oDb),
+                );
+                $this->Layout('steps/admin.tpl');
+                return false;
+            }
 
-        /**
-         * Передаем управление на следующий шаг
-         */
+            // * Обновляем данные о пользовательском блоге
+            $this->UpdateUserBlog($oDb, 'Blog by ' . $this->GetRequest('install_admin_login'), $aParams['prefix']);
+        }
+
+        // * Передаем управление на следующий шаг
         return $this->StepEnd();
     }
 
     /**
      * Завершающий этап. Переход в расширенный режим
+     *
+     * @return bool
      */
     protected function StepEnd() {
+
         // TODO: Проверка, что эта страница уже выводилась, и усиленно заставить юзера удалить install
         $this->SetStep('End');
         $this->Assign('next_step_display', 'none');
         $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'End');
-        /**
-         * Если пользователь выбрал расширенный режим, переводим на новый шаг
-         */
-        return ($this->GetRequest('install_step_extend'))
-            ? $this->StepExtend()
-            : $this->Layout('steps/end.tpl');
-    }
 
-    /**
-     * Расширенный режим ввода дополнительных настроек.
-     */
-    protected function StepExtend() {
-        /**
-         * Выводим на экран кнопку @Next
-         */
-        $this->Assign('next_step_display', 'inline-block');
-        /**
-         * Сохраняем в сессию название текущего шага
-         */
-        $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Extend');
-        $this->SetStep('Extend');
-        /**
-         * Получаем значения запрашиваемых данных либо устанавливаем принятые по умолчанию
-         */
-        $aParams['install_view_name'] = $this->GetRequest('install_view_name', 'Your Site', self::GET_VAR_FROM_SESSION);
-        $aParams['install_view_description'] = $this->GetRequest(
-            'install_view_description', 'Description your site', self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_view_keywords'] = $this->GetRequest(
-            'install_view_keywords', 'site, google, internet', self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_view_skin'] = $this->GetRequest('install_view_skin', 'synio', self::GET_VAR_FROM_SESSION);
-
-        $aParams['install_mail_sender'] = $this->GetRequest(
-            'install_mail_sender', $this->GetSessionVar('install_admin_mail', 'rus.engine@gmail.com'),
-            self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_mail_name'] = $this->GetRequest(
-            'install_mail_name', 'Почтовик Your Site', self::GET_VAR_FROM_SESSION
-        );
-
-        $aParams['install_general_close'] = (bool)$this->GetRequest(
-            'install_general_close', false, self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_general_invite'] = (bool)$this->GetRequest(
-            'install_general_invite', false, self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_general_active'] = (bool)$this->GetRequest(
-            'install_general_active', false, self::GET_VAR_FROM_SESSION
-        );
-
-        $aParams['install_lang_current'] = $this->GetRequest(
-            'install_lang_current', 'russian', self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_lang_default'] = $this->GetRequest(
-            'install_lang_default', 'russian', self::GET_VAR_FROM_SESSION
-        );
-
-        /**
-         * Передаем параметры во Viewer
-         */
-        foreach ($aParams as $sName => $sParam) {
-            /**
-             * Если передано булево значение, значит это чек-бокс
-             */
-            if (!is_bool($sParam)) {
-                $this->Assign($sName, trim($sParam));
-            } else {
-                $this->Assign($sName . '_check', ($sParam) ? 'checked' : '');
-            }
-        }
-        /**
-         * Передаем во вьевер список доступных языков
-         */
-        $aLangs = $this->GetLangList();
-        $sLangOptions = '';
-        foreach ($aLangs as $sLang) {
-            $this->Assign('language_array_item', $sLang);
-            $this->Assign(
-                'language_array_item_selected',
-                ($aParams['install_lang_current'] == $sLang) ? 'selected="selected"' : ''
-            );
-            $sLangOptions .= $this->FetchString(
-                "<option value='___LANGUAGE_ARRAY_ITEM___' ___LANGUAGE_ARRAY_ITEM_SELECTED___>___LANGUAGE_ARRAY_ITEM___</option>"
-            );
-        }
-        $this->Assign('install_lang_options', $sLangOptions);
-        /**
-         * Передаем во вьевер список доступных языков для дефолтного определения
-         */
-        $sLangOptions = '';
-        foreach ($aLangs as $sLang) {
-            $this->Assign('language_array_item', $sLang);
-            $this->Assign(
-                'language_array_item_selected',
-                ($aParams['install_lang_default'] == $sLang) ? 'selected="selected"' : ''
-            );
-            $sLangOptions .= $this->FetchString(
-                "<option value='___LANGUAGE_ARRAY_ITEM___' ___LANGUAGE_ARRAY_ITEM_SELECTED___>___LANGUAGE_ARRAY_ITEM___</option>"
-            );
-        }
-        $this->Assign('install_lang_default_options', $sLangOptions);
-        /**
-         * Передаем во вьевер список доступных скинов
-         */
-        $aSkins = $this->GetSkinList();
-        $sSkinOptions = '';
-        foreach ($aSkins as $sSkin) {
-            $this->Assign('skin_array_item', $sSkin);
-            $this->Assign(
-                'skin_array_item_selected', ($aParams['install_view_skin'] == $sSkin) ? 'selected="selected"' : ''
-            );
-            $sSkinOptions .= $this->FetchString(
-                "<option value='___SKIN_ARRAY_ITEM___' ___SKIN_ARRAY_ITEM_SELECTED___>___SKIN_ARRAY_ITEM___</option>"
-            );
-        }
-        $this->Assign('install_view_skin_options', $sSkinOptions);
-
-        /**
-         * Если были переданные данные формы, то обрабатываем добавление
-         */
-        if ($this->GetRequest('install_extend_params')) {
-            $bOk = true;
-            $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
-
-            /**
-             * Название сайта
-             */
-            if ($aParams['install_view_name'] && strlen($aParams['install_view_name']) > 2) {
-                if ($this->SaveConfig('view.name', $aParams['install_view_name'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_name', $aParams['install_view_name']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('site_name_invalid'));
-            }
-            /**
-             * Описание сайта
-             */
-            if ($aParams['install_view_description']) {
-                if ($this->SaveConfig('view.description', $aParams['install_view_description'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_description', $aParams['install_view_description']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('site_description_invalid'));
-            }
-            /**
-             * Ключевые слова
-             */
-            if ($aParams['install_view_keywords'] && strlen($aParams['install_view_keywords']) > 2) {
-                if ($this->SaveConfig('view.keywords', $aParams['install_view_keywords'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_keywords', $aParams['install_view_keywords']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('site_keywords_invalid'));
-            }
-            /**
-             * Название шаблона оформления
-             */
-            if ($aParams['install_view_skin'] && strlen($aParams['install_view_skin']) > 1) {
-                if ($this->SaveConfig('view.skin', $aParams['install_view_skin'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_skin', $aParams['install_view_skin']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => 'skin_name_invalid');
-            }
-
-            /**
-             * E-mail, с которого отправляются уведомления
-             */
-            if ($aParams['install_mail_sender'] && strlen($aParams['install_mail_sender']) > 5) {
-                if ($this->SaveConfig('sys.mail.from_email', $aParams['install_mail_sender'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_mail_sender', $aParams['install_mail_sender']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('mail_sender_invalid'));
-            }
-            /**
-             * Имя, от которого отправляются уведомления
-             */
-            if ($aParams['install_mail_name'] && strlen($aParams['install_mail_name']) > 1) {
-                if ($this->SaveConfig('sys.mail.from_name', $aParams['install_mail_name'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_mail_name', $aParams['install_mail_name']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('mail_name_invalid'));
-            }
-
-            /**
-             * Использовать закрытый режим работы сайта
-             */
-            if ($this->SaveConfig('general.close', $aParams['install_general_close'], $sLocalConfigFile)) {
-                $this->SetSessionVar('install_general_close', $aParams['install_general_close']);
-            }
-            /**
-             * Использовать активацию при регистрации
-             */
-            if ($this->SaveConfig('general.reg.activation', $aParams['install_general_active'], $sLocalConfigFile)) {
-                $this->SetSessionVar('install_general_active', $aParams['install_general_active']);
-            }
-            /**
-             * Использоватьт режим регистрации по приглашению
-             */
-            if ($this->SaveConfig('general.reg.invite', $aParams['install_general_invite'], $sLocalConfigFile)) {
-                $this->SetSessionVar('install_general_invite', $aParams['install_general_invite']);
-            }
-
-            /**
-             * Текущий язык
-             */
-            if ($aParams['install_lang_current'] && strlen($aParams['install_lang_current']) > 1) {
-                if ($this->SaveConfig('lang.current', $aParams['install_lang_current'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_lang_current', $aParams['install_lang_current']);
-                    /**
-                     * Если выбран русский язык, то перезаписываем название блога
-                     */
-                    if ($aParams['install_lang_current'] == 'russian') {
-                        $aDbParams = $this->GetSessionVar('INSTALL_DATABASE_PARAMS');
-                        $oDb = $this->ValidateDBConnection($aDbParams);
-
-                        if ($oDb && $this->SelectDatabase($aDbParams['name'])) {
-                            $this->UpdateUserBlog(
-                                'Блог им. ' . $this->GetSessionVar('install_admin_login'), $aDbParams['prefix']
-                            );
-                        }
-                    }
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('lang_current_invalid'));
-            }
-            /**
-             * Язык, который будет использоваться по умолчанию
-             */
-            if ($aParams['install_lang_default'] && strlen($aParams['install_lang_default']) > 1) {
-                if ($this->SaveConfig('lang.default', $aParams['install_lang_default'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_lang_default', $aParams['install_lang_default']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('lang_default_invalid'));
-            }
-        }
-
-        return ($this->GetRequest('install_step_next'))
-            ? $this->StepFinish()
-            : $this->Layout('steps/extend.tpl');
+        return $this->Layout('steps/end.tpl');
     }
 
     /**
      * Окончание работы инсталлятора. Предупреждение о необходимости удаления.
+     *
      */
     protected function StepFinish() {
+
         $this->SetStep('Finish');
         $this->Assign('next_step_display', 'none');
         $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Finish');
@@ -1202,7 +937,7 @@ class Install {
      *
      * @return bool
      */
-    protected function ValidateEnviroment() {
+    protected function ValidateEnvironment() {
 
         $bOk = true;
 
@@ -1234,54 +969,110 @@ class Install {
             $this->Assign('validate_simplexml', '<span style="color:red;">' . $this->Lang('no') . '</span>');
         }
 
-        $sLocalConfigPath = $this->sConfigDir . '/config.local.php';
-        if (!file_exists($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
-            // пытаемся создать файл локального конфига
-            @copy($this->sConfigDir . '/config.local.php.txt', $sLocalConfigPath);
-        }
-        if (!file_exists($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
-            $bOk = false;
-            $this->Assign('validate_local_config', '<span style="color:red;">' . $this->Lang('no') . '</span>');
+        if ($aGraphicPackages = array_diff(array('Gmagick' => @extension_loaded('Gmagick'), 'Imagick' => @extension_loaded('Imagick'), 'GD' => @extension_loaded('GD')), array(''))) {
+            $this->Assign('validate_graphic_packages', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            $this->Assign('validate_graphic_packages_name', '<small style="color:green;">(' . implode(',', array_keys($aGraphicPackages)) . ')</small>');
         } else {
-            $this->Assign('validate_local_config', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            $bOk = FALSE;
+            $this->Assign('validate_graphic_packages', '<span style="color:red;">' . $this->Lang('no') . '</span>');
+            $this->Assign('validate_graphic_packages_name', '');
         }
 
-        /**
-         * Проверяем доступность и достаточность прав у соответствующих папок
-         */
+        $sLocalConfigPath = $this->sConfigDir . '/config.local.php';
+        $bOk = $this->checkFile($sLocalConfigPath, $this->sConfigDir . '/config.local.php.txt', 'validate_local_config') && $bOk;
+
+        // * Проверяем доступность и права у соответствующих папок
         $sTempDir = dirname(dirname(__FILE__)) . '/_tmp';
-        if (!is_dir($sTempDir) || !is_writable($sTempDir)) {
-            $bOk = false;
-            $this->Assign('validate_local_temp', '<span style="color:red;">' . $this->Lang('no') . '</span>');
-        } else {
-            $this->Assign('validate_local_temp', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
-        }
+        $bOk = $this->checkDir($sTempDir, 'validate_local_temp') && $bOk;
 
         $sLogsDir = dirname(dirname(__FILE__)) . '/_run';
-        if (!is_dir($sLogsDir) || !is_writable($sLogsDir)) {
-            $bOk = false;
-            $this->Assign('validate_local_runtime', '<span style="color:red;">' . $this->Lang('no') . '</span>');
-        } else {
-            $this->Assign('validate_local_runtime', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
-        }
+        $bOk = $this->checkDir($sLogsDir, 'validate_local_runtime') && $bOk;
 
         $sUploadsDir = ALTO_DIR . '/uploads';
-        if (!is_dir($sUploadsDir) || !is_writable($sUploadsDir)) {
-            $bOk = false;
-            $this->Assign('validate_local_uploads', '<span style="color:red;">' . $this->Lang('no') . '</span>');
-        } else {
-            $this->Assign('validate_local_uploads', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
-        }
+        $bOk = $this->checkDir($sUploadsDir, 'validate_local_uploads') && $bOk;
 
         $sPluginsDir = ALTO_DIR . '/app/plugins';
-        if (!is_dir($sPluginsDir) || !is_writable($sPluginsDir)) {
-            $bOk = false;
-            $this->Assign('validate_local_plugins', '<span style="color:red;">' . $this->Lang('no') . '</span>');
-        } else {
-            $this->Assign('validate_local_plugins', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
-        }
+        $bOk = $this->checkDir($sPluginsDir, 'validate_local_plugins') & $bOk;
+
+        $sPluginsDat = ALTO_DIR . '/app/plugins/plugins.dat';
+        $bOk = $this->checkFile($sPluginsDat, null, 'validate_local_plugins_dat') && $bOk;
 
         return $bOk;
+    }
+
+    /**
+     * @param string      $sDir
+     * @param string|null $sVarName
+     *
+     * @return bool
+     */
+    protected function checkDir($sDir, $sVarName = null) {
+
+        if (!F::File_CheckDir($sDir)) {
+            if ($sVarName) {
+                $this->Assign($sVarName, '<span style="color:red;">' . $this->Lang('no') . '</span>');
+            }
+            $bResult = false;
+        } else {
+            if ($sVarName) {
+                $this->Assign($sVarName, '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            }
+            $bResult = true;
+        }
+
+        return $bResult;
+    }
+
+    /**
+     * @param string      $sFile
+     * @param string|null $sSource
+     * @param string|null $sVarName
+     *
+     * @return bool
+     */
+    protected function checkFile($sFile, $sSource = null, $sVarName = null) {
+
+        if (!is_file($sFile)) {
+            $sDir = dirname($sFile);
+            if ($this->checkDir($sDir)) {
+                if ($sSource) {
+                    if (is_file($sSource)) {
+                        @copy($sSource, $sFile);
+                    }
+                } else {
+                    file_put_contents($sFile, '');
+                }
+            }
+        }
+
+        if (!is_file($sFile) || !is_writable($sFile)) {
+            if ($sVarName) {
+                $this->Assign($sVarName, '<span style="color:red;">' . $this->Lang('no') . '</span>');
+            }
+            $bResult = false;
+        } else {
+            if ($sVarName) {
+                $this->Assign($sVarName, '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            }
+            $bResult = true;
+        }
+
+        return $bResult;
+    }
+
+    /**
+     * @param mysqli $oDb
+     * @param string $sSql
+     *
+     * @return bool|mysqli_result
+     */
+    protected function sqlQuery($oDb, $sSql) {
+
+        $xResult = mysqli_query($oDb, $sSql);
+        if (!$xResult) {
+            $this->aErrors[] = mysqli_error($oDb);
+        }
+        return $xResult;
     }
 
     /**
@@ -1293,17 +1084,15 @@ class Install {
      */
     protected function ValidateDBConnection($aParams) {
 
-        $oDb = @mysql_connect($aParams['server'] . ':' . $aParams['port'], $aParams['user'], $aParams['password']);
+        $oDb = @mysqli_connect($aParams['server'], $aParams['user'], $aParams['password'], '', $aParams['port']);
         if ($oDb) {
-            /**
-             * Валидация версии MySQL сервера
-             */
-            if (!version_compare(mysql_get_server_info(), ALTO_MYSQL_REQUIRED, '>')) {
+            // * Валидация версии MySQL сервера
+            if (!version_compare(mysqli_get_server_info($oDb), ALTO_MYSQL_REQUIRED, '>')) {
                 $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('valid_mysql_server'));
                 return false;
             }
 
-            mysql_query('set names utf8');
+            mysqli_query($oDb, 'set names utf8');
             return $oDb;
         }
 
@@ -1314,24 +1103,31 @@ class Install {
     /**
      * Выбрать базу данных (либо создать в случае необходимости).
      *
+     * @param  mysqli $oDb
      * @param  string $sName
      * @param  bool   $bCreate
      *
      * @return bool
      */
-    protected function SelectDatabase($sName, $bCreate = false) {
+    protected function SelectDatabase($oDb, $sName, $bCreate = false) {
 
-        if (@mysql_select_db($sName)) {
+        if (@mysqli_select_db($oDb, $sName)) {
             return true;
         }
 
         if ($bCreate) {
-            @mysql_query("CREATE DATABASE $sName");
-            return @mysql_select_db($sName);
+            @mysqli_query($oDb, "CREATE DATABASE $sName");
+            return @mysqli_select_db($oDb, $sName);
         }
         return false;
     }
 
+    /**
+     * @param string $sFile
+     * @param array $aParams
+     *
+     * @return array
+     */
     protected function _loadQueries($sFile, $aParams) {
 
         $sFile = __DIR__ . '/db/' . $sFile;
@@ -1361,670 +1157,199 @@ class Install {
     /**
      * Добавляет в базу данных необходимые таблицы
      *
-     * @param $sFileName
-     * @param $aParams
+     * @param mysqli $oDb
+     * @param string $sFileName
+     * @param array  $aParams
      *
      * @return array|bool
      */
-    protected function CreateTables($sFileName, $aParams) {
+    protected function CreateTables($oDb, $sFileName, $aParams) {
 
         $aQuery = $this->_loadQueries($sFileName, $aParams);
-        /**
-         * Массив для сбора ошибок
-         */
-        $aErrors = array();
-        /**
-         * Смотрим, какие таблицы существуют в базе данных
-         */
+
+        // * Смотрим, какие таблицы существуют в базе данных
         $aDbTables = array();
-        $aResult = @mysql_query('SHOW TABLES');
+        $aResult = @mysqli_query($oDb, 'SHOW TABLES');
         if (!$aResult) {
-            return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
-        }
-        while ($aRow = mysql_fetch_array($aResult, MYSQL_NUM)) {
-            $aDbTables[] = $aRow[0];
-        }
-        /**
-         * Если среди таблиц БД уже есть таблица prefix_topic, то выполнять SQL-дамп не нужно
-         */
-        if (in_array($aParams['prefix'] . $aParams['check_table'], $aDbTables)) {
+            $this->aErrors[] = $this->Lang('error_db_no_data');
             return false;
         }
-        /**
-         * Выполняем запросы по очереди
-         */
+        while ($aRow = mysqli_fetch_array($aResult, MYSQLI_NUM)) {
+            $aDbTables[] = $aRow[0];
+        }
+
+        // * Если указано проверить наличие таблицы и она уже существует, то выполнять SQL-дамп не нужно
+        if (in_array($aParams['prefix'] . $aParams['check_table'], $aDbTables)) {
+            return true;
+        }
+
+        $bResult = true;
+        // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
-            /**
-             * Заменяем движок, если таковой указан в запросе
-             */
+
+            // * Заменяем движок, если таковой указан в запросе
             if (isset($aParams['engine'])) {
                 $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
             }
 
+            $bResult = true;
             if ($sQuery != '' && !$this->IsUseDbTable($sQuery, $aDbTables)) {
-                $bResult = mysql_query($sQuery);
-                if (!$bResult) {
-                    $aErrors[] = mysql_error();
-                }
+                $bResult = $bResult && $this->sqlQuery($oDb, $sQuery);
             }
         }
 
-        if (count($aErrors) == 0) {
-            return array('result' => true, 'errors' => null);
-        }
-        return array('result' => false, 'errors' => $aErrors);
+        return $bResult;
     }
 
     /**
      * Проверяем, нуждается ли база в конвертации или нет
      *
-     * @param  array $aParams
+     * @param mysqli $oDb
+     * @param array  $aParams
      *
      * @return bool
      */
-    protected function ValidateConvertDatabase($aParams) {
-        /**
-         * Проверяем, нуждается ли база в конвертации или нет
-         * Смотрим, какие таблицы существуют в базе данных
-         */
+    protected function ValidateConvertDatabase($oDb, $aParams) {
+
+        // * Проверяем, нуждается ли база в конвертации или нет
+        // * Смотрим, какие таблицы существуют в базе данных
         $aDbTables = array();
-        $aResult = @mysql_query('SHOW TABLES');
+        $aResult = @mysqli_query($oDb, 'SHOW TABLES');
         if (!$aResult) {
             return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
         }
-        while ($aRow = mysql_fetch_array($aResult, MYSQL_NUM)) {
+        while ($aRow = mysqli_fetch_array($aResult, MYSQLI_NUM)) {
             $aDbTables[] = $aRow[0];
         }
-        /**
-         * Смотрим на наличие в базе таблицы prefix_user_note
-         */
+        // * Смотрим на наличие в базе таблицы prefix_user_note
         return !in_array($aParams['prefix'] . 'user_note', $aDbTables);
     }
 
     /**
-     * Конвертирует базу данных версии 0.5.1 в базу данных версии 1.0.3
+     * Проверяем, нуждается ли база в конвертации из 0.9.7 в 1.0 или нет
      *
-     * @param $sFileName
-     * @param $aParams
-     *
-     * @return array
-     */
-    protected function ConvertDatabase($sFileName, $aParams) {
-
-        if (!$this->ValidateConvertDatabase($aParams)) {
-            return array('result' => true, 'errors' => array($this->Lang('error_database_converted_already')));
-        }
-
-        $aQuery = $this->_loadQueries($sFileName, $aParams);
-        /**
-         * Массив для сбора ошибок
-         */
-        $aErrors = array();
-
-        /**
-         * Выполняем запросы по очереди
-         */
-        foreach ($aQuery as $sQuery) {
-            $sQuery = trim($sQuery);
-            /**
-             * Заменяем движок, если таковой указан в запросе
-             */
-            if (isset($aParams['engine'])) {
-                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
-            }
-
-            if ($sQuery != '') {
-                $bResult = mysql_query($sQuery);
-                if (!$bResult) {
-                    $aErrors[] = mysql_error();
-                }
-            }
-        }
-        /**
-         * Необходимая конвертация в 1.0.3 из 0.5.1
-         */
-
-        /**
-         * Пересчет количества избранного для топиков
-         */
-        $sTable1 = $aParams['prefix'] . 'topic';
-        $sTable2 = $aParams['prefix'] . 'favourite';
-        $sQuery = "
-                UPDATE {$sTable1} t
-                SET t.topic_count_favourite = (
-                    SELECT count(f.user_id)
-                    FROM {$sTable2} f
-                    WHERE
-                        f.target_id = t.topic_id
-                    AND
-                        f.target_publish = 1
-                    AND
-                        f.target_type = 'topic'
-                )
-            ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Пересчет количества избранного для комментов
-         */
-        $sTable1 = $aParams['prefix'] . 'comment';
-        $sQuery = "
-            UPDATE {$sTable1} c
-            SET c.comment_count_favourite = (
-                SELECT count(f.user_id)
-                FROM {$sTable2} f
-                WHERE
-                    f.target_id = c.comment_id
-                AND
-					f.target_publish = 1
-				AND
-					f.target_type = 'comment'
-            )
-		";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Пересчет счетчиков голосования за топик
-         */
-        $sTable1 = $aParams['prefix'] . 'topic';
-        $sTable2 = $aParams['prefix'] . 'vote';
-        $sQuery = "
-                UPDATE {$sTable1} t
-                SET t.topic_count_vote_up = (
-                    SELECT count(*)
-                    FROM {$sTable2} v
-                    WHERE
-                        v.target_id = t.topic_id
-                    AND
-                        v.vote_direction = 1
-                    AND
-                        v.target_type = 'topic'
-                ), t.topic_count_vote_down = (
-                    SELECT count(*)
-                    FROM {$sTable2} v
-                    WHERE
-                        v.target_id = t.topic_id
-                    AND
-                        v.vote_direction = -1
-                    AND
-                        v.target_type = 'topic'
-                ), t.topic_count_vote_abstain = (
-                    SELECT count(*)
-                    FROM {$sTable2} v
-                    WHERE
-                        v.target_id = t.topic_id
-                    AND
-                        v.vote_direction = 0
-                    AND
-                        v.target_type = 'topic'
-                )
-            ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Пересчет количества топиков в блогах
-         */
-        $sTable1 = $aParams['prefix'] . 'blog';
-        $sTable2 = $aParams['prefix'] . 'topic';
-        $sQuery = "
-                UPDATE {$sTable1} b
-                SET b.blog_count_topic = (
-                    SELECT count(*)
-                    FROM {$sTable2} t
-                    WHERE
-                        t.blog_id = b.blog_id
-                    AND
-                        t.topic_publish = 1
-                )
-            ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Проставляем последнего пользователя и последний комментарий во всех личных сообщениях
-         */
-        $sTable1 = $aParams['prefix'] . 'talk';
-        $sTable2 = $aParams['prefix'] . 'comment';
-        $iPage = 1;
-
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery = "SELECT talk_id, user_id FROM {$sTable1} LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    $iTalk = $aRow['talk_id'];
-                    $iUserLast = $aRow['user_id'];
-                    $iCommentLast = null;
-                    /**
-                     * Запрашиваем последний комментарий из сообщения
-                     */
-                    $sQuery2
-                        = "SELECT comment_id, user_id FROM {$sTable2} WHERE target_id='{$iTalk}' and target_type='talk' ORDER BY comment_id desc LIMIT 0,1";
-                    if (!$aResults2 = mysql_query($sQuery2)) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        $iCommentLast = $aRow2['comment_id'];
-                        $iUserLast = $aRow2['user_id'];
-                    }
-                    /**
-                     * Обновляем значения
-                     */
-                    $sQuery3
-                        =
-                        "UPDATE {$sTable1} SET talk_user_id_last='{$iUserLast}', talk_comment_id_last=" . ($iCommentLast
-                            ? $iCommentLast : 'null') . " WHERE talk_id='{$iTalk}' ";
-                    if (!mysql_query($sQuery3)) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-        /**
-         * Перенос стран и городов на новую структуру
-         */
-        $sTableUser = $aParams['prefix'] . 'user';
-        $sTableGeoCountry = $aParams['prefix'] . 'geo_country';
-        $sTableGeoCity = $aParams['prefix'] . 'geo_city';
-        $sTableGeoRegion = $aParams['prefix'] . 'geo_region';
-        $sTableGeoTarget = $aParams['prefix'] . 'geo_target';
-        $iPage = 1;
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery = "SELECT * FROM {$sTableUser} WHERE
-					(`user_profile_country`  IS NOT NULL and `user_profile_country`<>'') or
-					(`user_profile_region`  IS NOT NULL and `user_profile_region`<>'') or
-					(`user_profile_city`  IS NOT NULL and `user_profile_city`<>'')
-
-					 LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    /**
-                     * Обрабатываем каждого пользователя
-                     */
-                    $iUserId = $aRow['user_id'];
-                    if (!$aRow['user_profile_country']) {
-                        $sQuery2
-                            = "UPDATE {$sTableUser} SET user_profile_country=null, user_profile_region=null, user_profile_city=null WHERE user_id={$iUserId} ";
-                        if (!$aResults2 = mysql_query($sQuery2)) {
-                            $aErrors[] = mysql_error();
-                        }
-                        continue;
-                    }
-                    $sCountry = mysql_real_escape_string($aRow['user_profile_country']);
-                    $sCity = mysql_real_escape_string((string)$aRow['user_profile_city']);
-                    /**
-                     * Ищем страну в гео-базе
-                     */
-                    $sQuery2
-                        = "SELECT id, name_ru FROM {$sTableGeoCountry} WHERE name_ru='{$sCountry}' OR name_en='{$sCountry}' LIMIT 0,1";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        $iCountryId = $aRow2['id'];
-                        $sCountryName = mysql_real_escape_string($aRow2['name_ru']);
-                    } else {
-                        $sQuery2
-                            = "UPDATE {$sTableUser} SET user_profile_country=null, user_profile_region=null, user_profile_city=null WHERE user_id={$iUserId} ";
-                        if (!$aResults2 = mysql_query($sQuery2)) {
-                            $aErrors[] = mysql_error();
-                        }
-                        continue;
-                    }
-                    /**
-                     * Ищем город в гео-базе
-                     */
-                    $iCityId = null;
-                    $sCityName = null;
-                    $iRegionId = null;
-                    $sRegionName = null;
-                    if ($sCity) {
-                        $sQuery2
-                            = "SELECT id, region_id, name_ru FROM {$sTableGeoCity} WHERE country_id='{$iCountryId}' and (name_ru='{$sCity}' OR name_en='{$sCity}') LIMIT 0,1";
-                        if (!($aResults2 = mysql_query($sQuery2))) {
-                            $aErrors[] = mysql_error();
-                            continue;
-                        }
-                        if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                            $iCityId = $aRow2['id'];
-                            $sCityName = mysql_real_escape_string($aRow2['name_ru']);
-                            $iRegionId = $aRow2['region_id'];
-                            /**
-                             * Получаем название региона
-                             */
-                            $sQuery3 = "SELECT name_ru FROM {$sTableGeoRegion} WHERE id='{$iRegionId}' LIMIT 0,1";
-                            if (!$aResults3 = mysql_query($sQuery3)) {
-                                $aErrors[] = mysql_error();
-                                continue;
-                            }
-                            if ($aRow3 = mysql_fetch_assoc($aResults3)) {
-                                $sRegionName = mysql_real_escape_string($aRow3['name_ru']);
-                            } else {
-                                continue;
-                            }
-                        }
-                    }
-                    /**
-                     * Добавляем связь пользователя с гео-объектом
-                     */
-                    $iGeoId = $iCountryId;
-                    $sGeoType = 'country';
-                    if ($iCityId) {
-                        $iGeoId = $iCityId;
-                        $sGeoType = 'city';
-                    }
-                    /**
-                     * Проверяем отсутствие связи
-                     */
-                    $sQuery2
-                        = "SELECT * FROM {$sTableGeoTarget} WHERE target_type='user' AND target_id='{$iUserId}' LIMIT 0,1";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        // пропускаем этого пользователя
-                        continue;
-                    }
-                    /**
-                     * Создаем новую связь
-                     */
-                    $sQuery2 = "INSERT INTO {$sTableGeoTarget} SET geo_type='{$sGeoType}', geo_id='{$iGeoId}', target_type='user', target_id='{$iUserId}', country_id="
-                        . ($iCountryId ? $iCountryId : 'null') . ", region_id=" . ($iRegionId ? $iRegionId : 'null')
-                        . " , city_id=" . ($iCityId ? $iCityId : 'null') . "  ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    /**
-                     * Обновляем информацию о пользователе
-                     */
-                    $sQuery2
-                        = "UPDATE {$sTableUser} SET user_profile_country=" . ($iCountryId ? "'$sCountryName'" : 'null')
-                        . ", user_profile_region=" . ($sRegionName ? "'$sRegionName'" : 'null') . ", user_profile_city="
-                        . ($sCityName ? "'$sCityName'" : 'null') . " WHERE user_id={$iUserId} ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-        /**
-         * Перенос ICQ и сайта из профиля пользователя
-         */
-        $sTableUser = $aParams['prefix'] . 'user';
-        $sTableUserField = $aParams['prefix'] . 'user_field';
-        $sTableUserFieldValue = $aParams['prefix'] . 'user_field_value';
-
-        $sFieldIdIcq = null;
-        $sFieldIdWww = null;
-
-        /**
-         * Получаем ID необходимых полей
-         */
-        $sQuery2 = "SELECT id FROM {$sTableUserField} WHERE `type`='contact' AND name='icq' LIMIT 0,1";
-        if (!($aResults2 = mysql_query($sQuery2))) {
-            $aErrors[] = mysql_error();
-        } else {
-            if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                $sFieldIdIcq = $aRow2['id'];
-            }
-        }
-        $sQuery2 = "SELECT id FROM {$sTableUserField} WHERE `type`='contact' AND name='www' LIMIT 0,1";
-        if (!($aResults2 = mysql_query($sQuery2))) {
-            $aErrors[] = mysql_error();
-        } else {
-            if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                $sFieldIdWww = $aRow2['id'];
-            }
-        }
-
-        if ($sFieldIdIcq && $sFieldIdWww) {
-            $iPage = 1;
-            do {
-                $iLimitStart = ($iPage - 1) * 100;
-                $sQuery
-                    = "SELECT * FROM {$sTableUser} WHERE `user_profile_country`  IS NOT NULL AND `user_profile_country`<>'' LIMIT {$iLimitStart},100";
-                if (!($aResults = mysql_query($sQuery))) {
-                    $aErrors[] = mysql_error();
-                    break;
-                }
-                if (mysql_num_rows($aResults)) {
-                    while ($aRow = mysql_fetch_assoc($aResults)) {
-                        $iUserId = $aRow['user_id'];
-                        $sIcq = $aRow['user_profile_icq'];
-                        $sWww = $aRow['user_profile_site'];
-                        if ($sIcq) {
-                            $sIcq = mysql_real_escape_string($sIcq);
-                            /**
-                             * Проверяем отсутствие связи
-                             */
-                            $sQuery2
-                                = "SELECT * FROM {$sTableUserFieldValue} WHERE user_id='{$iUserId}' AND field_id='{$sFieldIdIcq}' LIMIT 0,1";
-                            if (!($aResults2 = mysql_query($sQuery2))) {
-                                $aErrors[] = mysql_error();
-                            } else {
-                                if (!($aRow2 = mysql_fetch_assoc($aResults2))) {
-                                    /**
-                                     * Создаем новую связь
-                                     */
-                                    $sQuery3
-                                        = "INSERT INTO {$sTableUserFieldValue} SET user_id='{$iUserId}', field_id='{$sFieldIdIcq}', value='{$sIcq}' ";
-                                    if (!$aResults3 = mysql_query($sQuery3)) {
-                                        $aErrors[] = mysql_error();
-                                    }
-                                }
-                            }
-                        }
-                        if ($sWww) {
-                            $sWww = str_replace('https://', '', $sWww);
-                            $sWww = str_replace('http://', '', $sWww);
-                        }
-                        if ($sWww) {
-                            $sWww = mysql_real_escape_string($sWww);
-                            /**
-                             * Проверяем отсутствие связи
-                             */
-                            $sQuery2
-                                = "SELECT * FROM {$sTableUserFieldValue} WHERE user_id='{$iUserId}' AND field_id='{$sFieldIdWww}' LIMIT 0,1";
-                            if (!($aResults2 = mysql_query($sQuery2))) {
-                                $aErrors[] = mysql_error();
-                            } else {
-                                if (!($aRow2 = mysql_fetch_assoc($aResults2))) {
-                                    /**
-                                     * Создаем новую связь
-                                     */
-                                    $sQuery3
-                                        = "INSERT INTO {$sTableUserFieldValue} SET user_id='{$iUserId}', field_id='{$sFieldIdWww}', value='{$sWww}' ";
-                                    if (!$aResults3 = mysql_query($sQuery3)) {
-                                        $aErrors[] = mysql_error();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    break;
-                }
-                $iPage++;
-            } while (1);
-        }
-        /**
-         * Удаляем поля
-         */
-        $sQuery = "ALTER TABLE `{$sTableUser}` DROP `user_profile_site` ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        $sQuery = "ALTER TABLE `{$sTableUser}` DROP `user_profile_site_name` ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        $sQuery = "ALTER TABLE `{$sTableUser}` DROP `user_profile_icq` ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Добавление тегов в избранное
-         */
-        $sTablefFavourite = $aParams['prefix'] . 'favourite';
-        $sTablefTopicTag = $aParams['prefix'] . 'topic_tag';
-        $sTablefFavouriteTag = $aParams['prefix'] . 'favourite_tag';
-        $iPage = 1;
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery
-                = "SELECT f.user_id, f.target_id, t.topic_tag_text FROM `{$sTablefFavourite}` as f, `{$sTablefTopicTag}` as t WHERE f.`target_type`='topic' AND f.`target_id`=t.topic_id  LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    $iUserId = $aRow['user_id'];
-                    $iTargetId = $aRow['target_id'];
-                    $sText = mysql_real_escape_string($aRow['topic_tag_text']);
-                    /**
-                     * Проверяем наличие
-                     */
-                    $sQuery2
-                        = "SELECT * FROM {$sTablefFavouriteTag} WHERE user_id='{$iUserId}' AND target_id='{$iTargetId}' AND target_type='topic' AND is_user=0 AND text='{$sText}' LIMIT 0,1";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        // пропускаем
-                        continue;
-                    }
-                    /**
-                     * Создаем
-                     */
-                    $sQuery2
-                        = "INSERT INTO {$sTablefFavouriteTag} SET user_id='{$iUserId}', target_id='{$iTargetId}', target_type='topic', is_user=0, text='{$sText}' ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-        /**
-         * Вырезаем теги из информации о пользователе
-         */
-        $sTableUser = $aParams['prefix'] . 'user';
-        $iPage = 1;
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery
-                = "SELECT * FROM {$sTableUser} WHERE `user_profile_about`  IS NOT NULL AND `user_profile_about`<>'' LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    $sAbout = mysql_real_escape_string(htmlspecialchars(strip_tags($aRow['user_profile_about'])));
-                    $iUserId = $aRow['user_id'];
-                    /**
-                     * Обновляем информацию о пользователе
-                     */
-                    $sQuery2 = "UPDATE {$sTableUser} SET user_profile_about='{$sAbout}' WHERE user_id={$iUserId} ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-
-        if (count($aErrors) == 0) {
-            return array('result' => true, 'errors' => null);
-        }
-        return array('result' => false, 'errors' => $aErrors);
-    }
-
-    /**
-     * Проверяем, нуждается ли база в конвертации или нет
-     *
-     * @param array $aParams
+     * @param mysqli $oDb
+     * @param array  $aParams
      *
      * @return bool
      */
-    protected function ValidateConvertDatabaseFrom10($aParams) {
-        /**
-         * Проверяем, нуждается ли база в конвертации или нет
-         *
-         */
-        $sTable = $aParams['prefix'] . 'user';
-        return !$this->isFieldExistsDatabase($sTable, 'user_settings_timezone');
+    protected function ValidateConvertDatabaseToAlto10($oDb, $aParams) {
+
+        // * Проверяем, нуждается ли база в конвертации или нет
+        // * Смотрим, какие таблицы существуют в базе данных
+        $aDbTables = array();
+        $aResult = @mysqli_query($oDb, 'SHOW TABLES');
+        if (!$aResult) {
+            return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
+        }
+        while ($aRow = mysqli_fetch_array($aResult, MYSQLI_NUM)) {
+            $aDbTables[] = $aRow[0];
+        }
+        // * Смотрим на наличие в базе таблицы prefix_content
+        return !in_array($aParams['prefix'] . 'blog_type', $aDbTables);
     }
 
     /**
-     * Конвертирует базу данных версии 1.0 в базу данных версии 1.0.3
+     * Проверяем, нуждается ли база в конвертации из 1.0 в 1.1 или нет
      *
-     * @param $sFileName
-     * @param $aParams
+     * @param mysqli $oDb
+     * @param array  $aParams
+     *
+     * @return bool
+     */
+    protected function ValidateConvertDatabaseToAlto11($oDb, $aParams) {
+
+        // * Проверяем, нуждается ли база в конвертации или нет
+        // * Смотрим, какие таблицы существуют в базе данных
+        $aDbTables = array();
+        $aResult = @mysqli_query($oDb, 'SHOW TABLES');
+        if (!$aResult) {
+            return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
+        }
+        while ($aRow = mysqli_fetch_array($aResult, MYSQLI_NUM)) {
+            $aDbTables[] = $aRow[0];
+        }
+        // * Смотрим на наличие в базе таблицы prefix_content
+        return !in_array($aParams['prefix'] . 'prefix_blog_type_content', $aDbTables);
+    }
+
+    /**
+     * Конвертирует базу данных версии 0.9.7 в базу данных версии 1.0
+     *
+     * @param mysqli $oDb
+     * @param string $sFileName
+     * @param array  $aParams
      *
      * @return array
      */
-    protected function ConvertDatabaseFrom10($sFileName, $aParams) {
+    protected function ConvertDatabaseToAlto10($oDb, $sFileName, $aParams) {
 
-        if (!$this->ValidateConvertDatabaseFrom10($aParams)) {
+        if (!$this->ValidateConvertDatabaseToAlto10($oDb, $aParams)) {
             return array('result' => false, 'errors' => array($this->Lang('error_database_converted_already')));
         }
 
         $aQuery = $this->_loadQueries($sFileName, $aParams);
-        /**
-         * Массив для сбора ошибок
-         */
+
+        // * Массив для сбора ошибок
         $aErrors = array();
 
-        /**
-         * Выполняем запросы по очереди
-         */
+        // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
-            /**
-             * Заменяем движок, если таковой указан в запросе
-             */
+
+            // * Заменяем движок, если таковой указан в запросе
             if (isset($aParams['engine'])) {
                 $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
             }
 
             if ($sQuery != '') {
-                $bResult = mysql_query($sQuery);
+                $bResult = mysqli_query($oDb, $sQuery);
                 if (!$bResult) {
-                    $aErrors[] = mysql_error();
+                    $aErrors[] = mysqli_error($oDb) ;
+                }
+            }
+        }
+
+        if (count($aErrors) == 0) {
+            return array('result' => true, 'errors' => null);
+        }
+        return array('result' => false, 'errors' => $aErrors);
+    }
+
+    /**
+     * Конвертирует базу данных версии 0.9.7 в базу данных версии 1.0
+     *
+     * @param mysqli $oDb
+     * @param string $sFileName
+     * @param array $aParams
+     *
+     * @return array
+     */
+    protected function ConvertDatabaseToAlto11($oDb, $sFileName, $aParams) {
+
+        if (!$this->ValidateConvertDatabaseToAlto11($oDb, $aParams)) {
+            return array('result' => false, 'errors' => array($this->Lang('error_database_converted_already')));
+        }
+
+        $aQuery = $this->_loadQueries($sFileName, $aParams);
+
+        // * Массив для сбора ошибок
+        $aErrors = array();
+
+        // * Выполняем запросы по очереди
+        foreach ($aQuery as $sQuery) {
+            $sQuery = trim($sQuery);
+
+            // * Заменяем движок, если таковой указан в запросе
+            if (isset($aParams['engine'])) {
+                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
+            }
+
+            if ($sQuery != '') {
+                $bResult = mysqli_query($oDb, $sQuery);
+                if (!$bResult) {
+                    $aErrors[] = mysqli_error($oDb) ;
                 }
             }
         }
@@ -2037,67 +1362,62 @@ class Install {
 
 
     /**
-     * Проверяем, нуждается ли база в конвертации или нет
+     * Проверяем, нуждается ли база в конвертации c LiveStreet 1.0.3 в AltoCMS 1.0 или нет
      *
-     * @param array $aParams
+     * @param mysqli $oDb
+     * @param array  $aParams
      *
      * @return bool
      */
-    protected function ValidateConvertDatabaseToAlto($aParams) {
-        /**
-         * Проверяем, нуждается ли база в конвертации или нет
-         * Смотрим, какие таблицы существуют в базе данных
-         */
+    protected function ValidateConvertDatabaseToAlto($oDb, $aParams) {
+
+        // * Проверяем, нуждается ли база в конвертации или нет
+        // * Смотрим, какие таблицы существуют в базе данных
         $aDbTables = array();
-        $aResult = @mysql_query('SHOW TABLES');
+        $aResult = @mysqli_query($oDb, 'SHOW TABLES');
         if (!$aResult) {
             return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
         }
-        while ($aRow = mysql_fetch_array($aResult, MYSQL_NUM)) {
+        while ($aRow = mysqli_fetch_array($aResult, MYSQLI_NUM)) {
             $aDbTables[] = $aRow[0];
         }
-        /**
-         * Смотрим на наличие в базе таблицы prefix_content
-         */
+        // * Смотрим на наличие в базе таблицы prefix_content
         return !in_array($aParams['prefix'] . 'content', $aDbTables);
     }
 
     /**
-     * Конвертирует базу данных версии 1.0 в базу данных версии 1.0.3
+     * Конвертирует базу данных LiveStreet 1.0.3 в AltoCMS 1.0
      *
-     * @param   $sFileName
-     * @param   $aParams
+     * @param mysqli $oDb
+     * @param string $sFileName
+     * @param array  $aParams
      *
      * @return array
      */
-    protected function ConvertDatabaseToAlto($sFileName, $aParams) {
+    protected function ConvertDatabaseToAlto($oDb, $sFileName, $aParams) {
 
-        if (!$this->ValidateConvertDatabaseToAlto($aParams)) {
+        if (!$this->ValidateConvertDatabaseToAlto($oDb, $aParams)) {
             return array('result' => false, 'errors' => array($this->Lang('error_database_converted_already')));
         }
 
         $aQuery = $this->_loadQueries($sFileName, $aParams);
-        /**
-         * Массив для сбора ошибок
-         */
+
+        // * Массив для сбора ошибок
         $aErrors = array();
 
-        /**
-         * Выполняем запросы по очереди
-         */
+        // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
-            /**
-             * Заменяем движок, если таковой указан в запросе
-             */
+
+            // * Заменяем движок, если таковой указан в запросе
             if (isset($aParams['engine'])) {
                 $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
             }
 
             if ($sQuery != '') {
-                $bResult = mysql_query($sQuery);
+                $bResult = mysqli_query($oDb, $sQuery);
                 if ($bResult === false) {
-                    $aErrors[] = mysql_error();
+                    $aErrors[] = mysqli_error($oDb) ;
                 }
             }
         }
@@ -2111,15 +1431,16 @@ class Install {
     /**
      * Добавление значения в поле таблицы с типом enum
      *
+     * @param mysqli $oDb
      * @param string $sTableName
      * @param string $sFieldName
      * @param string $sType
      */
-    public function addEnumTypeDatabase($sTableName, $sFieldName, $sType) {
+    public function addEnumTypeDatabase($oDb, $sTableName, $sFieldName, $sType) {
 
         $sQuery = "SHOW COLUMNS FROM  `{$sTableName}`";
-        if ($res = mysql_query($sQuery)) {
-            while ($aRow = mysql_fetch_assoc($res)) {
+        if ($res = mysqli_query($oDb, $sQuery)) {
+            while ($aRow = mysqli_fetch_assoc($res)) {
                 if ($aRow['Field'] == $sFieldName) {
                     break;
                 }
@@ -2129,7 +1450,7 @@ class Install {
                 $sQuery = "ALTER TABLE `{$sTableName}` MODIFY `{$sFieldName}` " . $aRow['Type'];
                 $sQuery .= ($aRow['Null'] == 'NO') ? ' NOT NULL ' : ' NULL ';
                 $sQuery .= is_null($aRow['Default']) ? ' DEFAULT NULL ' : " DEFAULT '{$aRow['Default']}' ";
-                mysql_query($sQuery);
+                mysqli_query($oDb, $sQuery);
             }
         }
     }
@@ -2137,14 +1458,15 @@ class Install {
     /**
      * Проверяет существование таблицы
      *
+     * @param mysqli $oDb
      * @param string $sTableName
      *
      * @return bool
      */
-    public function isTableExistsDatabase($sTableName) {
+    public function isTableExistsDatabase($oDb, $sTableName) {
 
         $sQuery = "SHOW TABLES LIKE '{$sTableName}'";
-        if ($res = mysql_query($sQuery)) {
+        if ($res = mysqli_query($oDb, $sQuery)) {
             return true;
         }
         return false;
@@ -2153,16 +1475,17 @@ class Install {
     /**
      * Проверяет существование поля таблицы
      *
+     * @param mysqli $oDb
      * @param string $sTableName
      * @param string $sFieldName
      *
      * @return bool
      */
-    public function isFieldExistsDatabase($sTableName, $sFieldName) {
+    public function isFieldExistsDatabase($oDb, $sTableName, $sFieldName) {
 
         $sQuery = "SHOW FIELDS FROM `{$sTableName}`";
-        if ($res = mysql_query($sQuery)) {
-            while ($aRow = mysql_fetch_assoc($res)) {
+        if ($res = mysqli_query($oDb, $sQuery)) {
+            while ($aRow = mysqli_fetch_assoc($res)) {
                 if ($aRow['Field'] == $sFieldName) {
                     return true;
                 }
@@ -2181,26 +1504,30 @@ class Install {
         $bOk = true;
         $aErrors = array();
 
-        if (!($sLogin = $this->GetRequest('install_admin_login', false))
-            || !preg_match('/^[\da-z\_\-]{3,30}$/i', $sLogin)
-        ) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_login_invalid');
-        }
+        if ($this->GetRequest('install_admin_skip', false)) {
+            $this->bSkipAdmin = true;
+        } else {
+            if (!($sLogin = $this->GetRequest('install_admin_login', false))
+                || !preg_match('/^[\da-z\_\-]{3,30}$/i', $sLogin)
+            ) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_login_invalid');
+            }
 
-        if (!($sMail = $this->GetRequest('install_admin_mail', false))
-            || !preg_match('/^[\da-z\_\-\.\+]+@[\da-z_\-\.]+\.[a-z]{2,5}$/i', $sMail)
-        ) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_mail_invalid');
-        }
-        if (!($sPass = $this->GetRequest('install_admin_pass', false)) || strlen($sPass) < 3) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_password_invalid');
-        }
-        if ($this->GetRequest('install_admin_repass', '') != $this->GetRequest('install_admin_pass', '')) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_repassword_invalid');
+            if (!($sMail = $this->GetRequest('install_admin_mail', false))
+                || !preg_match('/^[\da-z\_\-\.\+]+@[\da-z_\-\.]+\.[a-z]{2,5}$/i', $sMail)
+            ) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_mail_invalid');
+            }
+            if (!($sPass = $this->GetRequest('install_admin_pass', false)) || strlen($sPass) < 3) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_password_invalid');
+            }
+            if ($this->GetRequest('install_admin_repass', '') != $this->GetRequest('install_admin_pass', '')) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_repassword_invalid');
+            }
         }
 
         return array($bOk, $aErrors);
@@ -2209,43 +1536,45 @@ class Install {
     /**
      * Сохраняет данные об администраторе в базу данных
      *
-     * @param  string $sLogin
-     * @param  string $sPassword
-     * @param  string $sMail
-     * @param  string $sPrefix
+     * @param mysqli $oDb
+     * @param string $sLogin
+     * @param string $sPassword
+     * @param string $sMail
+     * @param string $sPrefix
      *
      * @return bool
      */
-    protected function UpdateDBUser($sLogin, $sPassword, $sMail, $sPrefix = 'prefix_') {
+    protected function UpdateDBUser($oDb, $sLogin, $sPassword, $sMail, $sPrefix = 'prefix_') {
 
         $sQuery = "
         	UPDATE `{$sPrefix}user`
-        	SET 
+        	SET
         		`user_login`    = '{$sLogin}',
         		`user_mail`     = '{$sMail}',
         		`user_password` = '{$sPassword}'
 			WHERE `user_id` = 1";
 
-        return mysql_query($sQuery);
+        return mysqli_query($oDb, $sQuery);
     }
 
     /**
      * Перезаписывает название блога в базе данных
      *
-     * @param  string $sBlogName
-     * @param         string [$sPrefix = "prefix_"
+     * @param mysqli $oDb
+     * @param string $sBlogName
+     * @param string $sPrefix
      *
      * @return bool
      */
-    protected function UpdateUserBlog($sBlogName, $sPrefix = 'prefix_') {
+    protected function UpdateUserBlog($oDb, $sBlogName, $sPrefix = 'prefix_') {
 
         $sQuery = "
         	UPDATE `{$sPrefix}blog`
-        	SET 
-        		`blog_title`    = '" . mysql_real_escape_string($sBlogName) . "'
+        	SET
+        		`blog_title`    = '" . mysqli_real_escape_string($oDb, $sBlogName) . "'
 			WHERE `blog_id` = 1";
 
-        return mysql_query($sQuery);
+        return mysqli_query($oDb, $sQuery);
     }
 
     /**
@@ -2272,9 +1601,8 @@ class Install {
      * @return array
      */
     protected function GetSkinList() {
-        /**
-         * Получаем список каталогов
-         */
+
+        // * Получаем список каталогов
         $aDir = glob($this->sSkinDir . '/*', GLOB_ONLYDIR);
 
         if (!is_array($aDir)) {
@@ -2289,9 +1617,8 @@ class Install {
      * @return array
      */
     protected function GetLangList() {
-        /**
-         * Получаем список каталогов
-         */
+
+        // * Получаем список каталогов
         $aDir = glob($this->sLangDir . '/*.php');
 
         if (!is_array($aDir)) {
@@ -2309,26 +1636,27 @@ class Install {
     protected function SavePath() {
 
         $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
-        $this->SaveConfig('path.root.url', $this->GetPathRootWeb(), $sLocalConfigFile);
-        $this->SaveConfig('path.root.dir', $this->GetPathRootServer(), $sLocalConfigFile);
+        $this->SaveConfig('path.root.url', $this->_getPathRootUrl(), $sLocalConfigFile);
+        //$this->SaveConfig('path.root.dir', $this->_getPathRootDir(), $sLocalConfigFile);
 
         $aDirs = array();
-        $sDirs = trim(str_replace('http://' . $_SERVER['HTTP_HOST'], '', $this->GetPathRootWeb()), '/');
+        $sDirs = trim(str_replace('http://' . $_SERVER['HTTP_HOST'], '', $this->_getPathRootUrl()), '/');
         if ($sDirs != '') {
             $aDirs = explode('/', $sDirs);
+            $this->SaveConfig('path.runtime.url', '/' . $sDirs . '/_run/', $sLocalConfigFile);
+            $this->SaveConfig('path.runtime.dir', $this->_getPathRootDir() . '_run/', $sLocalConfigFile);
         }
         $this->SaveConfig('path.offset_request_url', count($aDirs), $sLocalConfigFile);
     }
 
-    protected function GetPathRootWeb() {
-        return
-            rtrim('http://' . $_SERVER['HTTP_HOST'], '/') . str_replace('/install/index.php', '', $_SERVER['PHP_SELF'])
-            . '/';
+    protected function _getPathRootUrl() {
+
+        return F::UrlBase() . str_replace('/install/index.php', '', $_SERVER['PHP_SELF']) . '/';
     }
 
-    protected function GetPathRootServer() {
+    protected function _getPathRootDir() {
 
-        return rtrim(dirname(dirname(__FILE__)), '/') . '/';
+        return str_replace('\\', '/', ALTO_DIR) . '/';
     }
 
 }

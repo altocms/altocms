@@ -2,187 +2,213 @@
  * Активность
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
-ls.stream =( function ($) {
-	this.isBusy = false;
-	this.sDateLast = null;
+ls.stream = ( function ($) {
+    "use strict";
 
-	this.options = {
-		selectors: {
-			userList:       'js-activity-block-users',
-			getMoreButton:  'activity-get-more',
-			userListId:     'activity-block-users',
-			inputId:        'activity-block-users-input',
-			noticeId:       'activity-block-users-notice',
-			userListItemId: 'activity-block-users-item-'
-		},
-		elements: {
-			userItem: function (element) {
-				return $('<li id="' + ls.stream.options.selectors.userListItemId + element.uid + '">' +
-							 '<input type="checkbox" ' + 
-							        'class="input-checkbox" ' +
-							        'data-user-id="' + element.uid + '" ' +
-							        'checked="checked" />' +
-							        '<a href="' + element.user_web_path + '">' + element.user_login + '</a>' +
-						 '</li>');
-			}
-		}
-	}
+    this.isBusy = false;
+    this.sDateLast = null;
 
-	/**
-	 * Init
-	 */
-	this.init = function () {
-		var self = this;
+    this.options = {
+        selectors: {
+            userList: 'js-activity-block-users',
+            getMoreButton: 'activity-get-more',
+            userListId: 'activity-block-users',
+            inputId: 'activity-block-users-input',
+            noticeId: 'activity-block-users-notice',
+            userListItemId: 'activity-block-users-item-'
+        },
+        elements: {
+            userItem: function (element) {
+                return $('<li id="' + ls.stream.options.selectors.userListItemId + element.uid + '">' +
+                    '<input type="checkbox" ' +
+                    'class="input-checkbox" ' +
+                    'data-user-id="' + element.uid + '" ' +
+                    'checked="checked" />' +
+                    '<a href="' + element.user_web_path + '">' + element.user_login + '</a>' +
+                    '</li>');
+            }
+        }
+    };
 
-		$('.' + this.options.selectors.userList).on('change', 'input[type=checkbox]', function () {
-			var userId = $(this).data('user-id');
+    /**
+     * Init
+     */
+    this.init = function () {
+        var self = this;
 
-			$(this).prop('checked') ? self.subscribe(userId) : self.unsubscribe(userId);	
-		});
+        $('.' + this.options.selectors.userList).on('change', 'input[type=checkbox]', function () {
+            var userId = $(this).data('user-id');
 
-		$('#' + this.options.selectors.getMoreButton).on('click', function () {
-			self.getMore(this);
-		});
+            $(this).prop('checked') ? self.subscribe(userId) : self.unsubscribe(userId);
+        });
 
-		$('#' + this.options.selectors.inputId).keydown(function (event) {
-			event.which == 13 && ls.stream.appendUser();
-		});
-	};
+        $('#' + this.options.selectors.getMoreButton).on('click', function () {
+            self.getMore(this);
+            return false;
+        });
 
-	/**
-	 * Подписаться на пользователя
-	 * @param  {Number} iUserId ID пользователя
-	 */
-	this.subscribe = function (iUserId) {
-		var self = this,
-			url = aRouter['stream'] + 'subscribe/',
-			params = { 'id': iUserId };
+        $('#' + this.options.selectors.inputId).keydown(function (event) {
+            event.which == 13 && ls.stream.appendUser();
+        });
+    };
 
-		ls.hook.marker('subscribeBefore');
+    /**
+     * Подписаться на пользователя
+     * @param  {Number} iUserId ID пользователя
+     */
+    this.subscribe = function (iUserId) {
+        var self = this,
+            url = ls.routerUrl('stream') + 'subscribe/',
+            params = { 'id': iUserId };
 
-		ls.ajax(url, params, function(data) {
-			if (data.bStateError) {
-				ls.msg.error(data.sMsgTitle,data.sMsg);
-			} else {
-				ls.msg.notice(data.sMsgTitle,data.sMsg);
-				ls.hook.run('ls_stream_subscribe_after',[params,data]);
-			}
-		});
-	};
+        ls.progressStart();
+        ls.ajax(url, params, function (result) {
+            ls.progressDone();
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle, result.sMsg);
+            } else {
+                ls.msg.notice(result.sMsgTitle, result.sMsg);
+                ls.hook.run('ls_stream_subscribe_after', [params, result]);
+            }
+        });
+    };
 
-	/**
-	 * Отписаться от пользователя
-	 * @param  {Number} iUserId ID пользователя
-	 */
-	this.unsubscribe = function (iUserId) {
-		var self = this,
-			url = aRouter['stream'] + 'unsubscribe/',
-			params = { 'id': iUserId };
+    /**
+     * Отписаться от пользователя
+     * @param  {Number} iUserId ID пользователя
+     * @param bRemove Удалять строку с пользователем или нет (друзей из списка не удаляем)
+     */
+    this.unsubscribe = function (iUserId, bRemove) {
+        var self = this,
+            url = ls.routerUrl('stream') + 'unsubscribe/',
+            params = { 'id': iUserId };
 
-		ls.hook.marker('unsubscribeBefore');
+        ls.progressStart();
+        ls.ajax(url, params, function (result) {
+            ls.progressDone();
+            if (result && !result.bStateError) {
+                ls.msg.notice(result.sMsgTitle, result.sMsg);
+                var el = $('#strm_u_' + iUserId).parents('li');
+                if (bRemove === true) {
+                    el.fadeOut(300, function(){
+                        el.remove();
+                    });
+                }
+                ls.hook.run('ls_stream_unsubscribe_after', [params, result]);
+            }
+        });
+    };
 
-		ls.ajax(url, params, function(data) {
-			if (!data.bStateError) {
-				ls.msg.notice(data.sMsgTitle,data.sMsg);
-				ls.hook.run('ls_stream_unsubscribe_after',[params,data]);
-			}
-		});
-	};
+    /**
+     * Подписаться на пользователя
+     */
+    this.appendUser = function () {
+        var self = this,
+            sLogin = $('#' + self.options.selectors.inputId).val();
 
-	/**
-	 * Подписаться на пользователя
-	 */
-	this.appendUser = function() {
-		var self = this,
-			sLogin = $('#' + self.options.selectors.inputId).val();
+        if (!sLogin) {
+            return;
+        }
 
-		if ( ! sLogin ) return;
+        ls.progressStart();
+        ls.ajax(ls.routerUrl('stream') + 'subscribeByLogin/', { 'login': sLogin }, function (result) {
+            ls.progressDone();
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                var checkbox = $('.' + self.options.selectors.userList).find('input[data-user-id=' + result.uid + ']');
 
-		ls.hook.marker('appendUserBefore');
+                $('#' + self.options.selectors.noticeId).remove();
 
-		ls.ajax(aRouter['stream'] + 'subscribeByLogin/', { 'login' : sLogin }, function(data) {
-			if ( ! data.bStateError ) {
-				var checkbox = $('.' + self.options.selectors.userList).find('input[data-user-id=' + data.uid + ']');
+                if (checkbox.length) {
+                    if (checkbox.prop("checked")) {
+                        ls.msg.error(ls.lang.get('error'), ls.lang.get('stream_subscribes_already_subscribed'));
+                    } else {
+                        checkbox.prop("checked", true);
+                        ls.msg.notice(result.sMsgTitle, result.sMsg);
+                    }
+                } else {
+                    $('#' + self.options.selectors.inputId).autocomplete('close').val('');
+                    $('#' + self.options.selectors.userListId).show().append(self.options.elements.userItem(result));
+                    ls.msg.notice(result.sMsgTitle, result.sMsg);
+                }
 
-				$('#' + self.options.selectors.noticeId).remove();
+                ls.hook.run('ls_stream_append_user_after', [checkbox.length, result]);
+            }
+        });
+    };
 
-				if (checkbox.length) {
-					if (checkbox.prop("checked")) {
-						ls.msg.error(ls.lang.get('error'), ls.lang.get('stream_subscribes_already_subscribed'));
-					} else {
-						checkbox.prop("checked", true);
-						ls.msg.notice(data.sMsgTitle,data.sMsg);
-					}
-				} else {
-					$('#' + self.options.selectors.inputId).autocomplete('close').val('');
-					$('#' + self.options.selectors.userListId).show().append(self.options.elements.userItem(data));
-					ls.msg.notice(data.sMsgTitle,data.sMsg);
-				}
+    this.switchEventType = function (iType) {
+        var url = ls.routerUrl('stream') + 'switchEventType/';
+        var params = {'type': iType};
 
-				ls.hook.run('ls_stream_append_user_after',[checkbox.length,data]);
-			} else {
-				ls.msg.error(data.sMsgTitle, data.sMsg);
-			}
-		});
-	};
+        ls.progressStart();
+        ls.ajax(url, params, function (result) {
+            ls.progressDone();
+            if (result && !result.bStateError) {
+                ls.msg.notice(result.sMsgTitle, result.sMsg);
+                ls.hook.run('ls_stream_switch_event_type_after', [params, result]);
+            }
+        });
+    };
 
-	this.switchEventType = function (iType) {
-		var url = aRouter['stream']+'switchEventType/';
-		var params = {'type':iType};
+    /**
+     * Подгрузка событий
+     * @param  {Object} oGetMoreButton Кнопка
+     */
+    this.getMore = function (oGetMoreButton) {
 
-		ls.hook.marker('switchEventTypeBefore');
-		ls.ajax(url, params, function(data) {
-			if (!data.bStateError) {
-				ls.msg.notice(data.sMsgTitle,data.sMsg);
-				ls.hook.run('ls_stream_switch_event_type_after',[params,data]);
-			}
-		});
-	};
+        if (this.isBusy) {
+            return;
+        }
 
-	/**
-	 * Подгрузка событий
-	 * @param  {Object} oGetMoreButton Кнопка
-	 */
-	this.getMore = function (oGetMoreButton) {
-		if (this.isBusy) return;
+        var $oGetMoreButton = $(oGetMoreButton);
 
-		var $oGetMoreButton = $(oGetMoreButton),
-			$oLastId = $('#activity-last-id');
-			iLastId = $oLastId.val();
+        this.isBusy = true;
 
-		if ( ! iLastId ) return;
+        var params = $.extend({}, {
+            'sDateLast': this.sDateLast
+        }, ls.tools.getDataOptions($oGetMoreButton, 'param'));
 
-		$oGetMoreButton.addClass('loading');
-		this.isBusy = true;
+        params.iLastId = params.last_id ? params.last_id : 0;
+        if (!params.iLastId) {
+            return;
+        }
 
-		var params = $.extend({}, {
-			'iLastId':   iLastId,
-			'sDateLast': this.sDateLast
-		}, ls.tools.getDataOptions($oGetMoreButton, 'param'));
+        var url = ls.routerUrl('stream') + 'get_more' + (params.type ? '_' + params.type : '') + '/';
 
-		var url = aRouter['stream'] + 'get_more' + (params.type ? '_' + params.type : '') + '/';
+        $oGetMoreButton.addClass('loading');
+        ls.progressStart();
+        ls.ajax(url, params, function (result) {
+            ls.progressDone();
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                if (result.events_count) {
+                    $('#activity-event-list').append(result.result);
+                    $oGetMoreButton.data('param-last_id', result.iStreamLastId);
+                }
 
-		ls.hook.marker('getMoreBefore');
+                if (!result.events_count) {
+                    $oGetMoreButton.hide();
+                }
+            }
 
-		ls.ajax(url, params, function(data) {
-			if ( ! data.bStateError && data.events_count ) {
-				$('#activity-event-list').append(data.result);
-				$oLastId.attr('value', data.iStreamLastId);
-			}
+            $oGetMoreButton.removeClass('loading');
 
-			if ( ! data.events_count) {
-				$oGetMoreButton.hide();
-			}
+            this.isBusy = false;
+        }.bind(this));
 
-			$oGetMoreButton.removeClass('loading');
+        return false;
+    };
 
-			ls.hook.run('ls_stream_get_more_after',[iLastId, data]);
-
-			this.isBusy = false;
-		}.bind(this));
-	};
-
-	return this;
-}).call(ls.stream || {},jQuery);
+    return this;
+}).call(ls.stream || {}, jQuery);

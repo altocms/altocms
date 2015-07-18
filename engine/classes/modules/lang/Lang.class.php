@@ -66,7 +66,7 @@ class ModuleLang extends Module {
      */
     public function Init() {
 
-        $this->Hook_Run('lang_init_start');
+        E::ModuleHook()->Run('lang_init_start');
 
         $this->sDefaultLang = Config::Get('lang.default');
         $this->aLangPaths = F::File_NormPath(Config::Get('lang.paths'));
@@ -78,11 +78,11 @@ class ModuleLang extends Module {
             $sLangKey = (is_string(Config::Get('lang.in_get')) ? Config::Get('lang.in_get') : 'lang');
 
             // Получаем язык, если он был задан в URL
-            $this->sCurrentLang = Router::GetLang();
+            $this->sCurrentLang = R::GetLang();
 
             // Проверка куки, если требуется
             if (!$this->sCurrentLang && $nSavePeriod) {
-                $sLang = (string)$this->Session_GetCookie($sLangKey);
+                $sLang = (string)E::ModuleSession()->GetCookie($sLangKey);
                 if ($sLang) {
                     $this->sCurrentLang = $sLang;
                 }
@@ -99,7 +99,7 @@ class ModuleLang extends Module {
 
         if ($this->sCurrentLang && Config::Get('lang.multilang') && $nSavePeriod) {
             // Пишем в куки, если требуется
-            $this->Session_SetCookie($sLangKey, $this->sCurrentLang, $nSavePeriod);
+            E::ModuleSession()->SetCookie($sLangKey, $this->sCurrentLang, $nSavePeriod);
         }
 
         $this->InitLang();
@@ -153,14 +153,16 @@ class ModuleLang extends Module {
         $this->aLangMsg[$sLang] = array();
 
         // * Если используется кеширование через memcaсhed, то сохраняем данные языкового файла в кеш
-        if (Config::Get('sys.cache.type') == 'memory') {
+        if (Config::Get('sys.cache.type') == 'memory' && Config::Get('sys.cache.use')) {
             $sCacheKey = 'lang_' . $sLang . '_' . Config::Get('view.skin');
-            if (false === ($this->aLangMsg[$sLang] = $this->Cache_Get($sCacheKey))) {
+            if (false === ($this->aLangMsg[$sLang] = E::ModuleCache()->Get($sCacheKey))) {
+                // if false then empty array
+                $this->aLangMsg[$sLang] = array();
                 $this->LoadLangFiles($this->sDefaultLang, $sLang);
                 if ($sLang != $this->sDefaultLang) {
                     $this->LoadLangFiles($sLang, $sLang);
                 }
-                $this->Cache_Set($this->aLangMsg[$sLang], $sCacheKey, array(), 60 * 60);
+                E::ModuleCache()->Set($this->aLangMsg[$sLang], $sCacheKey, array(), 60 * 60);
             }
         } else {
             $this->LoadLangFiles($this->sDefaultLang, $sLang);
@@ -196,7 +198,7 @@ class ModuleLang extends Module {
         foreach ($this->aLangMsgJs as $sName) {
             $aLangMsg[$sName] = $this->Get($sName, array(), false);
         }
-        $this->Viewer_Assign('aLangJs', $aLangMsg);
+        E::ModuleViewer()->Assign('aLangJs', $aLangMsg);
     }
 
     /**
@@ -269,7 +271,7 @@ class ModuleLang extends Module {
 
         $aFiles = $this->_makeFileList($xPath, static::LANG_PATTERN . '.php', $sLang);
         foreach ($aFiles as $sLangFile) {
-            $this->AddMessages(F::File_IncludeFile($sLangFile), $aParams, $sLangFor);
+            $this->AddMessages(F::File_IncludeFile($sLangFile, true, true), $aParams, $sLangFor);
         }
     }
 
@@ -288,7 +290,7 @@ class ModuleLang extends Module {
         if ($aFiles) {
             foreach ($aFiles as $sLangFile) {
                 $sDirModule = basename(dirname($sLangFile));
-                $aResult = F::File_IncludeFile($sLangFile);
+                $aResult = F::File_IncludeFile($sLangFile, true, true);
                 if ($aResult) {
                     $this->AddMessages($aResult, array('category' => $sPrefix, 'name' => $sDirModule), $sLangFor);
                 }
@@ -322,9 +324,11 @@ class ModuleLang extends Module {
         // * Ищем языковые файлы активированных плагинов
         if ($aPluginList = F::GetPluginsList()) {
             foreach ($aPluginList as $sPluginName) {
-                $sDir = Plugin::GetDir($sPluginName);
-                $aParams = array('name' => $sPluginName, 'category' => 'plugin');
-                $this->_loadFiles($sDir . '/templates/language/', $sLangName, $aParams, $sLangFor);
+                $aDirs = Plugin::GetDirLang($sPluginName);
+                foreach($aDirs as $sDir) {
+                    $aParams = array('name' => $sPluginName, 'category' => 'plugin');
+                    $this->_loadFiles($sDir, $sLangName, $aParams, $sLangFor);
+                }
             }
 
         }
@@ -337,9 +341,9 @@ class ModuleLang extends Module {
      *
      * @param string $sLangName    Язык для загрузки
      */
-    public function LoadLangFileTemplate($sLangName) {
+    public function LoadLangFileTemplate($sLangName = null, $sLangFor = null) {
 
-        $this->_loadFiles(Config::Get('path.smarty.template') . '/settings/language/', $sLangName);
+        $this->_loadFiles(Config::Get('path.smarty.template') . '/settings/language/', $sLangName, null, $sLangFor);
     }
 
     /**
@@ -366,11 +370,17 @@ class ModuleLang extends Module {
     /**
      * Получить алиасы текущего языка
      *
+     * @param bool $bIncludeCurrentLang
+     *
      * @return array
      */
-    public function GetLangAliases() {
+    public function GetLangAliases($bIncludeCurrentLang = false) {
 
-        return F::Str2Array(Config::Get('lang.aliases.' . $this->GetLang()));
+        $aResult = F::Str2Array(Config::Get('lang.aliases.' . $this->GetLang()));
+        if ($bIncludeCurrentLang) {
+            array_unshift($aResult, $this->GetLang());
+        }
+        return $aResult;
     }
 
     /**
@@ -500,6 +510,9 @@ class ModuleLang extends Module {
         if (!$sLang) {
             $sLang = $this->sCurrentLang;
         }
+        if (!isset($this->aLangMsg[$sLang]) || !is_array($this->aLangMsg[$sLang])) {
+            $this->aLangMsg[$sLang] = array();
+        }
         if (is_array($aMessages)) {
             if (isset($aParams['name'])) {
                 $aNewMessages = $aMessages;
@@ -586,14 +599,14 @@ class ModuleLang extends Module {
         // * Делаем выгрузку необходимых текстовок в шаблон в виде js
         $this->AssignToJs();
         if (Config::Get('lang.multilang')) {
-            $this->Viewer_AddHtmlHeadTag(
-                '<link rel="alternate" hreflang="x-default" href="' . Router::Url('link') . '">'
+            E::ModuleViewer()->AddHtmlHeadTag(
+                '<link rel="alternate" hreflang="x-default" href="' . R::Url('link') . '">'
             );
             $aLangs = Config::Get('lang.allow');
             foreach ($aLangs as $sLang) {
-                $this->Viewer_AddHtmlHeadTag(
+                E::ModuleViewer()->AddHtmlHeadTag(
                     '<link rel="alternate" hreflang="' . $sLang . '" href="' . trim(F::File_RootUrl($sLang), '/')
-                        . Router::Url('path') . '">'
+                        . R::Url('path') . '">'
                 );
             }
         }

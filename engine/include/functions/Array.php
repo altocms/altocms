@@ -25,7 +25,7 @@ class AltoFunc_Array {
 
         foreach ($aData as $xKey => $xValue) {
             if (is_array($xValue)) {
-                $array[$xKey] = self::ChangeValue($xValue, $sBefore, $sAfter);
+                $array[$xKey] = static::ChangeValue($xValue, $sBefore, $sAfter);
             } elseif (!is_object($xValue)) {
                 $aData[$xKey] = $sBefore . $aData[$xKey] . $sAfter;
             }
@@ -44,7 +44,11 @@ class AltoFunc_Array {
      */
     static public function FlipIntKeys($aData, $xDefValue = 1) {
 
-        $aData = (array)$aData;
+        if (empty($aData)) {
+            $aData = array();
+        } elseif (!is_array($aData) && !($aData instanceof DataArray)) {
+            $aData = (array)$aData;
+        }
         foreach ($aData as $nKey => $sValue) {
             if (is_int($nKey) && is_string($sValue)) {
                 unset($aData[$nKey]);
@@ -74,7 +78,7 @@ class AltoFunc_Array {
     }
 
     /**
-     * Сливает рекурсивно два ассоциативных массива
+     * Сливает рекурсивно два массива с сохранением ключей
      *
      * @param   array   $aData1
      * @param   array   $aData2
@@ -83,7 +87,11 @@ class AltoFunc_Array {
      */
     static public function Merge($aData1, $aData2) {
 
-        $aData1 = (array)$aData1;
+        if (empty($aData1)) {
+            $aData1 = array();
+        } elseif (!is_array($aData1) && !($aData1 instanceof DataArray)) {
+            $aData1 = (array)$aData1;
+        }
         if ($aData2) {
             foreach ($aData2 as $sKey => $xVal) {
                 $bIsKeyInt = false;
@@ -96,9 +104,43 @@ class AltoFunc_Array {
                     }
                 }
                 if (is_array($xVal) && !$bIsKeyInt && isset($aData1[$sKey])) {
-                    $aData1[$sKey] = self::Merge($aData1[$sKey], $xVal);
+                    $aData1[$sKey] = static::Merge($aData1[$sKey], $xVal);
                 } else {
                     $aData1[$sKey] = $xVal;
+                }
+            }
+        }
+        return $aData1;
+    }
+
+    /**
+     * Рекурсивное сливание двух массивов
+     * Массивы (и их элементы) могут быть как ассоциативными, так и обычными.
+     * Если ключ элемента строковый, то он заменяет соответствующий элемент в результирующем массиве.
+     * Если ключ элемента числовой, то он добавляется в соответствующий элемент результирующего массива.
+     *
+     * @param array $aData1
+     * @param array $aData2
+     *
+     * @return array
+     */
+    static public function MergeCombo($aData1, $aData2) {
+
+        if (empty($aData1)) {
+            $aData1 = array();
+        } elseif (!is_array($aData1) && !($aData1 instanceof DataArray)) {
+            $aData1 = (array)$aData1;
+        }
+        if ($aData2) {
+            foreach ($aData2 as $xKey => $xVal) {
+                if (is_integer($xKey)) {
+                    $aData1[] = $xVal;
+                } else {
+                    if (is_array($xVal) && isset($aData1[$xKey])) {
+                        $aData1[$xKey] = static::MergeCombo($aData1[$xKey], $xVal);
+                    } else {
+                        $aData1[$xKey] = $xVal;
+                    }
                 }
             }
         }
@@ -112,17 +154,17 @@ class AltoFunc_Array {
      *
      * @return array
      */
-    static public function KeysRecursive($aData) {
+    static public function KeysRecursive($aData, $sDelimiter = '.') {
 
-        if (!is_array($aData)) {
+        if (!is_array($aData) && !($aData instanceof DataArray)) {
             return false;
         } else {
             $aKeys = array_keys($aData);
             foreach ($aKeys as $k => $v) {
-                if ($aAppend = F::Array_KeysRecursive($aData[$v])) {
+                if ($aAppend = static::KeysRecursive($aData[$v])) {
                     unset($aKeys[$k]);
                     foreach ($aAppend as $sNewKey) {
-                        $aKeys[] = $v . '.' . $sNewKey;
+                        $aKeys[] = $v . $sDelimiter . $sNewKey;
                     }
                 }
             }
@@ -141,7 +183,7 @@ class AltoFunc_Array {
      */
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
 
-        if (!is_string($sStr) && !is_array($sStr)) {
+        if (!is_string($sStr) && !is_array($sStr) && !($sStr instanceof DataArray)) {
             return (array)$sStr;
         }
         if (is_array($sStr)) {
@@ -195,11 +237,17 @@ class AltoFunc_Array {
      *   array('a', 'b')    | array('a', 'b')
      * ---------------------+--------------------
      * </pre>
+     *
+     * @param mixed  $xVal
+     * @param string $sSeparator
+     * @param bool   $bSkipEmpty
+     *
+     * @return array
      */
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
 
         if (is_array($xVal) && (sizeof($xVal) == 1) && isset($xVal[0]) && strpos($xVal[0], ',')) {
-            $aResult = F::Str2Array($xVal[0], $sSeparator, $bSkipEmpty);
+            $aResult = static::Str2Array($xVal[0], $sSeparator, $bSkipEmpty);
         } elseif (is_array($xVal)) {
             $aResult = $xVal;
         } elseif (is_null($xVal)) {
@@ -207,7 +255,7 @@ class AltoFunc_Array {
         } elseif (!is_string($xVal)) {
             $aResult = (array)$xVal;
         } else {
-            $aResult = F::Str2Array($xVal, $sSeparator, $bSkipEmpty);
+            $aResult = static::Str2Array($xVal, $sSeparator, $bSkipEmpty);
         }
         return $aResult;
     }
@@ -215,38 +263,40 @@ class AltoFunc_Array {
     /**
      * Returns the first key of array
      *
-     * @param $aData
+     * @param array $aData
      *
      * @return mixed
      */
     static public function FirstKey($aData) {
 
-        if (is_array($aData)) {
+        if (is_array($aData) || ($aData instanceof DataArray)) {
             $aKeys = array_keys($aData);
-            return array_shift($aKeys);
+            return reset($aKeys);
         }
+        return null;
     }
 
     /**
      * Returns the last key of array
      *
-     * @param $aData
+     * @param array $aData
      *
      * @return mixed
      */
     static public function LastKey($aData) {
 
-        if (is_array($aData)) {
+        if (is_array($aData) || ($aData instanceof DataArray)) {
             $aKeys = array_keys($aData);
-            return array_pop($aKeys);
+            return end($aKeys);
         }
+        return null;
     }
 
     /**
      * Search string in array with case-insensitive string comparison
      *
-     * @param $sStr
-     * @param $aArray
+     * @param string $sStr
+     * @param array  $aArray
      *
      * @return bool
      */
@@ -265,11 +315,11 @@ class AltoFunc_Array {
     /**
      * Returns the values from a single column of the input array, identified by the columnKey
      *
-     * @param      $aArray
-     * @param      $sColumnKey
-     * @param null $sIndexKey
+     * @param array  $aArray
+     * @param string $sColumnKey
+     * @param null   $sIndexKey
      *
-     * @return array|bool
+     * @return array
      */
     static public function Column($aArray, $sColumnKey, $sIndexKey = null) {
 
@@ -302,6 +352,58 @@ class AltoFunc_Array {
             $aArray = & $aResult;
         }
         return $aArray;
+    }
+
+    /**
+     * Property key for entities array sorting
+     *
+     * @var string
+     */
+    static $sSortProp = '';
+    /**
+     * Direction for entities array sorting
+     *
+     * @var string
+     */
+    static $iSortDirect = 1;
+
+    /**
+     * Sort an array of enityes with maintain index association
+     *
+     * @param array  $aEntities
+     * @param string $sProp
+     * @param bool   $bReverse
+     *
+     * @return array
+     */
+    static public function SortEntities($aEntities, $sProp, $bReverse = false) {
+
+        if (is_array($aEntities) && sizeof($aEntities) && $sProp) {
+            self::$sSortProp = $sProp;
+            if ($bReverse) {
+                self::$iSortDirect = -1;
+            } else {
+                self::$iSortDirect = 1;
+            }
+            usort($aEntities, array(__CLASS__, '_sortByProp'));
+        }
+        return $aEntities;
+    }
+
+    /**
+     * Callback function for entities array sorting
+     *
+     * @param Entity $oEntity1
+     * @param Entity $oEntity2
+     *
+     * @return int
+     */
+    static public function _sortByProp($oEntity1, $oEntity2) {
+
+        if ($oEntity1->getProp(self::$sSortProp) == $oEntity2->getProp(self::$sSortProp)) {
+            return 0;
+        }
+        return ($oEntity1->getProp(self::$sSortProp) < $oEntity2->getProp(self::$sSortProp)) ? -1 * self::$iSortDirect : 1 * self::$iSortDirect;
     }
 
 }

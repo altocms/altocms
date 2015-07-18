@@ -98,7 +98,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setTargetId($data) {
 
-        $this->_aData['target_id'] = $data;
+        $this->setProp('target_id', $data);
     }
 
     /**
@@ -108,7 +108,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setTargetType($data) {
 
-        $this->_aData['target_type'] = $data;
+        $this->setProp('target_type', $data);
     }
 
     /**
@@ -118,7 +118,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setVoterId($data) {
 
-        $this->_aData['user_voter_id'] = $data;
+        $this->setProp('user_voter_id', $data);
     }
 
     /**
@@ -128,7 +128,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setDirection($data) {
 
-        $this->_aData['vote_direction'] = $data;
+        $this->setProp('vote_direction', $data);
     }
 
     /**
@@ -138,7 +138,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setValue($data) {
 
-        $this->_aData['vote_value'] = $data;
+        $this->setProp('vote_value', $data);
     }
 
     /**
@@ -148,7 +148,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setDate($data) {
 
-        $this->_aData['vote_date'] = $data;
+        $this->setProp('vote_date', $data);
     }
 
     /**
@@ -158,7 +158,7 @@ class ModuleVote_EntityVote extends Entity {
      */
     public function setIp($data) {
 
-        $this->_aData['vote_ip'] = $data;
+        $this->setProp('vote_ip', $data);
     }
 
 }

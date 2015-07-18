@@ -35,14 +35,11 @@ class ModulePlugin extends Module {
      */
     protected $sPluginsCommonDir;
 
-    protected $sPluginsAppDir;
-
-    /**
-     * Список плагинов
-     *
-     * @var array
-     */
+    /** @var  ModulePlugin_EntityPlugin[] List of plugins' enities */
     protected $aPluginsList;
+
+    /** @var  array List of active plugins from PLUGINS.DAT */
+    protected $aActivePlugins;
 
     /**
      * Список engine-rewrite`ов (модули, экшены, сущности, шаблоны)
@@ -67,13 +64,14 @@ class ModulePlugin extends Module {
      */
     protected $aInherits = array();
 
+    protected $aReverseMap = array();
+
     /**
      * Инициализация модуля
      */
     public function Init() {
 
         $this->sPluginsCommonDir = F::GetPluginsDir();
-        $this->sPluginsAppDir = F::GetPluginsDir(true);
     }
 
     /**
@@ -89,16 +87,58 @@ class ModulePlugin extends Module {
     /**
      * Возвращает XML-манифест плагина
      *
-     * @param $sPluginId
+     * @param string $sPluginId
      *
-     * @return mixed
+     * @return string|bool
      */
     public function GetPluginManifest($sPluginId) {
 
-        $sXmlFile = $this->sPluginsCommonDir . $sPluginId . '/' . self::PLUGIN_XML_FILE;
-        if ($sXml = F::File_GetContents($sXmlFile)) {
+        $aPlugins = F::GetPluginsList(true, false);
+        if (!empty($aPlugins[$sPluginId]['manifest'])) {
+            $sXmlFile = $aPlugins[$sPluginId]['manifest'];
+        } else {
+            if (!empty($aPlugins[$sPluginId]['dirname'])) {
+                $sPluginDir = $aPlugins[$sPluginId]['dirname'];
+            } else {
+                $sPluginDir = $sPluginId;
+            }
+            $sXmlFile = $this->sPluginsCommonDir . $sPluginDir . '/' . self::PLUGIN_XML_FILE;
+        }
+        return $this->GetPluginManifestFrom($sXmlFile);
+    }
+
+    /**
+     * @param string $sPluginId
+     *
+     * @return string
+     */
+    public function GetPluginManifestFile($sPluginId) {
+
+        $aPlugins = F::GetPluginsList(true, false);
+        if (!empty($aPlugins[$sPluginId]['manifest'])) {
+            $sXmlFile = $aPlugins[$sPluginId]['manifest'];
+        } else {
+            if (!empty($aPlugins[$sPluginId]['dirname'])) {
+                $sPluginDir = $aPlugins[$sPluginId]['dirname'];
+            } else {
+                $sPluginDir = $sPluginId;
+            }
+            $sXmlFile = $this->sPluginsCommonDir . $sPluginDir . '/' . self::PLUGIN_XML_FILE;
+        }
+        return $sXmlFile;
+    }
+
+    /**
+     * @param string $sPluginXmlFile
+     *
+     * @return string|bool
+     */
+    public function GetPluginManifestFrom($sPluginXmlFile) {
+
+        if ($sPluginXmlFile && ($sXml = F::File_GetContents($sPluginXmlFile))) {
             return $sXml;
         }
+        return false;
     }
 
     /**
@@ -113,18 +153,20 @@ class ModulePlugin extends Module {
 
         if (is_null($this->aPluginsList)) {
             // Если списка плагинов нет, то создаем его
-            if ($aPaths = glob($this->sPluginsCommonDir . '*', GLOB_ONLYDIR)) {
-                $aList = array_map('basename', $aPaths);
-                $aActivePlugins = $this->GetActivePlugins();
-                foreach ($aList as $sPluginId) {
-                    if ($bActive = in_array($sPluginId, $aActivePlugins)) {
-                        $nNum = array_search($sPluginId, $aActivePlugins) + 1;
+            $aAllPlugins = F::GetPluginsList(true, false);
+            $aActivePlugins = $this->GetActivePlugins();
+            if ($aAllPlugins) {
+                $iCnt = 0;
+                foreach ($aAllPlugins as $sPluginId => $aPluginInfo) {
+                    if ($bActive = isset($aActivePlugins[$sPluginId])) {
+                        $nNum = ++$iCnt;
                     } else {
                         $nNum = -1;
                     }
 
                     // Создаем сущность плагина по его манифесту
-                    $oPluginEntity = Engine::GetEntity('Plugin', $sPluginId);
+                    /** @var ModulePlugin_EntityPlugin $oPluginEntity */
+                    $oPluginEntity = E::GetEntity('Plugin', $aPluginInfo);
                     if ($oPluginEntity->GetId()) {
                         // Если сущность плагина создана, то...
                         $oPluginEntity->SetNum($nNum);
@@ -147,7 +189,7 @@ class ModulePlugin extends Module {
                 ) {
 
                     if ($bAsArray) {
-                        $aPlugins[$sPluginId] = $oPluginEntity->_getData();
+                        $aPlugins[$sPluginId] = $oPluginEntity->getAllProps();
                     } else {
                         $aPlugins[$sPluginId] = $oPluginEntity;
                     }
@@ -172,7 +214,7 @@ class ModulePlugin extends Module {
      *
      * @param   bool|null   - $bActive
      *
-     * @return  array
+     * @return  ModulePlugin_EntityPlugin[]
      */
     public function GetPluginsList($bActive = null) {
 
@@ -184,6 +226,12 @@ class ModulePlugin extends Module {
         return $aPlugins;
     }
 
+    /**
+     * @param $aPlugin1
+     * @param $aPlugin2
+     *
+     * @return int
+     */
     public function _PluginCompareByName($aPlugin1, $aPlugin2) {
 
         if ((string)$aPlugin1['property']->name->data == (string)$aPlugin2['property']->name->data) {
@@ -192,31 +240,36 @@ class ModulePlugin extends Module {
         return ((string)$aPlugin1['property']->name->data < (string)$aPlugin2['property']->name->data) ? -1 : 1;
     }
 
+    /**
+     * @param ModulePlugin_EntityPlugin|array $aPlugin1
+     * @param ModulePlugin_EntityPlugin|array $aPlugin2
+     *
+     * @return int
+     */
     public function _PluginCompareByPriority($aPlugin1, $aPlugin2) {
 
         if (is_object($aPlugin1)) {
-            $aPlugin1 = $aPlugin1->_getData();
+            $aPlugin1 = $aPlugin1->getAllProps();
         }
         if (is_object($aPlugin2)) {
-            $aPlugin2 = $aPlugin2->_getData();
+            $aPlugin2 = $aPlugin2->getAllProps();
         }
+        $aPlugin1['is_active'] = (isset($aPlugin1['is_active']) ? $aPlugin1['is_active'] : false);
+        $aPlugin2['is_active'] = (isset($aPlugin2['is_active']) ? $aPlugin2['is_active'] : false);
+
         if ($aPlugin1['priority'] == $aPlugin2['priority']) {
-            if (($aPlugin1['num'] == $aPlugin2['num'])) {
+            if (!$aPlugin1['is_active'] && !$aPlugin2['is_active']) {
                 // оба плагина не активированы - сортировка по имени
-                if ($aPlugin1['num'] == -1) {
-                    if (($aPlugin1['id'] == $aPlugin2['id'])) {
-                        return 0;
-                    } else {
-                        return ($aPlugin1['id'] < $aPlugin2['id']) ? -1 : 1;
-                    }
-                } else {
+                if (($aPlugin1['id'] == $aPlugin2['id'])) {
                     return 0;
+                } else {
+                    return ($aPlugin1['id'] < $aPlugin2['id']) ? -1 : 1;
                 }
-            } else {
+            } elseif (!$aPlugin1['is_active'] || !$aPlugin2['is_active']) {
                 // неактивированные плагины идут ниже
-                if ($aPlugin1['num'] == -1) {
+                if (!$aPlugin1['is_active'] == -1) {
                     return 1;
-                } elseif ($aPlugin2['num'] == -1) {
+                } elseif (!$aPlugin2['is_active'] == -1) {
                     return -1;
                 }
                 return ($aPlugin1['num'] < $aPlugin2['num']) ? -1 : 1;
@@ -255,25 +308,28 @@ class ModulePlugin extends Module {
         }
 
         $sPluginName = F::StrCamelize($sPluginId);
+        $sPluginDir = $aPlugins[$sPluginId]->getDirname();
+        if (!$sPluginDir) {
+            $sPluginDir = $sPluginId;
+        }
+        $sClassName = "Plugin{$sPluginName}";
 
-        $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginId}/Plugin{$sPluginName}.class.php");
-        if (F::File_Exists($sFile)) {
-            F::IncludeFile($sFile);
-
-            $sClassName = "Plugin{$sPluginName}";
+        if (class_exists($sClassName)) {
+            /** @var Plugin $oPlugin */
             $oPlugin = new $sClassName;
+            /** @var ModulePlugin_EntityPlugin $oPluginEntity */
             $oPluginEntity = $oPlugin->GetPluginEntity();
 
             // Проверяем совместимость с версией Alto
             if (!$oPluginEntity->EngineCompatible()) {
-                $this->Message_AddError(
-                    $this->Lang_Get(
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get(
                         'action.admin.plugin_activation_version_error',
                         array(
                              'version' => $oPluginEntity->RequiredAltoVersion(),
                         )
                     ),
-                    $this->Lang_Get('error'),
+                    E::ModuleLang()->Get('error'),
                     true
                 );
                 return false;
@@ -282,16 +338,15 @@ class ModulePlugin extends Module {
             // * Проверяем системные требования
             if ($oPluginEntity->RequiredPhpVersion()) {
                 // Версия PHP
-                if (!version_compare(PHP_VERSION, $oPluginEntity->RequiredPhpVersion(), '>=')
-                ) {
-                    $this->Message_AddError(
-                        $this->Lang_Get(
+                if (!version_compare(PHP_VERSION, $oPluginEntity->RequiredPhpVersion(), '>=')) {
+                    E::ModuleMessage()->AddError(
+                        E::ModuleLang()->Get(
                             'action.admin.plugin_activation_error_php',
                             array(
                                  'version' => $oPluginEntity->RequiredPhpVersion(),
                             )
                         ),
-                        $this->Lang_Get('error'),
+                        E::ModuleLang()->Get('error'),
                         true
                     );
                     return false;
@@ -300,57 +355,54 @@ class ModulePlugin extends Module {
 
             // * Проверяем наличие require-плагинов
             if ($aRequiredPlugins = $oPluginEntity->RequiredPlugins()) {
-                $aActivePlugins = $this->GetActivePlugins();
+                $aActivePlugins = array_keys($this->GetActivePlugins());
                 $iError = 0;
-                foreach ($aRequiredPlugins as $sReqPlugin) {
+                foreach ($aRequiredPlugins as $oReqPlugin) {
 
                     // * Есть ли требуемый активный плагин
-                    if (!in_array($sReqPlugin, $aActivePlugins)) {
+                    if (!in_array((string)$oReqPlugin, $aActivePlugins)) {
                         $iError++;
-                        $this->Message_AddError(
-                            $this->Lang_Get(
-                                'action.admin.plugins_activation_requires_error',
+                        E::ModuleMessage()->AddError(
+                            E::ModuleLang()->Get(
+                                'action.admin.plugin_activation_requires_error',
                                 array(
-                                     'plugin' => ucfirst($sReqPlugin),
+                                     'plugin' => ucfirst($oReqPlugin),
                                 )
                             ),
-                            $this->Lang_Get('error'),
+                            E::ModuleLang()->Get('error'),
                             true
                         );
                     } // * Проверка требуемой версии, если нужно
                     else {
-                        if (isset($sReqPlugin['name'])) {
-                            $sReqPluginName = (string)$sReqPlugin['name'];
+                        if (isset($oReqPlugin['name'])) {
+                            $sReqPluginName = (string)$oReqPlugin['name'];
                         }
                         else {
-                            $sReqPluginName = ucfirst($sReqPlugin);
+                            $sReqPluginName = ucfirst($oReqPlugin);
                         }
 
-                        if (isset($sReqPlugin['version'])) {
-                            $sReqVersion = $sReqPlugin['version'];
-                            if (isset($sReqPlugin['condition'])
-                                && array_key_exists(
-                                    (string)$sReqPlugin['condition'], $aConditions
-                                )
-                            ) {
-                                $sReqCondition = $aConditions[(string)$sReqPlugin['condition']];
+                        if (isset($oReqPlugin['version'])) {
+                            $sReqVersion = $oReqPlugin['version'];
+                            if (isset($oReqPlugin['condition']) && array_key_exists((string)$oReqPlugin['condition'], $aConditions)) {
+                                $sReqCondition = $aConditions[(string)$oReqPlugin['condition']];
                             } else {
                                 $sReqCondition = 'eq';
                             }
-                            $sClassName = "Plugin{$sReqPlugin}";
-                            $oReqPlugin = new $sClassName;
+                            $sClassName = "Plugin{$oReqPlugin}";
+                            /** @var ModulePlugin_EntityPlugin $oReqPluginInstance */
+                            $oReqPluginInstance = new $sClassName;
 
                             // Получаем версию требуемого плагина
-                            $sReqPluginVersion = $oReqPlugin->GetVersion();
+                            $sReqPluginVersion = $oReqPluginInstance->GetVersion();
 
                             if (!$sReqPluginVersion) {
                                 $iError++;
-                                $this->Message_AddError(
-                                    $this->Lang_Get(
+                                E::ModuleMessage()->AddError(
+                                    E::ModuleLang()->Get(
                                         'action.admin.plugin_havenot_getversion_method',
                                         array('plugin' => $sReqPluginName)
                                     ),
-                                    $this->Lang_Get('error'),
+                                    E::ModuleLang()->Get('error'),
                                     true
                                 );
                             } else {
@@ -358,15 +410,15 @@ class ModulePlugin extends Module {
                                 if (!version_compare($sReqPluginVersion, $sReqVersion, $sReqCondition)) {
                                     $sTextKey = 'action.admin.plugin_activation_reqversion_error_' . $sReqCondition;
                                     $iError++;
-                                    $this->Message_AddError(
-                                        $this->Lang_Get(
+                                    E::ModuleMessage()->AddError(
+                                        E::ModuleLang()->Get(
                                             $sTextKey,
                                             array(
                                                  'plugin'  => $sReqPluginName,
                                                  'version' => $sReqVersion
                                             )
                                         ),
-                                        $this->Lang_Get('error'),
+                                        E::ModuleLang()->Get('error'),
                                         true
                                     );
                                 }
@@ -391,15 +443,16 @@ class ModulePlugin extends Module {
                 ) {
                     $iError += $iCount;
                     foreach ($aOverlap as $sResource => $aConflict) {
-                        $this->Message_AddError(
-                            $this->Lang_Get(
-                                'plugins_activation_overlap', array(
-                                                                   'resource' => $sResource,
-                                                                   'delegate' => $aConflict['delegate'],
-                                                                   'plugin'   => $aConflict['sign']
-                                                              )
+                        E::ModuleMessage()->AddError(
+                            E::ModuleLang()->Get(
+                                'plugins_activation_overlap',
+                                array(
+                                    'resource' => $sResource,
+                                    'delegate' => $aConflict['delegate'],
+                                    'plugin'   => $aConflict['sign']
+                                )
                             ),
-                            $this->Lang_Get('error'), true
+                            E::ModuleLang()->Get('error'), true
                         );
                     }
                 }
@@ -410,24 +463,27 @@ class ModulePlugin extends Module {
             $bResult = $oPlugin->Activate();
         } else {
             // * Исполняемый файл плагина не найден
-            $this->Message_AddError(
-                $this->Lang_Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
-                $this->Lang_Get('error'),
+            $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
+            E::ModuleMessage()->AddError(
+                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
+                E::ModuleLang()->Get('error'),
                 true
             );
             return false;
         }
 
         if ($bResult) {
+            // Запрещаем кеширование
+            E::ModuleCache()->SetDesabled(true);
             // Надо обязательно очистить кеш здесь
-            $this->Cache_Clean();
-            $this->Viewer_ClearAll();
+            E::ModuleCache()->Clean();
+            E::ModuleViewer()->ClearAll();
 
             // Переопределяем список активированных пользователем плагинов
             if (!$this->_addActivePlugins($oPluginEntity)) {
-                $this->Message_AddError(
-                    $this->Lang_Get('action.admin.plugin_write_error', array('file' => $this->sPluginsDatFile)),
-                    $this->Lang_Get('error'), true
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get('action.admin.plugin_write_error', array('file' => F::GetPluginsDatFile())),
+                    E::ModuleLang()->Get('error'), true
                 );
                 $bResult = false;
             }
@@ -436,14 +492,29 @@ class ModulePlugin extends Module {
 
     } // function Activate(...)
 
+    /**
+     * @param ModulePlugin_EntityPlugin $oPluginEntity
+     *
+     * @return ModulePlugin_EntityPlugin[]
+     */
     protected function _addActivePlugins($oPluginEntity) {
 
         $aPluginsList = $this->GetPluginsList(true);
+        $oPluginEntity->setIsActive(true);
         $aPluginsList[$oPluginEntity->GetId()] = $oPluginEntity;
         if (sizeof($aPluginsList)) {
             uasort($aPluginsList, array($this, '_PluginCompareByPriority'));
         }
-        $this->SetActivePlugins(array_keys($aPluginsList));
+        $aActivePlugins = array();
+        /** @var ModulePlugin_EntityPlugin $oPluginEntity */
+        foreach($aPluginsList as $sPlugin => $oPluginEntity) {
+            $aActivePlugins[$sPlugin] = array(
+                'id' => $oPluginEntity->GetId(),
+                'dirname' => $oPluginEntity->GetDirname(),
+                'name' => $oPluginEntity->GetName(),
+            );
+        }
+        $this->SetActivePlugins($aActivePlugins);
         return $aPluginsList;
     }
 
@@ -463,12 +534,15 @@ class ModulePlugin extends Module {
         }
 
         $sPluginName = F::StrCamelize($sPluginId);
+        $sPluginDir = $aPlugins[$sPluginId]->getDirname();
+        if (!$sPluginDir) {
+            $sPluginDir = $sPluginId;
+        }
+        $sClassName = "Plugin{$sPluginName}";
 
-        $sFile = "{$this->sPluginsCommonDir}{$sPluginId}/Plugin{$sPluginName}.class.php";
-        if (F::File_Exists($sFile)) {
-            F::IncludeFile($sFile);
+        if (class_exists($sClassName)) {
 
-            $sClassName = "Plugin{$sPluginName}";
+            /** @var Plugin $oPlugin */
             $oPlugin = new $sClassName;
 
             /**
@@ -477,9 +551,10 @@ class ModulePlugin extends Module {
             $bResult = $oPlugin->Deactivate();
         } else {
             // Исполняемый файл плагина не найден
-            $this->Message_AddError(
-                $this->Lang_Get('plugins_activation_file_not_found'),
-                $this->Lang_Get('error'),
+            $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
+            E::ModuleMessage()->AddError(
+                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
+                E::ModuleLang()->Get('error'),
                 true
             );
             return false;
@@ -490,24 +565,22 @@ class ModulePlugin extends Module {
             $aActivePlugins = $this->GetActivePlugins();
 
             // * Вносим данные в файл о деактивации плагина
-            $aIndex = array_keys($aActivePlugins, $sPluginId);
-            if (is_array($aIndex)) {
-                unset($aActivePlugins[array_shift($aIndex)]);
-            }
+            unset($aActivePlugins[$sPluginId]);
 
             // * Сбрасываем весь кеш, т.к. могут быть закешированы унаследованые плагинами сущности
-            $this->Cache_Clean();
+            E::ModuleCache()->SetDesabled(true);
+            E::ModuleCache()->Clean();
             if (!$this->SetActivePlugins($aActivePlugins)) {
-                $this->Message_AddError(
-                    $this->Lang_Get('action.admin.plugin_activation_file_write_error'),
-                    $this->Lang_Get('error'),
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get('action.admin.plugin_activation_file_write_error'),
+                    E::ModuleLang()->Get('error'),
                     true
                 );
-                return;
+                return false;
             }
 
             // * Очищаем компилированные шаблоны Smarty
-            $this->Viewer_ClearSmartyFiles();
+            E::ModuleViewer()->ClearSmartyFiles();
         }
         return $bResult;
     }
@@ -519,7 +592,10 @@ class ModulePlugin extends Module {
      */
     public function GetActivePlugins() {
 
-        return F::GetPluginsList();
+        if (is_null($this->aActivePlugins)) {
+            $this->aActivePlugins = F::GetPluginsList(false, false);
+        }
+        return $this->aActivePlugins;
     }
 
     /**
@@ -532,7 +608,8 @@ class ModulePlugin extends Module {
     public function IsActivePlugin($sPlugin) {
 
         $aPlugins = $this->GetActivePlugins();
-        return in_array($sPlugin, $aPlugins);
+
+        return isset($aPlugins[$sPlugin]);
     }
 
     /**
@@ -545,15 +622,27 @@ class ModulePlugin extends Module {
     public function SetActivePlugins($aPlugins) {
 
         if (!is_array($aPlugins)) {
-            $aPlugins = array($aPlugins);
+            $sPlugin = (string)$aPlugins;
+            $aPlugins = array(
+                $sPlugin => array(
+                    'id' => $sPlugin,
+                    'dirname' => $sPlugin,
+                ),
+            );
         }
-        $aPlugins = array_unique(array_map('trim', $aPlugins));
+        //$aPlugins = array_unique(array_map('trim', $aPlugins));
 
+        $aSaveData = array(
+            date(';Y-m-d H:i:s'),
+        );
+        foreach($aPlugins as $sPlugin => $aPluginInfo) {
+            $aSaveData[] = $sPlugin . ' '
+                . (!empty($aPluginInfo['dirname']) ? $aPluginInfo['dirname'] : $sPlugin)
+                . (!empty($aPluginInfo['name']) ? ' ;' . $aPluginInfo['name'] : '');
+        }
         // * Записываем данные в файл PLUGINS.DAT
-        if (F::File_PutContents(
-            $this->sPluginsAppDir . Config::Get('sys.plugins.activation_file'), implode(PHP_EOL, $aPlugins)
-        ) !== false
-        ) {
+        $sFile = F::GetPluginsDatFile();
+        if (F::File_PutContents($sFile, implode(PHP_EOL, $aSaveData)) !== false) {
             return true;
         }
         return false;
@@ -600,14 +689,17 @@ class ModulePlugin extends Module {
         if (!is_string($sSign) || !strlen($sSign)) {
             return;
         }
+        $sFrom = trim($sFrom);
+        $sTo = trim($sTo);
         if (!in_array($sType, array_keys($this->aDelegates)) || !$sFrom || !$sTo) {
             return;
         }
 
-        $this->aDelegates[$sType][trim($sFrom)] = array(
-            'delegate' => trim($sTo),
+        $this->aDelegates[$sType][$sFrom] = array(
+            'delegate' => $sTo,
             'sign'     => $sSign
         );
+        $this->aReverseMap['delegates'][$sTo] = $sFrom;
     }
 
     /**
@@ -622,15 +714,38 @@ class ModulePlugin extends Module {
         if (!is_string($sSign) || !strlen($sSign)) {
             return;
         }
+        $sFrom = trim($sFrom);
+        $sTo = trim($sTo);
         if (!$sFrom || !$sTo) {
             return;
         }
 
-        $this->aInherits[trim($sFrom)]['items'][] = array(
-            'inherit' => trim($sTo),
+        $this->aInherits[$sFrom]['items'][] = array(
+            'inherit' => $sTo,
             'sign'    => $sSign
         );
         $this->aInherits[trim($sFrom)]['position'] = count($this->aInherits[trim($sFrom)]['items']) - 1;
+        $this->aReverseMap['inherits'][$sTo][] = $sFrom;
+    }
+
+    /**
+     * Return all inheritance rules
+     *
+     * @return array
+     */
+    public function GetInheritances() {
+
+        return $this->aInherits;
+    }
+
+    /**
+     * Return all delegation rules
+     *
+     * @return array
+     */
+    public function GetDelegations() {
+
+        return $this->aDelegates;
     }
 
     /**
@@ -747,23 +862,26 @@ class ModulePlugin extends Module {
      */
     public function GetRootDelegater($sType, $sTo) {
 
-        $sItem = $sTo;
-        $sItemDelegater = $this->GetDelegater($sType, $sTo);
-        while (empty($sRootDelegater)) {
-            if ($sItem == $sItemDelegater) {
-                $sRootDelegater = $sItem;
+        if ($sTo) {
+            $sItem = $sTo;
+            $sItemDelegater = $this->GetDelegater($sType, $sTo);
+            while (empty($sRootDelegater)) {
+                if ($sItem == $sItemDelegater) {
+                    $sRootDelegater = $sItem;
+                }
+                $sItem = $sItemDelegater;
+                $sItemDelegater = $this->GetDelegater($sType, $sItemDelegater);
             }
-            $sItem = $sItemDelegater;
-            $sItemDelegater = $this->GetDelegater($sType, $sItemDelegater);
+            return $sRootDelegater;
         }
-        return $sRootDelegater;
+        return $sTo;
     }
 
     /**
      * Составляет цепочку делегатов
      *
      * @param string $sType
-     * @param string $aDelegates
+     * @param array  $aDelegates
      *
      * @return array
      */
@@ -788,24 +906,24 @@ class ModulePlugin extends Module {
     public function GetDelegater($sType, $sTo) {
 
         $aDelegateMapper = array();
-        foreach ($this->aDelegates[$sType] as $kk => $vv) {
-            if ($vv['delegate'] == $sTo) {
-                $aDelegateMapper[$kk] = $vv;
+        foreach ($this->aDelegates[$sType] as $sFrom => $aInfo) {
+            if ($aInfo['delegate'] == $sTo) {
+                $aDelegateMapper[$sFrom] = $aInfo;
             }
         }
-        if (is_array($aDelegateMapper) && count($aDelegateMapper)) {
+        if ($aDelegateMapper) {
             $aKeys = array_keys($aDelegateMapper);
-            return array_shift($aKeys);
+            return reset($aKeys);
         }
-        foreach ($this->aInherits as $k => $v) {
+        foreach ($this->aInherits as $sFrom => $aInfo) {
             $aInheritMapper = array();
-            foreach ($v['items'] as $kk => $vv) {
-                if ($vv['inherit'] == $sTo) {
-                    $aInheritMapper[$kk] = $vv;
+            foreach ($aInfo['items'] as $iOrder => $aData) {
+                if ($aData['inherit'] == $sTo) {
+                    $aInheritMapper[$iOrder] = $aData;
                 }
             }
-            if (is_array($aInheritMapper) && count($aInheritMapper)) {
-                return $k;
+            if ($aInheritMapper) {
+                return $sFrom;
             }
         }
         return $sTo;
@@ -858,14 +976,12 @@ class ModulePlugin extends Module {
      * @return bool
      */
     public function isDelegated($sType, $sTo) {
-        /**
-         * Фильтруем маппер делегатов/наследников
-         * @var array
-         */
+
+        // * Фильтруем маппер делегатов/наследников
         $aDelegateMapper = array();
-        foreach ($this->aDelegates[$sType] as $kk => $vv) {
-            if ($vv['delegate'] == $sTo) {
-                $aDelegateMapper[$kk] = $vv;
+        foreach ($this->aDelegates[$sType] as $sKey => $xVal) {
+            if ($xVal['delegate'] == $sTo) {
+                $aDelegateMapper[$sKey] = $xVal;
             }
         }
         if (is_array($aDelegateMapper) && count($aDelegateMapper)) {
@@ -873,9 +989,9 @@ class ModulePlugin extends Module {
         }
         foreach ($this->aInherits as $k => $v) {
             $aInheritMapper = array();
-            foreach ($v['items'] as $kk => $vv) {
-                if ($vv['inherit'] == $sTo) {
-                    $aInheritMapper[$kk] = $vv;
+            foreach ($v['items'] as $sKey => $xVal) {
+                if ($xVal['inherit'] == $sTo) {
+                    $aInheritMapper[$sKey] = $xVal;
                 }
             }
             if (is_array($aInheritMapper) && count($aInheritMapper)) {
@@ -888,7 +1004,7 @@ class ModulePlugin extends Module {
     /**
      * Возвращает список объектов, доступных для делегирования
      *
-     * @return array
+     * @return string[]
      */
     public function GetDelegateObjectList() {
 
@@ -900,7 +1016,7 @@ class ModulePlugin extends Module {
      *
      * @param   string  $sDir
      *
-     * @return  string|null
+     * @return  string|bool
      */
     protected function _seekManifest($sDir) {
 
@@ -930,7 +1046,7 @@ class ModulePlugin extends Module {
         if ($zip->open($sPackFile) === true) {
             $sUnpackDir = F::File_NormPath(dirname($sPackFile) . '/_unpack/');
             if (!$zip->extractTo($sUnpackDir)) {
-                $this->Message_AddError($this->Lang_Get('action.admin.err_extract_zip_file'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.err_extract_zip_file'), E::ModuleLang()->Get('error'));
                 return false;
             } else {
                 // Ищем в папках XML-манифест
@@ -944,25 +1060,43 @@ class ModulePlugin extends Module {
                     }
                 }
                 if (!$sXmlFile) {
-                    $this->Message_AddError(
-                        $this->Lang_Get('action.admin.file_not_found', array('file' => self::PLUGIN_XML_FILE)),
-                        $this->Lang_Get('error')
+                    E::ModuleMessage()->AddError(
+                        E::ModuleLang()->Get('action.admin.file_not_found', array('file' => self::PLUGIN_XML_FILE)),
+                        E::ModuleLang()->Get('error')
                     );
                     return false;
                 }
                 $sPluginSrc = dirname($sXmlFile);
-                $sPluginDir = basename($sPluginSrc);
+
+                // try to define plugin's dirname
+                $oXml = @simplexml_load_file($sXmlFile);
+                if (!$oXml) {
+                    E::ModuleMessage()->AddError(
+                        E::ModuleLang()->Get('action.admin.err_read_xml', array('file' => $sXmlFile)),
+                        E::ModuleLang()->Get('error')
+                    );
+                    return false;
+                }
+                $sPluginDir = (string)$oXml->dirname;
+                if (!$sPluginDir) {
+                    $sPluginDir = (string)$oXml->id;
+                }
+                if (!$sPluginDir) {
+                    $sPluginDir = basename($sPluginSrc);
+                }
+
                 $sPluginPath = $this->GetPluginsDir() . '/' . $sPluginDir . '/';
                 if (F::File_CopyDir($sPluginSrc, $sPluginPath)) {
-                    $this->Message_AddNotice($this->Lang_Get('action.admin.plugin_added_ok'));
+                    E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.plugin_added_ok'));
                 } else {
-                    $this->Message_AddError($this->Lang_Get('action.admin.plugin_added_err'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.plugin_added_err'), E::ModuleLang()->Get('error'));
                 }
             }
             $zip->close();
         } else {
-            $this->Message_AddError($this->Lang_Get('action.admin.err_open_zip_file'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.err_open_zip_file'), E::ModuleLang()->Get('error'));
         }
+        return true;
     }
 }
 

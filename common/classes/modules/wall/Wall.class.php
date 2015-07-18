@@ -33,14 +33,16 @@ class ModuleWall extends Module {
      */
     protected $oUserCurrent;
 
+    protected $aAdditionalData = array('user' => array(), 'wall_user' => array(), 'reply');
+
     /**
      * Инициализация
      *
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oMapper = E::GetMapper(__CLASS__);
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -100,7 +102,9 @@ class ModuleWall extends Module {
             'collection' => $this->oMapper->GetWall($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
             'count'      => $iCount
         );
-        $aResult['collection'] = $this->GetWallAdditionalData($aResult['collection'], $aAllowData);
+        if ($aResult['collection']) {
+            $aResult['collection'] = $this->GetWallAdditionalData($aResult['collection'], $aAllowData);
+        }
         return $aResult;
     }
 
@@ -147,8 +151,11 @@ class ModuleWall extends Module {
      */
     public function GetWallAdditionalData($aWallId, $aAllowData = null) {
 
+        if (!$aWallId) {
+            return array();
+        }
         if (is_null($aAllowData)) {
-            $aAllowData = array('user' => array(), 'wall_user' => array(), 'reply');
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aWallId)) {
@@ -178,12 +185,12 @@ class ModuleWall extends Module {
 
         // * Получаем дополнительные данные
         $aUsers = (isset($aAllowData['user']) && is_array($aAllowData['user']))
-            ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['user'])
-            : $this->User_GetUsersAdditionalData($aUserId);
+            ? E::ModuleUser()->GetUsersAdditionalData($aUserId, $aAllowData['user'])
+            : E::ModuleUser()->GetUsersAdditionalData($aUserId);
 
         $aWallUsers = (isset($aAllowData['wall_user']) && is_array($aAllowData['wall_user']))
-            ? $this->User_GetUsersAdditionalData($aWallUserId, $aAllowData['wall_user'])
-            : $this->User_GetUsersAdditionalData($aWallUserId);
+            ? E::ModuleUser()->GetUsersAdditionalData($aWallUserId, $aAllowData['wall_user'])
+            : E::ModuleUser()->GetUsersAdditionalData($aWallUserId);
 
         $aWallReply = array();
         if (isset($aAllowData['reply']) && count($aWallReplyId)) {
@@ -225,7 +232,7 @@ class ModuleWall extends Module {
      */
     public function GetWallById($iId) {
 
-        if (!is_numeric($iId)) {
+        if (!intval($iId)) {
             return null;
         }
         $aResult = $this->GetWallAdditionalData($iId);

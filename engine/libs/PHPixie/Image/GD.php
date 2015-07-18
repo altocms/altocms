@@ -19,6 +19,7 @@ class GD extends Driver{
 		$image = $this->create_gd($width, $height, $color, $opacity);
 		$this->set_image($image, $width, $height);
 		imagefilledrectangle($image, 0, 0, $width, $height, $this->get_color($color, $opacity));
+		$this->format = 'png';
 		return $this;
 	}
 	
@@ -31,11 +32,14 @@ class GD extends Driver{
 		switch($size["mime"]) {
 			case "image/png":
 				$image = imagecreatefrompng($file);
+				$this->format = 'png';
 				break;
 			case "image/jpeg":
 				$image = imagecreatefromjpeg($file);
+				$this->format = 'jpeg';
 				break;
 			case "image/gif":
+				$this->format = 'gif';
 				$image = imagecreatefromgif($file);
 				break;
 			default: 
@@ -45,6 +49,14 @@ class GD extends Driver{
 		
 		imagealphablending($image, false);
 		$this->set_image($image, $size[0], $size[1]);
+		return $this;
+	}
+	
+	public function load($bytes) {
+		$image = imagecreatefromstring($bytes);
+		imagealphablending($image, false);
+		$this->set_image($image, imagesx($image), imagesy($image));
+		$this->format = 'png';
 		return $this;
 	}
 	
@@ -158,8 +170,10 @@ class GD extends Driver{
 	}
 	
 	public function destroy() {
-		imagedestroy($this->image);
-		$this->image = null;
+		if($this->image !== null) {
+			imagedestroy($this->image);
+			$this->image = null;
+		}
 	}
 	
 	public function crop($width, $height, $x = 0, $y = 0) {
@@ -179,12 +193,16 @@ class GD extends Driver{
 		$width = ceil($this->width*$scale);
 		$height = ceil($this->height*$scale);
 		
+		return $this->resize($width, $height);
+	}
+
+	public function resize($width = null, $height = null, $fit = true) {
 		$resized = $this->create_gd($width, $height);
 		imagecopyresampled($resized, $this->image, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
 		$this->set_image($resized, $width, $height);
 		return $this;
 	}
-	
+
 	public function rotate($angle, $bg_color = 0xffffff, $bg_opacity = 0) {
 		$rotated = imagerotate($this->image, $angle, $this->get_color($bg_color, $bg_opacity));
 		imagealphablending($rotated, false);

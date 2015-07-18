@@ -141,7 +141,11 @@ class Dklab_Cache_Backend_TagEmuWrapper implements Zend_Cache_Backend_Interface
                 // If we have multiLoad(), optimize queries into one.
                 $allMangledTagValues = $this->_backend->multiLoad($this->_mangleTags(array_keys($combined[0])));
                 foreach ($combined[0] as $tag => $savedTagVersion) {
-                    $actualTagVersion = @$allMangledTagValues[$this->_mangleTag($tag)];
+                    if (isset($allMangledTagValues[$this->_mangleTag($tag)])) {
+                        $actualTagVersion = $allMangledTagValues[$this->_mangleTag($tag)];
+                    } else {
+                        $actualTagVersion = null;
+                    }
                     if ($actualTagVersion !== $savedTagVersion) {
                         return false;
                     }
@@ -164,39 +168,43 @@ class Dklab_Cache_Backend_TagEmuWrapper implements Zend_Cache_Backend_Interface
     }
 
     private function _loadOrTestMulti($id, $doNotTestCacheValidity = false, $returnTrueIfValid = false)
-    {    	
-    	if (!is_array($id) or !method_exists($this->_backend, 'multiLoad')) {
-    		return $this->_loadOrTest($id,$doNotTestCacheValidity,$returnTrueIfValid);
-    	}
-    	    	
-    	$aDataMulti=$this->_backend->load($id, $doNotTestCacheValidity);    	
-    	if ($aDataMulti === false) {
+    {
+        if (!is_array($id) or !method_exists($this->_backend, 'multiLoad')) {
+            return $this->_loadOrTest($id,$doNotTestCacheValidity,$returnTrueIfValid);
+        }
+
+        $aDataMulti=$this->_backend->load($id, $doNotTestCacheValidity);
+        if ($aDataMulti === false) {
             return false;
         }
         $aDataReturn=array();
         foreach ($aDataMulti as $sKey => $serialized) {
-        	if ($serialized === false) {
-            	continue;
-        	}
-        	$combined = unserialize($serialized);
-        	if (!is_array($combined)) {
-            	continue;
-        	}
-        	if (is_array($combined[0]) && $combined[0]) {
-        		$allMangledTagValues = $this->_backend->multiLoad($this->_mangleTags(array_keys($combined[0])));
-        		foreach ($combined[0] as $tag => $savedTagVersion) {
-        			$actualTagVersion = @$allMangledTagValues[$this->_mangleTag($tag)];
-        			if ($actualTagVersion !== $savedTagVersion) {
-        				continue 2;
-        			}
-        		}
-        	}
-        	$aDataReturn[$sKey]=$returnTrueIfValid ? true : $combined[1];
+            if ($serialized === false) {
+                continue;
+            }
+            $combined = unserialize($serialized);
+            if (!is_array($combined)) {
+                continue;
+            }
+            if (is_array($combined[0]) && $combined[0]) {
+                $allMangledTagValues = $this->_backend->multiLoad($this->_mangleTags(array_keys($combined[0])));
+                foreach ($combined[0] as $tag => $savedTagVersion) {
+                    if (isset($allMangledTagValues[$this->_mangleTag($tag)])) {
+                        $actualTagVersion = $allMangledTagValues[$this->_mangleTag($tag)];
+                    } else {
+                        $actualTagVersion = null;
+                    }
+                    if ($actualTagVersion !== $savedTagVersion) {
+                        continue 2;
+                    }
+                }
+            }
+            $aDataReturn[$sKey]=$returnTrueIfValid ? true : $combined[1];
         }
         if (count($aDataReturn)>0) {
-        	return $aDataReturn;
+            return $aDataReturn;
         }
-    	return false;    	
+        return false;
     }
 
     /**

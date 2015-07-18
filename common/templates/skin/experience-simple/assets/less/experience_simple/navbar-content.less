@@ -1,0 +1,149 @@
+@import "../bootstrap/mixins";
+//@import "../var.experience_simple.less";
+
+
+
+///** ЦВЕТА (5)
+//_________________________________________________________________*/
+//@navbar-content-default-background:         @lighten-gray;    // Цвет фона
+//@navbar-content-default-active-background:  @light;         // Цвет фона активного элемента
+//@navbar-content-default-active-color:       @blue;          // Цвет шрифта активного элемента
+//@navbar-content-default-hover-color:        @red;           // Цвет наведённого элемента меню
+//@navbar-content-default-color:              @dark-blue;     // Дефолтный цвет шрифта меню
+//
+//
+///** ДРУГОЕ (7)
+//_________________________________________________________________*/
+//@navbar-content-default-link-opacity:       @navbar-link-opacity;   // Прозрачность неактивных ссылок в элементах меню (default = .8)
+//@navbar-content-default-font-size:          @font-size-small;       // Размер шрифта основного меню (default = 13px)
+//@navbar-content-default-submenu-font-size:  @font-size-very-small;  // Размер шрифта подменю (default = 12px)
+//@navbar-content-default-height:             @navbar-content-height; // Высота меню
+//@navbar-content-default-line-height:        18px;                   // Высота линии меню
+//@navbar-content-default-submenu-fade-time:  @navbar-fade-time;      // Время разворачивания меню
+//@navbar-content-default-font-weight:        @navbar-font-weight;    // font-weight
+
+
+/* МЕНЮ КОНТЕНТА
+_________________________________________________________*/
+.navbar-content.navbar-default {
+    border: 0;
+    border-radius: 0;
+    min-height: @navbar-content-default-height;
+    background-color: @navbar-content-default-background;
+    font-size: @navbar-content-default-font-size;
+    font-weight: @navbar-content-default-font-weight !important;
+//    .box-shadow(0 0 2px @navbar-content-default-background);
+
+    // Контейнер элементов меню
+    .navbar-nav {
+
+        // Элемент меню
+        & > li {
+
+            // Активный элемент меню
+            &.active, &.open {
+                & > a {
+                    background-color: @navbar-content-default-active-background;
+                    color: @navbar-content-default-active-color;
+                    opacity: 1;
+                }
+                & > a:hover, & > a:focus {
+                    color: @navbar-content-default-hover-color;
+                }
+            }
+
+            // Кнопка открытого подменю, фон не меняем
+            &.open > a {
+                background-color: @navbar-content-default-background !important;
+            }
+
+            // Гиперссылка в меню
+            > a {
+                color: @navbar-content-default-color;
+                opacity: @navbar-content-default-link-opacity;
+                padding: (@navbar-content-default-height - @navbar-content-default-line-height)/2 16px;
+                line-height: @navbar-content-default-line-height;
+
+                &:hover, &:focus {
+                    color: @navbar-content-default-hover-color;
+                    opacity: 1;
+                }
+            }
+
+        }
+
+    }
+
+    .fadeIn {
+        -webkit-animation-duration: @navbar-content-default-submenu-fade-time;
+        -moz-animation-duration: @navbar-content-default-submenu-fade-time;
+        -o-animation-duration: @navbar-content-default-submenu-fade-time;
+        animation-duration: @navbar-content-default-submenu-fade-time;
+    }
+}
+
+/* ВЫПАДАЮЩИЕ ПОДМЕНЮ КОНТЕНТА
+_________________________________________________________*/
+// Ссылка в подменю
+.dropdown-content-menu-link() {
+    & > a {
+        width: 100%;
+        color: @navbar-content-default-color;
+        font-size: 12px !important;
+        line-height: 2 !important;
+
+        &:hover, &:focus {
+            background-color: @navbar-content-default-active-background;
+            color: @navbar-content-default-hover-color;
+        }
+
+    }
+}
+// Подменю
+.dropdown-menu.dropdown-content-menu {
+    border: 0;
+    border-radius: 0;
+    background: @navbar-content-default-background;
+    box-shadow: 0 14px 11px rgba(0,0,0,.1);
+
+    & > li {
+        width: 100%;
+        cursor: pointer;
+
+        .dropdown-content-menu-link();
+    }
+
+    a {
+        margin: 0 !important;
+        border-bottom: 0 !important;
+    }
+
+}
+
+.navbar-main .dropdown-menu.dropdown-content-menu {
+    & > li > a {
+        font-size: 14px !important;
+    }
+}
+
+.right-placed-menu .dropdown-menu {
+    left: auto;
+    right: 0;
+}
+
+
+/* МЕНЮ В СВЁРНУТОМ СОСТОЯНИИ
+_________________________________________________________*/
+@media only screen and (max-width: @screen-sm) {
+
+    // Уберём горизонтальный скролл
+    .navbar-content .dropdown.open {
+        overflow-x: hidden;
+    }
+
+    // Подкрасим кнопки также как и в нормальном состоянии меню
+    .navbar-default .navbar-nav .open .dropdown-menu > li {
+        .dropdown-content-menu-link();
+    }
+
+}

@@ -1,0 +1,429 @@
+/*
+ * CUSTOM.CSS
+ *
+ */
+
+/* Classes for customization of logo image and text
+ * See tpls/commons/common.header_nav_pages.tpl
+ */
+.logo-img {
+    max-height: 64px;
+}
+.logo-name {
+
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        width: 870px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1030px; /* 1000px - container + 30px */
+    }
+}
+
+.searched-item { background: #fffaaa; }
+
+/* UPLOADER */
+.uploader-actions {
+    position: relative;
+}
+
+.uploader-actions-file {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    height: 20px;
+    cursor: pointer
+}
+
+/* MULTI-UPLOADER */
+.js-alto-topic-uploader .js-alto-multi-uploader-list:last-child {
+    margin-bottom: 12px;
+}
+.js-alto-topic-uploader .js-files-container {
+    max-height: 373px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: 6px;
+}
+.js-alto-multi-uploader-list .js-file-name {
+    overflow: hidden;
+    text-align: center;
+    font-size: 10px;
+}
+.js-alto-multi-uploader-list .progress {
+    margin-bottom: 0 !important;
+}
+
+
+
+.js-alto-topic-uploader-form .js-add, .js-alto-multi-uploader-form .js-add {
+    position: relative; overflow: hidden;
+}
+.js-alto-topic-uploader-form canvas, .js-alto-multi-uploader-form canvas {
+    width: 100%;
+}
+.js-alto-multi-uploader-form .js-file-delete {
+    top: -6px;
+    right: 17px;
+    color: #FF0000;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 999;
+    position: absolute;
+    font-size: 20px;
+    -webkit-transition: opacity .1s ease-in;
+    -moz-transition: opacity .1s ease-in;
+    transition: opacity .1s ease-in;
+}
+.js-alto-multi-uploader-form .js-file-reload {
+    position: absolute;
+    top: -2px;
+    left: 19px;
+    z-index: 999;
+    color: rgb(84, 140, 64);
+    font-size: 17px;
+    opacity: 0;
+    cursor: pointer;
+    -webkit-transition: opacity .1s ease-in;
+    -moz-transition: opacity .1s ease-in;
+    transition: opacity .1s ease-in;
+}
+
+.js-alto-topic-uploader-form .progress, .js-alto-multi-uploader-form .progress {
+    margin-bottom: 0;
+}
+.js-alto-topic-uploader-form .js-file-name, .js-alto-multi-uploader-form .js-file-name {
+    font-size: 10px;
+    text-align: center;
+    overflow: hidden;
+}
+.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete,
+.js-alto-topic-uploader-form .js-file-tpl:hover .js-file-delete,
+.js-alto-topic-uploader-form .js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload,
+.js-alto-topic-uploader-form .js-alto-topic-uploader-form .js-file-tpl:hover .js-file-reload {
+    opacity: 1;
+}
+.js-alto-topic-uploader-form .js-file-rotate, .js-alto-multi-uploader-form .js-file-rotate {
+    top: 33%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    margin: -16px 0 0 -16px;
+    position: absolute;
+}
+.js-alto-topic-uploader-form .js-file-rotate i, .js-alto-multi-uploader-form .js-file-rotate i { font-size: 36px; }
+.js-alto-topic-uploader-form, .js-alto-multi-uploader-form { position: relative; }
+.js-alto-topic-uploader-form input, .js-alto-multi-uploader-form input {
+    position: absolute;
+    overflow: hidden;
+    -moz-opacity: 0;
+    filter:  alpha(opacity: 0);
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    top: -10px;
+    left: -10px;
+    font-size: 30px;
+}
+.js-uploader-picker {
+    border: 1px dashed #808080;
+    padding: 12px;
+}
+.js-uploader-picker-hover {
+    background: #ffff00;
+    border: 1px dashed yellowgreen;
+}
+
+
+/* СН�?ППЕТЫ
+____________________________________________________________*/
+.snippet-menu {
+    width: 20px;
+    height: 16px !important;
+    background-image: none !important;
+}
+.snippet-menu > a, .snippet-menu > a:hover {
+    background: url('../images/editor_snippet.png') no-repeat;
+    width: 20px;
+    height: 20px;
+    background-position-x: -2px;
+    background-position-y: -2px;
+}
+.snippet-menu ul {
+    border: 1px solid #c7c7c7 !important;
+    border-radius: 4px;
+}
+.snippet-menu li {
+    border: 0;
+    border-bottom: 1px solid #c7c7c7 !important;
+    border-radius: 4px !important;
+}
+.snippet-menu li:last-child {
+    border-bottom: 0 !important;
+}
+.snippet-menu li a {
+    background: none;
+    text-align: left;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 0 0 6px !important;
+    width: 160px !important;
+    background: white;
+    color: #434343 !important;
+}
+.snippet-menu li a:hover {
+    background-image: none;
+    background-color: #e6e6e6 !important;
+}
+
+.spoiler {
+    display: block;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.spoiler-title {
+    background: #eee;
+    color: #555;
+    text-align: left;
+    padding-left: 12px;
+    height: 18px;
+    line-height: 18px;
+}
+
+.spoiler-slider {
+    display: inline-block;
+    float: right;
+    width: 100px;
+    text-align: right;
+    padding-right: 12px;
+    color: #555;
+    cursor: pointer;
+}
+
+.spoiler-slider:hover {
+    text-decoration: underline;
+}
+
+.spoiler-text {
+    display: none;
+    padding: 12px;
+}
+
+/* Р¤РћРўРћРЎР•Рў
+______________________________________________________________*/
+.am-wrapper {
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.am-wrapper img {
+    position: absolute;
+    outline: none;
+}
+.alto-photoset {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+/* ДОБАВЛЕН�?Е КАРТ�?НК�? В РЕДАКТОР
+____________________________________________________________*/
+.editor-insert-picture {
+    width: 20px;
+    height: 16px !important;
+    background-image: none !important;
+}
+.editor-insert-picture > a, .editor-insert-picture > a:hover {
+    background: url('../images/editor_insert_image.png') no-repeat;
+    width: 20px;
+    height: 20px;
+    background-position-x: -2px;
+    background-position-y: -2px;
+}
+.editor-insert-picture ul {
+    border: 1px solid #c7c7c7 !important;
+    border-radius: 4px;
+}
+.editor-insert-picture li {
+    border: 0;
+    border-bottom: 1px solid #c7c7c7 !important;
+    border-radius: 4px !important;
+}
+.editor-insert-picture li:last-child {
+    border-bottom: 0 !important;
+}
+.editor-insert-picture li a {
+    background: none;
+    text-align: left;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 0 0 6px !important;
+    width: 160px !important;
+    background: white;
+    color: #434343 !important;
+}
+.editor-insert-picture li a:hover {
+    background-image: none;
+    background-color: #e6e6e6 !important;
+}
+
+.image-categories-tree {
+    min-height: 230px;
+    border: 1px #d3d3d3;
+}
+li.active.category-show {
+    background-color: #e5e5e5;
+}
+.image-categories-tree span {
+    font-style: italic;
+    float: right;
+    font-weight: normal;
+}
+#image-container img {
+    opacity: 0.8;
+    margin-bottom: 1px;
+}
+#image-container img:hover {
+    opacity: 1;
+}
+#image-container  .masonry-container {
+    padding: 0;
+}
+#image-container  .masonry-item {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+.image-categories-tree .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: #ffffff;
+    background-color: #428bca !important;
+}
+#js-alto-image-manager .modal-dialog{
+    width: 600px;
+}
+#js-alto-image-manager .fileinput .form-control{
+    width: 234px;
+}
+
+.image-categories-nav-trigger {
+    font-size: 13px;
+    line-height: 12px;
+}
+.image-categories-nav-trigger .options-show {
+    display: inline-block;
+}
+.image-categories-nav-trigger .options-hide {
+    display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-show {
+    display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-hide {
+    display: inline-block;
+}
+
+.mce-snippets button>span {
+    font-size: 18px !important;
+    font-weight: bold;
+    position: relative;
+    top: -1px;
+}
+
+.category-show span {
+    display: inline-block;
+    min-width: 24px;
+    padding: 3px 7px;
+    font-size: 13px;
+    font-weight: normal;
+    color: white;
+    line-height: 1;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-align: center;
+    background-color: #1499cb;
+    border-radius: 10px;
+    margin-left: 6px;
+}
+li.active.category-show {
+    background: white;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.topic-text img, .topic-text a[data-url] {
+    max-width: 100%;
+}
+.photo-preview-state .marked-as-cover {
+    display: none;
+}
+.photo-preview-state .mark-as-cover {
+    display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .marked-as-cover {
+    display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .mark-as-cover {
+    display: none;
+}
+
+@media (min-width: 768px) and (max-width: 900px) {
+    #content-container.col-sm-17 {
+        width: 58%;
+    }
+    #content-container.col-sm-24 {
+        width: 100%;
+    }
+}
+
+@media (min-width: 900px) and (max-width: 1200px) {
+    #content-container.col-sm-17 {
+        width: 65%;
+    }
+    #content-container.col-sm-24 {
+        width: 100%;
+    }
+}
+
+table.form-control {
+    table-layout: fixed;
+    line-height: 20px;
+}
+table.form-control .input-container {
+    width: 100%;
+}
+table.form-control .input-container input {
+    width: 100%;
+    border-bottom: 1px dotted #1c374c;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+}
+
+
+h1 { margin: 0; }
+h2, h2 a { font-size: 20px; }
+.panel-header {
+    font-size: 20px;
+    font-weight: normal;
+    height: 36px;
+    line-height: 20px;
+    margin-bottom: 14px;
+    margin-top: 0;
+    padding-bottom: 16px;
+}
+.panel-header i { margin-right: 6px; }

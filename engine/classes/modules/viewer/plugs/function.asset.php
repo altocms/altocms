@@ -14,16 +14,63 @@
  *
  * @param   array $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_asset($aParams, $oSmartyTemplate) {
 
-    if (empty($aParams['skin'])) {
-        trigger_error('Config: missing "skin" parametr', E_USER_WARNING);
-        return;
+    if (empty($aParams['skin']) && empty($aParams['file'])) {
+        trigger_error('Asset: missing "file" parametr', E_USER_WARNING);
+        return '';
     }
 
-    $sUrl = E::Viewer_GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
+    if (isset($aParams['file'])) {
+        if ((stripos($aParams['file'], 'http://') === 0)
+            || (stripos($aParams['file'], 'https://') === 0)
+            || (stripos($aParams['file'], 'http://') === 0)) {
+            $sUrl = $aParams['file'];
+        } else {
+            if (F::File_LocalDir($aParams['file'])) {
+                $sFile = $aParams['file'];
+            } else {
+                // Need URL to asset file
+                if (empty($aParams['skin'])) {
+                    $sSkin = E::ModuleViewer()->GetConfigSkin();
+                } else {
+                    $sSkin = $aParams['skin'];
+                }
+                if (isset($aParams['theme'])) {
+                    if (is_bool($aParams['theme'])) {
+                        $sTheme = E::ModuleViewer()->GetConfigTheme();
+                    } else {
+                        $sTheme = $aParams['theme'];
+                    }
+                } else {
+                    $sTheme = '';
+                }
+                if ($sTheme) {
+                    $sTheme = 'themes/' . $sTheme . '/';
+                }
+                if (isset($aParams['plugin'])) {
+                    $sFile = Plugin::GetTemplateFile($aParams['plugin'], $aParams['file']);
+                } else {
+                    $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $sTheme . $aParams['file'];
+                }
+            }
+            if (isset($aParams['prepare'])) {
+                /** @var ModuleViewerAsset $oLocalViewerAsset */
+                $oLocalViewerAsset = new ModuleViewerAsset();
+                $oLocalViewerAsset->AddFiles(F::File_GetExtension($sFile, true), array($sFile));
+                $oLocalViewerAsset->Prepare();
+                $sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
+            } else {
+                $sUrl = E::ModuleViewerAsset()->File2Link($sFile, 'skin/' . $sSkin . '/');
+            }
+        }
+    } else {
+        // Need URL to asset dir
+        $sUrl = E::ModuleViewer()->GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
+    }
 
     return $sUrl;
 }

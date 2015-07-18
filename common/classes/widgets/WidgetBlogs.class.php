@@ -26,14 +26,12 @@ class WidgetBlogs extends Widget {
     public function Exec() {
 
         // * Получаем список блогов
-        if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('block.blogs.row'))) {
-            $aBlogs = $aResult['collection'];
-
-            $aVars = array('aBlogs' => $aBlogs);
+        if ($aResult = E::ModuleBlog()->GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
+            $aVars = array('aBlogs' => $aResult['collection']);
 
             // * Формируем результат в виде шаблона и возвращаем
-            $sTextResult = $this->Viewer_FetchWidget('blogs_top.tpl', $aVars);
-            $this->Viewer_Assign('sBlogsTop', $sTextResult);
+            $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
+            E::ModuleViewer()->Assign('sBlogsTop', $sTextResult);
         }
     }
 }

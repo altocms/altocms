@@ -1,0 +1,299 @@
+@import "../bootstrap/mixins";
+//@import "../var.experience_simple.less";
+@import "mixins.less";
+
+
+@panel-footer-font-size:        @block-footer-font-size;   // Размер шрифта в подвале блока
+@panel-footer-height:           @block-footer-height;      // Высота футера блока (40px)
+@panel-header-font-size:        @block-header-font-size;   // Размер шрифта заголовка (40px)
+@panel-font-size:               @font-size-small;          // Базовый размер шрифта блоков (13px)
+@panel-font-color:              @block-font-color;         // Базовый цвет шрифтов блока
+
+
+/** ОБЩИЕ СТИЛИ ДЛЯ ПАНЕЛЕЙ
+_________________________________________________________________*/
+.panel {
+
+    // Плоский вид панелей
+    &.flat {
+        position: relative;
+    }
+
+    .panel-footer {
+        padding: 0 18px;
+        ul {
+            padding-left: 0 !important;
+        }
+        .btn-gray {
+            vertical-align: bottom;
+        }
+    }
+
+    .dual-footer {
+        position: relative;
+        height: auto !important;
+        min-height: 40px;
+        ul.pull-right {
+            height: 40px !important;
+            position: absolute;
+            right: 0;
+            li {
+                margin: 0;
+                padding: 0 !important;
+                height: 40px;
+            }
+        }
+        ul.pull-left {
+            margin-right: 120px;
+            li {
+                padding-left: 0 !important;
+                padding-right: 12px !important;
+                float: none;
+            }
+        }
+    }
+
+    .panel-body {
+        padding: 18px;
+
+//        .panel-header {
+//            padding-bottom: 16px !important;
+//            margin-bottom: 0 !important;
+//            border-bottom: 0 !important;
+//        }
+
+        // фильтр по имени пользвоателя
+        #user-prefix-filter {
+
+            a {
+                font-size: @font-size-base !important;
+                color: @blue !important;
+                text-decoration: none;
+                &:hover, &.active {
+                    color: @active-link-color !important;
+                }
+
+            }
+            li.active a{
+                color: @active-link-color !important;
+            }
+        }
+//        // Поиск по логину
+        #search-user-login, #form-blogs-search input {
+            font-size: @form-inputs-font-size;
+            color: @form-inputs-font-color;
+            background-color: @form-inputs-background-color;
+            border-color: @form-inputs-border-color;
+            height: 32px;
+            padding: 8px;
+        }
+    }
+
+    .box-shadow(none);
+
+    .panel-header-container {
+        .clearfix();
+        margin-bottom: 38px;
+        border-bottom: 1px solid @form-inputs-border-color;
+    }
+
+    .panel-content {
+        min-height: 100px;
+    }
+
+    .right-placed-menu {
+        list-style: none;
+        display: block;
+        padding: 0;
+        border: 0;
+        margin: 0 0 18px 0;
+
+        li {
+            display: inline-block;
+            a {
+                .link-dark();
+                .link-dark-dashed();
+                margin: 0 6px;
+                &:hover, &.active {
+                    color: @blue !important;
+                    border-color: @blue !important;
+                }
+            }
+
+            &.active a {
+                color: @blue !important;
+                border-color: @blue !important;
+            }
+        }
+    }
+
+    .panel-footer, .topic-footer {
+        background: #e6ebee;
+        padding: 0 20px;
+        a, a i.fa {
+            font-size: @panel-footer-font-size !important;
+            color: @main-gray;
+
+        }
+        border-radius: 0;
+        height: @panel-footer-height;
+        line-height: @panel-footer-height;
+    }
+}
+
+.panel-statistic {
+    li, li * {
+        font-size: @font-size-small;
+    }
+}
+
+/** ВИДЖЕТЫ
+_________________________________________________________________*/
+// Заголовок виджета
+.panel-header {
+    text-align: left;
+    font-size: @panel-header-font-size;
+    border-bottom: 0;
+    padding-bottom: 0;
+    //        margin-bottom: 3px !important;
+    i {
+        margin-right: 6px;
+    }
+}
+
+.panel.widget {
+    border-radius: 0;
+
+    // В виджетах шрифт tahoma
+    * {
+        //font-family: @font-family-serif;
+        .fa {
+            font-family: "FontAwesome", serif;
+        }
+    }
+    .panel-header {
+        text-align: center;
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    // Панель навигации
+    .panel-navigation {
+        text-align: center;
+
+        li {
+            margin-right: 18px;
+            &:last-child {
+                margin-right: 0 !important;
+            }
+        }
+
+    }
+
+    .comment-info {
+        position: relative;
+    }
+
+    .user-block {
+        .sized();
+        font-size: @panel-font-size;
+        line-height: 32px;
+        width: 50%;
+        height: 32px;
+        white-space: nowrap;
+        padding: 0;
+        margin-right: 0 !important;
+        display: inline-block;
+        img {
+            border-radius: 16px;
+            margin-top: 0;
+            margin-right: 6px;
+        }
+    }
+
+    .date-block {
+        font-size: @panel-font-size;
+        width: 50%;
+        white-space: nowrap;
+        height: 32px;
+        display: inline-block;
+        line-height: 32px;
+        float: right;
+        top: 0;
+        text-align: right;
+        position: absolute;
+        .date {
+            color: @dark-blue !important;
+            font-size: @panel-font-size - 1;
+        }
+        .time {
+            font-size: @panel-font-size - 1;
+        }
+        &:before {
+            content: "|";
+            position: absolute;
+            left: 18px;
+            top: 9px;
+            color: @light-gray;
+            line-height: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: "Arial", serif;
+        }
+    }
+
+    .feed-comment-text a {
+        text-decoration: none;
+        color: @color-10 !important;
+        &:hover {
+            color: @red !important;
+        }
+    }
+
+    .panel-content, .widget-content {
+        font-size: @panel-font-size !important;
+        a {
+            color: @panel-font-color;
+            text-decoration: none;
+            &:hover {
+                color: @active-link-color;
+            }
+        }
+        .text-muted {
+            line-height: 18px;
+        }
+    }
+
+    .panel-body {
+        padding-bottom: 48px;
+    }
+
+}
+
+.widget-userfeed {
+    img {
+        border-radius: 32px;
+    }
+}
+
+.content-write {
+    .panel-body .panel-header {
+        padding-bottom: 0 !important;
+        margin-bottom: 16px !important;
+        border-bottom: 0 !important;
+    }
+}
+
+.tag-cloud a:hover, .tag-cloud a:hover span {
+    color: @active-link-color !important;
+}
+
+.topic-info .topic-user {
+    height: 34px !important;
+}
+
+.widget-blog-info {
+    img {
+        max-width: 100%;
+    }
+}

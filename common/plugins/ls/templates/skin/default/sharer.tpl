@@ -3,7 +3,7 @@
 {else}
     <script>
         jQuery(document).ready(function($) {
-            jQuery('#topic_share_{$oTopic->getId()}').slideToggle();
+            jQuery('#topic_share_' + '{$oTopic->getId()}').slideToggle();
         });
     </script>
     <div class="b-ya-likes yashare-auto-init" data-yashareL10n="ru" data-yashareLink="{$oTopic->getUrlShort()}"  data-yashareTitle="{$oTopic->getTitle()|escape:'html'}" data-yashareDescription="" data-yashareQuickServices="yaru,vkontakte,facebook,twitter,moimir,gplus" data-yashareTheme="counter" data-yashareType="small"></div>

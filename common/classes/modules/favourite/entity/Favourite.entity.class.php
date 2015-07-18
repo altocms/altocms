@@ -63,12 +63,25 @@ class ModuleFavourite_EntityFavourite extends Entity {
     /**
      * Возващает список тегов
      *
+     * @param bool $bTextOnly
+     *
      * @return array
      */
-    public function getTagsArray() {
+    public function getTagsArray($bTextOnly = true) {
 
-        if ($this->getTags()) {
-            return explode(',', $this->getTags());
+        if ($sTags = $this->getTags()) {
+            if ($bTextOnly) {
+                return explode(',', $sTags);
+            }
+            $aTexts = explode(',', $sTags);
+            $aData = array();
+            foreach ($aTexts as $nI => $sText) {
+                $aData[] = array(
+                    'favourite_tag_id'   => -$nI,
+                    'favourite_tag_text' => $sText,
+                );
+            }
+            return E::GetEntityRows('Favourite_Tag', $aData);
         }
         return array();
     }
@@ -80,7 +93,7 @@ class ModuleFavourite_EntityFavourite extends Entity {
      */
     public function setTargetId($data) {
 
-        $this->_aData['target_id'] = $data;
+        $this->setProp('target_id', $data);
     }
 
     /**
@@ -90,7 +103,7 @@ class ModuleFavourite_EntityFavourite extends Entity {
      */
     public function setUserId($data) {
 
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -100,7 +113,7 @@ class ModuleFavourite_EntityFavourite extends Entity {
      */
     public function setTargetPublish($data) {
 
-        $this->_aData['target_publish'] = $data;
+        $this->setProp('target_publish', $data);
     }
 
     /**
@@ -110,8 +123,9 @@ class ModuleFavourite_EntityFavourite extends Entity {
      */
     public function setTargetType($data) {
 
-        $this->_aData['target_type'] = $data;
+        $this->setProp('target_type', $data);
     }
+
 }
 
 // EOF

@@ -23,7 +23,7 @@ class CacheBackendXcache extends Dklab_Cache_Backend_TagEmuWrapper implements IC
         return extension_loaded('xcache');
     }
 
-    static public function init($sFuncStats) {
+    static public function Init($sFuncStats) {
 
         if (!self::IsAvailable()) {
             return false;
@@ -43,6 +43,16 @@ class CacheBackendXcache extends Dklab_Cache_Backend_TagEmuWrapper implements IC
     public function IsСoncurrent() {
 
         return true;
+    }
+
+    public function Remove($sName) {
+
+        return parent::remove($sName);
+    }
+
+    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array()) {
+
+        return parent::clean($sMode, $aTags);
     }
 
 }

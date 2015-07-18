@@ -11,20 +11,12 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-header('Content-Type: text/html; charset=utf-8');
-header('X-Powered-By: Alto CMS');
-
-defined('ALTO_DIR') or define('ALTO_DIR', dirname(__FILE__));
+defined('ALTO_DIR') || define('ALTO_DIR', dirname(__FILE__));
 
 // Run engine loader
 require_once(ALTO_DIR . '/engine/loader.php');
 
-$oProfiler = ProfilerSimple::getInstance();
-if (DEBUG) $iTimeId = $oProfiler->Start('full_time');
-
-$oRouter = Router::getInstance();
-$oRouter->Exec();
-
-if (DEBUG) $oProfiler->Stop($iTimeId);
+// Creates and executes application
+App::Create()->Exec();
 
 // EOF

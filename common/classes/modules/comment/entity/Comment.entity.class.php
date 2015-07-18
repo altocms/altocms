@@ -474,21 +474,49 @@ class ModuleComment_EntityComment extends Entity {
         $this->setProp('comment_count_favourite', $data);
     }
 
+    public function getTargetBlog() {
+
+        if (($oTopic = $this->getTarget()) && ($oBlog = $oTopic->getBlog())) {
+            return $oBlog;
+        }
+        return null;
+    }
+
     /**
      * Сколько секунд осталось до конца редактирования
      *
+     * @param bool $bFormat
+     *
      * @return int
      */
-    public function getEditTime() {
+    public function getEditTime($bFormat = false) {
 
-        if (Config::Get('module.comment.edit.enable') && ($oUser = E::User())
-            && ($oUser->getId() == $this->getUserId())
-        ) {
+        if (Config::Get('module.comment.edit.enable') && ($oUser = E::User()) && ($oUser->getId() == $this->getUserId())) {
             $sDateTime = F::DateTimeAdd($this->GetCommentDate(), Config::Get('module.comment.edit.enable'));
             $sNow = date('Y-m-d H:i:s');
             if ($sNow < $sDateTime) {
                 $nRest = F::DateDiffSeconds($sNow, $sDateTime);
-                return $nRest;
+                if (!$bFormat) {
+                    return $nRest;
+                }
+                if ($nRest < 60) {
+                    return sprintf('%2d sec', $nRest);
+                }
+                $nS = $nRest % 60;
+                $nM = ($nRest - $nS) / 60;
+                if ($nM < 60) {
+                    return sprintf('%2d:%02d', $nM, $nS);
+                }
+                $nRest = $nM;
+                $nM = $nRest % 60;
+                $nH = ($nRest - $nM) / 60;
+                if ($nH < 24) {
+                    return sprintf('%2d:%02d:%02d', $nH, $nM, $nS);
+                }
+                $nRest = $nH;
+                $nH = $nRest % 24;
+                $nD = ($nRest - $nH) / 24;
+                return sprintf('%3d, %2d:%02d:%02d', $nD, $nH, $nM, $nS);
             }
         }
         return 0;
@@ -497,15 +525,29 @@ class ModuleComment_EntityComment extends Entity {
     /**
      * Может ли комментарий редактироваться
      *
+     * @param bool|null $bByAuthor - Check for author of comments or for other users only
+     *
      * @return bool
      */
-    public function isEditable() {
+    public function isEditable($bByAuthor = null) {
 
-        if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
-            if ($oUser->isAdministrator() || $this->ACL_CheckBlogEditComment($this->getTarget(), $oUser)) {
-                return true;
+        if ($this->getTargetType() != 'talk' && ($oUser = E::ModuleUser()->GetUserCurrent())) {
+            if ($bByAuthor === false || is_null($bByAuthor)) {
+                // Administrator or user who have rights to edit
+                if ($oUser->isAdministrator()) {
+                    return true;
+                }
+                // User who has rights to edit in this blog
+                if (($oBlog = $this->getTargetBlog()) && E::ModuleACL()->CheckBlogEditComment($oBlog, $oUser)) {
+                    return true;
+                }
             }
-            return ($oUser->GetId() == $this->getUserId()) && Config::Get('module.comment.edit.enable') && !$this->getDelete();
+            if ($bByAuthor === true || is_null($bByAuthor)) {
+                // author of comment can edit comment in time limit
+                if (($oUser->GetId() == $this->getUserId()) && Config::Get('module.comment.edit.enable') && !$this->getDelete()) {
+                    return $this->getEditTime() ? true : false;
+                }
+            }
         }
         return false;
     }
@@ -517,8 +559,11 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function isDeletable() {
 
-        if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
-            if ($oUser->isAdministrator() || $this->ACL_CheckBlogDeleteComment($this->getTarget(), $oUser)) {
+        if ($this->getTargetType() != 'talk' && ($oUser = E::ModuleUser()->GetUserCurrent())) {
+            if ($oUser->isAdministrator()) {
+                return true;
+            }
+            if (($oBlog = $this->getTargetBlog()) && E::ModuleACL()->CheckBlogDeleteComment($oBlog, $oUser)) {
                 return true;
             }
         }
@@ -538,6 +583,36 @@ class ModuleComment_EntityComment extends Entity {
         }
         return strtotime($this->getDate()) < time() - F::ToSeconds($nTimeLimit);
     }
+
+    /**
+     * Creates RSS item for the comment
+     *
+     * @return ModuleRss_EntityRssItem
+     */
+    public function CreateRssItem() {
+
+        $oTopic = $this->getTarget();
+        if (!$oTopic) {
+            return null;
+        }
+        if ($oTopic && $this->getTarget()->getTitle()) {
+            $sTitle = $oTopic->getTitle() . ' (comment #' . $this->getId() . ')';
+        } else {
+            $sTitle = 'Comment #' . $this->getId();
+        }
+        $aRssItemData = array(
+            'title' => $sTitle,
+            'description' => $this->getText(),
+            'link' => $oTopic->getUrl() . '#comment' . $this->getId(),
+            'author' => $this->getUser() ? $this->getUser()->getMail() : '',
+            'guid' => $oTopic->getUrlShort() . '#comment' . $this->getId(),
+            'pub_date' => $this->getDate() ? date('r', strtotime($this->getDate())) : '',
+        );
+        $oRssItem = E::GetEntity('ModuleRss_EntityRssItem', $aRssItemData);
+
+        return $oRssItem;
+    }
+
 
 }
 

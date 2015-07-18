@@ -31,7 +31,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
     protected function InitCompressor() {
 
         if (Config::Get('compress.js.use')) {
-            F::IncludeLib('JSMin-1.1.1/jsmin.php');
+            F::IncludeLib('JShrink-1.0.1/src/JShrink/Minifier.php');
             // * Получаем параметры из конфигурации
             return true;
         }
@@ -40,7 +40,23 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
     public function Compress($sContents) {
 
-        $sContents = JSMin::minify($sContents);
+        if (strpos($sContents, $this->sMarker)) {
+            $sContents = preg_replace_callback(
+                '|\/\*\[' . preg_quote($this->sMarker) . '\s(?P<file>[\w\-\.\/]+)\sbegin\]\*\/(?P<content>.+)\/\*\[' . preg_quote($this->sMarker) . '\send\]\*\/\s*|sU',
+                function($aMatches){
+                    if (substr($aMatches['file'], -7) != '.min.js') {
+                        $sResult = \JShrink\Minifier::minify($aMatches['content']);
+                    } else {
+                        $sResult = $aMatches['content'];
+                    }
+                    return $sResult;
+                },
+                $sContents
+            );
+        } else {
+            $sContents = \JShrink\Minifier::minify($sContents);
+        }
+
         return $sContents;
     }
 
@@ -61,7 +77,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         if ($this->aFiles) {
             $this->InitCompressor();
         }
-        parent::PreProcess();
+        return parent::PreProcess();
     }
 
     /**
@@ -77,19 +93,37 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         return parent::CheckDestination($sDestination);
     }
 
+    public function BuildLink($aLink) {
+
+        if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
+            $aLink['link'] = $aLink['link']
+                . ((isset($_SERVER['HTTP_ACCEPT_ENCODING']) && stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'GZIP') !== FALSE) ? '.gz.js' : '');
+        }
+
+        return parent::BuildLink($aLink);
+
+    }
+
+
     public function Process() {
 
+        $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
-            if (isset($aLinkData['compress']) && $aLinkData['compress']) {
-                $sFile = $aLinkData['file'];
-                $sExtension = 'min.' . F::File_GetExtension($sFile);
-                $sCompressedFile = F::File_SetExtension($sFile, $sExtension);
+            if (empty($aLinkData['throw']) && !empty($aLinkData['compress'])) {
+                $sAssetFile = $aLinkData['asset_file'];
+                $sExtension = 'min.' . F::File_GetExtension($sAssetFile);
+                $sCompressedFile = F::File_SetExtension($sAssetFile, $sExtension);
                 if (!$this->CheckDestination($sCompressedFile)) {
-                    if (($sContents = F::File_GetContents($sFile))) {
+                    if (($sContents = F::File_GetContents($sAssetFile))) {
                         $sContents = $this->Compress($sContents);
                         if (F::File_PutContents($sCompressedFile, $sContents)) {
-                            F::File_Delete($sFile);
+                            F::File_Delete($sAssetFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                        }
+                        if (C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
+                            // Сохраним gzip
+                            $sCompressedContent = gzencode($sContents, 9);
+                            F::File_PutContents($sCompressedFile . '.gz.js', $sCompressedContent);
                         }
                     }
                 } else {
@@ -97,6 +131,27 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
                 }
             }
         }
+        return $bResult;
+    }
+
+    /**
+     * Обработка контента
+     *
+     * @param string $sContents
+     * @param string $sSource
+     *
+     * @return string
+     */
+    public function PrepareContents($sContents, $sSource) {
+
+        if (C::Get('compress.js.use')) {
+            $sFile = F::File_LocalDir($sSource);
+            $sContents = '/*[' . $this->sMarker . ' ' . $sFile . ' begin]*/' . PHP_EOL
+                . $sContents
+                . PHP_EOL . '/*[' . $this->sMarker . ' end]*/' . PHP_EOL;
+        }
+
+        return $sContents;
     }
 
 

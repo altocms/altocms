@@ -21,39 +21,40 @@
  */
 class ModuleTopic extends Module {
 
-    /**
-     * Уровень доступа для всех зарегистрированных
-     */
-    const CONTENT_ACCESS_ALL = 1;
-    /**
-     * Уровень доступа только для админов
-     */
-    const CONTENT_ACCESS_ONLY_ADMIN = 2;
+    const CONTENT_ACCESS_ALL = 1;           // Уровень доступа для всех зарегистрированных
+    const CONTENT_ACCESS_ONLY_ADMIN = 2;    // Уровень доступа только для админов
 
     /**
      * Объект маппера
      *
      * @var ModuleTopic_MapperTopic
      */
+    protected $oMapper;
+
+    // LS-compatibility //
     protected $oMapperTopic;
+
     /**
      * Объект текущего пользователя
      *
-     * @var ModuleUser_EntityUser|null
+     * @var ModuleUser_EntityUser
      */
     protected $oUserCurrent = null;
+
     /**
      * Список типов топика
      *
      * @var array
      */
     protected $aTopicTypes = array(); //'topic','link','question','photoset'
+
     /**
      * Список полей
      *
      * @var array
      */
     protected $aFieldTypes = array('input', 'textarea', 'photoset', 'link', 'select', 'date', 'file');
+
     /**
      * Массив объектов типов топика
      *
@@ -61,14 +62,24 @@ class ModuleTopic extends Module {
      */
     protected $aTopicTypesObjects = array();
 
+    protected $aAdditionalData
+        = array(
+            'user' => array(), 'blog' => array('owner' => array(), 'relation_user'),
+            'vote', 'favourite', 'fields', 'comment_new',
+        );
+
+    protected $aAdditionalDataContentType = array('fields' => array());
+
+    protected $aTopicsFilter = array('topic_publish' => 1);
+
     /**
      * Инициализация
      *
      */
     public function Init() {
 
-        $this->oMapperTopic = Engine::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oMapperTopic = $this->oMapper = E::GetMapper(__CLASS__);
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
         $this->aTopicTypesObjects = $this->getContentTypes(array('content_active' => 1));
         $this->aTopicTypes = array_keys($this->aTopicTypesObjects);
     }
@@ -84,11 +95,11 @@ class ModuleTopic extends Module {
     public function getContentTypes($aFilter, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('fields' => array());
+            $aAllowData = $this->aAdditionalDataContentType;
         }
-        $s = serialize($aFilter);
-        if (false === ($data = $this->Cache_Get("content_types_{$s}"))) {
-            $data = $this->oMapperTopic->getContentTypes($aFilter);
+        $sCacheKey = 'content_types_' . serialize(array($aFilter, $aAllowData)) ;
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
+            $data = $this->oMapper->getContentTypes($aFilter);
             $aTypesId = array();
             foreach ($data as $oType) {
                 $aTypesId[] = $oType->getContentId();
@@ -102,13 +113,15 @@ class ModuleTopic extends Module {
                     $oType->setFields($aTopicFieldValues[$oType->getContentId()]);
                 }
             }
-            $this->Cache_Set($data, "content_types_{$s}", array('content_update', 'content_new'), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($data, $sCacheKey, array('content_update', 'content_new'), 'P1D', 'tmp,');
         }
         return $data;
     }
 
     /*
      * Возвращает доступные типы контента
+     *
+     * @return ModuleTopic_EntityContentType
      */
     public function getContentType($sType) {
 
@@ -120,17 +133,62 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * Возвращает доступные для создания пользователем типы контента
+     *
+     * @param ModuleUser_EntityUser $oUser
+     * @return ModuleTopic_EntityContentType[]
+     */
+    public function GetAllowContentTypeByUserId($oUser) {
+
+        // Получим все блоги пользователя
+        $aBlogs = E::ModuleBlog()->GetBlogsAllowByUser($oUser);
+
+        // Добавим персональный блог пользователю
+        if ($oUser) {
+            $aBlogs[] = E::ModuleBlog()->GetPersonalBlogByUserId($oUser->getId());
+        }
+
+        // Получим типы контента
+        /** @var ModuleTopic_EntityContentType[] $aContentTypes */
+        $aContentTypes = E::ModuleTopic()->GetContentTypes(array('content_active' => 1));
+
+        $aAllowContentTypes = array();
+
+        /** @var ModuleBlog_EntityBlog $oBlog */
+        foreach($aBlogs as $oBlog) {
+            // Пропускаем блог, если в него нельзя добавлять топики
+            if (!E::ModuleACL()->CanAddTopic($oUser, $oBlog)) {
+                continue;
+            }
+
+            if ($aContentTypes) {
+                foreach ($aContentTypes as $k=>$oContentType) {
+                    if ($oBlog->IsContentTypeAllow($oContentType->getContentUrl())) {
+                        $aAllowContentTypes[] = $oContentType;
+                        // Удалим, что бы повторное не проверять, ведь в каком-то
+                        // блоге пользвоателя этот тип контента уже разрешён
+                        unset($aContentTypes[$k]);
+                    }
+                }
+            }
+
+
+        }
+        return $aAllowContentTypes;
+    }
+
+    /**
      * Получить тип контента по id
      *
      * @param string $nId
      *
-     * @return ModuleTopic_EntityContent|null
+     * @return ModuleTopic_EntityContentType|null
      */
     public function GetContentTypeById($nId) {
 
-        if (false === ($data = $this->Cache_Get("content_type_{$nId}"))) {
-            $data = $this->oMapperTopic->getContentTypeById($nId);
-            $this->Cache_Set($data, "content_type_{$nId}", array('content_update', 'content_new'), 60 * 60 * 24 * 1);
+        if (false === ($data = E::ModuleCache()->Get("content_type_{$nId}"))) {
+            $data = $this->oMapper->getContentTypeById($nId);
+            E::ModuleCache()->Set($data, "content_type_{$nId}", array('content_update', 'content_new'), 60 * 60 * 24 * 1);
         }
         return $data;
     }
@@ -140,15 +198,29 @@ class ModuleTopic extends Module {
      *
      * @param string $sUrl
      *
-     * @return ModuleTopic_EntityContent|null
+     * @return ModuleTopic_EntityContentType|null
      */
     public function GetContentTypeByUrl($sUrl) {
 
-        if (false === ($data = $this->Cache_Get("content_type_{$sUrl}"))) {
-            $data = $this->oMapperTopic->getContentTypeByUrl($sUrl);
-            $this->Cache_Set($data, "content_type_{$sUrl}", array('content_update', 'content_new'), 'P1D');
+        if (false === ($data = E::ModuleCache()->Get("content_type_{$sUrl}"))) {
+            $data = $this->oMapper->getContentTypeByUrl($sUrl);
+            E::ModuleCache()->Set($data, "content_type_{$sUrl}", array('content_update', 'content_new'), 'P1D');
         }
         return $data;
+    }
+
+    /**
+     * TODO: Задание типа контента по умолчанию в админке
+     *
+     * @return mixed|null
+     */
+    public function GetContentTypeDefault() {
+
+        $aTypes = $this->getContentTypes(array('content_active' => 1));
+        if ($aTypes) {
+            return reset($aTypes);
+        }
+        return null;
     }
 
     /**
@@ -161,22 +233,22 @@ class ModuleTopic extends Module {
      */
     public function ChangeType($sTypeOld, $sTypeNew) {
 
-        return $this->oMapperTopic->changeType($sTypeOld, $sTypeNew);
+        return $this->oMapper->changeType($sTypeOld, $sTypeNew);
     }
 
     /**
      * Добавляет тип контента
      *
-     * @param ModuleTopic_EntityContent $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oType    Объект типа контента
      *
-     * @return ModuleTopic_EntityContent|bool
+     * @return ModuleTopic_EntityContentType|bool
      */
     public function AddContentType($oType) {
 
-        if ($nId = $this->oMapperTopic->AddContentType($oType)) {
+        if ($nId = $this->oMapper->AddContentType($oType)) {
             $oType->setContentId($nId);
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('content_new', 'content_update'));
+            E::ModuleCache()->CleanByTags(array('content_new', 'content_update'));
             return $oType;
         }
         return false;
@@ -185,17 +257,40 @@ class ModuleTopic extends Module {
     /**
      * Обновляет топик
      *
-     * @param ModuleTopic_EntityContent $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oType    Объект типа контента
      *
      * @return bool
      */
     public function UpdateContentType($oType) {
 
-        if ($this->oMapperTopic->UpdateContentType($oType)) {
+        if ($this->oMapper->UpdateContentType($oType)) {
 
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('content_new', 'content_update', 'topic_update'));
-            $this->Cache_Delete("content_type_{$oType->getContentId()}");
+            E::ModuleCache()->CleanByTags(array('content_new', 'content_update', 'topic_update'));
+            E::ModuleCache()->Delete("content_type_{$oType->getContentId()}");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Обновляет топик
+     *
+     * @param ModuleTopic_EntityContentType $oContentType    Объект типа контента
+     *
+     * @return bool
+     */
+    public function DeleteContentType($oContentType) {
+
+        $aFilter = array(
+            'topic_type' => $oContentType->getContentUrl(),
+        );
+        $iCount = $this->GetCountTopicsByFilter($aFilter);
+        if (!$iCount && $this->oMapper->DeleteContentType($oContentType->getId())) {
+
+            //чистим зависимые кеши
+            E::ModuleCache()->CleanByTags(array('content_new', 'content_update', 'topic_update'));
+            E::ModuleCache()->Delete("content_type_{$oContentType->getId()}");
             return true;
         }
         return false;
@@ -211,9 +306,9 @@ class ModuleTopic extends Module {
     public function getContentFields($aFilter) {
 
         $sCacheKey = serialize($aFilter);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->getContentFields($aFilter);
-            $this->Cache_Set($data, $sCacheKey, array('content_update', 'content_new'), 60 * 60 * 24 * 1);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->getContentFields($aFilter);
+            E::ModuleCache()->Set($data, $sCacheKey, array('content_update', 'content_new'), 'P1D');
         }
         return $data;
     }
@@ -227,10 +322,10 @@ class ModuleTopic extends Module {
      */
     public function AddContentField($oField) {
 
-        if ($nId = $this->oMapperTopic->AddContentField($oField)) {
+        if ($nId = $this->oMapper->AddContentField($oField)) {
             $oField->setFieldId($nId);
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('content_new', 'content_update', 'field_new', 'field_update'));
+            E::ModuleCache()->CleanByTags(array('content_new', 'content_update', 'field_new', 'field_update'));
             return $oField;
         }
         return false;
@@ -245,11 +340,11 @@ class ModuleTopic extends Module {
      */
     public function UpdateContentField($oField) {
 
-        if ($this->oMapperTopic->UpdateContentField($oField)) {
+        if ($this->oMapper->UpdateContentField($oField)) {
 
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('content_new', 'content_update', 'field_new', 'field_update'));
-            $this->Cache_Delete("content_field_{$oField->getFieldId()}");
+            E::ModuleCache()->CleanByTags(array('content_new', 'content_update', 'field_new', 'field_update'));
+            E::ModuleCache()->Delete("content_field_{$oField->getFieldId()}");
             return true;
         }
         return false;
@@ -260,15 +355,15 @@ class ModuleTopic extends Module {
      *
      * @param string $nId
      *
-     * @return ModuleTopic_EntityField|null
+     * @return ModuleTopic_EntityField
      */
     public function GetContentFieldById($nId) {
 
-        if (false === ($data = $this->Cache_Get("content_field_{$nId}"))) {
-            $data = $this->oMapperTopic->getContentFieldById($nId);
-            $this->Cache_Set(
+        if (false === ($data = E::ModuleCache()->Get("content_field_{$nId}"))) {
+            $data = $this->oMapper->getContentFieldById($nId);
+            E::ModuleCache()->Set(
                 $data, "content_field_{$nId}", array('content_new', 'content_update', 'field_new', 'field_update'),
-                60 * 60 * 24 * 1
+                'P1D'
             );
         }
         return $data;
@@ -277,20 +372,24 @@ class ModuleTopic extends Module {
     /**
      * Удаляет поле
      *
-     * @param $oField
+     * @param $xField
      *
      * @return bool
      */
-    public function DeleteField($oField) {
-        /**
-         * Чистим зависимые кеши
-         */
-        $this->Cache_CleanByTags(array('field_update'));
-        $this->Cache_Delete("content_field_{$oField->getFieldId()}");
-        /**
-         * Если топик успешно удален, удаляем связанные данные
-         */
-        if ($bResult = $this->oMapperTopic->DeleteField($oField)) {
+    public function DeleteField($xField) {
+
+        if (is_object($xField)) {
+            $iContentFieldId = $xField->getFieldId();
+        } else {
+            $iContentFieldId = intval($xField);
+        }
+        // * Если топик успешно удален, удаляем связанные данные
+        if ($bResult = $this->oMapper->DeleteField($iContentFieldId)) {
+
+            // * Чистим зависимые кеши
+            E::ModuleCache()->CleanByTags(array('field_update', 'content_update'));
+            E::ModuleCache()->Delete("content_field_{$iContentFieldId}");
+
             return true;
         }
 
@@ -319,12 +418,23 @@ class ModuleTopic extends Module {
      */
     public function UpdateContentFieldValue($oValue) {
 
-        if ($this->oMapperTopic->UpdateContentFieldValue($oValue)) {
+        if ($this->oMapper->UpdateContentFieldValue($oValue)) {
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('topic_update'));
+            E::ModuleCache()->CleanByTags(array('topic_update'));
             return true;
         }
         return false;
+    }
+
+    /**
+     * Получает количество значений у конкретного поля
+     *
+     * @param $sFieldId
+     * @return int|bool
+     */
+    public function GetFieldValuesCount($sFieldId) {
+
+        return $this->oMapper->GetFieldValuesCount($sFieldId);
     }
 
     /**
@@ -394,32 +504,35 @@ class ModuleTopic extends Module {
     /**
      * Получает дополнительные данные(объекты) для топиков по их ID
      *
-     * @param array      $aTopicId    Список ID топиков
+     * @param array|int  $aTopicId    Список ID топиков
      * @param array|null $aAllowData  Список типов дополнительных данных, которые нужно подключать к топикам
      *
-     * @return array
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsAdditionalData($aTopicId, $aAllowData = null) {
 
-        if (is_null($aAllowData)) {
-            $aAllowData = array('user' => array(), 'blog' => array('owner' => array(), 'relation_user'), 'vote',
-                                'favourite', 'fields', 'comment_new');
-        }
-        $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aTopicId)) {
             $aTopicId = array($aTopicId);
         }
-        /**
-         * Получаем "голые" топики
-         */
+
+        // * Получаем "голые" топики
         $aTopics = $this->GetTopicsByArrayId($aTopicId);
-        /**
-         * Формируем ID дополнительных данных, которые нужно получить
-         */
+        if (!$aTopics) {
+            return array();
+        }
+
+        if (is_null($aAllowData)) {
+            $aAllowData = $this->aAdditionalData;
+        }
+        $aAllowData = F::Array_FlipIntKeys($aAllowData);
+
+        // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
         $aBlogId = array();
         $aTopicId = array();
         $aPhotoMainId = array();
+
+        /** @var ModuleTopic_EntityTopic $oTopic */
         foreach ($aTopics as $oTopic) {
             if (isset($aAllowData['user'])) {
                 $aUserId[] = $oTopic->getUserId();
@@ -427,12 +540,17 @@ class ModuleTopic extends Module {
             if (isset($aAllowData['blog'])) {
                 $aBlogId[] = $oTopic->getBlogId();
             }
-            //if ($oTopic->getType()=='question')	{
+
             $aTopicId[] = $oTopic->getId();
-            //}
             if ($oTopic->getPhotosetMainPhotoId()) {
                 $aPhotoMainId[] = $oTopic->getPhotosetMainPhotoId();
             }
+        }
+        if ($aUserId) {
+            $aUserId = array_unique($aUserId);
+        }
+        if ($aBlogId) {
+            $aBlogId = array_unique($aBlogId);
         }
         /**
          * Получаем дополнительные данные
@@ -441,25 +559,32 @@ class ModuleTopic extends Module {
         $aFavouriteTopics = array();
         $aTopicsQuestionVote = array();
         $aTopicsRead = array();
+
         $aUsers = isset($aAllowData['user']) && is_array($aAllowData['user'])
-            ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['user'])
-            : $this->User_GetUsersAdditionalData($aUserId);
+            ? E::ModuleUser()->GetUsersAdditionalData($aUserId, $aAllowData['user'])
+            : E::ModuleUser()->GetUsersAdditionalData($aUserId);
+
         $aBlogs = isset($aAllowData['blog']) && is_array($aAllowData['blog'])
-            ? $this->Blog_GetBlogsAdditionalData($aBlogId, $aAllowData['blog'])
-            : $this->Blog_GetBlogsAdditionalData($aBlogId);
+            ? E::ModuleBlog()->GetBlogsAdditionalData($aBlogId, $aAllowData['blog'])
+            : E::ModuleBlog()->GetBlogsAdditionalData($aBlogId);
+
         if (isset($aAllowData['vote']) && $this->oUserCurrent) {
-            $aTopicsVote = $this->Vote_GetVoteByArray($aTopicId, 'topic', $this->oUserCurrent->getId());
+            $aTopicsVote = E::ModuleVote()->GetVoteByArray($aTopicId, 'topic', $this->oUserCurrent->getId());
             $aTopicsQuestionVote = $this->GetTopicsQuestionVoteByArray($aTopicId, $this->oUserCurrent->getId());
         }
+
         if (isset($aAllowData['favourite']) && $this->oUserCurrent) {
             $aFavouriteTopics = $this->GetFavouriteTopicsByArray($aTopicId, $this->oUserCurrent->getId());
         }
+
         if (isset($aAllowData['fields'])) {
             $aTopicFieldValues = $this->GetTopicValuesByArrayId($aTopicId);
         }
+
         if (isset($aAllowData['comment_new']) && $this->oUserCurrent) {
             $aTopicsRead = $this->GetTopicsReadByArray($aTopicId, $this->oUserCurrent->getId());
         }
+
         $aPhotosetMainPhotos = $this->GetTopicPhotosByArrayId($aPhotoMainId);
         /**
          * Добавляем данные к результату - списку топиков
@@ -522,12 +647,13 @@ class ModuleTopic extends Module {
      */
     public function AddTopic($oTopic) {
 
-        if ($nId = $this->oMapperTopic->AddTopic($oTopic)) {
+        if ($nId = $this->oMapper->AddTopic($oTopic)) {
             $oTopic->setId($nId);
             if ($oTopic->getPublish() && $oTopic->getTags()) {
                 $aTags = explode(',', $oTopic->getTags());
                 foreach ($aTags as $sTag) {
-                    $oTag = Engine::GetEntity('Topic_TopicTag');
+                    /** @var ModuleTopic_EntityTopicTag $oTag */
+                    $oTag = E::GetEntity('Topic_TopicTag');
                     $oTag->setTopicId($oTopic->getId());
                     $oTag->setUserId($oTopic->getUserId());
                     $oTag->setBlogId($oTopic->getBlogId());
@@ -540,7 +666,7 @@ class ModuleTopic extends Module {
             $this->UpdateMresources($oTopic);
 
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(
+            E::ModuleCache()->CleanByTags(
                 array('topic_new', "topic_update_user_{$oTopic->getUserId()}", "topic_new_blog_{$oTopic->getBlogId()}")
             );
             return $oTopic;
@@ -557,7 +683,7 @@ class ModuleTopic extends Module {
      */
     public function AddTopicTag($oTopicTag) {
 
-        return $this->oMapperTopic->AddTopicTag($oTopicTag);
+        return $this->oMapper->AddTopicTag($oTopicTag);
     }
 
     /**
@@ -569,7 +695,7 @@ class ModuleTopic extends Module {
      */
     public function DeleteTopicTagsByTopicId($aTopicsId) {
 
-        return $this->oMapperTopic->DeleteTopicTagsByTopicId($aTopicsId);
+        return $this->oMapper->DeleteTopicTagsByTopicId($aTopicsId);
     }
 
     /**
@@ -581,7 +707,7 @@ class ModuleTopic extends Module {
      */
     public function DeleteTopicValuesByTopicId($sTopicId) {
 
-        return $this->oMapperTopic->DeleteTopicValuesByTopicId($sTopicId);
+        return $this->oMapper->DeleteTopicValuesByTopicId($sTopicId);
     }
 
     /**
@@ -596,28 +722,89 @@ class ModuleTopic extends Module {
 
         if ($oTopicId instanceof ModuleTopic_EntityTopic) {
             $oTopic = $oTopicId;
-            $nTopicId = $oTopic->getId();
-            $nUserId = $oTopic->getUserId();
+            $iTopicId = $oTopic->getId();
+            $iUserId = $oTopic->getUserId();
         } else {
-            $nTopicId = intval($oTopicId);
-            $oTopic = $this->GetTopicById($nTopicId);
-            $nUserId = $oTopic->getUserId();
+            $iTopicId = intval($oTopicId);
+            $oTopic = $this->GetTopicById($iTopicId);
+            if (!$oTopic) {
+                return false;
+            }
+            $iUserId = $oTopic->getUserId();
         }
         $oTopicId = null;
 
         $oBlog = $oTopic->GetBlog();
         // * Если топик успешно удален, удаляем связанные данные
-        if ($bResult = $this->oMapperTopic->DeleteTopic($nTopicId)) {
-            $bResult = $this->DeleteTopicAdditionalData($nTopicId);
+        if ($bResult = $this->oMapper->DeleteTopic($iTopicId)) {
+            $bResult = $this->DeleteTopicAdditionalData($iTopicId);
             $this->DeleteMresources($oTopic);
-            $this->Blog_RecalculateCountTopicByBlogId($oBlog->GetId());
+            if ($oBlog) {
+                // Блог может быть удален до удаления топика
+                E::ModuleBlog()->RecalculateCountTopicByBlogId($oBlog->GetId());
+            }
         }
 
         // * Чистим зависимые кеши
-        $this->Cache_CleanByTags(array('topic_update', 'topic_update_user_' . $nUserId));
-        $this->Cache_Delete("topic_{$nTopicId}");
+        E::ModuleCache()->CleanByTags(array('topic_update', 'topic_update_user_' . $iUserId));
+        E::ModuleCache()->Delete("topic_{$iTopicId}");
 
         return $bResult;
+    }
+
+    /**
+     * Delete array of topics
+     *
+     * @param $xTopics
+     *
+     * @return bool
+     */
+    public function DeleteTopics($xTopics) {
+
+        if (is_int($xTopics) || is_object($xTopics)) {
+            return $this->DeleteTopic($xTopics);
+        }
+
+        if (is_array($xTopics)) {
+            if (count($xTopics) == 1) {
+                return $this->DeleteTopic(reset($xTopics));
+            }
+            if (!is_object(reset($xTopics))) {
+                // there are IDs in param
+                $aTopics = $this->GetTopicsAdditionalData($xTopics);
+            } else {
+                // there are topic objects in param
+                $aTopics = $xTopics;
+            }
+            if ($aTopics) {
+                $aTopicId = array();
+                $aBlogId = array();
+                $aUserId = array();
+                foreach ($aTopics as $oTopic) {
+                    $aTopicId[] = $oTopic->getId();
+                    $aBlogId[] = $oTopic->getBlogId();
+                    $aUserId[] = $oTopic->getUserId();
+                }
+                if ($bResult = $this->oMapper->DeleteTopic($aTopicId)) {
+                    $bResult = $this->DeleteTopicAdditionalData($aTopicId);
+                    $this->DeleteMresources($aTopics);
+                    E::ModuleBlog()->RecalculateCountTopicByBlogId($aBlogId);
+                }
+
+                // * Чистим зависимые кеши
+                $aCacheTags = array('topic_update');
+                foreach($aUserId as $iUserId) {
+                    $aCacheTags[] = 'topic_update_user_' . $iUserId;
+                }
+                E::ModuleCache()->CleanByTags($aCacheTags);
+                foreach($aTopicId as $iTopicId) {
+                    E::ModuleCache()->Delete('topic_' . $iTopicId);
+                }
+
+                return $bResult;
+            }
+        }
+        return false;
     }
 
     /**
@@ -632,9 +819,9 @@ class ModuleTopic extends Module {
         $aFilter = array(
             'user_id' => $aUsersId,
         );
-        $aTopicsId = $this->oMapperTopic->GetAllTopics($aFilter);
+        $aTopicsId = $this->oMapper->GetAllTopics($aFilter);
 
-        if ($bResult = $this->oMapperTopic->DeleteTopic($aTopicsId)) {
+        if ($bResult = $this->oMapper->DeleteTopic($aTopicsId)) {
             $bResult = $this->DeleteTopicAdditionalData($aTopicsId);
         }
 
@@ -643,13 +830,13 @@ class ModuleTopic extends Module {
         foreach ($aUsersId as $nUserId) {
             $aTags[] = 'topic_update_user_' . $nUserId;
         }
-        $this->Cache_CleanByTags($aTags);
+        E::ModuleCache()->CleanByTags($aTags);
         if ($aTopicsId) {
             $aTags = array();
             foreach ($aTopicsId as $nTopicId) {
                 $aTags[] = 'topic_' . $nTopicId;
             }
-            $this->Cache_Delete("topic_{$nTopicId}");
+            E::ModuleCache()->Delete("topic_{$nTopicId}");
         }
         return $bResult;
     }
@@ -657,43 +844,43 @@ class ModuleTopic extends Module {
     /**
      * Удаляет свзяанные с топиком данные
      *
-     * @param   int|array $aTopicsId   ID топика или массив ID
+     * @param   int|array $aTopicId   ID топика или массив ID
      *
      * @return  bool
      */
-    public function DeleteTopicAdditionalData($aTopicsId) {
+    public function DeleteTopicAdditionalData($aTopicId) {
 
-        if (!is_array($aTopicsId)) {
-            $aTopicsId = array(intval($aTopicsId));
+        if (!is_array($aTopicId)) {
+            $aTopicId = array(intval($aTopicId));
         }
 
         // * Удаляем контент топика
-        $this->DeleteTopicContentByTopicId($aTopicsId);
+        $this->DeleteTopicContentByTopicId($aTopicId);
         /**
          * Удаляем комментарии к топику.
          * При удалении комментариев они удаляются из избранного,прямого эфира и голоса за них
          */
-        $this->Comment_DeleteCommentByTargetId($aTopicsId, 'topic');
+        E::ModuleComment()->DeleteCommentByTargetId($aTopicId, 'topic');
         /**
          * Удаляем топик из избранного
          */
-        $this->DeleteFavouriteTopicByArrayId($aTopicsId);
+        $this->DeleteFavouriteTopicByArrayId($aTopicId);
         /**
          * Удаляем топик из прочитанного
          */
-        $this->DeleteTopicReadByArrayId($aTopicsId);
+        $this->DeleteTopicReadByArrayId($aTopicId);
         /**
          * Удаляем голосование к топику
          */
-        $this->Vote_DeleteVoteByTarget($aTopicsId, 'topic');
+        E::ModuleVote()->DeleteVoteByTarget($aTopicId, 'topic');
         /**
          * Удаляем теги
          */
-        $this->DeleteTopicTagsByTopicId($aTopicsId);
+        $this->DeleteTopicTagsByTopicId($aTopicId);
         /**
          * Удаляем фото у топика фотосета
          */
-        if ($aPhotos = $this->getPhotosByTopicId($aTopicsId)) {
+        if ($aPhotos = $this->getPhotosByTopicId($aTopicId)) {
             foreach ($aPhotos as $oPhoto) {
                 $this->deleteTopicPhoto($oPhoto);
             }
@@ -701,9 +888,9 @@ class ModuleTopic extends Module {
         /**
          * Чистим зависимые кеши
          */
-        $this->Cache_CleanByTags(array('topic_update'));
-        foreach ($aTopicsId as $nTopicId) {
-            $this->Cache_Delete("topic_{$nTopicId}");
+        E::ModuleCache()->CleanByTags(array('topic_update'));
+        foreach ($aTopicId as $nTopicId) {
+            E::ModuleCache()->Delete("topic_{$nTopicId}");
         }
         return true;
     }
@@ -720,17 +907,19 @@ class ModuleTopic extends Module {
         // * Получаем топик ДО изменения
         $oTopicOld = $this->GetTopicById($oTopic->getId());
         $oTopic->setDateEdit(F::Now());
-        if ($this->oMapperTopic->UpdateTopic($oTopic)) {
-            // * Если топик изменил видимость(publish) или локацию (BlogId) или список тегов
-            if (($oTopic->getPublish() != $oTopicOld->getPublish()) || ($oTopic->getBlogId() != $oTopicOld->getBlogId())
+        if ($this->oMapper->UpdateTopic($oTopic)) {
+            // * Если топик изменил видимость (publish) или локацию (BlogId) или список тегов
+            if ($oTopicOld && (($oTopic->getPublish() != $oTopicOld->getPublish())
+                || ($oTopic->getBlogId() != $oTopicOld->getBlogId())
                 || ($oTopic->getTags() != $oTopicOld->getTags())
-            ) {
+            )) {
                 // * Обновляем теги
                 $this->DeleteTopicTagsByTopicId($oTopic->getId());
                 if ($oTopic->getPublish() && $oTopic->getTags()) {
                     $aTags = explode(',', $oTopic->getTags());
                     foreach ($aTags as $sTag) {
-                        $oTag = Engine::GetEntity('Topic_TopicTag');
+                        /** @var ModuleTopic_EntityTopicTag $oTag */
+                        $oTag = E::GetEntity('Topic_TopicTag');
                         $oTag->setTopicId($oTopic->getId());
                         $oTag->setUserId($oTopic->getUserId());
                         $oTag->setBlogId($oTopic->getBlogId());
@@ -739,32 +928,26 @@ class ModuleTopic extends Module {
                     }
                 }
             }
-            if ($oTopic->getPublish() != $oTopicOld->getPublish()) {
-                /**
-                 * Обновляем избранное
-                 */
+            if ($oTopicOld && ($oTopic->getPublish() != $oTopicOld->getPublish())) {
+                // * Обновляем избранное
                 $this->SetFavouriteTopicPublish($oTopic->getId(), $oTopic->getPublish());
-                /**
-                 * Удаляем комментарий топика из прямого эфира
-                 */
+                // * Удаляем комментарий топика из прямого эфира
                 if ($oTopic->getPublish() == 0) {
-                    $this->Comment_DeleteCommentOnlineByTargetId($oTopic->getId(), 'topic');
+                    E::ModuleComment()->DeleteCommentOnlineByTargetId($oTopic->getId(), 'topic');
                 }
-                /**
-                 * Изменяем видимость комментов
-                 */
-                $this->Comment_SetCommentsPublish($oTopic->getId(), 'topic', $oTopic->getPublish());
+                // * Изменяем видимость комментов
+                E::ModuleComment()->SetCommentsPublish($oTopic->getId(), 'topic', $oTopic->getPublish());
             }
 
-            if (Router::GetAction() == 'content') {
+            if (R::GetAction() == 'content') {
                 $this->processTopicFields($oTopic, 'update');
             }
 
             $this->UpdateMresources($oTopic);
 
             // чистим зависимые кеши
-            $this->Cache_CleanByTags(array('topic_update', "topic_update_user_{$oTopic->getUserId()}"));
-            $this->Cache_Delete("topic_{$oTopic->getId()}");
+            E::ModuleCache()->CleanByTags(array('topic_update', "topic_update_user_{$oTopic->getUserId()}"));
+            E::ModuleCache()->Delete("topic_{$oTopic->getId()}");
             return true;
         }
         return false;
@@ -779,7 +962,7 @@ class ModuleTopic extends Module {
      */
     public function DeleteTopicContentByTopicId($aTopicsId) {
 
-        return $this->oMapperTopic->DeleteTopicContentByTopicId($aTopicsId);
+        return $this->oMapper->DeleteTopicContentByTopicId($aTopicsId);
     }
 
     /**
@@ -791,7 +974,7 @@ class ModuleTopic extends Module {
      */
     public function GetTopicById($nId) {
 
-        if (!is_numeric($nId)) {
+        if (!intval($nId)) {
             return null;
         }
         $aTopics = $this->GetTopicsAdditionalData($nId);
@@ -810,8 +993,33 @@ class ModuleTopic extends Module {
      */
     public function GetTopicByUrl($sUrl) {
 
-        $nTopicId = $this->oMapperTopic->GetTopicIdByUrl($sUrl);
-        return $this->GetTopicById($nTopicId);
+        $iTopicId = $this->GetTopicIdByUrl($sUrl);
+        if ($iTopicId) {
+            return $this->GetTopicById($iTopicId);
+        }
+        return null;
+    }
+
+    /**
+     * Returns topic ID by URL if it exists
+     *
+     * @param string $sUrl
+     *
+     * @return int
+     */
+    public function GetTopicIdByUrl($sUrl) {
+
+        $sCacheKey = 'topic_url_' . $sUrl;
+        if (false === ($iTopicId = E::ModuleCache()->Get($sCacheKey))) {
+            $iTopicId = $this->oMapper->GetTopicIdByUrl($sUrl);
+            if ($iTopicId) {
+                E::ModuleCache()->Set($iTopicId, $sCacheKey, array("topic_update_{$iTopicId}"), 'P30D');
+            } else {
+                E::ModuleCache()->Set(null, $sCacheKey, array('topic_update', 'topic_new'), 'P30D');
+            }
+        }
+
+        return $iTopicId;
     }
 
     /**
@@ -819,12 +1027,15 @@ class ModuleTopic extends Module {
      *
      * @param string $sUrl
      *
-     * @return ModuleTopic_EntityTopic|null
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsLikeUrl($sUrl) {
 
-        $aTopicsId = $this->oMapperTopic->GetTopicsIdLikeUrl($sUrl);
-        return $this->GetTopicsByArrayId($aTopicsId);
+        $aTopicsId = $this->oMapper->GetTopicsIdLikeUrl($sUrl);
+        if ($aTopicsId) {
+            return $this->GetTopicsByArrayId($aTopicsId);
+        }
+        return array();
     }
 
     /**
@@ -836,19 +1047,22 @@ class ModuleTopic extends Module {
      */
     public function CorrectTopicUrl($sUrl) {
 
-        // Получаем список топиков с похожим URL
-        $aTopics = $this->GetTopicsLikeUrl($sUrl);
-        if ($aTopics) {
-            $aExistUrls = array();
-            foreach ($aTopics as $oTopic) {
-                $aExistUrls[] = $oTopic->GetTopicUrl();
+        $iOnDuplicateUrl = Config::Val('module.topic.on_duplicate_url', 1);
+        if ($iOnDuplicateUrl) {
+            // Получаем список топиков с похожим URL
+            $aTopics = $this->GetTopicsLikeUrl($sUrl);
+            if ($aTopics) {
+                $aExistUrls = array();
+                foreach ($aTopics as $oTopic) {
+                    $aExistUrls[] = $oTopic->GetTopicUrl();
+                }
+                $nNum = count($aTopics) + 1;
+                $sNewUrl = $sUrl . '-' . $nNum;
+                while (in_array($sNewUrl, $aExistUrls)) {
+                    $sNewUrl = $sUrl . '-' . (++$nNum);
+                }
+                $sUrl = $sNewUrl;
             }
-            $nNum = count($aTopics) + 1;
-            $sNewUrl = $sUrl . '-' . $nNum;
-            while (in_array($sNewUrl, $aExistUrls)) {
-                $sNewUrl = $sUrl . '-' . (++$nNum);
-            }
-            $sUrl = $sNewUrl;
         }
         return $sUrl;
     }
@@ -875,50 +1089,47 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopics = array();
         $aTopicIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_');
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
+
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTopics[$data[$sKey]->getId()] = $data[$sKey];
                     } else {
-                        $aTopicIdNotNeedQuery[] = $sValue;
+                        $aTopicIdNotNeedQuery[] = $aTopicsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких топиков не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких топиков не было в кеше и делаем запрос в БД
         $aTopicIdNeedQuery = array_diff($aTopicsId, array_keys($aTopics));
         $aTopicIdNeedQuery = array_diff($aTopicIdNeedQuery, $aTopicIdNotNeedQuery);
         $aTopicIdNeedStore = $aTopicIdNeedQuery;
-        if ($data = $this->oMapperTopic->GetTopicsByArrayId($aTopicIdNeedQuery)) {
-            foreach ($data as $oTopic) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aTopics[$oTopic->getId()] = $oTopic;
-                $this->Cache_Set($oTopic, "topic_{$oTopic->getId()}", array(), 60 * 60 * 24 * 4);
-                $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopic->getId()));
+
+        if ($aTopicIdNeedQuery) {
+            if ($data = $this->oMapper->GetTopicsByArrayId($aTopicIdNeedQuery)) {
+                foreach ($data as $oTopic) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aTopics[$oTopic->getId()] = $oTopic;
+                    E::ModuleCache()->Set($oTopic, "topic_{$oTopic->getId()}", array(), 60 * 60 * 24 * 4);
+                    $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopic->getId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $nId) {
-            $this->Cache_Set(null, "topic_{$nId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "topic_{$nId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aTopics = F::Array_SortByKeysArray($aTopics, $aTopicsId);
+
         return $aTopics;
     }
 
@@ -927,7 +1138,7 @@ class ModuleTopic extends Module {
      *
      * @param array $aTopicsId    Список ID топиков
      *
-     * @return array
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsByArrayIdSolid($aTopicsId) {
 
@@ -937,12 +1148,12 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopics = array();
         $s = join(',', $aTopicsId);
-        if (false === ($data = $this->Cache_Get("topic_id_{$s}"))) {
-            $data = $this->oMapperTopic->GetTopicsByArrayId($aTopicsId);
+        if (false === ($data = E::ModuleCache()->Get("topic_id_{$s}"))) {
+            $data = $this->oMapper->GetTopicsByArrayId($aTopicsId);
             foreach ($data as $oTopic) {
                 $aTopics[$oTopic->getId()] = $oTopic;
             }
-            $this->Cache_Set($aTopics, "topic_id_{$s}", array("topic_update"), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($aTopics, "topic_id_{$s}", array("topic_update"), 60 * 60 * 24 * 1);
             return $aTopics;
         }
         return $data;
@@ -964,12 +1175,33 @@ class ModuleTopic extends Module {
          * Получаем список идентификаторов избранных записей
          */
         $data = ($this->oUserCurrent && $nUserId == $this->oUserCurrent->getId())
-            ? $this->Favourite_GetFavouritesByUserId($nUserId, 'topic', $iCurrPage, $iPerPage, $aCloseTopics)
-            : $this->Favourite_GetFavouriteOpenTopicsByUserId($nUserId, $iCurrPage, $iPerPage);
-        /**
-         * Получаем записи по переданому массиву айдишников
-         */
-        $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+            ? E::ModuleFavourite()->GetFavouritesByUserId($nUserId, 'topic', $iCurrPage, $iPerPage, $aCloseTopics)
+            : E::ModuleFavourite()->GetFavouriteOpenTopicsByUserId($nUserId, $iCurrPage, $iPerPage);
+
+        // * Получаем записи по переданому массиву айдишников
+        if ($data['collection']) {
+            $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+        }
+
+        if ($data['collection'] && !E::IsAdmin()) {
+            $aAllowBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
+            if ($this->oUserCurrent) {
+                $aClosedBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
+            } else {
+                $aClosedBlogs = array();
+            }
+            foreach ($data['collection'] as $iId=>$oTopic) {
+                $oBlog = $oTopic->getBlog();
+                if ($oBlog) {
+                    if (!in_array($oBlog->getType(), $aAllowBlogTypes) && !in_array($oBlog->getId(), $aClosedBlogs)) {
+                        $oTopic->setTitle('...');
+                        $oTopic->setText(E::ModuleLang()->Get('acl_cannot_show_content'));
+                        $oTopic->setTextShort(E::ModuleLang()->Get('acl_cannot_show_content'));
+                    }
+                }
+            }
+        }
+
         return $data;
     }
 
@@ -984,8 +1216,8 @@ class ModuleTopic extends Module {
 
         $aCloseTopics = array();
         return ($this->oUserCurrent && $nUserId == $this->oUserCurrent->getId())
-            ? $this->Favourite_GetCountFavouritesByUserId($nUserId, 'topic', $aCloseTopics)
-            : $this->Favourite_GetCountFavouriteOpenTopicsByUserId($nUserId);
+            ? E::ModuleFavourite()->GetCountFavouritesByUserId($nUserId, 'topic', $aCloseTopics)
+            : E::ModuleFavourite()->GetCountFavouriteOpenTopicsByUserId($nUserId);
     }
 
     /**
@@ -1005,14 +1237,16 @@ class ModuleTopic extends Module {
         }
 
         $sCacheKey = 'topic_filter_' . serialize($aFilter) . "_{$iPage}_{$iPerPage}";
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
-                'collection' => $this->oMapperTopic->GetTopics($aFilter, $iCount, $iPage, $iPerPage),
+                'collection' => $this->oMapper->GetTopics($aFilter, $iCount, $iPage, $iPerPage),
                 'count'      => $iCount
             );
-            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
         }
-        $data['collection'] = $this->GetTopicsAdditionalData($data['collection'], $aAllowData);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetTopicsAdditionalData($data['collection'], $aAllowData);
+        }
         return $data;
     }
 
@@ -1025,12 +1259,44 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsByFilter($aFilter) {
 
-        $sCacheKey = "topic_count_" . serialize($aFilter);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetCountTopics($aFilter);
-            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+        if (isset($aFilter['blog_type'])) {
+            $aBlogsType = (array)$aFilter['blog_type'];
+            unset($aFilter['blog_type']);
+            if (isset($aBlogsType['*'])) {
+                $aBlogsId = $aBlogsType['*'];
+                unset($aBlogsType['*']);
+            } else {
+                $aBlogsId = array();
+            }
+            $sCacheKey = 'topic_count_by_blog_type_' . serialize($aFilter);
+            if (false === ($aData = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
+                $aData = $this->oMapper->GetCountTopicsByBlogtype($aFilter);
+                E::ModuleCache()->Set($aData, $sCacheKey, array('topic_update', 'topic_new', 'blog_update', 'blog_new'), 'P1D', 'tmp,');
+            }
+
+            $iResult = 0;
+            if ($aData) {
+                foreach($aBlogsType as $sBlogType) {
+                    if (isset($aData[$sBlogType])) {
+                        $iResult += $aData[$sBlogType];
+                    }
+                }
+            }
+            if ($aBlogsId) {
+                $aFilter['blog_id'] = $aBlogsId;
+                $aFilter['blog_type_exclude'] = $aBlogsType;
+                $iCount = $this->GetCountTopicsByFilter($aFilter);
+                $iResult += $iCount;
+            }
+            return $iResult;
+        } else {
+            $sCacheKey = 'topic_count_' . serialize($aFilter);
+            if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+                $data = $this->oMapper->GetCountTopics($aFilter);
+                E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+            }
+            return $data;
         }
-        return $data;
     }
 
     /**
@@ -1050,42 +1316,129 @@ class ModuleTopic extends Module {
         );
     }
 
+    public function SetTopicsFilter($aFilter) {
+
+        $this->aTopicsFilter = $aFilter;
+    }
+
+    public function GetTopicsFilter() {
+
+        return $this->aTopicsFilter;
+    }
+
     /**
-     * Получает список хороших топиков для вывода на главную страницу(из всех блогов, как коллективных так и персональных)
+     * Return filter for topic list by name and params
+     *
+     * @param string $sFilterName
+     * @param array  $aParams
+     *
+     * @return array
+     */
+    public function GetNamedFilter($sFilterName, $aParams = array()) {
+
+        $aFilter = $this->GetTopicsFilter();
+        switch ($sFilterName) {
+            case 'good': // Filter for good topics
+                $aFilter['topic_rating']  = array(
+                        'value'         => empty($aParams['rating']) ? 0 : intval($aParams['rating']),
+                        'type'          => 'top',
+                        'publish_index' => 1,
+                    );
+                break;
+            case 'bad': // Filter for good topics
+                $aFilter['topic_rating']  = array(
+                        'value'         => empty($aParams['rating']) ? 0 : intval($aParams['rating']),
+                        'type'          => 'down',
+                        'publish_index' => 1,
+                    );
+                break;
+            case 'new': // Filter for new topics
+                $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter['topic_new'] = $sDate;
+                break;
+            case 'new_all': // Filter for ALL new topics
+                // Nothing others
+                break;
+            case 'discussed': //
+                if (!empty($aParams['period'])) {
+                    if (is_numeric($aParams['period'])) {
+                        // количество последних секунд
+                        $sPeriod = date('Y-m-d H:00:00', time() - intval($aParams['period']));
+                    } else {
+                        $sPeriod = $aParams['period'];
+                    }
+                    $aFilter['topic_date_more'] = $sPeriod;
+                }
+                if (!isset($aFilter['order'])) {
+                    $aFilter['order'] = array();
+                }
+                $aFilter['order'][] = 't.topic_count_comment DESC';
+                $aFilter['order'][] = 't.topic_date_show DESC';
+                $aFilter['order'][] = 't.topic_id DESC';
+                break;
+            case 'top':
+                if (!empty($aParams['period'])) {
+                    if (is_numeric($aParams['period'])) {
+                        // количество последних секунд
+                        $sPeriod = date('Y-m-d H:00:00', time() - intval($aParams['period']));
+                    } else {
+                        $sPeriod = $aParams['period'];
+                    }
+                    $aFilter['topic_date_more'] = $sPeriod;
+                }
+                if (!isset($aFilter['order'])) {
+                    $aFilter['order'] = array();
+                }
+                $aFilter['order'][] = 't.topic_rating DESC';
+                $aFilter['order'][] = 't.topic_date_show DESC';
+                $aFilter['order'][] = 't.topic_id DESC';
+                break;
+            default:
+                // Nothing others
+        }
+
+        if (!empty($aParams['blog_id'])) {
+            $aFilter['blog_id'] = intval($aParams['blog_id']);
+        } else {
+            $aFilter['blog_type'] = empty($aParams['personal']) ? E::ModuleBlog()->GetOpenBlogTypes() : 'personal';
+
+            // If a user is authorized then adds blogs on which it is subscribed
+            if (E::IsUser() && !empty($aParams['accessible']) && empty($aParams['personal'])) {
+                $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser(E::User());
+                if (count($aOpenBlogs)) {
+                    $aFilter['blog_type']['*'] = $aOpenBlogs;
+                }
+            }
+        }
+        if (isset($aParams['personal']) && $aParams['personal'] === false && $aFilter['blog_type'] && is_array($aFilter['blog_type'])) {
+            if (false !== ($iKey = array_search('personal', $aFilter['blog_type']))) {
+                unset($aFilter['blog_type'][$iKey]);
+            }
+        }
+        if (!empty($aParams['topic_type'])) {
+            $aFilter['topic_type'] = $aParams['topic_type'];
+        }
+        if (!empty($aParams['user_id'])) {
+            $aFilter['user_id'] = $aParams['user_id'];
+        }
+
+        return $aFilter;
+    }
+
+    /**
+     * Получает список хороших топиков для вывода на главную страницу (из всех блогов, как коллективных так и персональных)
      *
      * @param  int  $iPage          Номер страницы
      * @param  int  $iPerPage       Количество элементов на страницу
      * @param  bool $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                              из блогов доступных пользователю. При указании false,
+     *                              в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsGood($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open'
-            ),
-            'topic_publish' => 1,
-            'topic_rating'  => array(
-                'value'         => Config::Get('module.blog.index_good'),
-                'type'          => 'top',
-                'publish_index' => 1,
-            )
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
-
+        $aFilter = $this->GetNamedFilter('good', array('accessible' => $bAddAccessible, 'rating' => Config::Get('module.blog.index_good')));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1095,32 +1448,14 @@ class ModuleTopic extends Module {
      * @param  int  $iPage          Номер страницы
      * @param  int  $iPerPage       Количество элементов на страницу
      * @param  bool $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                              из блогов доступных пользователю. При указании false,
+     *                              в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsNew($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
-            'topic_publish' => 1,
-            'topic_new'     => $sDate,
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('new', array('accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1130,30 +1465,14 @@ class ModuleTopic extends Module {
      * @param  int  $iPage          Номер страницы
      * @param  int  $iPerPage       Количество элементов на страницу
      * @param  bool $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                              из блогов доступных пользователю. При указании false,
+     *                              в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsNewAll($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
-            'topic_publish' => 1,
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('new_all', array('accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1164,39 +1483,14 @@ class ModuleTopic extends Module {
      * @param  int        $iPerPage       Количество элементов на страницу
      * @param  int|string $sPeriod        Период в виде секунд или конкретной даты
      * @param  bool       $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                                    из блогов доступных пользователю. При указании false,
+     *                                    в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsDiscussed($iPage, $iPerPage, $sPeriod = null, $bAddAccessible = true) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
-            'topic_publish' => 1
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
-        $aFilter['order'] = ' t.topic_count_comment desc, t.topic_id desc ';
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('discussed', array('period' => $sPeriod, 'accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1207,39 +1501,14 @@ class ModuleTopic extends Module {
      * @param  int        $iPerPage       Количество элементов на страницу
      * @param  int|string $sPeriod        Период в виде секунд или конкретной даты
      * @param  bool       $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                                    из блогов доступных пользователю. При указании false,
+     *                                    в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsTop($iPage, $iPerPage, $sPeriod = null, $bAddAccessible = true) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
-            'topic_publish' => 1
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
-        $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('top', array('period' => $sPeriod, 'accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1252,28 +1521,8 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsLast($nCount) {
 
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
-            'topic_publish' => 1,
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
-        $aReturn = $this->GetTopicsByFilter($aFilter, 1, $nCount);
-        if (isset($aReturn['collection'])) {
-            return $aReturn['collection'];
-        }
-        return false;
+        $aFilter = $this->GetNamedFilter('default', array('accessible' => true));
+        return $this->GetTopicsByFilter($aFilter, 1, $nCount);
     }
 
     /**
@@ -1288,45 +1537,27 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsPersonal($iPage, $iPerPage, $sShowType = 'good', $sPeriod = null) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-            ),
-            'topic_publish' => 1,
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
         switch ($sShowType) {
             case 'good':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.personal_good'),
-                    'type'  => 'top',
-                );
+                $aFilter = $this->GetNamedFilter('good', array('personal' => true, 'rating' => Config::Get('module.blog.personal_good'), 'period' => $sPeriod));
                 break;
             case 'bad':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.personal_good'),
-                    'type'  => 'down',
-                );
+                $aFilter = $this->GetNamedFilter('bad', array('personal' => true, 'rating' => Config::Get('module.blog.personal_good'), 'period' => $sPeriod));
                 break;
             case 'new':
-                $aFilter['topic_new'] = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter = $this->GetNamedFilter('new', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'newall':
-                // нет доп фильтра
+                $aFilter = $this->GetNamedFilter('new_all', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment desc', 't.topic_id desc');
+                $aFilter = $this->GetNamedFilter('discussed', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+                $aFilter = $this->GetNamedFilter('top', array('personal' => true, 'period' => $sPeriod));
                 break;
             default:
+                $aFilter = $this->GetNamedFilter('default', array('personal' => true, 'period' => $sPeriod));
                 break;
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1339,71 +1570,47 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsPersonalNew() {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-            ),
-            'topic_publish' => 1,
-            'topic_new'     => $sDate,
-        );
+        $aFilter = $this->GetNamedFilter('new', array('personal' => true));
         return $this->GetCountTopicsByFilter($aFilter);
     }
 
     /**
      * Получает список топиков по юзеру
      *
-     * @param int $nUserId     ID пользователя
-     * @param int $iPublish    Флаг публикации топика
-     * @param int $iPage       Номер страницы
-     * @param int $iPerPage    Количество элементов на страницу
+     * @param int|object $xUser Пользователь
+     * @param int $bPublished   Флаг публикации топика
+     * @param int $iPage        Номер страницы
+     * @param int $iPerPage     Количество элементов на страницу
      *
      * @return array
      */
-    public function GetTopicsPersonalByUser($nUserId, $iPublish, $iPage, $iPerPage) {
+    public function GetTopicsPersonalByUser($xUser, $bPublished, $iPage, $iPerPage) {
 
-        $aFilter = array(
-            'topic_publish' => $iPublish,
-            'user_id'       => $nUserId,
-            'blog_type'     => array('open', 'personal'),
-        );
-        /**
-         * Если пользователь смотрит свой профиль, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $this->oUserCurrent->getId() == $nUserId) {
-            $aFilter['blog_type'][] = 'close';
-        }
+        $iUserId = (is_object($xUser) ? $xUser->getId() : intval($xUser));
+        $aFilter = $this->GetNamedFilter('default', array('user_id' => $iUserId));
+        $aFilter['topic_publish'] = ($bPublished ? 1 : 0);
+
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
     /**
      * Возвращает количество топиков которые создал юзер
      *
-     * @param int  $nUserId     ID пользователя
-     * @param bool $bPublish    Флаг публикации топика
+     * @param int|object $xUser Пользователь
+     * @param bool $bPublished  Флаг публикации топика
      *
      * @return array
      */
-    public function GetCountTopicsPersonalByUser($nUserId, $bPublish) {
+    public function GetCountTopicsPersonalByUser($xUser, $bPublished) {
 
-        $aFilter = array(
-            'topic_publish' => $bPublish ? 1 : 0,
-            'user_id'       => $nUserId,
-            'blog_type'     => array('open', 'personal'),
-        );
-        /**
-         * Если пользователь смотрит свой профиль, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $this->oUserCurrent->getId() == $nUserId) {
-            $aFilter['blog_type'][] = 'close';
-        }
+        $iUserId = (is_object($xUser) ? $xUser->getId() : intval($xUser));
+        $aFilter = $this->GetNamedFilter('default', array('user_id' => $iUserId));
+        $aFilter['topic_publish'] = ($bPublished ? 1 : 0);
 
         $sCacheKey = 'topic_count_user_' . serialize($aFilter);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetCountTopics($aFilter);
-            $this->Cache_Set($data, $sCacheKey, array("topic_update_user_{$nUserId}"), 'P1D');
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetCountTopics($aFilter);
+            E::ModuleCache()->Set($data, $sCacheKey, array("topic_update_user_{$iUserId}"), 'P1D');
         }
         return $data;
     }
@@ -1444,57 +1651,30 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsCollective($iPage, $iPerPage, $sShowType = 'good', $sPeriod = null) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-        $aFilter = array(
-            'blog_type'     => array(
-                'open',
-            ),
-            'topic_publish' => 1,
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
         switch ($sShowType) {
             case 'good':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'top',
-                );
+                $aFilter = $this->GetNamedFilter('good', array('accessible' => true, 'personal' => false, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'bad':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'down',
-                );
+                $aFilter = $this->GetNamedFilter('bad', array('accessible' => true, 'personal' => false, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'new':
-                $aFilter['topic_new'] = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter = $this->GetNamedFilter('new', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'newall':
-                // нет доп фильтра
+                $aFilter = $this->GetNamedFilter('new_all', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment desc', 't.topic_id desc');
+                $aFilter = $this->GetNamedFilter('discussed', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+                $aFilter = $this->GetNamedFilter('top', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             default:
+                $aFilter = $this->GetNamedFilter('default', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
         }
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1505,24 +1685,7 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsCollectiveNew() {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'blog_type'     => array(
-                'open',
-            ),
-            'topic_publish' => 1,
-            'topic_new'     => $sDate,
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('new', array('accessible' => true, 'personal' => false));
         return $this->GetCountTopicsByFilter($aFilter);
     }
 
@@ -1539,15 +1702,17 @@ class ModuleTopic extends Module {
          * Получаем список блогов, топики которых нужно исключить из выдачи
          */
         $aCloseBlogs = ($this->oUserCurrent)
-            ? $this->Blog_GetInaccessibleBlogsByUser($this->oUserCurrent)
-            : $this->Blog_GetInaccessibleBlogsByUser();
+            ? E::ModuleBlog()->GetInaccessibleBlogsByUser($this->oUserCurrent)
+            : E::ModuleBlog()->GetInaccessibleBlogsByUser();
 
         $sCacheKey = "topic_rating_{$sDate}_{$iLimit}_" . serialize($aCloseBlogs);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetTopicsRatingByDate($sDate, $iLimit, $aCloseBlogs);
-            $this->Cache_Set($data, $sCacheKey, array('topic_update'), 'P3D');
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetTopicsRatingByDate($sDate, $iLimit, $aCloseBlogs);
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update'), 'P3D');
         }
-        $data = $this->GetTopicsAdditionalData($data);
+        if ($data) {
+            $data = $this->GetTopicsAdditionalData($data);
+        }
         return $data;
     }
 
@@ -1564,43 +1729,28 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsByBlog($oBlog, $iPage, $iPerPage, $sShowType = 'good', $sPeriod = null) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-        $aFilter = array(
-            'topic_publish' => 1,
-            'blog_id'       => $oBlog->getId(),
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
+        $iBlogId = (is_object($oBlog) ? $oBlog->getId() : intval($oBlog));
         switch ($sShowType) {
             case 'good':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'top',
-                );
+                $aFilter = $this->GetNamedFilter('good', array('blog_id' => $iBlogId, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'bad':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'down',
-                );
+                $aFilter = $this->GetNamedFilter('bad', array('blog_id' => $iBlogId, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'new':
-                $aFilter['topic_new'] = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter = $this->GetNamedFilter('new', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'newall':
-                // нет доп фильтра
+                $aFilter = $this->GetNamedFilter('new_all', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment desc', 't.topic_id desc');
+                $aFilter = $this->GetNamedFilter('discussed', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+                $aFilter = $this->GetNamedFilter('top', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             default:
+                $aFilter = $this->GetNamedFilter('default', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1615,13 +1765,8 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsByBlogNew($oBlog) {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'topic_publish' => 1,
-            'blog_id'       => $oBlog->getId(),
-            'topic_new'     => $sDate,
-
-        );
+        $iBlogId = (is_object($oBlog) ? $oBlog->getId() : intval($oBlog));
+        $aFilter = $this->GetNamedFilter('new', array('blog_id' => $iBlogId));
         return $this->GetCountTopicsByFilter($aFilter);
     }
 
@@ -1640,20 +1785,20 @@ class ModuleTopic extends Module {
     public function GetTopicsByTag($sTag, $iPage, $iPerPage, $bAddAccessible = true) {
 
         $aCloseBlogs = ($this->oUserCurrent && $bAddAccessible)
-            ? $this->Blog_GetInaccessibleBlogsByUser($this->oUserCurrent)
-            : $this->Blog_GetInaccessibleBlogsByUser();
+            ? E::ModuleBlog()->GetInaccessibleBlogsByUser($this->oUserCurrent)
+            : E::ModuleBlog()->GetInaccessibleBlogsByUser();
 
-        $s = serialize($aCloseBlogs);
-        if (false === ($data = $this->Cache_Get("topic_tag_{$sTag}_{$iPage}_{$iPerPage}_{$s}"))) {
-            $data = array('collection' => $this->oMapperTopic->GetTopicsByTag(
-                $sTag, $aCloseBlogs, $iCount, $iPage, $iPerPage
-            ), 'count'                 => $iCount);
-            $this->Cache_Set(
-                $data, "topic_tag_{$sTag}_{$iPage}_{$iPerPage}_{$s}", array('topic_update', 'topic_new'),
-                60 * 60 * 24 * 2
+        $sCacheKey = "topic_tag_{$sTag}_{$iPage}_{$iPerPage}_" . serialize($aCloseBlogs);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = array(
+                'collection' => $this->oMapper->GetTopicsByTag($sTag, $aCloseBlogs, $iCount, $iPage, $iPerPage),
+                'count'      => $iCount
             );
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
         }
-        $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+        }
         return $data;
     }
 
@@ -1671,22 +1816,7 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsByType($iPage, $iPerPage, $sType, $bAddAccessible = true) {
 
-        $aTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'list', true);
-        $aFilter = array(
-            'blog_type'     => $aTypes,
-            'topic_publish' => 1,
-            'topic_type'    => $sType
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('default', array('accessible' => $bAddAccessible, 'topic_type' => $sType));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1701,9 +1831,9 @@ class ModuleTopic extends Module {
     public function GetTopicTags($nLimit, $aExcludeTopic = array()) {
 
         $sCacheKey = "tag_{$nLimit}_" . serialize($aExcludeTopic);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetTopicTags($nLimit, $aExcludeTopic);
-            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetTopicTags($nLimit, $aExcludeTopic);
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
         }
         return $data;
     }
@@ -1719,9 +1849,9 @@ class ModuleTopic extends Module {
     public function GetOpenTopicTags($nLimit, $nUserId = null) {
 
         $sCacheKey = "tag_{$nLimit}_{$nUserId}_open";
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetOpenTopicTags($nLimit, $nUserId);
-            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetOpenTopicTags($nLimit, $nUserId);
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
         }
         return $data;
     }
@@ -1735,9 +1865,27 @@ class ModuleTopic extends Module {
      */
     public function increaseTopicCountComment($nTopicId) {
 
-        $this->Cache_Delete("topic_{$nTopicId}");
-        $this->Cache_CleanByTags(array('topic_update'));
-        return $this->oMapperTopic->increaseTopicCountComment($nTopicId);
+        $bResult = $this->oMapper->increaseTopicCountComment($nTopicId);
+        if ($bResult) {
+            E::ModuleCache()->Delete("topic_{$nTopicId}");
+            E::ModuleCache()->CleanByTags(array('topic_update'));
+        }
+        return $bResult;
+    }
+
+    /**
+     * @param $nTopicId
+     *
+     * @return bool
+     */
+    public function RecalcCountOfComments($nTopicId) {
+
+        $bResult = $this->oMapper->RecalcCountOfComments($nTopicId);
+        if ($bResult) {
+            E::ModuleCache()->Delete("topic_{$nTopicId}");
+            E::ModuleCache()->CleanByTags(array('topic_update'));
+        }
+        return $bResult;
     }
 
     /**
@@ -1750,7 +1898,7 @@ class ModuleTopic extends Module {
      */
     public function GetFavouriteTopic($nTopicId, $nUserId) {
 
-        return $this->Favourite_GetFavourite($nTopicId, 'topic', $nUserId);
+        return E::ModuleFavourite()->GetFavourite($nTopicId, 'topic', $nUserId);
     }
 
     /**
@@ -1763,7 +1911,7 @@ class ModuleTopic extends Module {
      */
     public function GetFavouriteTopicsByArray($aTopicsId, $nUserId) {
 
-        return $this->Favourite_GetFavouritesByArray($aTopicsId, 'topic', $nUserId);
+        return E::ModuleFavourite()->GetFavouritesByArray($aTopicsId, 'topic', $nUserId);
     }
 
     /**
@@ -1776,7 +1924,7 @@ class ModuleTopic extends Module {
      */
     public function GetFavouriteTopicsByArraySolid($aTopicsId, $nUserId) {
 
-        return $this->Favourite_GetFavouritesByArraySolid($aTopicsId, 'topic', $nUserId);
+        return E::ModuleFavourite()->GetFavouritesByArraySolid($aTopicsId, 'topic', $nUserId);
     }
 
     /**
@@ -1788,7 +1936,7 @@ class ModuleTopic extends Module {
      */
     public function AddFavouriteTopic($oFavouriteTopic) {
 
-        return $this->Favourite_AddFavourite($oFavouriteTopic);
+        return E::ModuleFavourite()->AddFavourite($oFavouriteTopic);
     }
 
     /**
@@ -1800,7 +1948,7 @@ class ModuleTopic extends Module {
      */
     public function DeleteFavouriteTopic($oFavouriteTopic) {
 
-        return $this->Favourite_DeleteFavourite($oFavouriteTopic);
+        return E::ModuleFavourite()->DeleteFavourite($oFavouriteTopic);
     }
 
     /**
@@ -1813,7 +1961,7 @@ class ModuleTopic extends Module {
      */
     public function SetFavouriteTopicPublish($nTopicId, $bPublish) {
 
-        return $this->Favourite_SetFavouriteTargetPublish($nTopicId, 'topic', $bPublish);
+        return E::ModuleFavourite()->SetFavouriteTargetPublish($nTopicId, 'topic', $bPublish);
     }
 
     /**
@@ -1825,7 +1973,7 @@ class ModuleTopic extends Module {
      */
     public function DeleteFavouriteTopicByArrayId($aTopicsId) {
 
-        return $this->Favourite_DeleteFavouriteByTargetId($aTopicsId, 'topic');
+        return E::ModuleFavourite()->DeleteFavouriteByTargetId($aTopicsId, 'topic');
     }
 
     /**
@@ -1839,9 +1987,9 @@ class ModuleTopic extends Module {
     public function GetTopicTagsByLike($sTag, $nLimit) {
 
         $sCacheKey = "tag_like_{$sTag}_{$nLimit}";
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetTopicTagsByLike($sTag, $nLimit);
-            $this->Cache_Set($data, $sCacheKey, array("topic_update", "topic_new"), 60 * 60 * 24 * 3);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetTopicTagsByLike($sTag, $nLimit);
+            E::ModuleCache()->Set($data, $sCacheKey, array("topic_update", "topic_new"), 60 * 60 * 24 * 3);
         }
         return $data;
     }
@@ -1856,30 +2004,53 @@ class ModuleTopic extends Module {
     public function SetTopicRead($oTopicRead) {
 
         if ($this->GetTopicRead($oTopicRead->getTopicId(), $oTopicRead->getUserId())) {
-            $this->Cache_Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
-            $this->Cache_CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
-            $this->oMapperTopic->UpdateTopicRead($oTopicRead);
+            return $this->UpdateTopicRead($oTopicRead);
         } else {
-            $this->Cache_Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
-            $this->Cache_CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
-            $this->oMapperTopic->AddTopicRead($oTopicRead);
+            return $this->AddTopicRead($oTopicRead);
         }
-        return true;
+    }
+
+    /**
+     * @param $oTopicRead
+     *
+     * @return bool
+     */
+    public function AddTopicRead($oTopicRead) {
+
+        $xResult = $this->oMapper->AddTopicRead($oTopicRead);
+        E::ModuleCache()->Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
+        E::ModuleCache()->CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
+
+        return $xResult;
+    }
+
+    /**
+     * @param $oTopicRead
+     *
+     * @return int
+     */
+    public function UpdateTopicRead($oTopicRead) {
+
+        $xResult = $this->oMapper->UpdateTopicRead($oTopicRead);
+        E::ModuleCache()->Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
+        E::ModuleCache()->CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
+
+        return $xResult;
     }
 
     /**
      * Получаем дату прочтения топика юзером
      *
-     * @param int $nTopicId    - ID топика
-     * @param int $nUserId     - ID пользователя
+     * @param int $iTopicId    - ID топика
+     * @param int $iUserId     - ID пользователя
      *
      * @return ModuleTopic_EntityTopicRead|null
      */
-    public function GetTopicRead($nTopicId, $nUserId) {
+    public function GetTopicRead($iTopicId, $iUserId) {
 
-        $data = $this->GetTopicsReadByArray($nTopicId, $nUserId);
-        if (isset($data[$nTopicId])) {
-            return $data[$nTopicId];
+        $data = $this->GetTopicsReadByArray(array($iTopicId), $iUserId);
+        if (isset($data[$iTopicId])) {
+            return $data[$iTopicId];
         }
         return null;
     }
@@ -1896,24 +2067,24 @@ class ModuleTopic extends Module {
         if (!is_array($aTopicsId)) {
             $aTopicsId = array($aTopicsId);
         }
-        return $this->oMapperTopic->DeleteTopicReadByArrayId($aTopicsId);
+        return $this->oMapper->DeleteTopicReadByArrayId($aTopicsId);
     }
 
     /**
      * Получить список просмотром/чтения топиков по списку айдишников
      *
      * @param array $aTopicsId    - Список ID топиков
-     * @param int   $nUserId      - ID пользователя
+     * @param int   $iUserId      - ID пользователя
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicRead[]
      */
-    public function GetTopicsReadByArray($aTopicsId, $nUserId) {
+    public function GetTopicsReadByArray($aTopicsId, $iUserId) {
 
         if (!$aTopicsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetTopicsReadByArraySolid($aTopicsId, $nUserId);
+            return $this->GetTopicsReadByArraySolid($aTopicsId, $iUserId);
         }
         if (!is_array($aTopicsId)) {
             $aTopicsId = array($aTopicsId);
@@ -1921,53 +2092,49 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopicsRead = array();
         $aTopicIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_read_', '_' . $nUserId);
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_read_', '_' . $iUserId);
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTopicsRead[$data[$sKey]->getTopicId()] = $data[$sKey];
                     } else {
-                        $aTopicIdNotNeedQuery[] = $sValue;
+                        $aTopicIdNotNeedQuery[] = $aTopicsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких топиков не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких топиков не было в кеше и делаем запрос в БД
         $aTopicIdNeedQuery = array_diff($aTopicsId, array_keys($aTopicsRead));
         $aTopicIdNeedQuery = array_diff($aTopicIdNeedQuery, $aTopicIdNotNeedQuery);
         $aTopicIdNeedStore = $aTopicIdNeedQuery;
-        if ($data = $this->oMapperTopic->GetTopicsReadByArray($aTopicIdNeedQuery, $nUserId)) {
-            foreach ($data as $oTopicRead) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aTopicsRead[$oTopicRead->getTopicId()] = $oTopicRead;
-                $this->Cache_Set(
-                    $oTopicRead, "topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}", array(),
-                    60 * 60 * 24 * 4
-                );
-                $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicRead->getTopicId()));
+
+        if ($aTopicIdNeedQuery) {
+            if ($data = $this->oMapper->GetTopicsReadByArray($aTopicIdNeedQuery, $iUserId)) {
+                foreach ($data as $oTopicRead) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aTopicsRead[$oTopicRead->getTopicId()] = $oTopicRead;
+                    E::ModuleCache()->Set(
+                        $oTopicRead, "topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}", array(),
+                        60 * 60 * 24 * 4
+                    );
+                    $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicRead->getTopicId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $sId) {
-            $this->Cache_Set(null, "topic_read_{$sId}_{$nUserId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "topic_read_{$sId}_{$iUserId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aTopicsRead = F::Array_SortByKeysArray($aTopicsRead, $aTopicsId);
+
         return $aTopicsRead;
     }
 
@@ -1988,12 +2155,12 @@ class ModuleTopic extends Module {
         $aTopicsRead = array();
 
         $sCacheKey = "topic_read_{$nUserId}_id_" . join(',', $aTopicsId);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetTopicsReadByArray($aTopicsId, $nUserId);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetTopicsReadByArray($aTopicsId, $nUserId);
             foreach ($data as $oTopicRead) {
                 $aTopicsRead[$oTopicRead->getTopicId()] = $oTopicRead;
             }
-            $this->Cache_Set($aTopicsRead, $sCacheKey, array("topic_read_user_{$nUserId}"), 'P1D');
+            E::ModuleCache()->Set($aTopicsRead, $sCacheKey, array("topic_read_user_{$nUserId}"), 'P1D');
             return $aTopicsRead;
         }
         return $data;
@@ -2018,12 +2185,12 @@ class ModuleTopic extends Module {
         $aTopicId = array_unique($aTopicId);
         $aValues = array();
         $s = join(',', $aTopicId);
-        if (false === ($data = $this->Cache_Get("topic_values_{$s}"))) {
-            $data = $this->oMapperTopic->GetTopicValuesByArrayId($aTopicId);
+        if (false === ($data = E::ModuleCache()->Get("topic_values_{$s}"))) {
+            $data = $this->oMapper->GetTopicValuesByArrayId($aTopicId);
             foreach ($data as $oValue) {
                 $aValues[$oValue->getTargetId()][$oValue->getFieldId()] = $oValue;
             }
-            $this->Cache_Set($aValues, "topic_values_{$s}", array('topic_new', 'topic_update'), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($aValues, "topic_values_{$s}", array('topic_new', 'topic_update'), 60 * 60 * 24 * 1);
             return $aValues;
         }
         return $data;
@@ -2048,12 +2215,12 @@ class ModuleTopic extends Module {
         $aTypesId = array_unique($aTypesId);
         $aFields = array();
         $s = join(',', $aTypesId);
-        if (false === ($data = $this->Cache_Get("topic_fields_{$s}"))) {
-            $data = $this->oMapperTopic->GetFieldsByArrayId($aTypesId);
+        if (false === ($data = E::ModuleCache()->Get("topic_fields_{$s}"))) {
+            $data = $this->oMapper->GetFieldsByArrayId($aTypesId);
             foreach ($data as $oField) {
                 $aFields[$oField->getContentId()][$oField->getFieldId()] = $oField;
             }
-            $this->Cache_Set($aFields, "topic_fields_{$s}", array("field_update"), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($aFields, "topic_fields_{$s}", array("field_update"), 60 * 60 * 24 * 1);
             return $aFields;
         }
         return $data;
@@ -2080,17 +2247,17 @@ class ModuleTopic extends Module {
      * Получить список голосований в топике-опросе по списку ID
      *
      * @param array $aTopicsId    - Список ID топиков
-     * @param int   $nUserId      - ID пользователя
+     * @param int   $iUserId      - ID пользователя
      *
      * @return array
      */
-    public function GetTopicsQuestionVoteByArray($aTopicsId, $nUserId) {
+    public function GetTopicsQuestionVoteByArray($aTopicsId, $iUserId) {
 
         if (!$aTopicsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetTopicsQuestionVoteByArraySolid($aTopicsId, $nUserId);
+            return $this->GetTopicsQuestionVoteByArraySolid($aTopicsId, $iUserId);
         }
         if (!is_array($aTopicsId)) {
             $aTopicsId = array($aTopicsId);
@@ -2098,53 +2265,49 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopicsQuestionVote = array();
         $aTopicIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_question_vote_', '_' . $nUserId);
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_question_vote_', '_' . $iUserId);
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTopicsQuestionVote[$data[$sKey]->getTopicId()] = $data[$sKey];
                     } else {
-                        $aTopicIdNotNeedQuery[] = $sValue;
+                        $aTopicIdNotNeedQuery[] = $aTopicsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких топиков не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких топиков не было в кеше и делаем запрос в БД
         $aTopicIdNeedQuery = array_diff($aTopicsId, array_keys($aTopicsQuestionVote));
         $aTopicIdNeedQuery = array_diff($aTopicIdNeedQuery, $aTopicIdNotNeedQuery);
         $aTopicIdNeedStore = $aTopicIdNeedQuery;
-        if ($data = $this->oMapperTopic->GetTopicsQuestionVoteByArray($aTopicIdNeedQuery, $nUserId)) {
-            foreach ($data as $oTopicVote) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aTopicsQuestionVote[$oTopicVote->getTopicId()] = $oTopicVote;
-                $this->Cache_Set(
-                    $oTopicVote, "topic_question_vote_{$oTopicVote->getTopicId()}_{$oTopicVote->getVoterId()}", array(),
-                    60 * 60 * 24 * 4
-                );
-                $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicVote->getTopicId()));
+
+        if ($aTopicIdNeedQuery) {
+            if ($data = $this->oMapper->GetTopicsQuestionVoteByArray($aTopicIdNeedQuery, $iUserId)) {
+                foreach ($data as $oTopicVote) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aTopicsQuestionVote[$oTopicVote->getTopicId()] = $oTopicVote;
+                    E::ModuleCache()->Set(
+                        $oTopicVote, "topic_question_vote_{$oTopicVote->getTopicId()}_{$oTopicVote->getVoterId()}", array(),
+                        60 * 60 * 24 * 4
+                    );
+                    $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicVote->getTopicId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $sId) {
-            $this->Cache_Set(null, "topic_question_vote_{$sId}_{$nUserId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "topic_question_vote_{$sId}_{$iUserId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aTopicsQuestionVote = F::Array_SortByKeysArray($aTopicsQuestionVote, $aTopicsId);
+
         return $aTopicsQuestionVote;
     }
 
@@ -2165,12 +2328,12 @@ class ModuleTopic extends Module {
         $aTopicsQuestionVote = array();
 
         $sCacheKey = "topic_question_vote_{$nUserId}_id_" . join(',', $aTopicsId);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapperTopic->GetTopicsQuestionVoteByArray($aTopicsId, $nUserId);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetTopicsQuestionVoteByArray($aTopicsId, $nUserId);
             foreach ($data as $oTopicVote) {
                 $aTopicsQuestionVote[$oTopicVote->getTopicId()] = $oTopicVote;
             }
-            $this->Cache_Set($aTopicsQuestionVote, $sCacheKey, array("topic_question_vote_user_{$nUserId}"), 'P1D');
+            E::ModuleCache()->Set($aTopicsQuestionVote, $sCacheKey, array("topic_question_vote_user_{$nUserId}"), 'P1D');
             return $aTopicsQuestionVote;
         }
         return $data;
@@ -2185,11 +2348,11 @@ class ModuleTopic extends Module {
      */
     public function AddTopicQuestionVote(ModuleTopic_EntityTopicQuestionVote $oTopicQuestionVote) {
 
-        $this->Cache_Delete(
+        E::ModuleCache()->Delete(
             "topic_question_vote_{$oTopicQuestionVote->getTopicId()}_{$oTopicQuestionVote->getVoterId()}"
         );
-        $this->Cache_CleanByTags(array("topic_question_vote_user_{$oTopicQuestionVote->getVoterId()}"));
-        return $this->oMapperTopic->AddTopicQuestionVote($oTopicQuestionVote);
+        E::ModuleCache()->CleanByTags(array("topic_question_vote_user_{$oTopicQuestionVote->getVoterId()}"));
+        return $this->oMapper->AddTopicQuestionVote($oTopicQuestionVote);
     }
 
     /**
@@ -2202,7 +2365,7 @@ class ModuleTopic extends Module {
      */
     public function GetTopicUnique($nUserId, $sHash) {
 
-        $sId = $this->oMapperTopic->GetTopicUnique($nUserId, $sHash);
+        $sId = $this->oMapper->GetTopicUnique($nUserId, $sHash);
         return $this->GetTopicById($sId);
     }
 
@@ -2215,7 +2378,7 @@ class ModuleTopic extends Module {
      */
     public function SendNotifyTopicNew($oBlog, $oTopic, $oUserTopic) {
 
-        $aBlogUsersResult = $this->Blog_GetBlogUsersByBlogId(
+        $aBlogUsersResult = E::ModuleBlog()->GetBlogUsersByBlogId(
             $oBlog->getId(), null, null
         ); // нужно постранично пробегаться по всем
         $aBlogUsers = $aBlogUsersResult['collection'];
@@ -2223,11 +2386,11 @@ class ModuleTopic extends Module {
             if ($oBlogUser->getUserId() == $oUserTopic->getId()) {
                 continue;
             }
-            $this->Notify_SendTopicNewToSubscribeBlog($oBlogUser->getUser(), $oTopic, $oBlog, $oUserTopic);
+            E::ModuleNotify()->SendTopicNewToSubscribeBlog($oBlogUser->getUser(), $oTopic, $oBlog, $oUserTopic);
         }
         //отправляем создателю блога
         if ($oBlog->getOwnerId() != $oUserTopic->getId()) {
-            $this->Notify_SendTopicNewToSubscribeBlog($oBlog->getOwner(), $oTopic, $oBlog, $oUserTopic);
+            E::ModuleNotify()->SendTopicNewToSubscribeBlog($oBlog->getOwner(), $oTopic, $oBlog, $oUserTopic);
         }
     }
 
@@ -2263,14 +2426,14 @@ class ModuleTopic extends Module {
      */
     public function MoveTopicsByArrayId($aTopicsId, $nBlogId) {
 
-        $this->Cache_CleanByTags(array("topic_update", "topic_new_blog_{$nBlogId}"));
-        if ($res = $this->oMapperTopic->MoveTopicsByArrayId($aTopicsId, $nBlogId)) {
+        E::ModuleCache()->CleanByTags(array("topic_update", "topic_new_blog_{$nBlogId}"));
+        if ($res = $this->oMapper->MoveTopicsByArrayId($aTopicsId, $nBlogId)) {
             // перемещаем теги
-            $this->oMapperTopic->MoveTopicsTagsByArrayId($aTopicsId, $nBlogId);
+            $this->oMapper->MoveTopicsTagsByArrayId($aTopicsId, $nBlogId);
             // меняем target parent у комментов
-            $this->Comment_UpdateTargetParentByTargetId($nBlogId, 'topic', $aTopicsId);
+            E::ModuleComment()->UpdateTargetParentByTargetId($nBlogId, 'topic', $aTopicsId);
             // меняем target parent у комментов в прямом эфире
-            $this->Comment_UpdateTargetParentByTargetIdOnline($nBlogId, 'topic', $aTopicsId);
+            E::ModuleComment()->UpdateTargetParentByTargetIdOnline($nBlogId, 'topic', $aTopicsId);
             return $res;
         }
         return false;
@@ -2286,48 +2449,71 @@ class ModuleTopic extends Module {
      */
     public function MoveTopics($nBlogId, $nBlogIdNew) {
 
-        if ($res = $this->oMapperTopic->MoveTopics($nBlogId, $nBlogIdNew)) {
+        if ($bResult = $this->oMapper->MoveTopics($nBlogId, $nBlogIdNew)) {
             // перемещаем теги
-            $this->oMapperTopic->MoveTopicsTags($nBlogId, $nBlogIdNew);
+            $this->oMapper->MoveTopicsTags($nBlogId, $nBlogIdNew);
             // меняем target parent у комментов
-            $this->Comment_MoveTargetParent($nBlogId, 'topic', $nBlogIdNew);
+            E::ModuleComment()->MoveTargetParent($nBlogId, 'topic', $nBlogIdNew);
             // меняем target parent у комментов в прямом эфире
-            $this->Comment_MoveTargetParentOnline($nBlogId, 'topic', $nBlogIdNew);
-            return $res;
+            E::ModuleComment()->MoveTargetParentOnline($nBlogId, 'topic', $nBlogIdNew);
+            return $bResult;
         }
-        $this->Cache_CleanByTags(
+        E::ModuleCache()->CleanByTags(
             array("topic_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
         );
         return false;
     }
 
-    protected function _saveTopicImage($sImageFile, $oUser) {
+    /**
+     * Save uploaded image into store
+     *
+     * @param string                $sImageFile
+     * @param ModuleUser_EntityUser $oUser
+     * @param string                $sType
+     * @param array                 $aOptions
+     *
+     * @return bool
+     */
+    protected function _saveTopicImage($sImageFile, $oUser, $sType, $aOptions = array()) {
 
-        $sFileTmp = $this->Img_TransformFile($sImageFile, 'topic');
+        $sExtension = F::File_GetExtension($sImageFile, true);
+        $aConfig = E::ModuleUploader()->GetConfig($sImageFile, $sType);
+        if ($aOptions) {
+            $aConfig['transform'] = F::Array_Merge($aConfig['transform'], $aOptions);
+        }
+        // Check whether to save the original
+        if (isset($aConfig['original']['save']) && $aConfig['original']['save']) {
+            $sSuffix = (isset($aConfig['original']['suffix']) ? $aConfig['original']['suffix'] : '-original');
+            $sOriginalFile = F::File_Copy($sImageFile, $sImageFile . $sSuffix . '.' . $sExtension);
+        } else {
+            $sOriginalFile = null;
+        }
+        // Transform image before saving
+        $sFileTmp = E::ModuleImg()->TransformFile($sImageFile, $aConfig['transform']);
         if ($sFileTmp) {
-            $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
-            $sFileImage = $this->Uploader_Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFileTmp)));
-            if ($xStoredFile = $this->Uploader_Store($sFileTmp, $sFileImage)) {
-                if (is_object($xStoredFile)) {
-                    return $xStoredFile->GetUrl();
-                } else {
-                    return $this->Uploader_Dir2Url($xStoredFile);
+            $sDirUpload = E::ModuleUploader()->GetUserImageDir($oUser->getId(), true, $sType);
+            $sFileImage = E::ModuleUploader()->Uniqname($sDirUpload, $sExtension);
+            if ($oStoredFile = E::ModuleUploader()->Store($sFileTmp, $sFileImage)) {
+                if ($sOriginalFile) {
+                    E::ModuleUploader()->Move($sOriginalFile, $oStoredFile->GetFile() . $sSuffix . '.' . $sExtension);
                 }
+                return $oStoredFile->GetUrl();
             }
         }
         return false;
     }
 
     /**
-     * @param array $aFile
+     * @param array                 $aFile
      * @param ModuleUser_EntityUser $oUser
+     * @param array                 $aOptions
      *
      * @return string|bool
      */
-    public function UploadTopicImageFile($aFile, $oUser) {
+    public function UploadTopicImageFile($aFile, $oUser, $aOptions = array()) {
 
-        if ($sFileTmp = $this->Uploader_UploadLocal($aFile)) {
-            return $this->_saveTopicImage($sFileTmp, $oUser);
+        if ($sFileTmp = E::ModuleUploader()->UploadLocal($aFile)) {
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic', $aOptions);
         }
         return false;
     }
@@ -2337,13 +2523,14 @@ class ModuleTopic extends Module {
      *
      * @param  string                $sUrl    URL изображения
      * @param  ModuleUser_EntityUser $oUser
+     * @param array                 $aOptions
      *
      * @return string|int
      */
-    public function UploadTopicImageUrl($sUrl, $oUser) {
+    public function UploadTopicImageUrl($sUrl, $oUser, $aOptions = array()) {
 
-        if ($sFileTmp = $this->Uploader_UploadRemote($sUrl)) {
-            return $this->_saveTopicImage($sFileTmp, $oUser);
+        if ($sFileTmp = E::ModuleUploader()->UploadRemote($sUrl)) {
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic', $aOptions);
         }
         return false;
     }
@@ -2366,12 +2553,12 @@ class ModuleTopic extends Module {
         $aPhotosId = array_unique($aPhotosId);
         $aPhotos = array();
         $s = join(',', $aPhotosId);
-        if (false === ($data = $this->Cache_Get("photoset_photo_id_{$s}"))) {
-            $data = $this->oMapperTopic->GetTopicPhotosByArrayId($aPhotosId);
+        if (false === ($data = E::ModuleCache()->Get("photoset_photo_id_{$s}"))) {
+            $data = $this->oMapper->GetTopicPhotosByArrayId($aPhotosId);
             foreach ($data as $oPhoto) {
                 $aPhotos[$oPhoto->getId()] = $oPhoto;
             }
-            $this->Cache_Set($aPhotos, "photoset_photo_id_{$s}", array("photoset_photo_update"), 'P1D');
+            E::ModuleCache()->Set($aPhotos, "photoset_photo_id_{$s}", array("photoset_photo_update"), 'P1D');
             return $aPhotos;
         }
         return $data;
@@ -2386,9 +2573,9 @@ class ModuleTopic extends Module {
      */
     public function AddTopicPhoto($oPhoto) {
 
-        if ($nId = $this->oMapperTopic->AddTopicPhoto($oPhoto)) {
+        if ($nId = $this->oMapper->AddTopicPhoto($oPhoto)) {
             $oPhoto->setId($nId);
-            $this->Cache_CleanByTags(array('photoset_photo_update'));
+            E::ModuleCache()->CleanByTags(array('photoset_photo_update'));
             return $oPhoto;
         }
         return false;
@@ -2413,15 +2600,15 @@ class ModuleTopic extends Module {
     /**
      * Получить список изображений из фотосета по ID топика
      *
-     * @param int      $nTopicId    ID топика
-     * @param int|null $iFromId     ID с которого начинать выборку
-     * @param int|null $iCount      Количество
+     * @param int|array $aTopicId - ID топика
+     * @param int       $iFromId  - ID с которого начинать выборку
+     * @param int       $iCount   - Количество
      *
      * @return array
      */
-    public function getPhotosByTopicId($nTopicId, $iFromId = null, $iCount = null) {
+    public function getPhotosByTopicId($aTopicId, $iFromId = null, $iCount = null) {
 
-        return $this->oMapperTopic->getPhotosByTopicId($nTopicId, $iFromId, $iCount);
+        return $this->oMapper->getPhotosByTopicId($aTopicId, $iFromId, $iCount);
     }
 
     /**
@@ -2433,31 +2620,31 @@ class ModuleTopic extends Module {
      */
     public function getPhotosByTargetTmp($sTargetTmp) {
 
-        return $this->oMapperTopic->getPhotosByTargetTmp($sTargetTmp);
+        return $this->oMapper->getPhotosByTargetTmp($sTargetTmp);
     }
 
     /**
      * Получить число изображений из фотосета по id топика
      *
-     * @param int $nTopicId    ID топика
+     * @param int $nTopicId - ID топика
      *
      * @return int
      */
     public function getCountPhotosByTopicId($nTopicId) {
 
-        return $this->oMapperTopic->getCountPhotosByTopicId($nTopicId);
+        return $this->oMapper->getCountPhotosByTopicId($nTopicId);
     }
 
     /**
      * Получить число изображений из фотосета по id топика
      *
-     * @param string $sTargetTmp    Временный ключ
+     * @param string $sTargetTmp - Временный ключ
      *
      * @return int
      */
     public function getCountPhotosByTargetTmp($sTargetTmp) {
 
-        return $this->oMapperTopic->getCountPhotosByTargetTmp($sTargetTmp);
+        return $this->oMapper->getCountPhotosByTargetTmp($sTargetTmp);
     }
 
     /**
@@ -2467,8 +2654,8 @@ class ModuleTopic extends Module {
      */
     public function UpdateTopicPhoto($oPhoto) {
 
-        $this->Cache_CleanByTags(array('photoset_photo_update'));
-        $this->oMapperTopic->updateTopicPhoto($oPhoto);
+        E::ModuleCache()->CleanByTags(array('photoset_photo_update'));
+        $this->oMapper->updateTopicPhoto($oPhoto);
     }
 
     /**
@@ -2478,44 +2665,36 @@ class ModuleTopic extends Module {
      */
     public function DeleteTopicPhoto($oPhoto) {
 
-        $this->oMapperTopic->deleteTopicPhoto($oPhoto->getId());
+        $this->oMapper->deleteTopicPhoto($oPhoto->getId());
 
-        $sFile = $this->Uploader_Url2Dir($oPhoto->getPath());
-        $this->Img_Delete($sFile);
-        $this->Cache_CleanByTags(array('photoset_photo_update'));
+        $sFile = E::ModuleUploader()->Url2Dir($oPhoto->getPath());
+        E::ModuleImg()->Delete($sFile);
+        E::ModuleCache()->CleanByTags(array('photoset_photo_update'));
     }
 
     /**
      * Загрузить изображение
      *
-     * @param array $aFile    Массив $_FILES
+     * @param array $aFile - Элемент массива $_FILES
      *
      * @return string|bool
      */
     public function UploadTopicPhoto($aFile) {
 
-        $sFileTmp = $this->Uploader_UploadLocal($aFile);
-        if ($sFileTmp) {
-            $sFileTmp = $this->Img_TransformFile($sFileTmp, 'photoset');
-            if ($sFileTmp) {
-                $sDirUpload = $this->Uploader_GetUserImageDir($this->oUserCurrent->getId());
-                $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
-                if ($xStoredFile = $this->Uploader_Store($sFileTmp, $sFileImage)) {
-                    if (is_object($xStoredFile)) {
-                        return $xStoredFile->GetUrl();
-                    } else {
-                        return $this->Uploader_Dir2Url($xStoredFile);
-                    }
-                }
-            }
+        if ($sFileTmp = E::ModuleUploader()->UploadLocal($aFile)) {
+            return $this->_saveTopicImage($sFileTmp, $this->oUserCurrent, 'photoset');
         }
-
         return false;
     }
 
+    /**
+     * Returns upload error
+     *
+     * @return mixed
+     */
     public function UploadPhotoError() {
 
-        return $this->Uploader_GetErrorMsg();
+        return E::ModuleUploader()->GetErrorMsg();
     }
 
     /**
@@ -2525,7 +2704,7 @@ class ModuleTopic extends Module {
      */
     public function RecalculateFavourite() {
 
-        return $this->oMapperTopic->RecalculateFavourite();
+        return $this->oMapper->RecalculateFavourite();
     }
 
     /**
@@ -2535,7 +2714,7 @@ class ModuleTopic extends Module {
      */
     public function RecalculateVote() {
 
-        return $this->oMapperTopic->RecalculateVote();
+        return $this->oMapper->RecalculateVote();
     }
 
     /**
@@ -2562,10 +2741,11 @@ class ModuleTopic extends Module {
         F::File_PrintChunked($sFilename);
     }
 
-    /*
+    /**
      * Обработка дополнительных полей топика
      *
-     * @param $oTopic
+     * @param ModuleTopic_EntityTopic $oTopic
+     * @param string $sType
      *
      * @return bool
      */
@@ -2574,30 +2754,25 @@ class ModuleTopic extends Module {
         $aValues = array();
 
         if ($sType == 'update') {
-            /*
-             * Получаем существующие значения
-             */
+            // * Получаем существующие значения
             if ($aData = $this->GetTopicValuesByArrayId(array($oTopic->getId()))) {
                 $aValues = $aData[$oTopic->getId()];
             }
-
-            /*
-             * Чистим существующие значения
-             */
-            $this->Topic_DeleteTopicValuesByTopicId($oTopic->getId());
+            // * Чистим существующие значения
+            E::ModuleTopic()->DeleteTopicValuesByTopicId($oTopic->getId());
         }
 
-        if ($oType = $this->Topic_getContentTypeByUrl($oTopic->getType())) {
+        if ($oType = E::ModuleTopic()->GetContentTypeByUrl($oTopic->getType())) {
 
             //получаем поля для данного типа
             if ($aFields = $oType->getFields()) {
                 foreach ($aFields as $oField) {
                     $sData = null;
-                    if (isset($_REQUEST['fields'][$oField->getFieldId()]) || isset($_FILES['fields_' . $oField->getFieldId()])) {
+                    if (isset($_REQUEST['fields'][$oField->getFieldId()]) || isset($_FILES['fields_' . $oField->getFieldId()]) || $oField->getFieldType() == 'single-image-uploader') {
 
                         //текстовые поля
                         if (in_array($oField->getFieldType(), array('input', 'textarea', 'select'))) {
-                            $sData = $this->Text_Parser($_REQUEST['fields'][$oField->getFieldId()]);
+                            $sData = E::ModuleText()->Parser($_REQUEST['fields'][$oField->getFieldId()]);
                         }
                         //поле ссылки
                         if ($oField->getFieldType() == 'link') {
@@ -2622,9 +2797,9 @@ class ModuleTopic extends Module {
                         //поле с файлом
                         if ($oField->getFieldType() == 'file') {
                             //если указано удаление файла
-                            if (getRequest('topic_delete_file_' . $oField->getFieldId())) {
-                                if ($oTopic->getFile($oField->getFieldId())) {
-                                    @unlink(Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
+                            if (F::GetRequest('topic_delete_file_' . $oField->getFieldId())) {
+                                if ($oTopic->getFieldFile($oField->getFieldId())) {
+                                    @unlink(Config::Get('path.root.dir') . $oTopic->getFieldFile($oField->getFieldId())->getFileUrl());
                                     //$oTopic->setValueField($oField->getFieldId(),'');
                                     $sData = null;
                                 }
@@ -2636,16 +2811,14 @@ class ModuleTopic extends Module {
                             }
 
                             if (isset($_FILES['fields_' . $oField->getFieldId()]) && is_uploaded_file( $_FILES['fields_' . $oField->getFieldId()]['tmp_name'])) {
-                                if (filesize($_FILES['fields_' . $oField->getFieldId()]['tmp_name']) <= Config::Get('module.topic.max_filesize_limit')) {
+                                $iMaxFileSize = F::MemSize2Int(Config::Get('module.uploader.files.default.file_maxsize'));
+                                $aFileExtensions = Config::Get('module.uploader.files.default.file_extensions');
+                                if (!$iMaxFileSize || filesize($_FILES['fields_' . $oField->getFieldId()]['tmp_name']) <= $iMaxFileSize) {
                                     $aPathInfo = pathinfo($_FILES['fields_' . $oField->getFieldId()]['name']);
 
-                                    if (in_array(
-                                        strtolower($aPathInfo['extension']),
-                                        Config::Get('module.topic.upload_mime_types')
-                                    )
-                                    ) {
+                                    if (!$aFileExtensions || in_array(strtolower($aPathInfo['extension']), $aFileExtensions)) {
                                         $sFileTmp = $_FILES['fields_' . $oField->getFieldId()]['tmp_name'];
-                                        $sDirSave = Config::Get('path.uploads.root') . '/files/' . $this->User_GetUserCurrent()->getId() . '/' . F::RandomStr(16);
+                                        $sDirSave = Config::Get('path.uploads.root') . '/files/' . E::ModuleUser()->GetUserCurrent()->getId() . '/' . F::RandomStr(16);
                                         mkdir(Config::Get('path.root.dir') . $sDirSave, 0777, true);
                                         if (is_dir(Config::Get('path.root.dir') . $sDirSave)) {
 
@@ -2653,84 +2826,182 @@ class ModuleTopic extends Module {
                                             $sFileFullPath = Config::Get('path.root.dir') . $sFile;
                                             if (copy($sFileTmp, $sFileFullPath)) {
                                                 //удаляем старый файл
-                                                if ($oTopic->getFile($oField->getFieldId())) {
-                                                    @unlink(
-                                                        Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
+                                                if ($oTopic->getFieldFile($oField->getFieldId())) {
+                                                    $sOldFile = Config::Get('path.root.dir') . $oTopic->getFieldFile($oField->getFieldId())->getFileUrl();
+                                                    F::File_Delete($sOldFile);
                                                 }
 
                                                 $aFileObj = array();
                                                 $aFileObj['file_hash'] = F::RandomStr(32);
-                                                $aFileObj['file_name'] = $this->Text_Parser($_FILES['fields_' . $oField->getFieldId()]['name']);
+                                                $aFileObj['file_name'] = E::ModuleText()->Parser($_FILES['fields_' . $oField->getFieldId()]['name']);
                                                 $aFileObj['file_url'] = $sFile;
                                                 $aFileObj['file_size'] = $_FILES['fields_' . $oField->getFieldId()]['size'];
                                                 $aFileObj['file_extension'] = $aPathInfo['extension'];
                                                 $aFileObj['file_downloads'] = 0;
                                                 $sData = serialize($aFileObj);
 
-                                                @unlink($sFileTmp);
+                                                F::File_Delete($sFileTmp);
                                             }
                                         }
+                                    } else {
+                                        $sTypes = implode(', ', $aFileExtensions);
+                                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('topic_field_file_upload_err_type', array('types' => $sTypes)), null, true);
                                     }
+                                } else {
+                                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('topic_field_file_upload_err_size', array('size' => $iMaxFileSize)), null, true);
                                 }
+                                F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                             }
-                            @unlink($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                         }
 
-                        $this->Hook_Run('content_field_proccess', array('sData' => &$sData, 'oField' => $oField, 'oTopic' => $oTopic, 'aValues' => $aValues, 'sType' => &$sType));
+                        // Поле с изображением
+                        if ($oField->getFieldType() == 'single-image-uploader') {
+                            $sTargetType = $oField->getFieldType(). '-' . $oField->getFieldId();
+                            $iTargetId = $oTopic->getId();
+
+                            // 1. Удалить значение target_tmp
+                            // Нужно затереть временный ключ в ресурсах, что бы в дальнейшем картнка не
+                            // воспринималась как временная.
+                            if ($sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) {
+                                // 2. Удалить куку.
+                                // Если прозошло сохранение вновь созданного топика, то нужно
+                                // удалить куку временной картинки. Если же сохранялся уже существующий топик,
+                                // то удаление куки ни на что влиять не будет.
+                                E::ModuleSession()->DelCookie(ModuleUploader::COOKIE_TARGET_TMP);
+
+                                // 3. Переместить фото
+
+                                $sNewPath = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false);
+                                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+
+                                if ($aMresourceRel) {
+                                    $oResource = array_shift($aMresourceRel);
+                                    $sOldPath = $oResource->GetFile();
+
+                                    $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
+                                    /** @var ModuleMresource_EntityMresource $oResource */
+                                    $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
+                                    if ($oResource) {
+                                        $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $iTargetId)));
+                                        $oResource->setType($sTargetType);
+                                        $oResource->setUserId(E::UserId());
+                                        // 4. В свойство поля записать адрес картинки
+                                        $sData = $oResource->getMresourceId();
+                                        $oResource = array($oResource);
+                                        E::ModuleMresource()->UnlinkFile($sTargetType, 0, $oTopic->getUserId());
+                                        E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $iTargetId);
+                                    }
+                                }
+                            } else {
+                                // Топик редактируется, просто обновим поле
+                                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
+                                if ($aMresourceRel) {
+                                    $oResource = array_shift($aMresourceRel);
+                                    $sData = $oResource->getMresourceId();
+                                } else {
+                                    $sData = false;
+//                                    $this->DeleteField($oField);
+                                }
+                            }
+
+
+                        }
+
+                        E::ModuleHook()->Run('content_field_proccess', array('sData' => &$sData, 'oField' => $oField, 'oTopic' => $oTopic, 'aValues' => $aValues, 'sType' => &$sType));
 
                         //Добавляем поле к топику.
                         if ($sData) {
-                            $oValue = Engine::GetEntity('Topic_ContentValues');
+                            /** @var ModuleTopic_EntityContentValues $oValue */
+                            $oValue = E::GetEntity('Topic_ContentValues');
                             $oValue->setTargetId($oTopic->getId());
                             $oValue->setTargetType('topic');
                             $oValue->setFieldId($oField->getFieldId());
                             $oValue->setFieldType($oField->getFieldType());
                             $oValue->setValue($sData);
-                            $oValue->setValueSource(($oField->getFieldType() == 'file') ? $sData : $_REQUEST['fields'][$oField->getFieldId()]);
+                            $oValue->setValueSource(in_array($oField->getFieldType(), array('file', 'single-image-uploader'))
+                                ? $sData
+                                : $_REQUEST['fields'][$oField->getFieldId()]);
 
-                            $this->Topic_AddTopicValue($oValue);
+                            $this->AddTopicValue($oValue);
 
                         }
                     }
                 }
             }
         }
+        return true;
     }
 
     /**
-     * @param $oTopic
+     * Updates mresources of topic
+     *
+     * @param ModuleTopic_EntityTopic $oTopic
      */
     public function UpdateMresources($oTopic) {
 
+        $this->AttachTmpPhotoToTopic($oTopic);
+
+        /** Следующий блок не работает поскольку $aList получает список фотосета и $aMresources весь
+         * фотосет и доп.поля, фотосеты остаются, а доп.поля удаляются, потому закомментирован */
+
+        /*
         // Получаем список ресурсов (хеш-таблицу)
         $aList = $oTopic->BuildMresourcesList();
 
         // Читаем список ресурсов из базы
-        $aMresources = $this->Mresource_GetMresourcesRelByTarget('topic', $oTopic->GetId());
+        $aMresources = E::ModuleMresource()->GetMresourcesRelByTarget(array('topic', 'photoset'), $oTopic->GetId());
 
         // Строим список ID ресурсов для удаления
-        $aDeleteRelId = array();
+        $aDeleteResources = array();
         foreach ($aMresources as $oMresource) {
             if (isset($aList[$oMresource->GetHash()])) {
-                // Если сохраненный ресурс есть в таблице хеш-таблице, то чистим соответствующий хеш
+                // Если сохраненный ресурс есть в хеш-таблице, то чистим соответствующий хеш
                 unset($aList[$oMresource->GetHash()]);
             } else {
                 // Если ресурса нет в хеш-таблице, то это прентендент на удаление
-                $aDeleteRelId[] = $oMresource->GetId();
+                $aDeleteResources[$oMresource->GetId()] = $oMresource->getMresourceId();
             }
         }
         // В списке остались только новые ресурсы
         if ($aList) {
-            $this->Mresource_AddTargetRel($aList, 'topic', $oTopic->GetId());
+            E::ModuleMresource()->AddTargetRel($aList, 'topic', $oTopic->GetId());
         }
-        if ($aDeleteRelId) {
-            $this->Mresource_DeleteMresourcesRel($aDeleteRelId);
+        if ($aDeleteResources) {
+            E::ModuleMresource()->DeleteMresources(array_values($aDeleteResources));
+            E::ModuleMresource()->DeleteMresourcesRel(array_keys($aDeleteResources));
+        }
+        */
+    }
+
+    /**
+     * Delete MResources associated with topic(s)
+     *
+     * @param ModuleTopic_EntityTopic[] $aTopics
+     */
+    public function DeleteMresources($aTopics) {
+
+        if (!is_array($aTopics)) {
+            $aTopics = array($aTopics);
+        }
+        /** @var ModuleTopic_EntityTopic $oTopic */
+        foreach ($aTopics as $oTopic) {
+            E::ModuleMresource()->DeleteMresourcesRelByTarget('topic', $oTopic->GetId());
         }
     }
 
-    public function DeleteMresources($oTopic) {
+    /**
+     * @param ModuleTopic_EntityTopic $oTopic
+     * @param null $sTargetTmp
+     * @return bool
+     */
+    public function AttachTmpPhotoToTopic($oTopic, $sTargetTmp = null) {
 
-        $this->Mresource_DeleteMresourcesRelByTarget('topic', $oTopic->GetId());
+        if (is_null($sTargetTmp)) {
+            $sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP);
+        }
+
+        E::ModuleMresource()->ResetTmpRelById($sTargetTmp, $oTopic->getId());
+        return $this->oMapper->attachTmpPhotoToTopic($oTopic, $sTargetTmp);
     }
 
 }

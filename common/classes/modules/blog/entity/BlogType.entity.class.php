@@ -12,6 +12,25 @@
  * @package modules.blog
  * @since 1.0
  */
+
+/**
+ * Class ModuleBlog_EntityBlogType
+ *
+ * @method SetAllowAdd()
+ * @method SetMinRateAdd()
+ * @method SetMaxNum()
+ * @method SetAllowList()
+ * @method SetIndexIgnore()
+ * @method SetMembership()
+ * @method SetMinRateWrite()
+ * @method SetMinRateRead()
+ * @method SetMinRateComment()
+ * @method SetActive()
+ * @method SetContentType()
+ * @method SetAclWrite()
+ * @method SetAclRead()
+ * @method SetAclComment()
+ */
 class ModuleBlog_EntityBlogType extends Entity {
 
     protected $aDefaults = array(
@@ -26,7 +45,7 @@ class ModuleBlog_EntityBlogType extends Entity {
             'type_code',                        // поле
             'string', 'min' => 2, 'max' => 10,  // проверка на значение
             'allowEmpty' => false,              // может ли быть пустым
-            'label' => $this->Lang_Get('action.admin.blogtypes_typecode'),
+            'label' => E::ModuleLang()->Get('action.admin.blogtypes_typecode'),
             'on' => array('add'),               // сценарий
         );
     }
@@ -42,7 +61,7 @@ class ModuleBlog_EntityBlogType extends Entity {
             $sValue = $this->getProp($sPropKey, null);
         }
         if (is_null($sValue)) {
-            $sValue = $this->Lang_Get(str_replace('%%type_code%%', $this->getTypeCode(), $sLangKey));
+            $sValue = E::ModuleLang()->Get(str_replace('%%type_code%%', $this->getTypeCode(), $sLangKey));
             if (!$sValue) {
                 $sValue = $sDefault;
             }
@@ -71,6 +90,7 @@ class ModuleBlog_EntityBlogType extends Entity {
     }
 
     public function GetTitle($sLang = null) {
+
         return $this->_getPropLangText('blogtypes_type_%%type_code%%_title', 'title', '', $sLang);
     }
 
@@ -201,6 +221,109 @@ class ModuleBlog_EntityBlogType extends Entity {
     public function IsHidden() {
 
         return $this->IsPrivate() && !$this->IsShowTitle();
+    }
+
+    /**
+     * Checks if allows requires content type in this blog type
+     *
+     * @param $xContentType
+     *
+     * @return bool
+     */
+    public function IsContentTypeAllow($xContentType) {
+
+        if (!$xContentType) {
+            return true;
+        }
+
+        if (is_object($xContentType)) {
+            $sContentTypeName = $xContentType->getContentUrl();
+        } else {
+            $sContentTypeName = (string)$xContentType;
+        }
+
+        $aAllowContentTypes = $this->getContentTypes();
+        if (!$aAllowContentTypes) {
+            // Если типы контента не заданы явно, то разрешены любые
+            return true;
+        }
+
+        foreach ($aAllowContentTypes as $oAllowType) {
+            if ($sContentTypeName == $oAllowType->getContentUrl()) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Возвращает типы контента для данного типа блога
+     *
+     * @return ModuleTopic_EntityContentType[]
+     */
+    public function getContentTypes() {
+
+        if ($this->getProp('content_types')) {
+            return $this->getProp('content_types');
+        }
+
+        return array();
+
+    }
+
+    /**
+     * Устанавливает типы контента для типа блога
+     *
+     * @param ModuleTopic_EntityContentType[] $aData
+     */
+    public function setContentTypes($aData) {
+        $this->setProp('content_types', $aData);
+    }
+
+    /**
+     * Получает количество блогов у этого типа
+     *
+     * @return int
+     */
+    public function getBlogsCount() {
+        return $this->getProp('blogs_count');
+    }
+
+    /**
+     * Устанавливает количество блогов у этого типа
+     *
+     * @param int $aData
+     */
+    public function setBlogsCount($aData) {
+        $this->setProp('blogs_count', $aData);
+    }
+
+    /**
+     * Получает кодовое название типа блога
+     *
+     * @return string
+     */
+    public function getTypeCode() {
+        return $this->getProp('type_code');
+    }
+
+    /**
+     * Устанавливает кодовое название типа блога
+     *
+     * @param string $aData
+     */
+    public function setTypeCode($aData) {
+        $this->setProp('type_code', $aData);
+    }
+
+    /**
+     * Получает код типа блога
+     *
+     * @return string
+     */
+    public function getId() {
+        return $this->getProp('id');
     }
 }
 

@@ -8,9 +8,24 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleImg_EntityImage
+ *
+ * @method SetImage()
+ * @method SetWidth()
+ * @method SetHeight()
+ * @method SetMime()
+ * @method SetInfo()
+ * @method SetFilename()
+ *
+ * @method GetImage()
+ * @method GetFilename()
+ * @method GetDriver()
+ */
 class ModuleImg_EntityImage extends Entity {
 
     protected $_fResizeScaleLimit = 0.5;
+    protected $aOptions;
 
     public function __construct($aParams) {
 
@@ -25,7 +40,16 @@ class ModuleImg_EntityImage extends Entity {
         );
         $aParams = F::Array_Merge($aDefault, $aParams);
         parent::__construct($aParams);
-        $this->oPxImage = new \PHPixie\Image(new ModuleImgPx());
+
+        $this->oPxImage = $this->_createPixieImage();
+    }
+
+    protected function _createPixieImage() {
+
+        $oFakePixie = new ModuleImg_EntityPixie();
+        $oPixieImage = new \PHPixie\Image($oFakePixie);
+
+        return $oPixieImage;
     }
 
     /**
@@ -39,16 +63,38 @@ class ModuleImg_EntityImage extends Entity {
 
         if (is_string($xColor)) {
             if (substr($xColor, 0, 2) == '0x') {
-                $nColor = hexdec(substr($xColor, 2));
+                $iColor = hexdec(substr($xColor, 2));
+            } elseif ($xColor[0] == '#' && strlen($xColor) == 7) {
+                $iColor = hexdec(substr($xColor, 1));
             } elseif (strlen($xColor) == 6) {
-                $nColor = hexdec($xColor);
+                $iColor = hexdec($xColor);
             } else {
-                $nColor = intval($xColor);
+                $iColor = intval($xColor);
             }
         } else {
-            $nColor = intval($xColor);
+            $iColor = intval($xColor);
         }
-        return $nColor;
+        return $iColor;
+    }
+
+    /**
+     * @param DataArray|array $aOptions
+     *
+     * @return $this
+     */
+    public function SetOptions($aOptions) {
+
+        if (!($aOptions instanceof DataArray)) {
+            $this->aOptions = new DataArray($aOptions);
+        } else {
+            $this->aOptions = $aOptions;
+        }
+        return $this;
+    }
+
+    public function GetOptions() {
+
+        return $this->aOptions;
     }
 
     /**
@@ -73,13 +119,11 @@ class ModuleImg_EntityImage extends Entity {
     public function GetFormat() {
 
         $sMime = $this->getProp('mime');
+        $sFormat = '';
         if ($sMime) {
             list(, $sFormat) = explode('/', $sMime);
         } elseif ($sFile = $this->GetFilename()) {
-            $sFormat = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
-            if ($sFormat == 'jpg') {
-                $sFormat = 'jpeg';
-            }
+            $sFormat = E::ModuleImg()->GetFormat($sFile);
         }
         return $sFormat;
     }
@@ -94,6 +138,7 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             return $oImage->width;
         }
+        return null;
     }
 
     /**
@@ -106,22 +151,52 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             return $oImage->height;
         }
+        return null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function IsMultiframe() {
+
+        if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')
+        ) {
+            return $oImage->image->getImageIterations();
+        }
+        return false;
+    }
+
+    /**
+     * @param int $iFrame
+     *
+     * @return $this
+     */
+    public function KillAnimation($iFrame = 0) {
+
+        if (($oImage = $this->GetImage()) && ($this->IsMultiframe())) {
+            foreach ($oImage->image as $iIndex => $oFrame) {
+                if ($iIndex == $iFrame) {
+                    $oImage->image = $oFrame->getImage();
+                }
+            }
+        }
+        return $this;
     }
 
     /**
      * Creates new image
      *
-     * @param int        $nWidth
-     * @param int        $nHeight
+     * @param int        $iWidth
+     * @param int        $iHeight
      * @param int|string $xColor
-     * @param int        $nOpacity
+     * @param int|float  $nOpacity
      *
      * @return ModuleImg_EntityImage
      */
-    public function Create($nWidth, $nHeight, $xColor = 0xffffff, $nOpacity = 0) {
+    public function Create($iWidth, $iHeight, $xColor = 0xffffff, $nOpacity = 0.0) {
 
-        $oPxImage = new \PHPixie\Image(new ModuleImgPx());
-        $oImage = $oPxImage->create($nWidth, $nHeight, $this->_color($xColor), $nOpacity);
+        $oPxImage = $this->_createPixieImage();
+        $oImage = $oPxImage->create($iWidth, $iHeight, $this->_color($xColor), $nOpacity);
         if ($oImage) {
             $this->SetImage($oImage);
         }
@@ -132,15 +207,14 @@ class ModuleImg_EntityImage extends Entity {
      * Read image from file
      *
      * @param string      $sFile
-     * @param string|null $sConfigKey
      *
      * @return ModuleImg_EntityImage
      */
-    public function Read($sFile, $sConfigKey = null) {
+    public function Read($sFile) {
 
-        $oPxImage = new \PHPixie\Image(new ModuleImgPx());
+        $oPxImage = $this->_createPixieImage();
         if ($aSize = getimagesize($sFile, $aImageInfo)) {
-            $oImage = $oPxImage->read($sFile, $sConfigKey);
+            $oImage = $oPxImage->read($sFile);
             if ($oImage) {
                 $this->SetImage($oImage);
                 $this->SetWidth($aSize[0]);
@@ -156,25 +230,25 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Resize image
      *
-     * @param int  $nWidth
-     * @param int  $nHeight
-     * @param bool $bFit
+     * @param int  $iWidth  - New width
+     * @param int  $iHeight - New size
+     * @param bool $bFit    - Fit image to new sizes
      *
      * @return ModuleImg_EntityImage
      * @throws Exception
      */
-    public function Resize($nWidth = null, $nHeight = null, $bFit = true) {
+    public function ResizeByScale($iWidth = null, $iHeight = null, $bFit = true) {
 
         if ($oImage = $this->GetImage()) {
-            if ($nWidth && $nHeight) {
-                $fWScale = $nWidth / $oImage->width;
-                $fHScale = $nHeight / $oImage->height;
+            if ($iWidth && $iHeight) {
+                $fWScale = $iWidth / $oImage->width;
+                $fHScale = $iHeight / $oImage->height;
                 $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
-            }elseif($nWidth) {
-                $fScale = $nWidth/$oImage->width;
-            }elseif($nHeight) {
-                $fScale = $nHeight/$oImage->height;
-            }else {
+            } elseif ($iWidth) {
+                $fScale = $iWidth / $oImage->width;
+            } elseif ($iHeight) {
+                $fScale = $iHeight / $oImage->height;
+            } else {
                 throw new \Exception('Either width or height must be set');
             }
 
@@ -197,24 +271,58 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
+     * Resize image
+     *
+     * @param null $iWidth
+     * @param null $iHeight
+     * @param bool $bFit
+     *
+     * @return $this
+     * @throws Exception
+     */
+    public function Resize($iWidth = null, $iHeight = null, $bFit = true) {
+
+        if ($oImage = $this->GetImage()) {
+            if ($iWidth && $iHeight) {
+                $fWScale = $iWidth / $oImage->width;
+                $fHScale = $iHeight / $oImage->height;
+                $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
+                $iWidth = ceil($oImage->width * $fScale);
+                $iHeight = ceil($oImage->height * $fScale);
+            } elseif ($iWidth) {
+                $fScale = $iWidth / $oImage->width;
+                $iHeight = ceil($oImage->height * $fScale);
+            } elseif ($iHeight) {
+                $fScale = $iHeight / $oImage->height;
+                $iWidth = ceil($oImage->width * $fScale);
+            } else {
+                throw new \Exception('Either width or height must be set');
+            }
+
+            $oImage->resize($iWidth, $iHeight, $bFit);
+        }
+        return $this;
+    }
+
+    /**
      * Crop image
      *
-     * @param int $nWidth
-     * @param int $nHeight
-     * @param int $nPosX
-     * @param int $nPosY
+     * @param int $iWidth  - Width to crop to
+     * @param int $iHeight - Height to crop to
+     * @param int $iPosX   - X coordinate of crop start position
+     * @param int $iPosY   - Y coordinate of crop start position
      *
      * @return ModuleImg_EntityImage
      */
-    public function Crop($nWidth, $nHeight, $nPosX = 0, $nPosY = 0) {
+    public function Crop($iWidth, $iHeight, $iPosX = 0, $iPosY = 0) {
 
         if ($oImage = $this->GetImage()) {
-            $oImage->crop($nWidth, $nHeight, $nPosX, $nPosY);
-            if ($nWidth) {
-                $this->SetWidth($nWidth);
+            $oImage->crop($iWidth, $iHeight, $iPosX, $iPosY);
+            if ($iWidth) {
+                $this->SetWidth($iWidth);
             }
-            if ($nHeight) {
-                $this->SetHeight($nHeight);
+            if ($iHeight) {
+                $this->SetHeight($iHeight);
             }
         }
         return $this;
@@ -223,13 +331,13 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Rotate image
      *
-     * @param int        $nAngle
-     * @param int|string $xColor
-     * @param int        $nOpacity
+     * @param int|float  $nAngle   - Rotation angle in degrees
+     * @param int|string $xColor   - Background color
+     * @param int|float  $nOpacity - Background opacity
      *
      * @return ModuleImg_EntityImage
      */
-    public function Rotate($nAngle, $xColor = 0xffffff, $nOpacity = 0) {
+    public function Rotate($nAngle, $xColor = 0xffffff, $nOpacity = 0.0) {
 
         if ($oImage = $this->GetImage()) {
             $oImage->rotate($nAngle, $this->_color($xColor), $nOpacity);
@@ -240,8 +348,8 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Flip image
      *
-     * @param bool $bHorizontally
-     * @param bool $bVertically
+     * @param bool $bHorizontally - Whether to flip image horizontally
+     * @param bool $bVertically   - Whether to flip image vertically
      *
      * @return ModuleImg_EntityImage
      */
@@ -256,31 +364,147 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param ModuleImg_EntityImage $oOverlay
-     * @param int                   $nX
-     * @param int                   $nY
+     * @param ModuleImg_EntityImage $oOverlay - Image to overlay over the current one
+     * @param int                   $iX       - X coordinate of the overlay
+     * @param int                   $iY       - Y coordinate of the overlay
      *
      * @return ModuleImg_EntityImage
      */
-    public function Overlay($oOverlay, $nX = 0, $nY = 0) {
+    public function Overdraw($oOverlay, $iX = 0, $iY = 0) {
 
         if ($oImage = $this->GetImage()) {
             if ($oOverImage = $oOverlay->GetImage()) {
-                $oImage->overlay($oOverImage, $nX, $nY);
+                $oImage->overlay($oOverImage, $iX, $iY);
             }
         }
         return $this;
     }
 
     /**
-     * @param string $sFile
+     * Changes canvas size via overdraw method
+     *
+     * @param int        $iWidth
+     * @param int        $iHeight
+     * @param int        $iDX
+     * @param int        $iDY
+     * @param int|string $xBgColor
+     * @param int|float  $nOpacity
+     */
+    protected function _canvasSizeOrdinary($iWidth, $iHeight, $iDX, $iDY, $xBgColor = 0xffffff, $nOpacity = 0) {
+
+        if ($oImage = $this->GetImage()) {
+            $iColor = $this->_color($xBgColor);
+            $oBackImg = $this->Create($iWidth, $iHeight, $iColor, $nOpacity);
+            $iX = round($iDX / 2);
+            $iY = round($iDY / 2);
+            $oBackImg->GetImage()->overlay($oImage, $iX, $iY);
+            $this->SetImage($oBackImg->GetImage());
+            $this->SetWidth($iWidth);
+            $this->SetHeight($iHeight);
+        }
+    }
+
+    /**
+     * Changes canvas size with multiframe support
+     *
+     * @param int $iWidth
+     * @param int $iHeight
+     * @param int $iDX
+     * @param int $iDY
+     */
+    protected function _canvasSizeMultiframe($iWidth, $iHeight, $iDX, $iDY) {
+
+        if ($oImage = $this->GetImage()) {
+            if ($iDX >= 0 && $iDY >= 0) {
+                $nX = round($iDX / 2);
+                $nY = round($iDY / 2);
+                $oImage->image->setPage($iWidth, $iHeight, $nX, $nY);
+                foreach ($oImage->image as $frame) {
+                    $frame->setImagePage($iWidth, $iHeight, $nX, $nY);
+                }
+            } elseif ($iDX < 0 && $iDY >= 0) {
+                $this->Crop($iWidth, $this->GetHeight(), -round($iDX / 2), 0);
+                $this->_canvasSizeMultiframe($iWidth, $iHeight, 0, $iDY);
+            } elseif ($iDX >= 0 && $iDY < 0) {
+                $this->Crop($this->GetWidth(), $iHeight, 0, -round($iDY / 2));
+                $this->_canvasSizeMultiframe($iWidth, $iHeight, $iDX, 0);
+            } else {
+                $this->Crop($iWidth, $iHeight, -round($iDX / 2), round($iDY / 2));
+            }
+            $this->SetWidth($iWidth);
+            $this->SetHeight($iHeight);
+        }
+    }
+
+    /**
+     * Changes canvas size (from center)
+     *
+     * @param int        $iWidth
+     * @param int        $iHeight
+     * @param int|string $xBgColor
+     * @param int|float  $nOpacity
+     *
+     * @return $this
+     */
+    public function CanvasSize($iWidth, $iHeight, $xBgColor = 0xffffff, $nOpacity = 0.0) {
+
+        if ($oImage = $this->GetImage()) {
+            $nDX = $iWidth - $this->GetWidth();
+            $nDY = $iHeight - $this->GetHeight();
+            if ($nDX || $nDY) {
+                if (E::ModuleImg()->GetDriver() != 'GD' && $this->IsMultiframe()) {
+                    $this->_canvasSizeMultiframe($iWidth, $iHeight, $nDX, $nDY, $xBgColor, $nOpacity);
+                } else {
+                    $this->_canvasSizeOrdinary($iWidth, $iHeight, $nDX, $nDY, $xBgColor, $nOpacity);
+                }
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Write text on image
+     *
+     * @param string     $sText        - Text to write
+     * @param int        $iSize        - Font size
+     * @param string     $sFontFile    - Path to font file
+     * @param int        $iX           - X coordinate of the baseline of the first line of text (from left border)
+     * @param int        $iY           - Y coordinate of the baseline of the first line of text (from top border)
+     * @param int|string $xColor       - Text color (e.g 0xffffff or 32842 or 'ff9933')
+     * @param int|float  $nOpacity     - Text opacity
+     * @param int|float  $nAngle       - Counter clockwise text rotation angle
+     * @param int        $iWrapWidth   - Width to wrap text at. Null means no wrapping.
+     * @param int        $iLineSpacing - Line spacing multiplier
+     *
+     * @return ModuleImg_EntityImage
+     */
+    public function Text($sText, $iSize, $sFontFile, $iX, $iY, $xColor = 0x000000, $nOpacity = 1.0, $nAngle = 0.0, $iWrapWidth = null, $iLineSpacing = 1) {
+
+        if ($oImage = $this->GetImage()) {
+            $oImage->text($sText, $iSize, $sFontFile, $iX, $iY, $this->_color($xColor), $nOpacity, $iWrapWidth, $iLineSpacing, $nAngle);
+        }
+        return $this;
+    }
+
+    /**
+     * Save image to file
+     *
+     * @param string          $sFile    - Filename to save
+     * @param array|DataArray $aOptions - Options
      *
      * @return string|bool
      */
-    public function Save($sFile) {
+    public function Save($sFile, $aOptions = array()) {
 
+        $aOptions = F::Array_Merge($this->GetOptions(), $aOptions);
         if ($oImage = $this->GetImage()) {
-            $oImage->save($sFile);
+            $sFormat = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat($sFile));
+            if ($sFormat == 'jpeg') {
+                $nQuality = (isset($aOptions['quality']) ? $aOptions['quality'] : 100);
+                $oImage->save($sFile, $sFormat, $nQuality);
+            } else {
+                $oImage->save($sFile, $sFormat);
+            }
             return $sFile;
         }
         return false;
@@ -297,7 +521,7 @@ class ModuleImg_EntityImage extends Entity {
             if ($sTmpFile = F::File_GetUploadDir() . F::RandomStr() . '.' . pathinfo($sFile, PATHINFO_EXTENSION)) {
                 if (F::File_CheckDir(dirname($sTmpFile))) {
                     $oImage->save($sTmpFile);
-                    if ($this->Uploader_Move($sTmpFile, $sFile)) {
+                    if (E::ModuleUploader()->Move($sTmpFile, $sFile)) {
                         return $sFile;
                     }
                 }
@@ -307,12 +531,16 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param string $sImageFormat
+     * Renders and ouputs the image
+     *
+     * @param string $sImageFormat - Image format (gif, png or jpeg)
      */
     public function Render($sImageFormat = null) {
 
+        /** @var PHPixie\Image $oImage */
         if ($oImage = $this->GetImage()) {
             if ($sImageFormat) {
+                $sImageFormat = E::ModuleImg()->GetFormat($sImageFormat);
                 $oImage->render($sImageFormat);
             } else {
                 $oImage->render();
@@ -320,34 +548,6 @@ class ModuleImg_EntityImage extends Entity {
         }
     }
 
-}
-
-class ModuleImgPx extends LsObject {
-
-    public $config;
-
-    public function __construct() {
-
-        $this->config = new ModuleImgConfig();
-    }
-}
-
-class ModuleImgConfig extends LsObject {
-
-    public function get($sProp) {
-
-        if (substr($sProp, -7) == '.driver') {
-            $aStr = explode('.', $sProp);
-            if (isset($aStr[1])) {
-                $sConfigKey = $aStr[1];
-            } else {
-                $sConfigKey = 'default';
-            }
-            $sDriver = $this->Img_GetDriver($sConfigKey);
-            F::IncludeLib('PHPixie/Image/' . $sDriver . '.php');
-            return $sDriver;
-        }
-    }
 }
 
 

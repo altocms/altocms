@@ -14,7 +14,7 @@
  */
 
 /**
- * Блок выбора пользователей для чтения в ленте активности
+ * Виджет выбора пользователей для чтения в ленте активности
  *
  * @package blocks
  * @since   1.0
@@ -24,18 +24,18 @@ class WidgetActivityUsers extends Widget {
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * пользователь авторизован?
-         */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
-            /**
-             * Получаем и прогружаем необходимые переменные в шаблон
-             */
-            $aFriends = $this->User_getUsersFriend($oUserCurrent->getId());
-            $aUserSubscribes = $this->Stream_getUserSubscribes($oUserCurrent->getId());
-            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes);
-            $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
+
+        // * пользователь авторизован?
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
+            // * Получаем и прогружаем необходимые переменные в шаблон
+            $aUserSubscribes = E::ModuleStream()->GetUserSubscribes($oUserCurrent->getId());
+            E::ModuleViewer()->Assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
+
+            // issue#449, список друзей пользователя не передавался в шаблон
+            $aStreamFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
+            E::ModuleViewer()->Assign('aStreamFriends', $aStreamFriends['collection']);
         }
+
     }
 }
 

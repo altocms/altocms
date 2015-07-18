@@ -18,15 +18,6 @@ if (!class_exists('Plugin')) {
 class PluginLs extends Plugin {
 
     protected $aDelegates = array(
-        'template' => array(
-            'page_main_menu.tpl' => '_page_main_menu.tpl',
-            'window_write.tpl' => '_window_write.tpl',
-            'sharer.tpl' => '_sharer.tpl',
-            'actions/ActionPage/page.tpl',
-            'topic_list.tpl',
-            'topic.tpl',
-            'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
-        ),
     );
 
     protected $aInherits = array(
@@ -34,19 +25,17 @@ class PluginLs extends Plugin {
             'ModuleViewer',
             'ModuleWidget',
             'ModuleSecurity',
+            'ModuleImage',
+            'ModuleLang',
+            'ModuleNotify',
         ),
         'action' => array(
-            'ActionSettings',
+            'ActionContent',
+        ),
+        'widget' => array(
+            'WidgetStream',
         ),
     );
-
-    public function __construct() {
-
-        if (F::File_Exists(Config::Get('path.smarty.template') . 'page_main_menu.tpl')) {
-            // считаем, что скин адаптирован и делегаты шаблонов не нужны
-            $this->aDelegates = null;
-        }
-    }
 
     /**
      * Активация плагина
@@ -61,6 +50,7 @@ class PluginLs extends Plugin {
      */
     public function Init() {
 
+        Config::Set('view.tinymce', Config::Get('view.wysiwyg'));
     }
 }
 

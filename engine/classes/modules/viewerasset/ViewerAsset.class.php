@@ -14,6 +14,10 @@
  */
 class ModuleViewerAsset extends Module {
 
+    const TMP_TIME = 60;
+    const SLEEP_TIME = 5;
+    const SLEEP_COUNT = 4;
+
     protected $aAssetTypes
         = array(
             'less',
@@ -23,26 +27,106 @@ class ModuleViewerAsset extends Module {
 
     protected $aAssets = array();
 
-    /**
-     * Преобразует путь к файлу в путь к asset-ресурсу
-     *
-     * @param   string $sFile
-     * @return  string
-     */
-    public function AssetFileDir($sFile) {
+    protected $aFiles = array();
 
-        return F::File_NormPath($this->Viewer_GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+    /**
+     * Returns set of asset files
+     *
+     * @return array
+     */
+    public function getFiles() {
+
+        return $this->aFiles;
     }
 
     /**
-     * Преобразует путь к файлу в URL к asset-ресурсу
+     * Calculate hash of file's dirname
      *
-     * @param   string $sFile
-     * @return  string
+     * @param  string $sFile
+     *
+     * @return string
      */
-    public function AssetFileUrl($sFile) {
+    public function AssetFileHashDir($sFile) {
 
-        return F::File_NormPath($this->Viewer_GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+        if (substr($sFile, -1) == '/') {
+            $sDir = $sFile;
+        } else {
+            $sDir = dirname($sFile);
+        }
+        return F::Crc32($sDir, true);
+    }
+
+    /**
+     * Make path of asset file
+     *
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return string
+     */
+    public function AssetFilePath($sLocalFile, $sParentDir = null) {
+
+        $sResult = $this->AssetFileHashDir($sLocalFile) . '/' . basename($sLocalFile);
+        if ($sParentDir) {
+            if (substr($sParentDir, -1) != '/') {
+                $sParentDir .= '/';
+            }
+            $sResult = $sParentDir . $sResult;
+        }
+        return $sResult;
+    }
+
+    /**
+     * Converts file path into path to asset-resource
+     *
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return string
+     */
+    public function AssetFileDir($sLocalFile, $sParentDir = null) {
+
+        return F::File_GetAssetDir() . $this->AssetFilePath($sLocalFile, $sParentDir);
+    }
+
+    /**
+     * Convert file path into URL to asset-resource
+     *
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return string
+     */
+    public function AssetFileUrl($sLocalFile, $sParentDir = null) {
+
+        return F::File_GetAssetUrl() . $this->AssetFilePath($sLocalFile, $sParentDir);
+    }
+
+    public function AssetFileDir2Url($sAssetFile) {
+
+        $sFilePath = F::File_LocalPath($sAssetFile, F::File_GetAssetDir());
+        return F::File_GetAssetUrl() . $sFilePath;
+    }
+
+    public function AssetFileUrl2Dir($sAssetFile) {
+
+        $sFilePath = F::File_LocalPathUrl($sAssetFile, F::File_GetAssetUrl());
+        return F::File_GetAssetDir() . $sFilePath;
+    }
+
+    /**
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return bool|string
+     */
+    public function File2Link($sLocalFile, $sParentDir = null) {
+
+        $sAssetFile = $this->AssetFileDir($sLocalFile, $sParentDir);
+        if (F::File_Exists($sAssetFile) || F::File_Copy($sLocalFile, $sAssetFile)) {
+            return $this->AssetFileUrl($sLocalFile, $sParentDir);
+        }
+        return false;
     }
 
     /**
@@ -63,11 +147,11 @@ class ModuleViewerAsset extends Module {
         if (!isset($this->aAssets[$sType])) {
             if (in_array($sType, $this->aAssetTypes)) {
                 $aParams = array('asset_type' => $sType);
-                $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
+                $this->aAssets[$sType] = E::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
                 $oResult = $this->aAssets[$sType];
             } else {
                 if (!isset($this->aAssets['*'])) {
-                    $this->aAssets['*'] = Engine::GetEntity('ViewerAsset_Package');
+                    $this->aAssets['*'] = E::GetEntity('ViewerAsset_Package');
                 }
                 $oResult = $this->aAssets['*'];
             }
@@ -112,13 +196,16 @@ class ModuleViewerAsset extends Module {
                 $oAssetPackage->AddFiles(
                     $aAddFiles, null,
                     isset($aOptions['prepend']) ? $aOptions['prepend'] : false,
-                    isset($aOptions['replace']) ? $aOptions['replace'] : false
+                    isset($aOptions['replace']) ? $aOptions['replace'] : null
                 );
             }
         }
     }
 
-    public function AssetMake($aFiles) {
+    /**
+     * @param $aFiles
+     */
+    public function AddAssetFiles($aFiles) {
 
         $this->aAssets = array();
 
@@ -136,8 +223,8 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
-     * @param string $sType
-     * @param array  $aFiles
+     * @param        $sType
+     * @param        $aFiles
      * @param string $sAssetName
      * @param array  $aOptions
      */
@@ -150,12 +237,11 @@ class ModuleViewerAsset extends Module {
         }
         $aAssetFiles = array();
         foreach ($aFiles as $sFileName => $aFileParams) {
-            $sName = '';
-            // extract & normalize full file path
+            // extract file path
             if (is_numeric($sFileName)) {
                 // single file name or array of options
                 if (!is_array($aFileParams)) {
-                    $sName = $sFile = F::File_NormPath((string)$aFileParams);
+                    $sName = $sFile = (string)$aFileParams;
                 } else {
                     $sFile = isset($aFileParams['file']) ? $aFileParams['file'] : null;
                     $sName = isset($aFileParams['name']) ? $aFileParams['name'] : $sFile;
@@ -163,24 +249,101 @@ class ModuleViewerAsset extends Module {
             } else {
                 // filename => array of options
                 if (isset($aFileParams['file'])) {
-                    $sFile = F::File_NormPath($aFileParams['file']);
+                    $sFile = $aFileParams['file'];
                 } else {
-                    $sFile = F::File_NormPath((string)$sFileName);
+                    $sFile = (string)$sFileName;
                 }
                 $sName = isset($aFileParams['name']) ? $aFileParams['name'] : $sFile;
             }
             if (!is_array($aFileParams)) {
                 $aFileParams = array();
             }
-            $aFileParams['file'] = $sFile;
+            $sName = F::File_NormPath($sName);
+            $aFileParams['file'] = F::File_NormPath($sFile);
             $aFileParams['name'] = $sName;
             if ($sAssetName) {
                 $aFileParams['asset'] = $sAssetName;
             }
             $aAssetFiles[$sName] = $aFileParams;
         }
+        // Appends files for future preparation
+        foreach ($aAssetFiles as $sName => $aFileParams) {
+            $aFileParams['options'] = $aOptions;
+            $this->aFiles[$sType]['files'][$sName] = $aFileParams;
+        }
+    }
+
+    /**
+     * @param string $sType
+     * @param array  $aFiles
+     * @param array  $aOptions
+     */
+    public function AddFilesToAssets($sType, $aFiles, $aOptions = array()) {
+
+        if (!is_array($aFiles)) {
+            $aFiles = array(
+                array('file' => (string)$aFiles),
+            );
+        }
+        $aAssetFiles = array();
+        $aFileList = array();
+
+        // seek wildcards - if name hase '*' then add files by pattern
+        foreach ($aFiles as $sFileName => $aFileParams) {
+            if (strpos($sFileName, '*')) {
+                unset($aFiles[$sFileName]);
+                $aFoundFiles = F::File_ReadFileList($sFileName, 0, true);
+                if ($aFoundFiles) {
+                    foreach($aFoundFiles as $sAddFile) {
+                        $sAddType = F::File_GetExtension($sAddFile, true);
+                        $aFileParams['name'] = $sAddFile;
+                        $aFileParams['file'] = $sAddFile;
+                        if ($sAddType == $sType) {
+                            $aFileList[$sAddFile] = $aFileParams;
+                        } else {
+                            $this->AddFilesToAssets($sAddType, array($sAddFile => $aFileParams), $aOptions);
+                        }
+                    }
+                }
+            } else {
+                $aFileList[$sFileName] = $aFileParams;
+            }
+        }
+
+        foreach ($aFileList as $sFileName => $aFileParams) {
+            // extract & normalize full file path
+            if (isset($aFileParams['file'])) {
+                $sFile = F::File_NormPath($aFileParams['file']);
+            } else {
+                $sFile = F::File_NormPath((string)$sFileName);
+            }
+            $sName = isset($aFileParams['name']) ? $aFileParams['name'] : $sFile;
+            if (!is_array($aFileParams)) {
+                $aFileParams = array();
+            }
+            $aFileParams['file'] = F::File_NormPath($sFile);
+            $aFileParams['name'] = F::File_NormPath($sName);
+            $aAssetFiles[$sName] = $aFileParams;
+        }
         return $this->_add($sType, $aAssetFiles, $aOptions);
     }
+
+    /**
+     * Add link to current asset pack
+     *
+     * @param $sType
+     * @param $aLinks
+     */
+    public function AddLinksToAssets($sType, $aLinks) {
+
+        foreach ($aLinks as $sLink => $aParams) {
+            // Add links to assets
+            if ($oAssetPackage = $this->_getAssetPackage($sType)) {
+                $oAssetPackage->AddLink($sType, $sLink, $aParams);
+            }
+        }
+    }
+
 
     /**
      * @param array  $aFiles
@@ -297,29 +460,49 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
+     * Clear file set of requested type
+     *
      * @param string $sType
      */
     public function Clear($sType) {
 
-        if ($oAssetPackage = $this->_getAssetPackage($sType)) {
-            $oAssetPackage->Clear();
-        }
+        $this->aFiles[$sType] = array();
     }
 
     /**
-     *
+     * Clear js-file set
      */
     public function ClearJs() {
 
-        return $this->Clear('js');
+        $this->Clear('js');
     }
 
     /**
-     *
+     * Clear css-file set
      */
     public function ClearCss() {
 
-        return $this->Clear('css');
+        $this->Clear('css');
+    }
+
+    /**
+     * LS-compatibility
+     *
+     * @param array $aFiles
+     */
+    public function ExcludeJs($aFiles) {
+
+        $this->Exclude('js', $aFiles);
+    }
+
+    /**
+     * LS-compatibility
+     *
+     * @param array $aFiles
+     */
+    public function ExcludeCss($aFiles) {
+
+        $this->Exclude('css', $aFiles);
     }
 
     /**
@@ -328,40 +511,218 @@ class ModuleViewerAsset extends Module {
      */
     public function Exclude($sType, $aFiles) {
 
-        if ($oAssetPackage = $this->_getAssetPackage($sType)) {
-            $oAssetPackage->Exclude($aFiles);
+        foreach ($aFiles as $aFileParams) {
+            if (is_array($aFileParams)) {
+                if (isset($aFileParams['name'])) {
+                    $sName = $aFileParams['name'];
+                } else {
+                    $sName = $aFileParams['file'];
+                }
+            } else {
+                $sName = (string)$aFileParams;
+            }
+        }
+        if (isset($this->aFiles[$sType]['files'][$sName])) {
+            unset($this->aFiles[$sType]['files'][$sName]);
+        } elseif (isset($this->aFiles[$sType]['links'][$sName])) {
+            unset($this->aFiles[$sType]['links'][$sName]);
         }
     }
 
+    /**
+     * @param       $sType
+     * @param       $sLink
+     * @param array $aParams
+     */
     public function AddLink($sType, $sLink, $aParams = array()) {
 
-        if ($oAssetPackage = $this->_getAssetPackage($sType)) {
-            $oAssetPackage->AddLink($sType, $sLink, $aParams);
-        }
+        $this->aFiles[$sType]['links'][$sLink] = $aParams;
     }
 
+    /**
+     * Returns hash for current asset pack
+     *
+     * @return string
+     */
+    public function GetHash() {
+
+        $aData = array($this->aFiles, Config::Get('compress'), Config::Get('assets.version'));
+        return md5(serialize($aData));
+    }
+
+    /**
+     * Returns file name for cache of current asset pack
+     *
+     * @return string
+     */
+    public function GetAssetsCacheName() {
+
+        return Config::Get('sys.cache.dir') . 'data/assets/' . $this->GetHash() . '.assets.dat';
+    }
+
+    /**
+     * Returns name for check-file of current asset pack
+     *
+     * @return string
+     */
+    public function GetAssetsCheckName() {
+
+        return F::File_GetAssetDir() . '_check/' . $this->GetHash() . '.assets.chk';
+    }
+
+    public function ClearAssetsCache() {
+
+        $sDir = Config::Get('sys.cache.dir') . 'data/assets/';
+        F::File_RemoveDir($sDir);
+    }
+
+    /**
+     * Checks cache for current asset pack
+     * If cache is present then returns one
+     *
+     * @return int|array
+     */
+    protected function _checkAssets() {
+
+        $xResult = 0;
+        $sFile = $this->GetAssetsCacheName();
+        $sTmpFile = $sFile . '.tmp';
+
+        if (is_file($sTmpFile)) {
+            // tmp file cannot live more than 1 minutes
+            $nTime = filectime($sTmpFile);
+            if (!$nTime) {
+                $nTime = F::File_GetContents($sTmpFile);
+            }
+            if (time() < $nTime + self::TMP_TIME) {
+                $xResult = 1;
+            }
+        } elseif (is_file($sFile)) {
+            if ($xData = F::File_GetContents($sFile)) {
+                $xResult = F::Unserialize($xData);
+            }
+        }
+        return $xResult;
+    }
+
+    protected function _resetAssets() {
+
+        $sFile = $this->GetAssetsCacheName();
+        F::File_PutContents($sFile . '.tmp', time());
+        F::File_Delete($sFile);
+        F::File_Delete($this->GetAssetsCheckName());
+    }
+
+    /**
+     * Save cache and check-file of current asset pack
+     */
+    protected function _saveAssets() {
+
+        F::File_PutContents($this->GetAssetsCheckName(), time());
+        $sFile = $this->GetAssetsCacheName();
+        F::File_PutContents($sFile, F::Serialize($this->aAssets));
+        F::File_Delete($sFile . '.tmp');
+    }
+
+    /**
+     * Prepare current asset pack
+     */
     public function Prepare() {
 
-        foreach($this->aAssets as $oAssetPackage) {
-            if ($oAssetPackage->PreProcessBegin()) {
-                $oAssetPackage->PreProcess();
-                $oAssetPackage->PreProcessEnd();
+        $bForcePreparation = Config::Get('compress.css.force') || Config::Get('compress.js.force');
+        $xData = $this->_checkAssets();
+        if ($xData) {
+            if (is_array($xData)) {
+                if (F::File_GetContents($this->GetAssetsCheckName())) {
+                    // loads assets from cache
+                    $this->aAssets = $xData;
+                    if (!$bForcePreparation) {
+                        return;
+                    }
+                }
+            } else {
+                // assets are making right now
+                // may be need to wait?
+                for ($i=0; $i<self::SLEEP_COUNT; $i++) {
+                    sleep(self::SLEEP_TIME);
+                    $xData = $this->_checkAssets();
+                    if (is_array($xData)) {
+                        $this->aAssets = $xData;
+                        return;
+                    }
+                }
+                // something wrong
+                return;
             }
         }
-        foreach($this->aAssets as $oAssetPackage) {
-            if ($oAssetPackage->ProcessBegin()) {
-                $oAssetPackage->Process();
-                $oAssetPackage->ProcessEnd();
-            }
+        // May be assets are not complete
+        if (!$this->aAssets && $this->aFiles && !$bForcePreparation) {
+            $bForcePreparation = true;
         }
-        foreach($this->aAssets as $oAssetPackage) {
-            if ($oAssetPackage->PostProcessBegin()) {
-                $oAssetPackage->PostProcess();
-                $oAssetPackage->PostProcessEnd();
+
+        if (!F::File_GetContents($this->GetAssetsCheckName()) || $bForcePreparation) {
+
+            // reset assets here
+            $this->_resetAssets();
+
+            $this->aAssets = array();
+
+            // Add files & links to assets
+            foreach ($this->aFiles as $sType => $aData) {
+                if (isset($aData['files'])) {
+                    $this->AddFilesToAssets($sType, $aData['files']);
+                }
+                if (isset($aData['links'])) {
+                    $this->AddLinksToAssets($sType, $aData['links']);
+                }
             }
+
+            $nStage = 0;
+            $bDone = true;
+            // PreProcess
+            foreach($this->aAssets as $oAssetPackage) {
+                if ($oAssetPackage->PreProcessBegin()) {
+                    $bDone = ($bDone && $oAssetPackage->PreProcess());
+                    $oAssetPackage->PreProcessEnd();
+                }
+            }
+            if ($bDone) {
+                $nStage += 1;
+            }
+            // Process
+            foreach($this->aAssets as $oAssetPackage) {
+                if ($oAssetPackage->ProcessBegin()) {
+                    $bDone = ($bDone && $oAssetPackage->Process());
+                    $oAssetPackage->ProcessEnd();
+                }
+            }
+            if ($bDone) {
+                $nStage += 1;
+            }
+            // PostProcess
+            foreach($this->aAssets as $oAssetPackage) {
+                if ($oAssetPackage->PostProcessBegin()) {
+                    $bDone = ($bDone && $oAssetPackage->PostProcess());
+                    $oAssetPackage->PostProcessEnd();
+                }
+            }
+            if ($bDone) {
+                $nStage += 1;
+            }
+        } else {
+            $nStage = 3;
+        }
+
+        if ($nStage == 3) {
+            $this->_saveAssets();
         }
     }
 
+    /**
+     * @param string $sType
+     *
+     * @return array
+     */
     public function BuildHtmlLinks($sType = null) {
 
         $aLinks = array();
@@ -374,14 +735,20 @@ class ModuleViewerAsset extends Module {
                 $aLinks = $oAssetPackage->BuildHtmlLinks();
             }
         }
+        foreach ($aLinks as $sType => $aTypeLinks) {
+            $aLinks[$sType] = array_unique($aTypeLinks);
+        }
         return $aLinks;
     }
 
+    /**
+     * @return array
+     */
     public function GetPreparedAssetLinks() {
 
         $aResult = array();
         foreach($this->aAssets as $oAssetPackage) {
-            if ($aLinks = $oAssetPackage->GetLinksArray(true)) {
+            if ($aLinks = $oAssetPackage->GetLinksArray(true, true)) {
                 $aResult = F::Array_Merge($aResult, reset($aLinks));
             }
         }

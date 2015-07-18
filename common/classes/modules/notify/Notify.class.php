@@ -65,8 +65,8 @@ class ModuleNotify extends Module {
      */
     public function Init() {
 
-        $this->oViewerLocal = $this->Viewer_GetLocalViewer();
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oViewerLocal = E::ModuleViewer()->GetLocalViewer();
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->sDir = Config::Get('module.notify.dir');
         $this->sPrefix = Config::Get('module.notify.prefix');
     }
@@ -86,15 +86,22 @@ class ModuleNotify extends Module {
         ModuleUser_EntityUser $oUserComment
     ) {
         /**
+         * Автор топика не должен получать уведомлений о своём комментарии
+         * к своему же топику
+         */
+        if ($oUserTo->getId() == $oComment->getUserId()) {
+            return false;
+        }
+        /**
          * Проверяем можно ли юзеру рассылать уведомление
          */
         if (!$oUserTo->getSettingsNoticeNewComment()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'comment_new.tpl',
-            $this->Lang_Get('notify_subject_comment_new'),
+            'comment_new.tpl',
+            E::ModuleLang()->Get('notify_subject_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oTopic'       => $oTopic,
@@ -102,7 +109,6 @@ class ModuleNotify extends Module {
                  'oUserComment' => $oUserComment,
             )
         );
-        return true;
     }
 
     /**
@@ -125,10 +131,10 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeReplyComment()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'comment_reply.tpl',
-            $this->Lang_Get('notify_subject_comment_reply'),
+            'comment_reply.tpl',
+            E::ModuleLang()->Get('notify_subject_comment_reply'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oTopic'       => $oTopic,
@@ -136,7 +142,6 @@ class ModuleNotify extends Module {
                  'oUserComment' => $oUserComment,
             )
         );
-        return true;
     }
 
     /**
@@ -159,10 +164,10 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewTopic()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'topic_new.tpl',
-            $this->Lang_Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
+            'topic_new.tpl',
+            E::ModuleLang()->Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
             array(
                  'oUserTo'    => $oUserTo,
                  'oTopic'     => $oTopic,
@@ -170,20 +175,21 @@ class ModuleNotify extends Module {
                  'oUserTopic' => $oUserTopic,
             )
         );
-        return true;
     }
 
     /**
      * Отправляет уведомление с новым линком активации
      *
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
+     * @return bool
      */
     public function SendReactivationCode(ModuleUser_EntityUser $oUser) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
-            $this->sPrefix . 'reactivation.tpl',
-            $this->Lang_Get('notify_subject_reactvation'),
+            'reactivation.tpl',
+            E::ModuleLang()->Get('notify_subject_reactvation'),
             array(
                  'oUser' => $oUser,
             ), null, true
@@ -195,13 +201,15 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser $oUser        Объект пользователя
      * @param string                $sPassword    Пароль пользователя
+     *
+     * @return bool
      */
     public function SendRegistrationActivate(ModuleUser_EntityUser $oUser, $sPassword) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
-            $this->sPrefix . 'registration_activate.tpl',
-            $this->Lang_Get('notify_subject_registration_activate'),
+            'registration_activate.tpl',
+            E::ModuleLang()->Get('notify_subject_registration_activate'),
             array(
                  'oUser'     => $oUser,
                  'sPassword' => $sPassword,
@@ -214,13 +222,15 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser $oUser        Объект пользователя
      * @param string                $sPassword    Пароль пользователя
+     *
+     * @return bool
      */
     public function SendRegistration(ModuleUser_EntityUser $oUser, $sPassword) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
-            $this->sPrefix . 'registration.tpl',
-            $this->Lang_Get('notify_subject_registration'),
+            'registration.tpl',
+            E::ModuleLang()->Get('notify_subject_registration'),
             array(
                  'oUser'     => $oUser,
                  'sPassword' => $sPassword,
@@ -234,13 +244,15 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityUser   $oUserFrom    Пароль пользователя, который отправляет инвайт
      * @param string                  $sMailTo      Емайл на который отправляем инвайт
      * @param ModuleUser_EntityInvite $oInvite      Объект инвайта
+     *
+     * @return bool
      */
     public function SendInvite(ModuleUser_EntityUser $oUserFrom, $sMailTo, ModuleUser_EntityInvite $oInvite) {
 
-        $this->Send(
+        return $this->Send(
             $sMailTo,
-            $this->sPrefix . 'invite.tpl',
-            $this->Lang_Get('notify_subject_invite'),
+            'invite.tpl',
+            E::ModuleLang()->Get('notify_subject_invite'),
             array(
                  'sMailTo'   => $sMailTo,
                  'oUserFrom' => $oUserFrom,
@@ -258,26 +270,23 @@ class ModuleNotify extends Module {
      *
      * @return bool
      */
-    public function SendTalkNew(
-        ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleTalk_EntityTalk $oTalk
-    ) {
+    public function SendTalkNew(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleTalk_EntityTalk $oTalk) {
         /**
          * Проверяем можно ли юзеру рассылать уведомление
          */
         if (!$oUserTo->getSettingsNoticeNewTalk()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'talk_new.tpl',
-            $this->Lang_Get('notify_subject_talk_new'),
+            'talk_new.tpl',
+            E::ModuleLang()->Get('notify_subject_talk_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
                  'oTalk'     => $oTalk,
             )
         );
-        return true;
     }
 
     /**
@@ -300,10 +309,10 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewTalk()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'talk_comment_new.tpl',
-            $this->Lang_Get('notify_subject_talk_comment_new'),
+            'talk_comment_new.tpl',
+            E::ModuleLang()->Get('notify_subject_talk_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oUserFrom'    => $oUserFrom,
@@ -311,7 +320,6 @@ class ModuleNotify extends Module {
                  'oTalkComment' => $oTalkComment,
             )
         );
-        return true;
     }
 
     /**
@@ -324,19 +332,17 @@ class ModuleNotify extends Module {
      *
      * @return bool
      */
-    public function SendUserFriendNew(
-        ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, $sText, $sPath
-    ) {
+    public function SendUserFriendNew(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, $sText, $sPath) {
         /**
          * Проверяем можно ли юзеру рассылать уведомление
          */
         if (!$oUserTo->getSettingsNoticeNewFriend()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'user_friend_new.tpl',
-            $this->Lang_Get('notify_subject_user_friend_new'),
+            'user_friend_new.tpl',
+            E::ModuleLang()->Get('notify_subject_user_friend_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -344,7 +350,6 @@ class ModuleNotify extends Module {
                  'sPath'     => $sPath,
             )
         );
-        return true;
     }
 
     /**
@@ -354,14 +359,41 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityUser $oUserFrom    Объект пользователя, которого приглашаем
      * @param ModuleBlog_EntityBlog $oBlog        Объект блога
      * @param                       $sPath
+     *
+     * @return bool
      */
-    public function SendBlogUserInvite(
-        ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleBlog_EntityBlog $oBlog, $sPath
-    ) {
-        $this->Send(
+    public function SendBlogUserInvite(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleBlog_EntityBlog $oBlog, $sPath) {
+
+        return $this->Send(
             $oUserTo,
-            $this->sPrefix . 'blog_invite_new.tpl',
-            $this->Lang_Get('notify_subject_blog_invite_new'),
+            'blog_invite_new.tpl',
+            E::ModuleLang()->Get('notify_subject_blog_invite_new'),
+            array(
+                 'oUserTo'   => $oUserTo,
+                 'oUserFrom' => $oUserFrom,
+                 'oBlog'     => $oBlog,
+                 'sPath'     => $sPath,
+            )
+        );
+    }
+
+    /**
+     * Отправляет пользователю сообщение о том, что ему нужно промодерировать запрос
+     * пользовтаеля на вступление в блог, владельцем/админом/модератором которого он является
+     *
+     * @param ModuleUser_EntityUser $oUserTo      Объект пользователя, который отправляет приглашение
+     * @param ModuleUser_EntityUser $oUserFrom    Объект пользователя, которого приглашаем
+     * @param ModuleBlog_EntityBlog $oBlog        Объект блога
+     * @param                       $sPath
+     *
+     * @return bool
+     */
+    public function SendBlogUserRequest(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleBlog_EntityBlog $oBlog, $sPath) {
+
+        return $this->Send(
+            $oUserTo,
+            'blog_request_new.tpl',
+            E::ModuleLang()->Get('notify_subject_blog_request_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -376,13 +408,15 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser     $oUser        Объект пользователя
      * @param ModuleUser_EntityReminder $oReminder    объект напоминания пароля
+     *
+     * @return bool
      */
     public function SendReminderCode(ModuleUser_EntityUser $oUser, ModuleUser_EntityReminder $oReminder) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
-            $this->sPrefix . 'reminder_code.tpl',
-            $this->Lang_Get('notify_subject_reminder_code'),
+            'reminder_code.tpl',
+            E::ModuleLang()->Get('notify_subject_reminder_code'),
             array(
                  'oUser'     => $oUser,
                  'oReminder' => $oReminder,
@@ -395,13 +429,15 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser $oUser           Объект пользователя
      * @param string                $sNewPassword    Новый пароль
+     *
+     * @return bool
      */
     public function SendReminderPassword(ModuleUser_EntityUser $oUser, $sNewPassword) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
-            $this->sPrefix . 'reminder_password.tpl',
-            $this->Lang_Get('notify_subject_reminder_password'),
+            'reminder_password.tpl',
+            E::ModuleLang()->Get('notify_subject_reminder_password'),
             array(
                  'oUser'        => $oUser,
                  'sNewPassword' => $sNewPassword,
@@ -415,14 +451,15 @@ class ModuleNotify extends Module {
      * @param ModuleWall_EntityWall $oWallParent    Объект сообщения на стене, на которое отвечаем
      * @param ModuleWall_EntityWall $oWall          Объект нового сообщения на стене
      * @param ModuleUser_EntityUser $oUser          Объект пользователя
+     *
+     * @return bool
      */
-    public function SendWallReply(
-        ModuleWall_EntityWall $oWallParent, ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser
-    ) {
-        $this->Send(
+    public function SendWallReply(ModuleWall_EntityWall $oWallParent, ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser) {
+
+        return $this->Send(
             $oWallParent->getUser(),
-            $this->sPrefix . 'wall.reply.tpl',
-            $this->Lang_Get('notify_subject_wall_reply'),
+            'wall_reply.tpl',
+            E::ModuleLang()->Get('notify_subject_wall_reply'),
             array(
                  'oWallParent' => $oWallParent,
                  'oUserTo'     => $oWallParent->getUser(),
@@ -438,13 +475,15 @@ class ModuleNotify extends Module {
      *
      * @param ModuleWall_EntityWall $oWall    Объект нового сообщения на стене
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
+     * @return bool
      */
     public function SendWallNew(ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser) {
 
-        $this->Send(
+        return $this->Send(
             $oWall->getWallUser(),
-            $this->sPrefix . 'wall.new.tpl',
-            $this->Lang_Get('notify_subject_wall_new'),
+            'wall_new.tpl',
+            E::ModuleLang()->Get('notify_subject_wall_new'),
             array(
                  'oUserTo'   => $oWall->getWallUser(),
                  'oWall'     => $oWall,
@@ -463,10 +502,11 @@ class ModuleNotify extends Module {
      * @param array                        $aAssign     Ассоциативный массив для загрузки переменных в шаблон письма
      * @param string|null                  $sPluginName Плагин из которого происходит отправка
      * @param bool                         $bForceSend  Отправлять сразу, даже при опции module.notify.delayed = true
+     *
+     * @return bool
      */
-    public function Send(
-        $xUserTo, $sTemplate, $sSubject, $aAssign = array(), $sPluginName = null, $bForceSend = false
-    ) {
+    public function Send($xUserTo, $sTemplate, $sSubject, $aAssign = array(), $sPluginName = null, $bForceSend = false) {
+
         if ($xUserTo instanceof ModuleUser_EntityUser) {
             $sMail = $xUserTo->getMail();
             $sName = $xUserTo->getLogin();
@@ -484,6 +524,7 @@ class ModuleNotify extends Module {
         /**
          * Формируем шаблон
          */
+        $sTemplate = $this->sPrefix . $sTemplate;
         $sBody = $this->oViewerLocal->Fetch($this->GetTemplatePath($sTemplate, $sPluginName));
         /**
          * Если в конфигураторе указан отложенный метод отправки,
@@ -491,7 +532,7 @@ class ModuleNotify extends Module {
          * сразу отсылаем на email
          */
         if (Config::Get('module.notify.delayed') && !$bForceSend) {
-            $oNotifyTask = Engine::GetEntity(
+            $oNotifyTask = E::GetEntity(
                 'Notify_Task',
                 array(
                      'user_mail'          => $sMail,
@@ -504,19 +545,19 @@ class ModuleNotify extends Module {
             );
             if (Config::Get('module.notify.insert_single')) {
                 $this->aTask[] = $oNotifyTask;
+                $bResult = true;
             } else {
-                $this->oMapper->AddTask($oNotifyTask);
+                $bResult = $this->oMapper->AddTask($oNotifyTask);
             }
         } else {
-            /**
-             * Отправляем мыло
-             */
-            $this->Mail_SetAdress($sMail, $sName);
-            $this->Mail_SetSubject($sSubject);
-            $this->Mail_SetBody($sBody);
-            $this->Mail_setHTML();
-            $this->Mail_Send();
+            // * Отправляем e-mail
+            E::ModuleMail()->SetAdress($sMail, $sName);
+            E::ModuleMail()->SetSubject($sSubject);
+            E::ModuleMail()->SetBody($sBody);
+            E::ModuleMail()->SetHTML();
+            $bResult = E::ModuleMail()->Send();
         }
+        return $bResult;
     }
 
     /**
@@ -553,11 +594,11 @@ class ModuleNotify extends Module {
      */
     public function SendTask($oTask) {
 
-        $this->Mail_SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
-        $this->Mail_SetSubject($oTask->getNotifySubject());
-        $this->Mail_SetBody($oTask->getNotifyText());
-        $this->Mail_setHTML();
-        $this->Mail_Send();
+        E::ModuleMail()->SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
+        E::ModuleMail()->SetSubject($oTask->getNotifySubject());
+        E::ModuleMail()->SetBody($oTask->getNotifyText());
+        E::ModuleMail()->SetHTML();
+        E::ModuleMail()->Send();
     }
 
     /**
@@ -575,64 +616,91 @@ class ModuleNotify extends Module {
     /**
      * Удаляет отложенные Notify-задания по списку идентификаторов
      *
-     * @param  array $aArrayId    Список ID заданий на отправку
+     * @param  array $aTaskId    Список ID заданий на отправку
      *
      * @return bool
      */
-    public function DeleteTaskByArrayId($aArrayId) {
+    public function DeleteTaskByArrayId($aTaskId) {
 
-        return $this->oMapper->DeleteTaskByArrayId($aArrayId);
+        return $this->oMapper->DeleteTaskByArrayId($aTaskId);
     }
 
     /**
-     * Возвращает путь к шаблону по переданному имени
+     * Returns full path to email templates by name and plugin
      *
-     * @param  string $sName          Название шаблона
-     * @param  string $sPluginName    Название или класс плагина
+     * @param  string        $sName   Template name
+     * @param  string|object $xPlugin Name or class of plugin
      *
      * @return string
      */
-    public function GetTemplatePath($sName, $sPluginName = null) {
+    public function GetTemplatePath($sName, $xPlugin = null) {
 
-        if ($sPluginName) {
-            $sPluginName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sPluginName, $aMatches)
-                ? strtolower($aMatches[1])
-                : strtolower($sPluginName);
-
-            $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
+        if ($xPlugin) {
+            $sPluginName = Plugin::GetPluginName($xPlugin);
         } else {
-            $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/' . $this->sDir . '/');
+            $sPluginName = '';
         }
+        $sCacheKey = 'template_path_' . $sName . '-' . $sPluginName;
+        if (false === ($sResult = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
+            $bFound = false;
+            if ($sPluginName) {
+                $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
+            } else {
+                $sDir = F::File_NormPath(E::ModuleViewer()->GetTemplateDir() . '/' . $this->sDir . '/');
+            }
 
-        // Ищем шаблон по текущему языку
-        $sLangDir = $sDir . $this->Lang_GetLang();
-        if (is_dir($sLangDir)) {
-            return $sLangDir . '/' . $sName;
-        }
+            // Find template by current language
+            $sLangDir = $sDir . E::ModuleLang()->GetLang();
+            if (is_dir($sLangDir)) {
+                $sResult = $sLangDir . '/' . $sName;
+                $bFound = true;
+            }
 
-        // Если шаблон не найден, ищем в алиасах
-        $aAliases = $this->Lang_GetLangAliases();
-        foreach ($aAliases as $sAlias) {
-            if (is_dir($sLangDir = $sDir . $sAlias)) {
-                return $sLangDir . '/' . $sName;
+            if (!$bFound) {
+                // Find by aliases of current language
+                if ($aAliases = E::ModuleLang()->GetLangAliases()) {
+                    foreach ($aAliases as $sAlias) {
+                        if (is_dir($sLangDir = $sDir . $sAlias)) {
+                            $sResult = $sLangDir . '/' . $sName;
+                            $bFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$bFound) {
+                // Find template by default language
+                $sLangDir = $sDir . E::ModuleLang()->GetDefaultLang();
+                if (is_dir($sLangDir)) {
+                    $sResult = $sLangDir . '/' . $sName;
+                    $bFound = true;
+                }
+            }
+
+            if (!$bFound) {
+                // Find by aliases of default language
+                if ($aAliases = E::ModuleLang()->GetDefaultLangAliases()) {
+                    foreach ($aAliases as $sAlias) {
+                        if (is_dir($sLangDir = $sDir . $sAlias)) {
+                            $sResult = $sLangDir . '/' . $sName;
+                            $bFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$bFound) {
+                $sResult = $sDir . E::ModuleLang()->GetLangDefault() . '/' . $sName;
+            }
+
+            if (is_dir($sResult)) {
+                E::ModuleCache()->Set($sResult, $sCacheKey, array(), 'P30D', 'tmp');
             }
         }
 
-        // Ищем шаблон по языку по умолчанию
-        $sLangDir = $sDir . $this->Lang_GetDefaultLang();
-        if (is_dir($sLangDir)) {
-            return $sLangDir . '/' . $sName;
-        }
-
-        // Если шаблон не найден, ищем в алиасах
-        $aAliases = $this->Lang_GetDefaultLangAliases();
-        foreach ($aAliases as $sAlias) {
-            if (is_dir($sLangDir = $sDir . $sAlias)) {
-                return $sLangDir . '/' . $sName;
-            }
-        }
-
-        return $sDir . $this->Lang_GetLangDefault() . '/' . $sName;
+        return $sResult;
     }
 }
 

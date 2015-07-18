@@ -1,4 +1,4 @@
-var ls = ls || {};
+;var ls = ls || {};
 
 /**
  * Опросы
@@ -20,13 +20,15 @@ ls.topic = (function ($) {
 		});
 	};
 
-	this.insertImageToEditor = function(sUrl,sAlign,sTitle) {
-		sAlign=sAlign=='center' ? 'class="image-center"' : 'align="'+sAlign+'"';
-		$.markItUp({replaceWith: '<img src="'+sUrl+'" title="'+sTitle+'" '+sAlign+' />'} );
-		$('#window_upload_img').find('input[type="text"]').val('');
-		$('#window_upload_img').jqmHide();
-		return false;
-	};
+    this.insertImageToEditor = function (sUrl, sAlign, sTitle) {
+        sAlign = sAlign == 'center' ? 'class="image-center"' : 'align="' + sAlign + '"';
+        var html = '<img src="' + sUrl + '" title="' + sTitle + '" ' + sAlign + ' />';
+        $('#window_upload_img').trigger('uploaded', [html]);
+        $('#window_upload_img').find('input[type="text"]').val('');
+        $('#window_upload_img').jqmHide();
+        ls.insertToEditor(html);
+        return false;
+    };
 
     this.toggleAddTools = function(element) {
         $(element).slideDown();

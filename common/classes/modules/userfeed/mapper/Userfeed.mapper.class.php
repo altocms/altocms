@@ -30,18 +30,25 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      *
      * @return bool
      */
-    public function subscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function SubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
 
-        $sql = '
+        $sql = "
             SELECT *
             FROM ?_userfeed_subscribe
             WHERE
-                user_id = ?d AND subscribe_type = ?d AND target_id = ?d';
+                user_id = ?d AND subscribe_type = ?d AND target_id = ?d
+            LIMIT 1
+            ";
         if (!$this->oDb->select($sql, $iUserId, $iSubscribeType, $iTargetId)) {
-            $sql = '
+            $sql = "
                 INSERT INTO ?_userfeed_subscribe
-                SET
-                    user_id = ?d, subscribe_type = ?d, target_id = ?d';
+                (
+                    user_id, subscribe_type, target_id
+                )
+                VALUES (
+                    ?d, ?d, ?d
+                )
+                ";
             $this->oDb->query($sql, $iUserId, $iSubscribeType, $iTargetId);
             return true;
         }
@@ -57,7 +64,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      *
      * @return bool
      */
-    public function unsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function UnsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
 
         $sql = '
             DELETE FROM ?_userfeed_subscribe
@@ -68,21 +75,72 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
     }
 
     /**
-     * Получить список подписок пользователя
+     * Gets list of subscribtion
      *
-     * @param int $iUserId ID пользователя, для которого загружаются подписки
+     * @param int        $iUserId
+     * @param string|int $xTargetType
+     * @param array      $aTargetsId
      *
      * @return array
      */
-    public function getUserSubscribes($iUserId) {
+    public function GetUserSubscribes($iUserId, $xTargetType = null, $aTargetsId = array()) {
+
+        $aResult = array(
+            'blogs' => array(),
+            'blog' => array(),
+            'users' => array(),
+            'user' => array(),
+        );
+        if (!is_null($xTargetType)) {
+            if (!is_array($xTargetType)) {
+                $xTargetType = array($xTargetType);
+            }
+            if (is_array($xTargetType)) {
+                foreach ($xTargetType as $iKey => $iTargetType) {
+                    if (!is_integer($iTargetType)) {
+                        switch ($iTargetType) {
+                            case 'blog':
+                            case 'blogs':
+                                $xTargetType[$iKey] = ModuleUserfeed::SUBSCRIBE_TYPE_BLOG;
+                                break;
+                            case 'user':
+                            case 'users':
+                                $xTargetType[$iKey] = ModuleUserfeed::SUBSCRIBE_TYPE_USER;
+                                break;
+                            default:
+                                $xTargetType[$iKey] = 0;
+                        }
+                    }
+                }
+            }
+            $xTargetType = array_unique($xTargetType);
+            if (sizeof($xTargetType) == 0) {
+                return $aResult;
+            } elseif (sizeof($xTargetType) == 1) {
+                $xTargetType = reset($xTargetType);
+            }
+        } else {
+            $xTargetType = null;
+        }
 
         $sql = '
             SELECT subscribe_type, target_id
             FROM ?_userfeed_subscribe
             WHERE
-                user_id = ?d';
-        $aSubscribes = $this->oDb->select($sql, $iUserId);
-        $aResult = array('blogs' => array(), 'users' => array());
+                user_id = ?d
+                {AND subscribe_type=?d}
+                {AND subscribe_type IN (?a)}
+                {AND target_id=?d}
+                {AND target_id IN (?a)}
+            ';
+        $aSubscribes = $this->oDb->select(
+            $sql,
+            $iUserId,
+            ($xTargetType && !is_array($xTargetType)) ? $xTargetType : DBSIMPLE_SKIP,
+            ($xTargetType && is_array($xTargetType)) ? $xTargetType : DBSIMPLE_SKIP,
+            ($aTargetsId && !is_array($aTargetsId)) ? $aTargetsId : DBSIMPLE_SKIP,
+            ($aTargetsId && is_array($aTargetsId)) ? $aTargetsId : DBSIMPLE_SKIP
+        );
 
         if (!count($aSubscribes)) {
             return $aResult;
@@ -90,9 +148,11 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 
         foreach ($aSubscribes as $aSubscribe) {
             if ($aSubscribe['subscribe_type'] == ModuleUserfeed::SUBSCRIBE_TYPE_BLOG) {
-                $aResult['blogs'][] = $aSubscribe['target_id'];
+                $aResult['blogs'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
+                $aResult['blog'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
             } elseif ($aSubscribe['subscribe_type'] == ModuleUserfeed::SUBSCRIBE_TYPE_USER) {
-                $aResult['users'][] = $aSubscribe['target_id'];
+                $aResult['users'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
+                $aResult['user'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
             }
         }
         return $aResult;
@@ -104,10 +164,11 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @param array $aUserSubscribes Список подписок пользователя
      * @param int   $iCount          Число получаемых записей (если null, из конфига)
      * @param int   $iFromId         Получить записи, начиная с указанной
+     * @param array $aFilter         Дополнительные фильтры
      *
      * @return array
      */
-    public function readFeed($aUserSubscribes, $iCount, $iFromId) {
+    public function ReadFeed($aUserSubscribes, $iCount, $iFromId, $aFilter) {
 
         $sql
             = "
@@ -118,8 +179,12 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 					?_blog as b
 				WHERE
 					t.topic_publish = 1
+					AND (t.topic_date_show IS NULL OR t.topic_date_show <= ?)
 					AND t.blog_id=b.blog_id
-					AND b.blog_type!='close'
+					{ AND b.blog_type=? }
+					{ AND b.blog_type IN (?a) }
+					{ AND b.blog_type!=? }
+					{ AND b.blog_type NOT IN (?a) }
 					{ AND t.topic_id < ?d }
 					AND ( 1=0 { OR t.blog_id IN (?a) } { OR t.user_id IN (?a) } )
                 ORDER BY t.topic_id DESC
@@ -127,6 +192,11 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 
         $aTopics = $aTopics = $this->oDb->selectCol(
             $sql,
+            F::Now(),
+            (isset($aFilter['include_types']) && !is_array($aFilter['include_types'])) ? $aFilter['include_types'] : DBSIMPLE_SKIP,
+            (isset($aFilter['include_types']) && is_array($aFilter['include_types'])) ? $aFilter['include_types'] : DBSIMPLE_SKIP,
+            (isset($aFilter['exclude_types']) && !is_array($aFilter['exclude_types'])) ? $aFilter['exclude_types'] : DBSIMPLE_SKIP,
+            (isset($aFilter['exclude_types']) && is_array($aFilter['exclude_types'])) ? $aFilter['exclude_types'] : DBSIMPLE_SKIP,
             $iFromId ? $iFromId : DBSIMPLE_SKIP,
             count($aUserSubscribes['blogs']) ? $aUserSubscribes['blogs'] : DBSIMPLE_SKIP,
             count($aUserSubscribes['users']) ? $aUserSubscribes['users'] : DBSIMPLE_SKIP,
@@ -148,9 +218,15 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
         $sql
             = "
 				SELECT
-					SUM(t.topic_count_comment - tr.comment_count_last) as count_new
+					SUM(
+					    CASE
+					      WHEN t.topic_count_comment > tr.comment_count_last
+					      THEN t.topic_count_comment - tr.comment_count_last
+					      ELSE 0
+					    END
+					) as count_new
 				FROM
- 						?_topic_read as tr,
+ 					?_topic_read as tr,
 					?_topic as t
 				WHERE
 					t.topic_id=tr.topic_id

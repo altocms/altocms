@@ -47,7 +47,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function getIsModerator() {
 
-        return ($this->getUserRole() == ModuleBlog::BLOG_USER_ROLE_MODERATOR);
+        return $this->IsBlogModerator();
     }
 
     /**
@@ -56,6 +56,26 @@ class ModuleBlog_EntityBlogUser extends Entity {
      * @return bool
      */
     public function getIsAdministrator() {
+
+        return $this->IsBlogAdministrator();
+    }
+
+    /**
+     * Whether the user is a blog moderator
+     *
+     * @return bool
+     */
+    public function IsBlogModerator() {
+
+        return ($this->getUserRole() == ModuleBlog::BLOG_USER_ROLE_MODERATOR);
+    }
+
+    /**
+     * Whether the user is a blog administrator
+     *
+     * @return bool
+     */
+    public function IsBlogAdministrator() {
 
         return ($this->getUserRole() == ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR);
     }
@@ -98,7 +118,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setBlogId($data) {
 
-        $this->_aData['blog_id'] = $data;
+        $this->setProp('blog_id', $data);
     }
 
     /**
@@ -108,7 +128,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setUserId($data) {
 
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -118,7 +138,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setIsModerator($data) {
 
-        if ($data && !$this->getIsModerator()) {
+        if ($data && !$this->IsBlogModerator()) {
             /**
              * Повышаем статус до модератора
              */
@@ -133,7 +153,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setIsAdministrator($data) {
 
-        if ($data && !$this->getIsAdministrator()) {
+        if ($data && !$this->IsBlogAdministrator()) {
             /**
              * Повышаем статус до администратора
              */
@@ -148,7 +168,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setUserRole($data) {
 
-        $this->_aData['user_role'] = $data;
+        $this->setProp('user_role', $data);
     }
 
     /**
@@ -158,7 +178,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setBlog($data) {
 
-        $this->_aData['blog'] = $data;
+        $this->setProp('blog', $data);
     }
 
     /**
@@ -168,7 +188,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setUser($data) {
 
-        $this->_aData['user'] = $data;
+        $this->setProp('user', $data);
     }
 
 }

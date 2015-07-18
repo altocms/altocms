@@ -48,7 +48,7 @@ class ModuleDatabase extends Module {
 
     protected $aInitSql
         = array(
-            "set character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_bin' ",
+            "set character_set_client='%%charset%%', character_set_results='%%charset%%', collation_connection='utf8_bin' ",
         );
 
     /**
@@ -57,6 +57,11 @@ class ModuleDatabase extends Module {
      */
     public function Init() {
 
+        $sCharset = C::Get('db.params.charset');
+        if (!$sCharset) {
+            $sCharset = 'utf8';
+        }
+        $this->aInitSql = str_replace('%%charset%%', $sCharset, $this->aInitSql);
     }
 
     protected function _getDbConnect($sDsn) {
@@ -108,6 +113,10 @@ class ModuleDatabase extends Module {
 
             // * Если нужно логировать все SQL запросы то подключаем логгер
             if (Config::Get('sys.logs.sql_query')) {
+                if (Config::Get('sys.logs.sql_query_rewrite')) {
+                    $oLog = E::ModuleLogger()->Reset(Config::Get('sys.logs.sql_query_file'));
+                    F::File_DeleteAs($oLog->getFileDir() . pathinfo($oLog->getFileName(), PATHINFO_FILENAME) . '*');
+                }
                 $oDbSimple->setLogger(array($this, 'Logger'));
             } else {
                 $oDbSimple->setLogger(array($this, '_internalLogger'));
@@ -176,12 +185,44 @@ class ModuleDatabase extends Module {
         $sMsg = print_r($sSql, true);
         //Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_query_file'), $sMsg);
 
-        $oLog = Engine::getInstance()->Logger_Reset(Config::Get('sys.logs.sql_query_file'));
+        $oLog = E::ModuleLogger()->Reset(Config::Get('sys.logs.sql_query_file'));
         if (substr(trim($sMsg), 0, 2) == '--') {
             // это результат запроса
-            $oLog->DumpEnd(trim($sMsg));
+            if (DEBUG) {
+                $aStack = debug_backtrace(false);
+                $i = 0;
+                while (empty($aStack[$i]['file']) || (isset($aStack[$i]['file']) && strpos($aStack[$i]['file'], 'DbSimple') === false)) {
+                    $i += 1;
+                }
+                while (empty($aStack[$i]['file']) || (isset($aStack[$i]['file']) && strpos($aStack[$i]['file'], 'DbSimple') !== false)) {
+                    $i += 1;
+                }
+                $sCaller = '';
+                if (isset($aStack[$i]['file'])) {
+                    $sCaller .= $aStack[$i]['file'];
+                }
+                if (isset($aStack[$i]['line'])) {
+                    $sCaller .= ' (' . $aStack[$i]['line'] . ')';
+                }
+                $oLog->DumpAppend(trim($sMsg));
+                $oLog->DumpEnd('-- [src]' . $sCaller);
+            } else {
+                $oLog->DumpEnd(trim($sMsg));
+            }
         } else {
             // это сам запрос
+            if (DEBUG) {
+                $aLines = array_map('trim', explode("\n", $sMsg));
+                foreach ($aLines as $iIndex => $sLine) {
+                    if (!$sLine) {
+                        unset($aLines[$iIndex]);
+                    } else {
+                        $aLines[$iIndex] = '    ' . $sLine;
+                    }
+                }
+                $sMsg = join(PHP_EOL, $aLines);
+                $sMsg = '-- [id]' . md5($sMsg) . PHP_EOL . $sMsg;
+            }
             $oLog->DumpBegin($sMsg);
         }
     }
@@ -210,9 +251,9 @@ class ModuleDatabase extends Module {
         $sMsg = "SQL Error: $sMessage\n---\n";
         $sMsg .= print_r($aInfo, true);
 
-        // * Если нужно логировать SQL ошибке то пишем их в лог
+        // * Если нужно логировать SQL ошибки то пишем их в лог
         if (Config::Get('sys.logs.sql_error')) {
-            Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_error_file'), $sMsg);
+            E::ModuleLogger()->Dump(Config::Get('sys.logs.sql_error_file'), $sMsg, 'ERROR');
         }
 
         // * Если стоит вывод ошибок то выводим ошибку на экран(браузер)
@@ -313,7 +354,7 @@ class ModuleDatabase extends Module {
      */
     public function isTableExists($sTableName, $aConfig = null) {
 
-        $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
+        $sTableName = $this->TableNameTransformer($sTableName);
         $sQuery = "SHOW TABLES LIKE '{$sTableName}'";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
             return true;
@@ -333,7 +374,7 @@ class ModuleDatabase extends Module {
      */
     public function isFieldExists($sTableName, $sFieldName, $aConfig = null) {
 
-        $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
+        $sTableName = $this->TableNameTransformer($sTableName);
         $sQuery = "SHOW FIELDS FROM {$sTableName}";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
             foreach ($aRows as $aRow) {

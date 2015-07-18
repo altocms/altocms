@@ -31,7 +31,7 @@ class HookCopyright extends Hook {
         /**
          * Выводим везде, кроме страницы списка блогов и списка всех комментов
          */
-        return '&copy; Powered by <a href="http://altocms.ru">Alto CMS</a>, based on <a href="http://livestreetcms.org">LiveStreet</a>';
+        return '&copy; Powered by <a href="http://altocms.ru">Alto CMS</a>';
     }
 }
 

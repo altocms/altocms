@@ -31,16 +31,16 @@ class ActionAsset extends Action {
 
         $sOriginalFile = Config::Get('path.skins.dir') . $sSkinName . '/' . $sRelPath;
         if (F::File_Exists($sOriginalFile)) {
-            $sAssetFile = $this->Viewer_GetAssetDir() . 'skin/' . $sSkinName . '/' . $sRelPath;
+            $sAssetFile = F::File_GetAssetDir() . 'skin/' . $sSkinName . '/' . $sRelPath;
             if (F::File_Copy($sOriginalFile, $sAssetFile)) {
                 if (headers_sent($sFile, $nLine)) {
-                    $sUrl = $this->Viewer_GetAssetUrl() . 'skin/' . $sSkinName . '/' . $sRelPath;
+                    $sUrl = F::File_GetAssetUrl() . 'skin/' . $sSkinName . '/' . $sRelPath;
                     if (strpos($sUrl, '?')) {
                         $sUrl .= '&' . uniqid();
                     } else {
                         $sUrl .= '?' . uniqid();
                     }
-                    Router::Location($sUrl);
+                    R::Location($sUrl);
                 } else {
                     header_remove();
                     if ($sMimeType = F::File_MimeType($sAssetFile)) {

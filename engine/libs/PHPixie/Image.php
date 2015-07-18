@@ -61,6 +61,23 @@ class Image {
 	}
 
 	/**
+	 * Reads image from a byte string.
+	 * You can use this method to load images that you downloaded using file_get_contents() or CURL.
+	 *
+	 * @param   string  $bytes  Bytestring containing image data
+	 * @param   string  $config Configuration name.
+	 *                        Defaults to  'default'.
+	 * @return  \PHPixie\Image\Driver Initialized Image
+	 */
+	public function load($bytes, $config = 'default') {
+		$driver = $this->pixie->config->get("image.{$config}.driver");
+		$driver = "\\PHPixie\\Image\\{$driver}";
+		$image  = new $driver; 
+		$image->load($bytes);
+		return $image;
+	}
+	
+	/**
 	 * Creates an image filled with a single color.
 	 *
 	 * @param   int  $width  Image width

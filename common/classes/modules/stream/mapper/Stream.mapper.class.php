@@ -29,11 +29,11 @@ class ModuleStream_MapperStream extends Mapper {
      */
     public function AddEvent($oObject) {
 
-        $sql = "INSERT INTO ?_stream_event SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oObject->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "
+            INSERT INTO ?_stream_event(?#)
+            VALUES(?a)";
+        $iId = $this->oDb->query($sql, $oObject->getKeyProps(), $oObject->getValProps());
+        return $iId ? $iId : false;
     }
 
     /**
@@ -53,7 +53,7 @@ class ModuleStream_MapperStream extends Mapper {
 				WHERE target_id = ?d AND event_type = ? { AND user_id = ?d } ";
         $aRow = $this->oDb->selectRow($sql, $iTargetId, $sEventType, is_null($iUserId) ? DBSIMPLE_SKIP : $iUserId);
         if ($aRow) {
-            return Engine::GetEntity('ModuleStream_EntityEvent', $aRow);
+            return E::GetEntity('ModuleStream_EntityEvent', $aRow);
         }
         return null;
     }
@@ -120,17 +120,18 @@ class ModuleStream_MapperStream extends Mapper {
 				ORDER BY id DESC
 				{ LIMIT 0,?d }';
 
-        $aReturn = array();
-        if ($aRows = $this->oDb->select(
-            $sql, $aEventTypes, (!is_null($aUsersList) and count($aUsersList)) ? $aUsersList : DBSIMPLE_SKIP,
-            !is_null($iFromId) ? $iFromId : DBSIMPLE_SKIP, !is_null($iCount) ? $iCount : DBSIMPLE_SKIP
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('Stream_Event', $aRow);
-            }
+        $aResult = array();
+        $aRows = $this->oDb->select(
+            $sql,
+            $aEventTypes,
+            (!is_null($aUsersList) and count($aUsersList)) ? $aUsersList : DBSIMPLE_SKIP,
+            !is_null($iFromId) ? $iFromId : DBSIMPLE_SKIP,
+            !is_null($iCount) ? $iCount : DBSIMPLE_SKIP
+        );
+        if ($aRows) {
+            $aResult = E::GetEntityRows('Stream_Event', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -170,11 +171,29 @@ class ModuleStream_MapperStream extends Mapper {
      */
     public function switchUserEventType($iUserId, $sEventType) {
 
-        $sql = 'SELECT * FROM ?_stream_user_type WHERE user_id = ?d AND event_type = ?';
+        $sql = "
+          SELECT *
+          FROM ?_stream_user_type
+          WHERE user_id = ?d AND event_type = ?
+          LIMIT 1
+        ";
         if ($this->oDb->select($sql, $iUserId, $sEventType)) {
-            $sql = 'DELETE FROM ?_stream_user_type WHERE user_id = ?d AND event_type = ?';
+            $sql = "
+              DELETE FROM ?_stream_user_type
+              WHERE user_id = ?d AND event_type = ?
+            ";
         } else {
-            $sql = 'INSERT INTO  ?_stream_user_type SET user_id = ?d , event_type = ?';
+            $sql = "
+                INSERT INTO  ?_stream_user_type
+                (
+                    user_id,
+                    event_type
+                )
+                VALUES (
+                    ?d ,
+                    ?
+                )
+                ";
         }
         $this->oDb->query($sql, $iUserId, $sEventType);
     }
@@ -187,11 +206,23 @@ class ModuleStream_MapperStream extends Mapper {
      */
     public function subscribeUser($iUserId, $iTargetUserId) {
 
-        $sql = 'SELECT * FROM ?_stream_subscribe WHERE
-				user_id = ?d AND target_user_id = ?d';
+        $sql = "
+          SELECT *
+          FROM ?_stream_subscribe
+          WHERE
+            user_id = ?d AND target_user_id = ?d
+          LIMIT 1
+          ";
         if (!$this->oDb->select($sql, $iUserId, $iTargetUserId)) {
-            $sql = 'INSERT INTO ?_stream_subscribe SET
-					user_id = ?d, target_user_id = ?d';
+            $sql = "
+              INSERT INTO ?_stream_subscribe
+              (
+                  user_id, target_user_id
+              )
+              VALUES (
+                  ?d, ?d
+              )
+              ";
             $this->oDb->query($sql, $iUserId, $iTargetUserId);
         }
     }

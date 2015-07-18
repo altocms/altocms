@@ -1,3 +1,5 @@
+;var ls = ls || {};
+
 /* ****************************************************
  * Frontend for LS-compatibility
  */
@@ -6,9 +8,11 @@ Function.prototype.bind = function (context) {
     if (jQuery.type(fn) != 'function') {
         throw new TypeError('Function.prototype.bind: call on non-function');
     }
+
     if (jQuery.type(context) == 'null') {
         throw new TypeError('Function.prototype.bind: cant be bound to null');
     }
+
     return function () {
         return fn.apply(context, arguments);
     };
@@ -30,8 +34,6 @@ String.prototype.tr = function (a, p) {
     return $that;
 };
 
-var ls = ls || {};
-
 /**
  * Управление всплывающими сообщениями
  */
@@ -40,22 +42,22 @@ ls.msg = (function ($) {
      * Опции
      */
     this.options = {
-        class_notice: 'n-notice',
-        class_error: 'n-error'
+        classNotice: 'n-notice',
+        classError: 'n-error'
     };
 
     /**
      * Отображение информационного сообщения
      */
     this.notice = function (title, msg) {
-        $.notifier.broadcast(title, msg, this.options.class_notice);
+        $.notifier.broadcast(title, msg, this.options.classNotice);
     };
 
     /**
      * Отображение сообщения об ошибке
      */
     this.error = function (title, msg) {
-        $.notifier.broadcast(title, msg, this.options.class_error);
+        $.notifier.broadcast(title, msg, this.options.classError);
     };
 
     return this;
@@ -549,7 +551,7 @@ ls.tools = (function ($) {
  * Дополнительные функции
  */
 ls = (function ($) {
-
+    var $that = this;
     /**
      * Глобальные опции
      */
@@ -583,20 +585,20 @@ ls = (function ($) {
             data: params,
             dataType: more.dataType || 'json',
             success: callback || function () {
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax success: ");
+                $that.debug.apply(this, arguments);
             }.bind(this),
             error: more.error || function (msg) {
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax error: ");
+                $that.debug.apply(this, arguments);
             }.bind(this),
             complete: more.complete || function (msg) {
-                ls.debug("ajax complete: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax complete: ");
+                $that.debug.apply(this, arguments);
             }.bind(this)
         };
 
-        ls.hook.run('ls_ajax_before', [ajaxOptions], this);
+        $that.hook.run('ls_ajax_before', [ajaxOptions], this);
 
         return $.ajax(ajaxOptions);
     };
@@ -620,7 +622,7 @@ ls = (function ($) {
             params.keys.push(key);
             params[key] = val;
         });
-        return ls.ajax(url, params, callback, more);
+        return $that.ajax(url, params, callback, more);
     };
 
     /**
@@ -641,17 +643,17 @@ ls = (function ($) {
             dataType: more.dataType || 'json',
             data: {security_key: ALTO_SECURITY_KEY},
             success: callback || function () {
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax success: ");
+                $that.debug.apply(this, arguments);
             }.bind(this),
             error: more.error || function () {
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax error: ");
+                $that.debug.apply(this, arguments);
             }.bind(this)
 
         };
 
-        ls.hook.run('ls_ajaxsubmit_before', [options], this);
+        $that.hook.run('ls_ajaxsubmit_before', [options], this);
 
         form.ajaxSubmit(options);
     };
@@ -660,18 +662,46 @@ ls = (function ($) {
      * Загрузка изображения
      */
     this.ajaxUploadImg = function (form, sToLoad) {
-        ls.hook.marker('ajaxUploadImgBefore');
-        ls.ajaxSubmit('upload/image/', form, function (data) {
+        $that.ajaxSubmit('upload/image/', form, function (data) {
             if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+                $that.msg.error(data.sMsgTitle, data.sMsg);
             } else {
-                $.markItUp({replaceWith: data.sText});
+                $that.insertToEditor(data.sText);
                 $('#window_upload_img').find('input[type="text"], input[type="file"]').val('');
                 $('#window_upload_img').jqmHide();
-                ls.hook.marker('ajaxUploadImgAfter');
             }
         });
     };
+
+    this.insertToEditor = function(html) {
+        $.markItUp({replaceWith: html});
+    }
+
+    /**
+     * Определение URL экшена
+     *
+     * @param action
+     */
+    this.routerUrl = function(action) {
+        if (aRouter && aRouter[action]) {
+            return aRouter[action];
+        } else {
+            return $that.cfg.url.root + action + '/';
+        }
+    }
+
+    this.getAssetUrl = function(asset) {
+        if (this.cfg && this.cfg.assets && this.cfg.assets[asset]) {
+            return this.cfg.assets[asset];
+        }
+    }
+
+    this.getAssetPath = function(asset) {
+        var url = this.getAssetUrl(asset);
+        if (url) {
+            return url.substring(0, url.lastIndexOf('/'));
+        }
+    }
 
     /**
      * Дебаг сообщений
@@ -802,6 +832,17 @@ ls.autocomplete = (function ($) {
     return this;
 }).call(ls.autocomplete || {}, jQuery);
 
+/*
+ * Костыль для исправления модаьного окна
+ */
+jQuery(function(){
+    var modal_write = jQuery('#modal_write');
+    if (modal_write.length) {
+        modal_write.find('.write-item-type-poll, .write-item-type-link, .write-item-type-photoset').each(function(){
+            jQuery(this.remove());
+        });
+    }
+});
 
 /**
  * Костыли для ИЕ

@@ -61,7 +61,7 @@ class ModuleValidate_EntityValidatorTags extends ModuleValidate_EntityValidator 
     public function validate($sValue) {
         if (is_array($sValue)) {
             return $this->getMessage(
-                $this->Lang_Get('validate_tags_empty', null, false), 'msg',
+                E::ModuleLang()->Get('validate_tags_empty', null, false), 'msg',
                 array('min' => $this->min, 'max' => $this->max)
             );
         }
@@ -85,11 +85,11 @@ class ModuleValidate_EntityValidatorTags extends ModuleValidate_EntityValidator 
         $iCount = count($aTagsNew);
         if ($iCount > $this->count) {
             return $this->getMessage(
-                $this->Lang_Get('validate_tags_count_more', null, false), 'msg', array('count' => $this->count)
+                E::ModuleLang()->Get('validate_tags_count_more', null, false), 'msg', array('count' => $this->count)
             );
         } elseif (!$iCount) {
             return $this->getMessage(
-                $this->Lang_Get('validate_tags_empty', null, false), 'msg',
+                E::ModuleLang()->Get('validate_tags_empty', null, false), 'msg',
                 array('min' => $this->min, 'max' => $this->max)
             );
         }

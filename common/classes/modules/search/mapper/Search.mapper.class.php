@@ -16,8 +16,29 @@ class ModuleSearch_MapperSearch extends Mapper {
         $sRegExpPrim = str_replace('[[:>:]]|[[:<:]]', '[[:space:]]+', $sRegExp);
         $sRegExpPrim = str_replace('|[[:<:]]', '[[:alnum:]]+[[:space:]]+', $sRegExpPrim);
         $sRegExpPrim = str_replace('[[:>:]]|', '[[:space:]]+[[:alnum:]]+', $sRegExpPrim);
-        $aRegExp = array($sRegExpPrim, $sRegExp);
-        return $aRegExp;
+
+        $aRegExp = array('phrase' => $sRegExpPrim, 'words' => $sRegExp);
+        if (strpos($sRegExp, '[[:>:]]|[[:<:]]')) {
+            $aWords = explode('[[:>:]]|[[:<:]]', $sRegExp, C::Get('module.search.rate.limit'));
+            foreach($aWords as $iIndex => $sWord) {
+                if (substr($sWord, 0, 7) !== '[[:<:]]') {
+                    $aWords[$iIndex] = '[[:<:]]' . $sWord;
+                }
+                if (substr($sWord, -7) !== '[[:>:]]') {
+                    $aWords[$iIndex] .= '[[:>:]]';
+                }
+            }
+        } else {
+            $aWords = array();
+        }
+
+        $aRates = array(
+            'phrase' => (count($aWords) + 1) * C::Val('module.search.rate.phrase', 1),
+            'words' => C::Val('module.search.rate.words', 1),
+            'title' => C::Val('module.search.rate.title', 1),
+        );
+
+        return array('regexp' => $aRegExp, 'words' => $aWords, 'rates' => $aRates);
     }
 
     /**
@@ -33,44 +54,51 @@ class ModuleSearch_MapperSearch extends Mapper {
      */
     public function GetTopicsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
 
-        $aRegExp = $this->PrepareRegExp($sRegExp);
+        $aData = $this->PrepareRegExp($sRegExp);
+        $aWeight = array();
+
+        $aWeight[] = "(LOWER(t.topic_title) REGEXP " . $this->oDb->escape($aData['regexp']['phrase']) . ")*" . ($aData['rates']['phrase'] * $aData['rates']['title']);
+        $aWeight[] = "(LOWER(tc.topic_text_source) REGEXP " . $this->oDb->escape($aData['regexp']['phrase']) . ")*" . ($aData['rates']['phrase']);
+        foreach($aData['words'] as $sWord) {
+            $aWeight[] = "(LOWER(t.topic_title) REGEXP " . $this->oDb->escape($sWord) . ")*" . ($aData['rates']['words'] * $aData['rates']['title']);
+            $aWeight[] = "(LOWER(tc.topic_text_source) REGEXP " . $this->oDb->escape($sWord) . ")*" . ($aData['rates']['words']);
+        }
+        $sWeight = implode('+', $aWeight);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
             $sql
                 = "
-                SELECT DISTINCT t.topic_id, 
-                    CASE WHEN (LOWER(t.topic_title) REGEXP ?) THEN 1 ELSE 0 END +
-                    CASE WHEN (LOWER(tc.topic_text_source) REGEXP ?) THEN 1 ELSE 0 END AS weight
+                SELECT t.topic_id,
+                    $sWeight AS weight
                 FROM ?_topic AS t
                     INNER JOIN ?_topic_content AS tc ON tc.topic_id=t.topic_id
                 WHERE 
                     (topic_publish=1)
                      AND topic_index_ignore=0
-                     AND ((LOWER(t.topic_title) REGEXP ?)
-                        {OR (LOWER(t.topic_title) REGEXP ?)}
+                     AND (
+                        (LOWER(t.topic_title) REGEXP ?)
                         OR (LOWER(tc.topic_text_source) REGEXP ?)
-                        {OR (LOWER(tc.topic_text_source) REGEXP ?)}
                      )
                 ORDER BY
                     weight DESC,
                     t.topic_id ASC
                 LIMIT ?d, ?d
             ";
+
             $aRows = $this->oDb->selectPage(
                 $iCount, $sql,
-                $aRegExp[0],
-                $aRegExp[0],
-                $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
+                $aData['regexp']['words'],
+                $aData['regexp']['words'],
                 ($iCurrPage - 1) * $iPerPage, $iPerPage
             );
-        }
 
-        if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = $aRow['topic_id'];
+            if ($aRows) {
+                foreach ($aRows as $aRow) {
+                    $aResult[] = $aRow['topic_id'];
+                }
             }
         }
+
         return $aResult;
     }
 

@@ -29,6 +29,7 @@ class ModulePage_MapperPage extends Mapper {
 			page_url_full,
 			page_title,
 			page_text,
+			page_text_source,
 			page_date_add,
 			page_seo_keywords,
 			page_seo_description,
@@ -37,10 +38,10 @@ class ModulePage_MapperPage extends Mapper {
 			page_sort,
 			page_auto_br
 			)
-			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?d,  ?d,  ?d,  ?d)
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?d,  ?d,  ?d,  ?d)
 		";
         $nId = $this->oDb->query(
-            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(),
+            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(), $oPage->getTextSource(),
             $oPage->getDateAdd(), $oPage->getSeoKeywords(), $oPage->getSeoDescription(), $oPage->getActive(),
             $oPage->getMain(), $oPage->getSort(), $oPage->getAutoBr()
         );
@@ -56,6 +57,7 @@ class ModulePage_MapperPage extends Mapper {
 			page_url_full = ? ,
 			page_title = ? ,
 			page_text = ? ,
+			page_text_source = ?,
 			page_date_edit = ? ,
 			page_seo_keywords = ? ,
 			page_seo_description = ? ,
@@ -66,7 +68,7 @@ class ModulePage_MapperPage extends Mapper {
 			WHERE page_id = ?d
 		";
         $bResult = $this->oDb->query(
-            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(),
+            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(), $oPage->getTextSource(),
             $oPage->getDateEdit(), $oPage->getSeoKeywords(), $oPage->getSeoDescription(), $oPage->getActive(),
             $oPage->getMain(), $oPage->getSort(), $oPage->getAutoBr(), $oPage->getId()
         );
@@ -90,7 +92,7 @@ class ModulePage_MapperPage extends Mapper {
 
         $sql = "SELECT * FROM ?_page WHERE page_url_full = ? AND page_active = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sUrlFull, $iActive)) {
-            return Engine::GetEntity('Page', $aRow);
+            return E::GetEntity('Page', $aRow);
         }
         return null;
     }
@@ -99,7 +101,7 @@ class ModulePage_MapperPage extends Mapper {
 
         $sql = "SELECT * FROM ?_page WHERE page_id = ? ";
         if ($aRow = $this->oDb->selectRow($sql, $sId)) {
-            return Engine::GetEntity('Page', $aRow);
+            return E::GetEntity('Page', $aRow);
         }
         return null;
     }
@@ -120,11 +122,11 @@ class ModulePage_MapperPage extends Mapper {
             $sPidNULL = 'AND page_pid IS NULL';
         }
         $sql = "SELECT
-					*,
 					page_id as ARRAY_KEY,
-					page_pid as PARENT_KEY
-				FROM 
-					?_page
+					page_pid as PARENT_KEY,
+					p.*
+				FROM
+					?_page AS p
 				WHERE 
 					1=1
 					{ AND page_active = ?d }
@@ -152,17 +154,15 @@ class ModulePage_MapperPage extends Mapper {
 
         $sql
             = "SELECT
-					*
+					p.page_id AS ARRAY_KEY, p.*
 				FROM 
-					?_page
+					?_page AS p
 				WHERE 
 					page_pid = ?
                 ORDER BY page_sort DESC, page_id ASC";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $nPid)) {
-            foreach ($aRows as $aRow) {
-                $aResult[$aRow['page_id']] = Engine::GetEntity('Page', $aRow);
-            }
+            $aResult = E::GetEntityRows('Page', $aRows);
         }
         return $aResult;
     }
@@ -183,7 +183,7 @@ class ModulePage_MapperPage extends Mapper {
         $sql = "SELECT * FROM ?_page
                 WHERE { page_pid = ? AND } {$sPidNULL} page_sort {$sWay} ? ORDER BY page_sort {$sOrder}, page_id ASC LIMIT 0,1";
         if ($aRow = $this->oDb->selectRow($sql, is_null($sPid) ? DBSIMPLE_SKIP : $sPid, $iSort)) {
-            return Engine::GetEntity('Page', $aRow);
+            return E::GetEntity('Page', $aRow);
         }
         return null;
     }
@@ -226,13 +226,11 @@ class ModulePage_MapperPage extends Mapper {
                 LIMIT
                     ?d, ?d
                 ';
-        $aPages = array();
+        $aResult = array();
         if ($aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            foreach ($aRows as $aPage) {
-                $aPages[] = Engine::GetEntity('Page', $aPage);
-            }
+            $aResult = E::GetEntityRows('Page', $aRows);
         }
-        return $aPages;
+        return $aResult;
     }
 
     /**

@@ -2,7 +2,7 @@
  * Пагинация
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.pagination = (function($) {
 	"use strict";

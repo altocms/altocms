@@ -192,7 +192,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setId($data) {
 
-        $this->_aData['talk_id'] = $data;
+        $this->setProp('talk_id', $data);
     }
 
     /**
@@ -202,7 +202,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setUserId($data) {
 
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -212,7 +212,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setTitle($data) {
 
-        $this->_aData['talk_title'] = $data;
+        $this->setProp('talk_title', $data);
     }
 
     /**
@@ -222,7 +222,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setText($data) {
 
-        $this->_aData['talk_text'] = $data;
+        $this->setProp('talk_text', $data);
     }
 
     /**
@@ -232,7 +232,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setDate($data) {
 
-        $this->_aData['talk_date'] = $data;
+        $this->setProp('talk_date', $data);
     }
 
     /**
@@ -242,7 +242,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setDateLast($data) {
 
-        $this->_aData['talk_date_last'] = $data;
+        $this->setProp('talk_date_last', $data);
     }
 
     /**
@@ -252,7 +252,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setUserIdLast($data) {
 
-        $this->_aData['talk_user_id_last'] = $data;
+        $this->setProp('talk_user_id_last', $data);
     }
 
     /**
@@ -262,7 +262,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setUserIp($data) {
 
-        $this->_aData['talk_user_ip'] = $data;
+        $this->setProp('talk_user_ip', $data);
     }
 
     /**
@@ -272,7 +272,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setCommentIdLast($data) {
 
-        $this->_aData['talk_comment_id_last'] = $data;
+        $this->setProp('talk_comment_id_last', $data);
     }
 
     /**
@@ -282,7 +282,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setCountComment($data) {
 
-        $this->_aData['talk_count_comment'] = $data;
+        $this->setProp('talk_count_comment', $data);
     }
 
     /**
@@ -292,7 +292,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setUsers($data) {
 
-        $this->_aData['users'] = $data;
+        $this->setProp('users', $data);
     }
 
     /**
@@ -302,7 +302,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setUser($data) {
 
-        $this->_aData['user'] = $data;
+        $this->setProp('user', $data);
     }
 
     /**
@@ -312,7 +312,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setTalkUser($data) {
 
-        $this->_aData['talk_user'] = $data;
+        $this->setProp('talk_user', $data);
     }
 
     /**
@@ -322,7 +322,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setIsFavourite($data) {
 
-        $this->_aData['talk_is_favourite'] = $data;
+        $this->setProp('talk_is_favourite', $data);
     }
 
     /**
@@ -332,7 +332,7 @@ class ModuleTalk_EntityTalk extends Entity {
      */
     public function setTalkUsers($data) {
 
-        $this->_aData['talk_users'] = $data;
+        $this->setProp('talk_users', $data);
     }
 
 }

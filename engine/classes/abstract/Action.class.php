@@ -62,7 +62,7 @@ abstract class Action extends LsObject {
      *
      * @var string|null
      */
-    protected $sDefaultEvent = null;
+    protected $sDefaultEvent = 'index';
     /**
      * Текущий евент
      *
@@ -95,21 +95,22 @@ abstract class Action extends LsObject {
 
         if (func_num_args() == 1 && is_string($oEngine)) {
             // Передан только экшен
-            $this->oEngine = Engine::getInstance();
+            $this->oEngine = E::getInstance();
             $sAction = $oEngine;
         } else {
             // LS-compatible
             $this->oEngine = $oEngine;
         }
-        Engine::getInstance();
-        $this->RegisterEvent();
+        //Engine::getInstance();
         $this->sCurrentAction = $sAction;
-        $this->aParams = Router::GetParams();
+        $this->aParams = R::GetParams();
+        $this->RegisterEvent();
 
         // load action's config if exists
+        Config::ResetLevel(Config::LEVEL_ACTION);
         if ($sFile = F::File_Exists('/config/actions/' . $sAction . '.php', Config::Get('path.root.seek'))) {
             // Дополняем текущий конфиг конфигом экшена
-            Config::LoadFromFile($sFile, true, Config::LEVEL_ACTION);
+            Config::LoadFromFile($sFile, false, Config::LEVEL_ACTION);
         }
     }
 
@@ -124,7 +125,7 @@ abstract class Action extends LsObject {
      */
     protected function AddEvent($sEventName, $sEventFunction) {
 
-        $this->AddEventPreg("/^{$sEventName}$/i", $sEventFunction);
+        $this->AddEventPreg('/^' . preg_quote($sEventName) . '$/i', $sEventFunction);
     }
 
     /**
@@ -173,10 +174,13 @@ abstract class Action extends LsObject {
      */
     public function ExecEvent() {
 
-        $this->sCurrentEvent = Router::GetActionEvent();
+        if ($this->GetDefaultEvent() == 'index' && method_exists($this, 'EventIndex')) {
+            $this->AddEvent('index', 'EventIndex');
+        }
+        $this->sCurrentEvent = R::GetActionEvent();
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
-            Router::SetActionEvent($this->sCurrentEvent);
+            R::SetActionEvent($this->sCurrentEvent);
         }
         foreach ($this->aRegisterEvent as $aEvent) {
             if (preg_match($aEvent['preg'], $this->sCurrentEvent, $aMatch)) {
@@ -190,16 +194,15 @@ abstract class Action extends LsObject {
                     }
                 }
                 $this->sCurrentEventName = $aEvent['name'];
-                $this->Hook_Run(
-                    'action_event_' . strtolower($this->sCurrentAction) . '_before',
-                    array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
-                );
-                $result = call_user_func_array(array($this, $aEvent['method']), array());
-                $this->Hook_Run(
-                    'action_event_' . strtolower($this->sCurrentAction) . '_after',
-                    array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
-                );
-                return $result;
+                $sMethod = $aEvent['method'];
+                $sHook = 'action_event_' . strtolower($this->sCurrentAction);
+
+                E::ModuleHook()->Run($sHook . '_before', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+                //$result = call_user_func_array(array($this, $aEvent['method']), array());
+                $xResult = $this->$sMethod();
+                E::ModuleHook()->Run($sHook . '_after', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+
+                return $xResult;
             }
         }
         return $this->EventNotFound();
@@ -320,8 +323,8 @@ abstract class Action extends LsObject {
      */
     public function SetParam($iOffset, $value) {
 
-        Router::SetParam($iOffset, $value);
-        $this->aParams = Router::GetParams();
+        R::SetParam($iOffset, $value);
+        $this->aParams = R::GetParams();
     }
 
     /**
@@ -341,24 +344,55 @@ abstract class Action extends LsObject {
      */
     protected function SetTemplateAction($sTemplate) {
 
-        $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
-        $sActionTemplatePath = $sTemplate . '.tpl';
-        foreach ($aDelegates as $sAction) {
-            if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
-                $sTemplatePath = $this->Plugin_GetDelegate(
-                    'template', 'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl'
-                );
-                if (empty($aMatches[1])) {
+        if (substr($sTemplate, -4) != '.tpl') {
+            $sTemplate = $sTemplate . '.tpl';
+        }
+        $sActionTemplatePath = $sTemplate;
+
+        if (!F::File_IsLocalDir($sActionTemplatePath)) {
+            // If not absolute path then defines real path of template
+            $aDelegates = E::ModulePlugin()->GetDelegationChain('action', $this->GetActionClass());
+            foreach ($aDelegates as $sAction) {
+                if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
+                    // for LS-compatibility
+                    $sActionNameOriginal = $aMatches[3];
+                    // New-style action templates
+                    $sActionName = strtolower($sActionNameOriginal);
+                    $sTemplatePath = E::ModulePlugin()->GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate);
                     $sActionTemplatePath = $sTemplatePath;
-                } else {
-                    $sTemplatePath = Plugin::GetTemplatePath($sAction) . $sTemplatePath;
-                    if (is_file($sTemplatePath)) {
-                        $sActionTemplatePath = $sTemplatePath;
-                        break;
+                    if (!empty($aMatches[1])) {
+                        $aPluginTemplateDirs = array(Plugin::GetTemplateDir($sAction));
+                        if (basename($aPluginTemplateDirs[0]) !== 'default') {
+                            $aPluginTemplateDirs[] = dirname($aPluginTemplateDirs[0]) . '/default/';
+                        }
+
+                        if ($sTemplatePath = F::File_Exists('tpls/' . $sTemplatePath, $aPluginTemplateDirs)) {
+                            $sActionTemplatePath = $sTemplatePath;
+                            break;
+                        }
+                        if ($sTemplatePath = F::File_Exists($sTemplatePath, $aPluginTemplateDirs)) {
+                            $sActionTemplatePath = $sTemplatePath;
+                            break;
+                        }
+
+                        // LS-compatibility
+                        if (E::ModulePlugin()->IsActivePlugin('ls')) {
+                            $sLsTemplatePath = E::ModulePlugin()->GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate);
+                            if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
+                                $sActionTemplatePath = $sTemplatePath;
+                                break;
+                            }
+                            $sLsTemplatePath = E::ModulePlugin()->GetDelegate('template', 'actions/Action' . ucfirst($sActionNameOriginal) . '/' . $sTemplate);
+                            if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
+                                $sActionTemplatePath = $sTemplatePath;
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
+
         $this->sActionTemplate = $sActionTemplatePath;
     }
 
@@ -384,7 +418,7 @@ abstract class Action extends LsObject {
      */
     public function GetActionClass() {
 
-        return Router::GetActionClass();
+        return R::GetActionClass();
     }
 
     /**
@@ -407,7 +441,7 @@ abstract class Action extends LsObject {
      */
     protected function EventNotFound() {
 
-        return Router::Action('error', '404');
+        return R::Action('error', '404');
     }
 
     /**
@@ -419,17 +453,21 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * Абстрактный метод инициализации экшена
-     *
+     * Метод инициализации экшена
+     * @return bool|string
      */
-    abstract public function Init();
+    public function Init() {
+
+    }
 
     /**
-     * Абстрактный метод регистрации евентов.
+     * Метод регистрации евентов.
      * В нём необходимо вызывать метод AddEvent($sEventName,$sEventFunction)
      *
      */
-    abstract protected function RegisterEvent();
+    protected function RegisterEvent() {
+
+    }
 
     /**
      * Были ли ли переданы POST-параметры (или конкретный POST-параметр)
@@ -441,7 +479,7 @@ abstract class Action extends LsObject {
     protected function IsPost($sName = null) {
 
         if (is_null(self::$bPost)) {
-            if ($this->Security_ValidateSendForm(false)
+            if (E::ModuleSecurity()->ValidateSendForm(false)
                 && isset($_SERVER['REQUEST_METHOD'])
                 && ($_SERVER['REQUEST_METHOD'] == 'POST')
                 && isset($_POST)
@@ -482,20 +520,56 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * Возвращает информацию о загруженном файле с валидацией формы
+     * Returns information about the uploaded file with form validation
+     * If a field name is omitted it returns the first of uploaded files
      *
-     * @param   string $sName
+     * @param   string|null $sName
      *
-     * @return  bool
+     * @return  array|bool
      */
-    protected function GetUploadedFile($sName) {
+    protected function GetUploadedFile($sName = null) {
 
-        if ($this->Security_ValidateSendForm(false) && isset($_FILES[$sName])) {
-            if (isset($_FILES[$sName]['tmp_name']) && is_uploaded_file($_FILES[$sName]['tmp_name'])) {
-                return $_FILES[$sName];
+        $aFileData = false;
+        if (E::ModuleSecurity()->ValidateSendForm(false) && isset($_FILES)) {
+            if (is_null($sName) && is_array($_FILES) && sizeof($_FILES)) {
+                $aFileData = reset($_FILES);
+            } elseif (isset($_FILES[$sName])) {
+                $aFileData = $_FILES[$sName];
+            }
+            if ($aFileData && isset($aFileData['tmp_name']) && is_uploaded_file($aFileData['tmp_name'])) {
+                return $aFileData;
             }
         }
+
         return false;
+    }
+
+
+    /**
+     * Метод проверки прав доступа пользователя к конкретному ивенту
+     * @param string $sEvent Наименование ивента
+     * @return bool
+     */
+    public function Access($sEvent) {
+
+//        $sAccessMethodName = 'Access' . $sEvent;
+//
+//        if (method_exists($this, 'Access' . $sEvent)) {
+//            return call_user_func_array(array($this, $sAccessMethodName), array());
+//        }
+
+        return true;
+    }
+
+
+    /**
+     * Метод запрета доступа к ивенту
+     * @param string $sEvent Наименование ивента
+     * @return bool
+     */
+    public function AccessDenied($sEvent = null) {
+
+        return $this->EventNotFound();
     }
 
 }

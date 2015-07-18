@@ -25,31 +25,23 @@ class ActionRegistration extends Action {
      *
      */
     public function Init() {
-        /**
-         * Проверяем аторизован ли юзер
-         */
-        if ($this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('registration_is_authorization'), $this->Lang_Get('attention')
+        //  Проверяем аторизован ли юзер
+        if (E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('registration_is_authorization'), E::ModuleLang()->Get('attention')
             );
-            return Router::Action('error');
+            return R::Action('error');
         }
-        /**
-         * Если включены инвайты то перенаправляем на страницу регистрации по инвайтам
-         */
-        if (!$this->User_IsAuthorization() && Config::Get('general.reg.invite')
-            && !in_array(
-                Router::GetActionEvent(), array('invite', 'activate', 'confirm')
-            )
+        //  Если включены инвайты то перенаправляем на страницу регистрации по инвайтам
+        if (!E::ModuleUser()->IsAuthorization() && Config::Get('general.reg.invite')
+            && !in_array(R::GetActionEvent(), array('invite', 'activate', 'confirm'))
             && !$this->CheckInviteRegister()
         ) {
-            return Router::Action('registration', 'invite');
+            return R::Action('registration', 'invite');
         }
         $this->SetDefaultEvent('index');
-        /**
-         * Устанавливаем title страницы
-         */
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('registration'));
+        //  Устанавливаем title страницы
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('registration'));
     }
 
     /**
@@ -77,29 +69,24 @@ class ActionRegistration extends Action {
      * Ajax валидация формы регистрации
      */
     protected function EventAjaxValidateFields() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
-        $this->Viewer_SetResponseAjax('json');
-        /**
-         * Создаем объект пользователя и устанавливаем сценарий валидации
-         */
-        $oUser = Engine::GetEntity('ModuleUser_EntityUser');
+
+        // * Устанавливаем формат Ajax ответа
+        E::ModuleViewer()->SetResponseAjax('json');
+
+        // * Создаем объект пользователя и устанавливаем сценарий валидации
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::GetEntity('ModuleUser_EntityUser');
         $oUser->_setValidateScenario('registration');
-        /**
-         * Пробегаем по переданным полям/значениям и валидируем их каждое в отдельности
-         */
-        $aFields = getRequest('fields');
+        //  Пробегаем по переданным полям/значениям и валидируем их каждое в отдельности
+        $aFields = F::GetRequest('fields');
         if (is_array($aFields)) {
             foreach ($aFields as $aField) {
                 if (isset($aField['field']) && isset($aField['value'])) {
-                    $this->Hook_Run('registration_validate_field', array('aField' => &$aField, 'oUser' => &$oUser));
+                    E::ModuleHook()->Run('registration_validate_field', array('aField' => &$aField, 'oUser' => &$oUser));
 
                     $sField = $aField['field'];
                     $sValue = $aField['value'];
-                    /**
-                     * Список полей для валидации
-                     */
+                    //  Список полей для валидации
                     switch ($sField) {
                         case 'login':
                             $oUser->setLogin($sValue);
@@ -123,21 +110,15 @@ class ActionRegistration extends Action {
                             continue;
                             break;
                     }
-                    /**
-                     * Валидируем поле
-                     */
+                    //  Валидируем поле
                     $oUser->_Validate(array($sField), false);
                 }
             }
         }
-        /**
-         * Возникли ошибки?
-         */
+        //  Возникли ошибки?
         if ($oUser->_hasValidateErrors()) {
-            /**
-             * Получаем ошибки
-             */
-            $this->Viewer_AssignAjax('aErrors', $oUser->_getValidateErrors());
+            //  Получаем ошибки
+            E::ModuleViewer()->AssignAjax('aErrors', $oUser->_getValidateErrors());
         }
     }
 
@@ -145,102 +126,98 @@ class ActionRegistration extends Action {
      * Обработка Ajax регистрации
      */
     protected function EventAjaxRegistration() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
-        $this->Viewer_SetResponseAjax('json');
 
-        $this->Security_ValidateSendForm();
-        /**
-         * Создаем объект пользователя и устанавливаем сценарий валидации
-         */
-        $oUser = Engine::GetEntity('ModuleUser_EntityUser');
+        // * Устанавливаем формат Ajax ответа
+        E::ModuleViewer()->SetResponseAjax('json');
+
+        E::ModuleSecurity()->ValidateSendForm();
+
+        // * Создаем объект пользователя и устанавливаем сценарий валидации
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::GetEntity('ModuleUser_EntityUser');
         $oUser->_setValidateScenario('registration');
-        /**
-         * Заполняем поля (данные)
-         */
-        $oUser->setLogin(getRequestPostStr('login'));
-        $oUser->setMail(getRequestPostStr('mail'));
-        $oUser->setPassword(getRequestPostStr('password'));
-        $oUser->setPasswordConfirm(getRequestPostStr('password_confirm'));
-        $oUser->setCaptcha(getRequestPostStr('captcha'));
+
+        // * Заполняем поля (данные)
+        $oUser->setLogin($this->GetPost('login'));
+        $oUser->setMail($this->GetPost('mail'));
+        $oUser->setPassword($this->GetPost('password'));
+        $oUser->setPasswordConfirm($this->GetPost('password_confirm'));
+        $oUser->setCaptcha($this->GetPost('captcha'));
         $oUser->setDateRegister(F::Now());
         $oUser->setIpRegister(F::GetUserIp());
-        /**
-         * Если используется активация, то генерим код активации
-         */
+
+        // * Если используется активация, то генерим код активации
         if (Config::Get('general.reg.activation')) {
             $oUser->setActivate(0);
-            $oUser->setActivateKey(F::RandomStr());
+            $oUser->setActivationKey(F::RandomStr());
         } else {
             $oUser->setActivate(1);
-            $oUser->setActivateKey(null);
+            $oUser->setActivationKey(null);
         }
-        $this->Hook_Run('registration_validate_before', array('oUser' => $oUser));
-        /**
-         * Запускаем валидацию
-         */
+        E::ModuleHook()->Run('registration_validate_before', array('oUser' => $oUser));
+
+        // * Запускаем валидацию
         if ($oUser->_Validate()) {
-            $this->Hook_Run('registration_validate_after', array('oUser' => $oUser));
+            // Сбросим капчу // issue#342.
+            E::ModuleSession()->Drop(E::ModuleCaptcha()->GetKeyName());
+
+            E::ModuleHook()->Run('registration_validate_after', array('oUser' => $oUser));
             $oUser->setPassword($oUser->getPassword(), true);
-            if ($this->User_Add($oUser)) {
-                $this->Hook_Run('registration_after', array('oUser' => $oUser));
-                /**
-                 * Убиваем каптчу
-                 */
-                $this->Session_Drop('captcha_keystring');
-                /**
-                 * Подписываем пользователя на дефолтные события в ленте активности
-                 */
-                $this->Stream_SwitchUserEventDefaultTypes($oUser->getId());
-                /**
-                 * Если юзер зарегистрировался по приглашению то обновляем инвайт
-                 */
-                if (Config::Get('general.reg.invite')
-                    && $oInvite = $this->User_GetInviteByCode($this->GetInviteRegister())
-                ) {
+            if ($this->_addUser($oUser)) {
+                E::ModuleHook()->Run('registration_after', array('oUser' => $oUser));
+
+                // * Подписываем пользователя на дефолтные события в ленте активности
+                E::ModuleStream()->SwitchUserEventDefaultTypes($oUser->getId());
+
+                // * Если юзер зарегистрировался по приглашению то обновляем инвайт
+                if (Config::Get('general.reg.invite') && ($oInvite = E::ModuleUser()->GetInviteByCode($this->GetInviteRegister()))) {
                     $oInvite->setUserToId($oUser->getId());
                     $oInvite->setDateUsed(F::Now());
                     $oInvite->setUsed(1);
-                    $this->User_UpdateInvite($oInvite);
+                    E::ModuleUser()->UpdateInvite($oInvite);
                 }
-                /**
-                 * Если стоит регистрация с активацией то проводим её
-                 */
+
+                // * Если стоит регистрация с активацией то проводим её
                 if (Config::Get('general.reg.activation')) {
-                    /**
-                     * Отправляем на мыло письмо о подтверждении регистрации
-                     */
-                    $this->Notify_SendRegistrationActivate($oUser, getRequestStr('password'));
-                    $this->Viewer_AssignAjax('sUrlRedirect', Router::GetPath('registration') . 'confirm/');
+                    // * Отправляем на мыло письмо о подтверждении регистрации
+                    E::ModuleNotify()->SendRegistrationActivate($oUser, F::GetRequestStr('password'));
+                    E::ModuleViewer()->AssignAjax('sUrlRedirect', R::GetPath('registration') . 'confirm/');
                 } else {
-                    $this->Notify_SendRegistration($oUser, getRequestStr('password'));
-                    $oUser = $this->User_GetUserById($oUser->getId());
-                    /**
-                     * Сразу авторизуем
-                     */
-                    $this->User_Authorization($oUser, false);
+                    E::ModuleNotify()->SendRegistration($oUser, F::GetRequestStr('password'));
+                    $oUser = E::ModuleUser()->GetUserById($oUser->getId());
+
+                    // * Сразу авторизуем
+                    E::ModuleUser()->Authorization($oUser, false);
                     $this->DropInviteRegister();
-                    /**
-                     * Определяем URL для редиректа после авторизации
-                     */
+
+                    // * Определяем URL для редиректа после авторизации
                     $sUrl = Config::Get('module.user.redirect_after_registration');
-                    if (getRequestStr('return-path')) {
-                        $sUrl = getRequestStr('return-path');
+                    if (F::GetRequestStr('return-path')) {
+                        $sUrl = F::GetRequestStr('return-path');
                     }
-                    $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
-                    $this->Message_AddNoticeSingle($this->Lang_Get('registration_ok'));
+                    E::ModuleViewer()->AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
+                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('registration_ok'));
                 }
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
                 return;
             }
         } else {
-            /**
-             * Получаем ошибки
-             */
-            $this->Viewer_AssignAjax('aErrors', $oUser->_getValidateErrors());
+            // * Получаем ошибки
+            E::ModuleViewer()->AssignAjax('aErrors', $oUser->_getValidateErrors());
         }
+    }
+
+    /**
+     * Add new user
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool|ModuleUser_EntityUser
+     */
+    protected function _addUser($oUser) {
+
+        return E::ModuleUser()->Add($oUser);
     }
 
     /**
@@ -257,54 +234,56 @@ class ActionRegistration extends Action {
     protected function EventActivate() {
 
         $bError = false;
-        /**
-         * Проверяет передан ли код активации
-         */
+
+        // * Проверяет передан ли код активации
         $sActivateKey = $this->GetParam(0);
         if (!F::CheckVal($sActivateKey, 'md5')) {
             $bError = true;
         }
-        /**
-         * Проверяет верный ли код активации
-         */
-        if (!($oUser = $this->User_GetUserByActivateKey($sActivateKey))) {
+
+        // * Проверяет верный ли код активации
+        if (!($oUser = E::ModuleUser()->GetUserByActivationKey($sActivateKey))) {
             $bError = true;
         }
-        /**
-         *
-         */
-        if ($oUser && $oUser->getActivate()) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('registration_activate_error_reactivate'), $this->Lang_Get('error')
+
+        // * User is already activated
+        if ($oUser && $oUser->isActivated()) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('registration_activate_error_reactivate'), E::ModuleLang()->Get('error')
             );
-            return Router::Action('error');
+            return R::Action('error');
         }
-        /**
-         * Если что то не то
-         */
+
+        // * Если что то не то
         if ($bError) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('registration_activate_error_code'), $this->Lang_Get('error')
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('registration_activate_error_code'), E::ModuleLang()->Get('error')
             );
-            return Router::Action('error');
+            return R::Action('error');
         }
-        /**
-         * Активируем
-         */
-        $oUser->setActivate(1);
-        $oUser->setDateActivate(F::Now());
-        /**
-         * Сохраняем юзера
-         */
-        if ($this->User_Update($oUser)) {
+
+        // * Активируем
+        if ($this->_activateUser($oUser)) {
             $this->DropInviteRegister();
-            $this->Viewer_Assign('bRefreshToHome', true);
-            $this->User_Authorization($oUser, false);
+            E::ModuleViewer()->Assign('bRefreshToHome', true);
+            E::ModuleUser()->Authorization($oUser, false);
             return;
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-            return Router::Action('error');
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            return R::Action('error');
         }
+    }
+
+    /**
+     * Activate user
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    protected function _activateUser($oUser) {
+
+        return E::ModuleUser()->Activate($oUser);
     }
 
     /**
@@ -316,26 +295,22 @@ class ActionRegistration extends Action {
         if (!Config::Get('general.reg.invite')) {
             return parent::EventNotFound();
         }
-        /**
-         * Обработка отправки формы с кодом приглашения
-         */
-        if (isPost('submit_invite')) {
-            /**
-             * проверяем код приглашения на валидность
-             */
+        //  Обработка отправки формы с кодом приглашения
+        if (F::isPost('submit_invite')) {
+            //  проверяем код приглашения на валидность
             if ($this->CheckInviteRegister()) {
-                $sInviteId = $this->GetInviteRegister();
+                $sInviteCode = $this->GetInviteRegister();
             } else {
-                $sInviteId = getRequestStr('invite_code');
+                $sInviteCode = trim(F::GetRequestStr('invite_code'));
             }
-            $oInvate = $this->User_GetInviteByCode($sInviteId);
-            if ($oInvate) {
+            $oInvite = E::ModuleUser()->GetInviteByCode($sInviteCode);
+            if ($oInvite) {
                 if (!$this->CheckInviteRegister()) {
-                    $this->Session_Set('invite_code', $oInvate->getCode());
+                    E::ModuleSession()->Set('invite_code', $oInvite->getCode());
                 }
-                return Router::Action('registration');
+                return R::Action('registration');
             } else {
-                $this->Message_AddError($this->Lang_Get('registration_invite_code_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('registration_invite_code_error'), E::ModuleLang()->Get('error'));
             }
         }
     }
@@ -347,7 +322,7 @@ class ActionRegistration extends Action {
      */
     protected function CheckInviteRegister() {
 
-        if ($this->Session_Get('invite_code')) {
+        if (E::ModuleSession()->Get('invite_code')) {
             return true;
         }
         return false;
@@ -360,7 +335,7 @@ class ActionRegistration extends Action {
      */
     protected function GetInviteRegister() {
 
-        return $this->Session_Get('invite_code');
+        return E::ModuleSession()->Get('invite_code');
     }
 
     /**
@@ -369,7 +344,7 @@ class ActionRegistration extends Action {
     protected function DropInviteRegister() {
 
         if (Config::Get('general.reg.invite')) {
-            $this->Session_Drop('invite_code');
+            E::ModuleSession()->Drop('invite_code');
         }
     }
 

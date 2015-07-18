@@ -15,73 +15,84 @@
 
 /**
  * @package actions
- * @since 0.9
+ * @since   0.9
  */
-
 class ActionPage extends Action {
 
-	public function Init() {
-	}
-	/**
-	 * Регистрируем евенты
-	 *
-	 */
-	protected function RegisterEvent() {
-		$this->AddEventPreg('/^[\w\-\_]*$/i','EventShowPage');
-	}
+    protected $oCurrentPage;
+
+    public function Init() {
+    }
+
+    /**
+     * Регистрируем евенты
+     *
+     */
+    protected function RegisterEvent() {
+
+        $this->AddEventPreg('/^[\w\-\_]*$/i', 'EventShowPage');
+    }
 
 
-	/**********************************************************************************
-	 ************************ РЕАЛИЗАЦИЯ ЭКШЕНА ***************************************
-	 **********************************************************************************
-	 */
+    /**********************************************************************************
+     ************************ РЕАЛИЗАЦИЯ ЭКШЕНА ***************************************
+     **********************************************************************************
+     */
 
-	/**
-	 * Отображение страницы
-	 *
-	 * @return unknown
-	 */
-	protected function EventShowPage() {
-		if (!$this->sCurrentEvent) {
-			/**
-			 * Показывает дефолтную страницу
-			 */
-			//а это какая страница?
-		}
-		/**
-		 * Составляем полный URL страницы для поиска по нему в БД
-		 */
-		$sUrlFull=join('/',$this->GetParams());
-		if ($sUrlFull!='') {
-			$sUrlFull=$this->sCurrentEvent.'/'.$sUrlFull;
-		} else {
-			$sUrlFull=$this->sCurrentEvent;
-		}
-		/**
-		 * Ищем страничку в БД
-		 */
-		if (!($oPage=$this->Page_GetPageByUrlFull($sUrlFull,1))) {
-			return $this->EventNotFound();
-		}
-		/**
-		 * Заполняем HTML теги и SEO
-		 */
-		$this->Viewer_AddHtmlTitle($oPage->getTitle());
-		if ($oPage->getSeoKeywords()) {
-			$this->Viewer_SetHtmlKeywords($oPage->getSeoKeywords());
-		}
-		if ($oPage->getSeoDescription()) {
-			$this->Viewer_SetHtmlDescription($oPage->getSeoDescription());
-		}
+    /**
+     * Returns page by requested URL
+     *
+     * @return ModulePage_EntityPage
+     */
+    protected function _getPageFromUrl() {
 
-		$this->Viewer_Assign('oPage',$oPage);
-		/**
-		 * Устанавливаем шаблон для вывода
-		 */
-		$this->SetTemplateAction('page');
-	}
+        // * Составляем полный URL страницы для поиска по нему в БД
+        $sUrlFull = join('/', $this->GetParams());
+        if ($sUrlFull != '') {
+            $sUrlFull = $this->sCurrentEvent . '/' . $sUrlFull;
+        } else {
+            $sUrlFull = $this->sCurrentEvent;
+        }
 
-	
-	
+        // * Ищем страницу в БД
+        $oPage = E::ModulePage()->GetPageByUrlFull($sUrlFull, 1);
+
+        return $oPage;
+    }
+
+    /**
+     * Отображение страницы
+     *
+     * @return mixed
+     */
+    protected function EventShowPage() {
+
+        if (!$this->sCurrentEvent) {
+            // * Показывает дефолтную страницу (а это какая страница?)
+        }
+
+        $this->oCurrentPage = $this->_getPageFromUrl();
+
+        if (!$this->oCurrentPage) {
+            return $this->EventNotFound();
+        }
+
+        // * Заполняем HTML теги и SEO
+        E::ModuleViewer()->AddHtmlTitle($this->oCurrentPage->getTitle());
+        if ($this->oCurrentPage->getSeoKeywords()) {
+            E::ModuleViewer()->SetHtmlKeywords($this->oCurrentPage->getSeoKeywords());
+        }
+        if ($this->oCurrentPage->getSeoDescription()) {
+            E::ModuleViewer()->SetHtmlDescription($this->oCurrentPage->getSeoDescription());
+        }
+
+        E::ModuleViewer()->Assign('oPage', $this->oCurrentPage);
+
+        // * Устанавливаем шаблон для вывода
+        $this->SetTemplateAction('show');
+    }
+
+
 }
-?>
+
+// EOF

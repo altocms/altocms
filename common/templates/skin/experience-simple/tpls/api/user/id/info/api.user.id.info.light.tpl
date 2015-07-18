@@ -1,0 +1,1 @@
+<div>{$oUser->getLogin()}</div>

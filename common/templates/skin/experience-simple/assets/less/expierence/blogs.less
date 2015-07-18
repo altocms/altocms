@@ -1,0 +1,110 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.blogs-list {
+
+    a {
+        display: block !important;
+    }
+}
+
+.blogs-table {
+
+    th {
+
+        i {
+            font-size: @font-size-base;
+        }
+    }
+
+    td.blog-logo {
+        padding-right: 12px;
+        width: 48px;
+
+        div.blog-logo {
+            text-align: center;
+
+            img {
+                width: 45px;
+            }
+
+            i {
+                color: @color-85;
+                font-size: 48px;
+                line-height: 36px;
+            }
+        }
+
+        div.blog-more {
+            text-align: center;
+            line-height: 12px;
+
+            i {
+                color: @color-85;
+                font-size: 24px;
+                line-height: 12px;
+
+                &:hover, &.active {
+                    color: @color-50;
+                }
+            }
+        }
+    }
+
+    td.blog-name {
+        font-size: 15px;
+        font-family: @font-family-sans-serif;
+        line-height: 20px;
+//        padding-bottom: 6px;
+
+    }
+
+    .blog-description {
+        font-size: @font-size-base;
+        line-height: 18px;
+        color: @color-11;
+//        width: 50%;
+        font-weight: 400;
+    }
+
+    div.blog-description.hidden-lg {
+        width: 100%;
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
+
+    .blog-options {
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: top;
+        line-height: 14px;
+        padding: 0 12px;
+
+
+        i {
+            margin-right: 4px;
+        }
+        a.link-dark i {
+            color: @color-30;
+            margin-right: 2px;
+        }
+    }
+
+    .blog-peoples {
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: top;
+        color: @color-30;
+        line-height: 26px;
+        padding: 0 12px;
+    }
+
+    .rating-value {
+        vertical-align: top;
+        line-height: 26px;
+        padding: 0 12px;
+    }
+
+}

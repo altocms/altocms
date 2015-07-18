@@ -69,7 +69,7 @@ class AltoFunc_File {
      */
     static public function RootDir() {
 
-        if (class_exists('Config', false)) {
+        if (class_exists('Config', false) && Config::Get('path.root.dir')) {
             $sDir = Config::Get('path.root.dir');
         } elseif (defined('ALTO_DIR')) {
             $sDir = ALTO_DIR;
@@ -94,8 +94,7 @@ class AltoFunc_File {
      */
     static public function RootUrl($xAddLang = false) {
 
-        if (class_exists('Config', false)) {
-            $sUrl = Config::Get('path.root.url');
+        if (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
 
             // Если требуется, то добавляем в URL язык
             if ($xAddLang && Config::Get('lang.in_url') && class_exists('Router', false)) {
@@ -104,14 +103,14 @@ class AltoFunc_File {
                     $sLang = $xAddLang;
                 } else {
                     // иначе язык берем из роутера
-                    $sLang = Router::GetLang();
+                    $sLang = R::GetLang();
                 }
                 if ($sLang) {
-                    $sUrl = self::NormPath($sUrl . '/' . $sLang . '/');
+                    $sUrl = static::NormPath($sUrl . '/' . $sLang . '/');
                 }
             }
         } elseif (isset($_SERVER['HTTP_HOST'])) {
-            $sUrl = 'http://' . $_SERVER['HTTP_HOST'];
+            $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
         } else {
             $sUrl = null;
         }
@@ -122,8 +121,32 @@ class AltoFunc_File {
     }
 
     /**
+     * @return array
+     */
+    static public function RootUrlAliases() {
+
+        $aResult = array(static::RootUrl());
+        if (class_exists('Config', false)) {
+            if ($aAliases = Config::Get('path.root.aliases')) {
+                if (!is_array($aAliases)) {
+                    $aAliases = array((string)$aAliases);
+                    if ($sScheme = parse_url($aResult[0], PHP_URL_SCHEME)) {
+                        foreach($aAliases as $n => $sAliasUrl) {
+                            if (!parse_url($sAliasUrl, PHP_URL_SCHEME)) {
+                                $aAliases[$n] = $sScheme . '://' . $sAliasUrl;
+                            }
+                        }
+                    }
+                }
+                $aResult = array_unique(array_merge($aResult, $aAliases));
+            }
+        }
+        return $aResult;
+    }
+
+    /**
      * Нормализует путь к файлу, приводя все слеши (прямой и обратный) к одному виду,
-     * по умолчанию - у прямому слешу
+     * по умолчанию - к прямому слешу
      *
      * @param string|array $sPath
      * @param string|null  $sSeparator
@@ -145,7 +168,7 @@ class AltoFunc_File {
         if (is_array($sPath)) {
             $aResult = array();
             foreach ($sPath as $sKey => $s) {
-                $aResult[$sKey] = self::NormPath($s, $sSeparator);
+                $aResult[$sKey] = static::NormPath($s, $sSeparator);
             }
             return $aResult;
         }
@@ -171,7 +194,14 @@ class AltoFunc_File {
         while (strpos($sPath, $sSeparator . $sSeparator)) {
             $sPath = str_replace($sSeparator . $sSeparator, $sSeparator, $sPath);
         }
-        return $sPrefix . $sPath;
+        $sResult = $sPrefix . $sPath;
+        if (DIRECTORY_SEPARATOR == '\\' && strlen($sResult) > 2) {
+            // First symbol in Windows is a disk
+            if ($sResult[1] == ':' && $sResult[0] >= 'a' && $sResult[0] <= 'z') {
+                $sResult = ucfirst($sResult);
+            }
+        }
+        return $sResult;
     }
 
     /**
@@ -186,7 +216,7 @@ class AltoFunc_File {
      */
     static public function CheckLocalDir($sLocalDir, $bAutoMake = true, $nMask = 0755) {
 
-        return F::File_CheckDir(F::File_RootDir() . '/' . $sLocalDir, $bAutoMake, $nMask);
+        return static::CheckDir(static::RootDir() . '/' . $sLocalDir, $bAutoMake, $nMask);
     }
 
     /**
@@ -220,12 +250,12 @@ class AltoFunc_File {
     static public function RemoveDir($sDir) {
 
         if (is_dir($sDir)) {
-            $sPath = rtrim(self::NormPath($sDir), '/') . '/';
+            $sPath = rtrim(static::NormPath($sDir), '/') . '/';
 
-            if (($aFiles = self::ReadDir($sPath, GLOB_MARK))) {
+            if (($aFiles = static::ReadDir($sPath, GLOB_MARK))) {
                 foreach ($aFiles as $sFile) {
                     if (is_dir($sFile)) {
-                        self::RemoveDir($sFile);
+                        static::RemoveDir($sFile);
                     } else {
                         @unlink($sFile);
                     }
@@ -251,25 +281,25 @@ class AltoFunc_File {
         $bResult = true;
         if (is_array($xDir)) {
             foreach($xDir as $sDir) {
-                $bResult = $bResult && self::ClearDir($sDir, $bSafe);
+                $bResult = $bResult && static::ClearDir($sDir, $bSafe);
             }
             return $bResult;
         } else {
             $sDir = (string)$xDir;
         }
-        $sDir = self::NormPath($sDir);
+        $sDir = static::NormPath($sDir);
         if (substr($sDir, -1) != '/') {
             $sDir .= '/';
         }
-        if (is_dir($sDir) && ($aFiles = self::ReadDir($sDir))) {
+        if (is_dir($sDir) && ($aFiles = static::ReadDir($sDir))) {
             foreach ($aFiles as $sFile) {
                 // delete all files except started with 'dot'
                 if (substr(basename($sFile), 0, 1) != '.') {
                     if (is_dir($sFile)) {
                         if ($bSafe) {
-                            $bResult = $bResult && self::ClearDir($sFile, $bSafe);
+                            $bResult = $bResult && static::ClearDir($sFile, $bSafe);
                         } else {
-                            $bResult = $bResult && self::RemoveDir($sFile);
+                            $bResult = $bResult && static::RemoveDir($sFile);
                         }
                     } else {
                         $bResult = ($bResult && @unlink($sFile));
@@ -281,6 +311,32 @@ class AltoFunc_File {
     }
 
     /**
+     * Excludes special names "." and ".." from files/dirs array
+     *
+     * @param array $aDirs
+     *
+     * @return mixed
+     */
+    static protected function _excludeDotted($aDirs) {
+
+        if (!$aDirs || !is_array($aDirs)) {
+            return $aDirs;
+        }
+
+        // исключаем из выдачи '.' и '..'
+        $nCnt = 0;
+        foreach ($aDirs as $n => $sFile) {
+            if (basename($sFile) == '.' || basename($sFile) == '..') {
+                unset($aDirs[$n]);
+                if (++$nCnt > 1) {
+                    // исключаем лишние циклы
+                    return $aDirs;
+                }
+            }
+        }
+    }
+
+    /**
      * Возвращает содержимое папки, в т.ч. и скрытые файлы и подпапки
      *
      * @param string $sDir
@@ -289,38 +345,75 @@ class AltoFunc_File {
      *
      * @return array
      */
-    static function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
+    static public function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
 
-        if (substr($sDir, -1) == '*') {
-            $sDir = substr($sDir, 0, strlen($sDir) - 1);
-        }
-        $aResult = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE);
-        // исключаем из выдачи '.' и '..'
-        $nCnt = 0;
-        foreach ($aResult as $n => $sFile) {
-            if (basename($sFile) == '.' || basename($sFile) == '..') {
-                unset($aResult[$n]);
-                if (++$nCnt > 1) {
-                    break;
-                } // исключаем лишние циклы
-            }
+        if (substr($sDir, -2) == '/*') {
+            $sMask = '*';
+            $sDir = substr($sDir, 0, strlen($sDir) - 2);
+        } elseif ((substr($sDir, -1) != '/') && (substr(basename($sDir), 0, 2) == '*.')) {
+            $sMask = basename($sDir);
+            $sDir = dirname($sDir);
+        } else {
+            $sMask = '*';
         }
 
-        if ($bRecursively) {
-            if ($nFlag & GLOB_ONLYDIR) {
-                $aSubDirs = $aResult;
-            } else {
-                $aSubDirs = self::ReadDir($sDir, GLOB_ONLYDIR);
-            }
-            if ($aSubDirs) {
-                foreach ($aSubDirs as $sSubDir) {
-                    if ($aSubResult = self::ReadDir($sSubDir, $nFlag)) {
-                        $aResult = array_merge($aResult, $aSubResult);
-                    }
+        if ($bRecursively || ($nFlag & GLOB_ONLYDIR)) {
+            $aSubDirs = glob($sDir . ((substr($sDir, -1) !== '/') ? '/' : '') . '{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
+            // исключаем из выдачи '.' и '..'
+            $aSubDirs = static::_excludeDotted($aSubDirs);
+        } else {
+            $aSubDirs = array();
+        }
+
+        if ($nFlag & GLOB_ONLYDIR && !$bRecursively) {
+            return $aSubDirs;
+        }
+
+        if (substr($sDir, -1) != '/') {
+            $sDir .= '/';
+        }
+        if (substr($sMask, 0, 1) == '*') {
+            $aResult = glob($sDir . '{,.}' . $sMask, $nFlag | GLOB_BRACE);
+        } else {
+            $aResult = glob($sDir . $sMask, $nFlag | GLOB_BRACE);
+        }
+        $aResult = static::_excludeDotted($aResult);
+
+        if ($bRecursively && $aSubDirs) {
+            foreach ($aSubDirs as $sSubDir) {
+                if ($aSubResult = static::ReadDir($sSubDir . '/' . $sMask, $nFlag, $bRecursively)) {
+                    $aResult = array_merge($aResult, $aSubResult);
                 }
             }
         }
         return $aResult;
+    }
+
+    /**
+     * Returns files only (exludes directories)
+     *
+     * @param      $sDir
+     * @param int  $nFlag
+     * @param bool $bRecursively
+     *
+     * @return array
+     */
+    static public function ReadFileList($sDir, $nFlag = 0, $bRecursively = false) {
+
+        if ($nFlag & GLOB_ONLYDIR) {
+            return array();
+        }
+        $sDir = str_replace('\\', '/', $sDir);
+        if (substr($sDir, -1) == '/') {
+            $sDir .= '*';
+        }
+        $aFileList = static::ReadDir($sDir, $nFlag, $bRecursively);
+        foreach ($aFileList as $nKey => $sFile) {
+            if (is_dir($sFile)) {
+                unset($aFileList[$nKey]);
+            }
+        }
+        return $aFileList;
     }
 
     /**
@@ -331,19 +424,20 @@ class AltoFunc_File {
      *
      * @return bool
      */
-    static function CopyDir($sDirSrc, $sDirTrg) {
+    static public function CopyDir($sDirSrc, $sDirTrg) {
 
-        $aSource = self::ReadDir($sDirSrc, 0, true);
+        $sDirTrg = static::NormPath($sDirTrg . '/');
+        $aSource = static::ReadDir($sDirSrc, 0, true);
         foreach ($aSource as $sSource) {
-            $sTarget = self::LocalPath($sSource, $sDirSrc);
+            $sTarget = static::LocalPath($sSource, $sDirSrc);
             if ($sTarget) {
                 if (is_file($sSource)) {
-                    $bResult = self::Copy($sSource, $sDirTrg . $sTarget);
+                    $bResult = static::Copy($sSource, $sDirTrg . $sTarget);
                     if (!$bResult) {
                         return false;
                     }
                 } elseif (is_dir($sSource)) {
-                    $bResult = self::CheckDir($sDirTrg . $sTarget);
+                    $bResult = static::CheckDir($sDirTrg . $sTarget);
                     if (!$bResult) {
                         return false;
                     }
@@ -361,17 +455,17 @@ class AltoFunc_File {
      *
      * @return string
      */
-    static public function Url2Dir($sUrl, $sSeparator = null) {
+    static public function Url2Dir($sUrl, $sSeparator = '/') {
 
         // * Delete www from path
         $sUrl = str_replace('//www.', '//', $sUrl);
         if ($nPos = strpos($sUrl, '?')) {
             $sUrl = substr($sUrl, 0, $nPos);
         }
-        $sPathWeb = str_replace('//www.', '//', F::File_RootUrl());
+        $sPathWeb = str_replace('//www.', '//', static::RootUrl());
         // * do replace
-        $sDir = str_replace($sPathWeb, F::File_RootDir(), $sUrl);
-        return F::File_NormPath($sDir, $sSeparator);
+        $sDir = str_replace($sPathWeb, static::RootDir(), $sUrl);
+        return static::NormPath($sDir, $sSeparator);
     }
 
     /**
@@ -383,10 +477,10 @@ class AltoFunc_File {
      */
     static public function Dir2Url($sDir) {
 
-        return F::File_NormPath(
+        return static::NormPath(
             str_replace(
-                str_replace(DIRECTORY_SEPARATOR, '/', F::File_RootDir()),
-                F::File_RootUrl(),
+                str_replace(DIRECTORY_SEPARATOR, '/', static::RootDir()),
+                static::RootUrl(),
                 str_replace(DIRECTORY_SEPARATOR, '/', $sDir)
             ), '/'
         );
@@ -396,20 +490,51 @@ class AltoFunc_File {
      * Из абсолютного пути выделяет относительный (локальный) относительно рута
      *
      * @param string $sPath
-     * @param string $sRoot
+     * @param string|array $xRoot
      *
-     * @return string
+     * @return string|bool
      */
-    static public function LocalPath($sPath, $sRoot) {
+    static public function LocalPath($sPath, $xRoot) {
 
+        $xResult = false;
+        if (is_array($xRoot)) {
+            foreach ($xRoot as $sRoot) {
+                $xResult = static::LocalPath($sPath, $sRoot);
+                if ($xResult) {
+                    return $xResult;
+                }
+            }
+            return $xResult;
+        } else {
+            $sRoot = (string)$xRoot;
+        }
         if ($sPath && $sRoot) {
-            $sPath = F::File_NormPath($sPath);
-            $sRoot = F::File_NormPath($sRoot);
-            if (strpos($sPath, $sRoot) === 0) {
-                return substr($sPath, strlen($sRoot));
+            $sPath = static::NormPath($sPath);
+            $sRoot = static::NormPath($sRoot . '/');
+            if (DIRECTORY_SEPARATOR == '\\') {
+                // case-insensitive in Windows
+                if (stripos($sPath, $sRoot) === 0 || stripos($sPath . '/', $sRoot) === 0) {
+                    return substr($sPath, strlen($sRoot));
+                }
+            } else {
+                if (strpos($sPath, $sRoot) === 0 || strpos($sPath . '/', $sRoot) === 0) {
+                    return substr($sPath, strlen($sRoot));
+                }
             }
         }
-        return false;
+        return $xResult;
+    }
+
+    static public function LocalPathUrl($sPath, $xRoot, $bSaveParams = false) {
+
+        if (!$bSaveParams) {
+            if ($iPos = strpos($sPath, '?')) {
+                $sPath = substr($sPath, 0, $iPos);
+            } elseif (($iPos = strpos($sPath, '#'))) {
+                $sPath = substr($sPath, 0, $iPos);
+            }
+        }
+        return static::LocalPath($sPath, $xRoot);
     }
 
     /**
@@ -417,23 +542,33 @@ class AltoFunc_File {
      *
      * @param string $sPath
      *
-     * @return string
+     * @return string|bool
      */
     static public function LocalDir($sPath) {
 
-        return self::LocalPath($sPath, self::RootDir());
+        return static::LocalPath($sPath, static::RootDir());
     }
 
     /**
      * Из абсолютного URL выделяет локальный относительно корневого URL проекта
      *
      * @param string $sPath
+     * @param bool   $bCheckAliases
+     * @param bool   $bSaveParams
      *
-     * @return string
+     * @return string|bool
      */
-    static public function LocalUrl($sPath) {
+    static public function LocalUrl($sPath, $bCheckAliases = true, $bSaveParams = false) {
 
-        return self::LocalPath($sPath, self::RootUrl());
+        if (!$sPath) {
+            return null;
+        } elseif (strlen($sPath) > 1 && $sPath[0] == '/' && $sPath[1] != '/') {
+            return $sPath;
+        }
+        if ($bCheckAliases) {
+            return static::LocalPath($sPath, static::RootUrlAliases(), $bSaveParams);
+        }
+        return static::LocalPath($sPath, static::RootUrl(), $bSaveParams);
     }
 
     /**
@@ -445,7 +580,7 @@ class AltoFunc_File {
      */
     static public function IsLocalDir($sPath) {
 
-        return (bool)self::LocalDir($sPath);
+        return (bool)static::LocalDir($sPath);
     }
 
     /**
@@ -457,7 +592,7 @@ class AltoFunc_File {
      */
     static public function IsLocalUrl($sPath) {
 
-        return (bool)self::LocalUrl($sPath);
+        return (bool)static::LocalUrl($sPath);
     }
 
     /**
@@ -480,13 +615,13 @@ class AltoFunc_File {
         $xResult = false;
         if (!$aDirs) {
             if (is_file($sFile)) {
-                $xResult = self::NormPath($sFile);
+                $xResult = static::NormPath($sFile);
             }
         } elseif (!is_array($aDirs)) {
-            return F::File_Exists((string)$aDirs . '/' . $sFile);
+            return static::Exists((string)$aDirs . '/' . $sFile);
         } else {
             foreach ($aDirs as $sDir) {
-                $sResult = F::File_Exists($sFile, (string)$sDir);
+                $sResult = static::Exists($sFile, (string)$sDir);
                 if ($sResult) {
                     $xResult = $sResult;
                     break;
@@ -507,10 +642,10 @@ class AltoFunc_File {
      */
     static public function Copy($sSource, $sTarget, $bRewrite = false) {
 
-        if (F::File_Exists($sTarget) && !$bRewrite) {
+        if (static::Exists($sTarget) && !$bRewrite) {
             return false;
         }
-        if (F::File_Exists($sSource) && F::File_CheckDir(dirname($sTarget))) {
+        if (static::Exists($sSource) && static::CheckDir(dirname($sTarget))) {
             $bResult = @copy($sSource, $sTarget);
             if (!$bResult) {
                 F::SysWarning('Can not copy file from "' . $sSource . '" to "' . $sTarget . '"');
@@ -532,7 +667,7 @@ class AltoFunc_File {
      */
     static public function Delete($sFile, $bRecursively = false, $bNoCheck = false) {
 
-        if (F::File_Exists($sFile) || $bNoCheck) {
+        if (static::Exists($sFile) || $bNoCheck) {
             $bResult = @unlink($sFile);
         } else {
             $bResult = true;
@@ -554,7 +689,7 @@ class AltoFunc_File {
      *
      * @return bool
      */
-    static function DeleteAs($sPattern, $bRecursively = false, $bNoCheck = false) {
+    static public function DeleteAs($sPattern, $bRecursively = false, $bNoCheck = false) {
 
         $bResult = true;
         $aFiles = glob($sPattern);
@@ -593,7 +728,7 @@ class AltoFunc_File {
      */
     static public function GetContents($sFile) {
 
-        if (F::File_Exists($sFile)) {
+        if (static::Exists($sFile)) {
             return file_get_contents($sFile);
         }
         return false;
@@ -610,7 +745,7 @@ class AltoFunc_File {
      */
     static public function PutContents($sFile, $sData, $nFlags = 0) {
 
-        if (F::File_CheckDir(dirname($sFile))) {
+        if ($sFile && static::CheckDir(dirname($sFile))) {
             return file_put_contents($sFile, $sData, $nFlags);
         }
         return false;
@@ -664,7 +799,7 @@ class AltoFunc_File {
                  'extension' => '',
                  'params'    => '',
             ),
-            pathinfo(F::File_NormPath($sPath))
+            pathinfo(static::NormPath($sPath))
         );
         $n = strpos($aResult['extension'], '?');
         if ($n !== false) {
@@ -710,13 +845,14 @@ class AltoFunc_File {
      * Возвращает расширение файла из переданного полного пути
      *
      * @param string $sPath
+     * @param bool   $bToLower
      *
      * @return string
      */
-    static public function GetExtension($sPath) {
+    static public function GetExtension($sPath, $bToLower = false) {
 
-        $aInfo = self::PathInfo($sPath);
-        return $aInfo['extension'];
+        $aInfo = static::PathInfo($sPath);
+        return $bToLower ? strtolower($aInfo['extension']) : $aInfo['extension'];
     }
 
     /**
@@ -729,7 +865,7 @@ class AltoFunc_File {
      */
     static public function SetExtension($sPath, $sExtension) {
 
-        $aInfo = self::PathInfo($sPath);
+        $aInfo = static::PathInfo($sPath);
         return $aInfo['dirname'] . '/' . $aInfo['filename'] . '.' . $sExtension;
     }
 
@@ -748,8 +884,8 @@ class AltoFunc_File {
         if (!is_array($aPaths)) {
             $aPaths = array((string)$aPaths);
         }
-        $sNeedle = F::File_NormPath($sNeedle, '/');
-        $aCheckPaths = F::File_NormPath($aPaths, '/');
+        $sNeedle = static::NormPath($sNeedle, '/');
+        $aCheckPaths = static::NormPath($aPaths, '/');
         foreach ($aCheckPaths as $n => $sPath) {
             if ($sPath == '*') {
                 return $aPaths[$n];
@@ -779,10 +915,14 @@ class AltoFunc_File {
      */
     static public function FullDir($sFile) {
 
-        if (self::IsLocalDir($sFile)) {
-            return self::NormPath($sFile);
+        if (static::IsLocalDir($sFile)) {
+            return static::NormPath($sFile);
         }
-        return self::NormPath(self::_calledFilePath() . $sFile);
+        /**
+         * TODO: _calledFilePath()
+         */
+        //return static::NormPath(static::_calledFilePath() . $sFile);
+        return $sFile;
     }
 
     /**
@@ -803,6 +943,17 @@ class AltoFunc_File {
         }
         try {
             self::$_time = microtime(true);
+            if (F::IsDebug()) {
+                $bCheckUtf8 = (class_exists('Config', false) ? Config::Get('sys.include.check_file') : false);
+                if ($bCheckUtf8) {
+                    $sBom = file_get_contents($sFile, true, null, 0, 5);
+                    if (!$sBom) {
+                        F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
+                    } elseif ($sBom != '<?php') {
+                        F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
+                    }
+                }
+            }
             if ($bOnce) {
                 self::$_temp = include_once($sFile);
             } else {
@@ -811,14 +962,13 @@ class AltoFunc_File {
             self::$nIncludedTime += (microtime(true) - self::$_time);
             self::$nIncludedCount++;
             if (F::IsDebug()) {
-                self::$aIncludedFiles[]
-                    = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
+                self::$aIncludedFiles[] = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
             }
         } catch (ErrorException $oException) {
             if ($oException->getFile() !== __FILE__) {
                 // Ошибка в подключённом файле
                 //throw $oException;
-                F::SysWarning('Error in include file "' . $sFile . '"');
+                F::SysWarning('Error in including file "' . $sFile . '" - ' . $oException->getMessage());
                 return false;
             } else {
                 // Файл не был подключён.
@@ -842,7 +992,7 @@ class AltoFunc_File {
      */
     static public function IncludeLib($sFile, $bOnce = true) {
 
-        return self::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
+        return static::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
     }
 
     /**
@@ -857,8 +1007,8 @@ class AltoFunc_File {
     static public function IncludeIfExists($sFile, $bOnce = true, $bConfig = false) {
 
         $xResult = null;
-        if (F::File_Exists($sFile)) {
-            $xResult = self::IncludeFile($sFile, $bOnce, $bConfig);
+        if (static::Exists($sFile)) {
+            $xResult = static::IncludeFile($sFile, $bOnce, $bConfig);
         }
         return $xResult;
     }
@@ -883,10 +1033,16 @@ class AltoFunc_File {
         } elseif (substr($sFileName, -1) == '/') {
             $sFileName .= basename($sUploadedFile);
         }
-        $sTmpFile = static::GetUploadDir() . $sFileName;
-        if (static::CheckDir(dirname($sTmpFile)) && move_uploaded_file($sUploadedFile, $sTmpFile)) {
-            return $sTmpFile;
+        $sDir = dirname($sFileName);
+        if (!$sDir || !static::IsLocalDir($sDir)) {
+            $sTargetFile = static::GetUploadDir() . $sFileName;
+        } else {
+            $sTargetFile = $sFileName;
         }
+        if (static::CheckDir(dirname($sTargetFile)) && move_uploaded_file($sUploadedFile, $sTargetFile)) {
+            return $sTargetFile;
+        }
+        return false;
     }
 
     /**
@@ -897,6 +1053,26 @@ class AltoFunc_File {
     static public function GetUploadDir() {
 
         return static::NormPath(Config::Get('sys.cache.dir') . '/uploads/');
+    }
+
+    /**
+     * Возвращает путь к общей asset-папке
+     *
+     * @return string
+     */
+    static public function GetAssetDir() {
+
+        return static::NormPath(Config::Get('path.runtime.dir') . 'assets/');
+    }
+
+    /**
+     * Возвращает URL к общей asset-папке
+     *
+     * @return string
+     */
+    static public function GetAssetUrl() {
+
+        return Config::Get('path.runtime.url') . 'assets/';
     }
 
     /**
@@ -930,6 +1106,11 @@ class AltoFunc_File {
         return static::Uniqname(static::GetUploadDir(), $sExtension, $nLength);
     }
 
+    /**
+     * Signatures to define MIME types
+     *
+     * @var array
+     */
     static protected $aMimeTypeSignatures
         = array(
             'image/gif'  => array(
@@ -949,36 +1130,18 @@ class AltoFunc_File {
                 array('offset' => 0, 'signature' => "\x4D\x4D\x00\x2B"),
             ),
         );
-    static protected $nMimeTypeSignaturesMax = 0;
-
     /**
-     * Определение MimeType файлов
+     * Helper variable
      *
-     * @param string $sFile
-     *
-     * @return string|null
+     * @var int
      */
-    static public function MimeType($sFile) {
+    static protected $nMimeTypeSignaturesMax = 0;
+    static protected $aMimeFiles = array();
+
+    static public function MimeTypeBySignature($sFile) {
 
         $sMimeType = '';
-        if (function_exists('finfo_fopen')) {
-            $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
-        } else {
-            $hFinfo = null;
-        }
-        if ($hFinfo) {
-            $sMimeType = finfo_file($hFinfo, $sFile);
-            finfo_close($hFinfo);
-        } elseif (function_exists('mime_content_type')) {
-            $sMimeType = mime_content_type($sFile);
-        }
-        if ($sMimeType) {
-            if ($n = strpos($sMimeType, ';')) {
-                $sMimeType = substr($sMimeType, 0, $n);
-            }
-            return $sMimeType;
-        }
-
+        // Defines max signature length
         if (!self::$nMimeTypeSignaturesMax) {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
                 if (isset($aSignsCollect['offset']) || isset($aSignsCollect['offset'])) {
@@ -990,7 +1153,7 @@ class AltoFunc_File {
                         $sSignature = $aSign;
                     } else {
                         $nOffset = isset($aSign['offset']) ? intval($aSign['offset']) : 0;
-                        $sSignature = isset($aSign['signature']) ? intval($aSign['signature']) : '';
+                        $sSignature = isset($aSign['signature']) ? $aSign['signature'] : '';
                     }
                     $nLen = $nOffset + strlen($sSignature);
                     if ($nLen > self::$nMimeTypeSignaturesMax) {
@@ -1003,17 +1166,127 @@ class AltoFunc_File {
                 }
             }
         }
+        // Reads part of file and compares with signatures
         if ($hFile = fopen($sFile, 'r')) {
             $sBuffer = fgets($hFile, self::$nMimeTypeSignaturesMax);
             fclose($hFile);
-            foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
-                foreach ($aSignsCollect as $aSign) {
-                    if (substr($sBuffer, $aSign['offset'], strlen($aSign['signature'])) == $aSign['signature']) {
-                        return $sMimeType;
+            if ($sBuffer) {
+                foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
+                    foreach ($aSignsCollect as $aSign) {
+                        if (substr($sBuffer, $aSign['offset'], strlen($aSign['signature'])) == $aSign['signature']) {
+                            return $sMimeType;
+                        }
                     }
                 }
             }
         }
+        return $sMimeType;
+    }
+    /**
+     * Defines of MimeType of the file
+     *
+     * @param string $sFile
+     *
+     * @return string
+     */
+    static public function MimeType($sFile) {
+
+        if (isset(self::$aMimeFiles[$sFile])) {
+            return self::$aMimeFiles[$sFile];
+        }
+
+        $sMimeType = '';
+        if (function_exists('finfo_fopen')) {
+            $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
+        } else {
+            $hFinfo = null;
+        }
+        if ($hFinfo) {
+            $sMimeType = finfo_file($hFinfo, $sFile);
+            finfo_close($hFinfo);
+        } else {
+            $sMimeType = self::MimeTypeBySignature($sFile);
+            if (!$sMimeType && function_exists('mime_content_type')) {
+                $sMimeType = mime_content_type($sFile);
+            }
+        }
+        if ($sMimeType) {
+            if ($n = strpos($sMimeType, ';')) {
+                $sMimeType = substr($sMimeType, 0, $n);
+            }
+            self::$aMimeFiles[$sFile] = $sMimeType;
+        }
+
+        return self::$aMimeFiles[$sFile];
+    }
+
+    /**
+     * @param string $sSize
+     *
+     * @return array()
+     */
+    static public function ImgModAttr($sSize) {
+
+        $aResult = array(
+            'width' => null,
+            'height' => null,
+            'mod' => null,
+        );
+        if ($sSize) {
+            $nPos = strpos($sSize, 'x');
+            if ($nPos === false) {
+                $nHeight = $nWidth = intval($sSize);
+            } elseif ($nPos === 0) {
+                $nWidth = 0;
+                $nHeight = intval(substr($sSize, 1));
+            } else {
+                $nWidth = intval(substr($sSize, 0, $nPos));
+                $nHeight = intval(substr($sSize, $nPos+1));
+            }
+
+            if ($nWidth || $nHeight) {
+                if ($nWidth) {
+                    $aResult['width'] = $nWidth;
+                }
+                if ($nHeight) {
+                    $aResult['height'] = $nHeight;
+                }
+                if (strpos($sSize, 'fit')) {
+                    $aResult['mod'] = 'fit';
+                } else if (strpos($sSize, 'crop')) {
+                    $aResult['mod'] = 'crop';
+                } else if (strpos($sSize, 'pad')) {
+                    $aResult['mod'] = 'pad';
+                } else if (strpos($sSize, 'max')) {
+                    $aResult['mod'] = 'max';
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    /**
+     * @param string      $sSize
+     * @param string|null $sExtension
+     *
+     * @return string
+     */
+    static public function ImgModSuffix($sSize, $sExtension = null) {
+
+        $sResult = '';
+        if ($sSize) {
+            $aAttr = static::ImgModAttr($sSize);
+            if ($aAttr['width'] || $aAttr['height']) {
+                $sResult .= '-' . ($aAttr['width'] ? $aAttr['width'] : '') . 'x' . $aAttr['height'];
+                if ($aAttr['mod']) {
+                    $sResult .= '-' . $aAttr['mod'];
+                }
+                if ($sExtension) {
+                    $sResult .= '.' . strtolower($sExtension);
+                }
+            }
+        }
+        return $sResult;
     }
 
 }

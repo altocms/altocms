@@ -140,6 +140,11 @@ class ModuleUser_EntityReminder extends Entity {
         $this->setProp('reminde_is_used', $data);
     }
 
+    public function IsValid() {
+
+        return !$this->getIsUsed() && strtotime($this->getDateExpire()) > time();
+    }
+
 }
 
 // EOF

@@ -51,15 +51,15 @@ class ModuleVote_MapperVote extends Mapper {
     /**
      * Получить список голосований по списку айдишников
      *
-     * @param array  $aArrayId       Список ID владельцев
-     * @param string $sTargetType    Тип владельца
-     * @param int    $sUserId        ID пользователя
+     * @param array  $aTargetId   - Список ID владельцев
+     * @param string $sTargetType - Тип владельца
+     * @param int    $iUserId     - ID пользователя
      *
      * @return array
      */
-    public function GetVoteByArray($aArrayId, $sTargetType, $sUserId) {
+    public function GetVoteByArray($aTargetId, $sTargetType, $iUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTargetId) || count($aTargetId) == 0) {
             return array();
         }
         $sql = "SELECT
@@ -69,16 +69,56 @@ class ModuleVote_MapperVote extends Mapper {
 				WHERE
 					target_id IN(?a)
 					AND
-					target_type = ? 
+					target_type = ?
 					AND
 					user_voter_id = ?d ";
         $aVotes = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sTargetType, $sUserId)) {
-            foreach ($aRows as $aRow) {
-                $aVotes[] = Engine::GetEntity('Vote', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTargetId, $sTargetType, $iUserId)) {
+            $aVotes = E::GetEntityRows('Vote', $aRows);
         }
         return $aVotes;
+    }
+
+    /**
+     * Возвращает статистику голосований по пользователю
+     *
+     * @param string|int $sUserId Ид. пользователя
+     */
+    public function GetUserVoteStats($sUserId) {
+
+        $sql = "SELECT
+                  target_type, vote_direction, count(target_id) as cnt, sum(vote_value) as sum
+                FROM
+                  ?_vote
+                WHERE
+                  user_voter_id = ?d
+                GROUP BY
+                  target_type, vote_direction";
+
+        $aResult = array(
+            'cnt_topics_p' => 0,
+            'cnt_topics_m' => 0,
+            'sum_topics_p' => 0,
+            'sum_topics_m' => 0,
+            'cnt_comments_p' => 0,
+            'cnt_comments_m' => 0,
+            'sum_comments_p' => 0,
+            'sum_comments_m' => 0,
+            'cnt_users_p' => 0,
+            'cnt_users_m' => 0,
+            'sum_users_p' => 0,
+            'sum_users_m' => 0,
+        );
+
+        if ($aRows = $this->oDb->select($sql, $sUserId)) {
+            foreach ($aRows as $aRow) {
+                $aResult["cnt_{$aRow['target_type']}s_" . ($aRow['vote_direction'] == '1' ? 'p' : 'm')] = $aRow['cnt'];
+                $aResult["sum_{$aRow['target_type']}s_" . ($aRow['vote_direction'] == '1' ? 'p' : 'm')] = $aRow['sum'];
+            }
+        }
+
+        return $aResult;
+
     }
 
     /**

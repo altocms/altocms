@@ -1,0 +1,80 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../style.experience.less";
+
+.profile-photo.js-profile-photo-image {
+    width: 100%;
+}
+
+.hif {
+    text-align: left;
+    font-weight: normal;
+    font-size: @font-size-base;
+}
+
+.panel-table table .hif.rating-value {
+    text-align: left;
+    font-weight: normal;
+    font-size: @font-size-base;
+}
+
+.panel-table table.peoples-table .hif.user-date-block {
+    text-align: left;
+    font-weight: normal;
+    font-size: @font-size-base;
+}
+
+.comment-reply, .comment-reply * {
+    white-space: nowrap;
+}
+
+// Small 0-400
+@media only screen and (max-width: @screen-sm) {
+
+    .paginator {
+        margin-left: 0;
+    }
+
+    .paginator ul {
+
+        width: 100%;
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        li, li.prev {
+            margin-right: 4px;
+        }
+
+        li.next {
+            margin-left: 0;
+        }
+    }
+
+    .user-info-show-button {
+        float: none;
+    }
+    .panel-footer ul li:last-child {
+        float: none;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .hidden-xxs {
+        display: none !important;
+    }
+    .visible-xxs {
+        display: block !important;
+    }
+
+    .panel.comment .comment-subscribe {
+        float: none;
+        margin-top: 12px;
+
+        .short-text{
+            margin-left: 0;
+        }
+    }
+}

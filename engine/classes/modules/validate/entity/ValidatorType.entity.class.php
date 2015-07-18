@@ -111,7 +111,7 @@ class ModuleValidate_EntityValidatorType extends ModuleValidate_EntityValidator 
 
         if (!$bValid) {
             return $this->getMessage(
-                $this->Lang_Get('validate_type_error', null, false), 'msg', array('type' => $this->type)
+                E::ModuleLang()->Get('validate_type_error', null, false), 'msg', array('type' => $this->type)
             );
         }
         return true;

@@ -12,6 +12,9 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
 
 class Loader {
 
+    /**
+     * @param array $aConfig
+     */
     static public function Init($aConfig) {
 
         // Регистрация автозагрузчика классов
@@ -26,29 +29,33 @@ class Loader {
         // Load additional config files if defined
         $aConfigLoad = F::Str2Array(Config::Get('config_load'));
         if ($aConfigLoad) {
-            foreach ($aConfigLoad as $sName) {
-                $sFile = $sConfigDir . '/' . $sName . '.php';
-                self::_loadConfigSection($sFile, $sName);
-
-                $sFile = $sConfigDir . '/' . $sName . '.local.php';
-                if (F::File_Exists($sFile)) {
-                    self::_loadConfigSection($sFile, $sName);
-                }
-            }
+            self::_loadConfigSections($sConfigDir, $aConfigLoad);
         }
 
-        /*
-         * Инклудим все *.php файлы из каталога {path.root.engine}/include/ - это файлы ядра
-         */
-        $sDirInclude = Config::Get('path.dir.engine') . '/include/';
-        self::_includeAllFiles($sDirInclude);
+        // Includes all *.php files from {path.root.engine}/include/
+        $sIncludeDir = Config::Get('path.dir.engine') . '/include/';
+        self::_includeAllFiles($sIncludeDir);
 
-        // Load main config level
+        // Load main config level (modules, local & plugins)
         self::_loadConfigFiles($sConfigDir, Config::LEVEL_MAIN);
 
-        // Load application config level
+        // Define app config dir
         $sAppConfigDir = Config::Get('path.dir.app') . '/config/';
+        // Ups config level
+        Config::ResetLevel(Config::LEVEL_APP);
+        // Load application config level (modules, local & plugins)
         self::_loadConfigFiles($sAppConfigDir, Config::LEVEL_APP);
+
+        // Load additional config files (the set could be changed in this point)
+        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
+        if ($aConfigLoad) {
+            self::_loadConfigSections($sAppConfigDir, $aConfigLoad, Config::LEVEL_APP);
+        }
+
+        // Load include files of plugins
+        self::_loadIncludeFiles(Config::LEVEL_MAIN);
+        self::_loadIncludeFiles(Config::LEVEL_APP);
+
 
         self::_checkRequiredDirs();
 
@@ -59,11 +66,29 @@ class Loader {
         );
         Config::Set('path.root.seek', $aSeekDirClasses);
 
+        if (is_null(Config::Get('path.root.subdir'))) {
+            if (isset($_SERVER['DOCUMENT_ROOT'])) {
+                $sPathSubdir = '/' . F::File_LocalPath(ALTO_DIR, $_SERVER['DOCUMENT_ROOT']);
+            } elseif ($iOffset = Config::Get('path.offset_request_url')) {
+                $aParts = array_slice(explode('/', F::File_NormPath(ALTO_DIR)), -$iOffset);
+                $sPathSubdir = '/' . implode('/', $aParts);
+            } else {
+                $sPathSubdir = '';
+            }
+            Config::Set('path.root.subdir', $sPathSubdir);
+        }
+
+        // Paths to dirs of plugins
+        $aPluginsList = F::GetPluginsList(false, false);
+        foreach ($aPluginsList as $aPlugin) {
+            Config::Set('path.dir.plugin.' . $aPlugin['id'], $aPlugin['path']);
+        }
+
         // Подгружаем конфиг из файлового кеша, если он есть
-        Config::SetLevel(Config::LEVEL_CUSTOM);
+        Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
         if ($aConfig) {
-            Config::Load($aConfig, false);
+            Config::Load($aConfig, false, null, null, 'custom');
         }
 
         // Задаем локаль по умолчанию
@@ -85,6 +110,9 @@ class Loader {
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
     }
 
+    /**
+     * @param string $sDirInclude
+     */
     static protected function _includeAllFiles($sDirInclude) {
 
         $aIncludeFiles = glob($sDirInclude . '*.php');
@@ -95,47 +123,38 @@ class Loader {
         }
     }
 
+    /**
+     * @param string $sConfigDir
+     * @param int    $nConfigLevel
+     */
     static protected function _loadConfigFiles($sConfigDir, $nConfigLevel) {
 
         // * Загружаем конфиги модулей вида /config/modules/[module_name]/config.php
         $sDirConfig = $sConfigDir . '/modules/';
         $aFiles = glob($sDirConfig . '*/config.php');
         if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $sDirModule = basename(dirname($sFileConfig));
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
+            foreach ($aFiles as $sConfigFile) {
+                $sDirModule = basename(dirname($sConfigFile));
+                $aConfig = F::IncludeFile($sConfigFile, true, true);
                 if (!empty($aConfig) && is_array($aConfig)) {
                     $sKey = 'module.' . $sDirModule;
-                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
-                }
-            }
-        }
-
-        /**
-         * Ищет routes-конфиги модулей вида /config/modules/[module_name]/config.route.php и объединяет их с текущим
-         *
-         * @see Router.class.php
-         */
-        $sDirConfig = $sConfigDir . '/modules/';
-        $aFiles = glob($sDirConfig . '*/config.route.php');
-        if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
-                if (!empty($aConfig) && is_array($aConfig)) {
-                    $sKey = 'router.' . $sDirModule;
-                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
+                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel, $sConfigFile);
                 }
             }
         }
 
         /*
-         * LS-compatible
-         * Подгружаем файлы локального и продакшн-конфига
+         * Подгружаем файлы локального конфига
          */
-        $sFile = $sConfigDir . '/config.local.php';
-        if (F::File_Exists($sFile)) {
-            if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
-                Config::Load($aConfig, true, null, $nConfigLevel);
+        $sConfigFile = $sConfigDir . '/config.local.php';
+        if (F::File_Exists($sConfigFile)) {
+            /*
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true, Config::Get())) {
+                Config::Load($aConfig, true, null, $nConfigLevel, $sConfigFile);
+            }
+            */
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true)) {
+                Config::Set($aConfig, false, null, $nConfigLevel, $sConfigFile);
             }
         }
 
@@ -144,30 +163,45 @@ class Loader {
          * и include-файлы вида /plugins/[plugin_name]/include/*.php
          */
         $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
-        if ($aPluginsList = F::GetPluginsList()) {
-            $aPluginsList = array_map('trim', $aPluginsList);
-            foreach ($aPluginsList as $sPlugin) {
+        if ($aPluginsList = F::GetPluginsList(false, false)) {
+            //$aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
                 // Загружаем все конфиг-файлы плагина
-                $aConfigFiles = glob($sPluginsDir . '/' . $sPlugin . '/config/*.php');
+                $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
-                    foreach ($aConfigFiles as $sPath) {
-                        $aConfig = F::IncludeFile($sPath, true, true);
+                    foreach ($aConfigFiles as $sConfigFile) {
+                        $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
                             // Если конфиг этого плагина пуст, то загружаем массив целиком
                             $sKey = 'plugin.' . $sPlugin;
                             if (!Config::isExist($sKey)) {
-                                Config::Set($sKey, $aConfig, null, $nConfigLevel);
+                                Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
                             } else {
-                                // Если уже существую привязанные к плагину ключи,
-                                // то сливаем старые и новое значения ассоциативно
-                                Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig), null, $nConfigLevel);
+                                // Если уже существуют привязанные к плагину ключи,
+                                // то сливаем старые и новое значения ассоциативно-комбинированно
+                                /** @see AltoFunc_Array::MergeCombo() */
+                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
                             }
                         }
                     }
                 }
+            }
+        }
+    }
 
+    /**
+     * Загружает include-файлы вида /plugins/[plugin_name]/include/*.php
+     *
+     * @param int $nConfigLevel
+     */
+    static protected function _loadIncludeFiles($nConfigLevel) {
+
+        $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
+        if ($aPluginsList = F::GetPluginsList(false, false)) {
+            //$aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
                 // Подключаем include-файлы плагина
-                $aIncludeFiles = glob($sPluginsDir . '/' . $sPlugin . '/include/*.php');
+                $aIncludeFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/include/*.php');
                 if ($aIncludeFiles) {
                     foreach ($aIncludeFiles as $sPath) {
                         F::IncludeFile($sPath);
@@ -178,14 +212,34 @@ class Loader {
     }
 
     /**
+     * @param string $sConfigDir
+     * @param array  $aConfigSections
+     * @param int    $nConfigLevel
+     */
+    protected static function _loadConfigSections($sConfigDir, $aConfigSections, $nConfigLevel = 0) {
+
+        foreach ($aConfigSections as $sName) {
+            $sFile = $sConfigDir . '/' . $sName . '.php';
+            if (F::File_Exists($sFile)) {
+                self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            }
+
+            $sFile = $sConfigDir . '/' . $sName . '.local.php';
+            if (F::File_Exists($sFile)) {
+                self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            }
+        }
+    }
+
+    /**
      * Load subconfig file
      *
-     * @param $sFile
-     * @param $sName
+     * @param string $sFile
+     * @param string $sName
+     * @param int    $nConfigLevel
      */
-    static protected function _loadConfigSection($sFile, $sName) {
+    static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
-        $aConfig = array();
         if (F::File_Exists($sFile)) {
             $aCfg = F::File_IncludeFile($sFile, true, true);
             if ($aCfg) {
@@ -194,36 +248,55 @@ class Loader {
                 } else {
                     $aConfig = $aCfg;
                 }
+                Config::Load(array($sName => $aConfig), false, null, $nConfigLevel, $sFile);
             }
         }
-        Config::Load(array($sName => $aConfig), false);
     }
 
+    /**
+     * Check required dirs
+     */
     static protected function _checkRequiredDirs() {
 
-        if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
-            die('Application folder "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+        $sDir = Config::Get('path.dir.app');
+        if (!$sDir) {
+            die('Application directory not defined');
+        } elseif (!F::File_CheckDir($sDir, false)) {
+            die('Application directory "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
         }
-        if (!F::File_CheckDir(Config::Get('path.tmp.dir'), false)) {
-            die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
+
+        $sDir = Config::Get('path.tmp.dir');
+        if (!$sDir) {
+            die('Directory for temporary files not defined');
+        } elseif (!F::File_CheckDir($sDir, true)) {
+            die('Directory for temporary files "' . $sDir . '" does not exist');
+        } elseif (!is_writeable($sDir)) {
+            die('Directory for temporary files "' . F::File_LocalDir($sDir) . '" does not writeable');
         }
-        if (!F::File_CheckDir(Config::Get('path.runtime.dir'), false)) {
-            die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
+
+        $sDir = Config::Get('path.runtime.dir');
+        if (!$sDir) {
+            die('Directory for runtime files not defined');
+        } elseif (!F::File_CheckDir($sDir, true)) {
+            die('Directory for runtime files "' . $sDir . '" does not exist');
+        } elseif (!is_writeable($sDir)) {
+            die('Directory for runtime files "' . F::File_LocalDir($sDir) . '" does not writeable');
         }
     }
 
     /**
      * Автоопределение класса или файла экшена
      *
-     * @param   string      $sAction
-     * @param   string|null $sEvent
-     * @param   bool        $bFullPath
+     * @param   string $sAction
+     * @param   string $sEvent
+     * @param   bool   $bFullPath
      *
-     * @return  string
+     * @return  string|null
      */
     static public function SeekActionClass($sAction, $sEvent = null, $bFullPath = false) {
 
         $bOk = false;
+        $sActionClass = '';
         $sFileName = 'Action' . ucfirst($sAction) . '.class.php';
 
         // Сначала проверяем файл экшена среди стандартных
@@ -233,11 +306,10 @@ class Loader {
             $bOk = true;
         } else {
             // Если нет, то проверяем файл экшена среди плагинов
-            $aPlugins = F::GetPluginsList();
-            foreach ($aPlugins as $sPlugin) {
-                if ($sActionFile = F::File_Exists('plugins/' . $sPlugin . '/classes/actions/' . $sFileName, $aSeekDirs)
-                ) {
-                    $sActionClass = 'Plugin' . ucfirst($sPlugin) . '_Action' . ucfirst($sAction);
+            $aPlugins = F::GetPluginsList(false, false);
+            foreach ($aPlugins as $sPlugin => $aPluginInfo) {
+                if ($sActionFile = F::File_Exists('plugins/' . $aPluginInfo['dirname'] . '/classes/actions/' . $sFileName, $aSeekDirs)) {
+                    $sActionClass = 'Plugin' . F::StrCamelize($sPlugin) . '_Action' . ucfirst($sAction);
                     $bOk = true;
                     break;
                 }
@@ -246,8 +318,15 @@ class Loader {
         if ($bOk) {
             return $bFullPath ? $sActionFile : $sActionClass;
         }
+        return null;
     }
 
+    /**
+     * @param string $sFile
+     * @param string $sCheckClassname
+     *
+     * @return bool|mixed
+     */
     static protected function _includeFile($sFile, $sCheckClassname = null) {
 
         if (class_exists('F', false)) {
@@ -270,24 +349,26 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if (Config::Get('classes') && self::_autoloadDefinedClass($sClassName)) {
-            return true;
-        }
-        if (class_exists('Engine', false) && (Engine::GetStage() >= Engine::STAGE_INIT)) {
-            $aInfo = Engine::GetClassInfo($sClassName, Engine::CI_CLASSPATH | Engine::CI_INHERIT);
-            if ($aInfo[Engine::CI_INHERIT]) {
-                $sInheritClass = $aInfo[Engine::CI_INHERIT];
-                $sParentClass = Engine::getInstance()->Plugin_GetParentInherit($sInheritClass);
-                if (!class_alias($sParentClass, $sClassName)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } elseif ($aInfo[Engine::CI_CLASSPATH]) {
-                return self::_includeFile($aInfo[Engine::CI_CLASSPATH], $sClassName);
+        if (Config::Get('classes')) {
+            if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
+                return self::_classAlias($sParentClass, $sClassName);
+            }
+            if (self::_autoloadDefinedClass($sClassName)) {
+                return true;
             }
         }
-        if (self::_autoloadPSR0($sClassName)) {
+
+        if (class_exists('Engine', false) && (E::GetStage() >= E::STAGE_INIT)) {
+            $aInfo = E::GetClassInfo($sClassName, E::CI_CLASSPATH | E::CI_INHERIT);
+            if ($aInfo[E::CI_INHERIT]) {
+                $sInheritClass = $aInfo[E::CI_INHERIT];
+                $sParentClass = E::ModulePlugin()->GetParentInherit($sInheritClass);
+                return self::_classAlias($sParentClass, $sClassName);
+            } elseif ($aInfo[E::CI_CLASSPATH]) {
+                return self::_includeFile($aInfo[E::CI_CLASSPATH], $sClassName);
+            }
+        }
+        if (self::_autoloadPSR($sClassName)) {
             return true;
         }
         return false;
@@ -331,7 +412,7 @@ class Loader {
                             $sFile = $sPath . '/' . $aOptions['classmap'][$sClassName];
                             return self::_includeFile($sFile, $sClassName);
                         }
-                        return self::_autoloadPSR0($sClassName, $sPath);
+                        return self::_autoloadPSR($sClassName, $sPath);
                     }
                 }
             }
@@ -341,34 +422,39 @@ class Loader {
 
     static protected $_aFailedClasses = array();
 
+    static protected function _autoloadPSR($sClassName, $xPath = null) {
+
+        return self::_autoloadPSR4($sClassName) || self::_autoloadPSR0($sClassName, $xPath);
+    }
+
     /**
      * Try to load class using PRS-0 naming standard
      *
      * @param string       $sClassName
-     * @param string|array $sPath
+     * @param string|array $xPath
      *
      * @return bool
      */
-    static protected function _autoloadPSR0($sClassName, $sPath = null) {
+    static protected function _autoloadPSR0($sClassName, $xPath = null) {
 
-        if (!$sPath) {
-            $sPath = Config::Get('path.dir.libs');
+        if (!$xPath) {
+            $xPath = C::Get('path.dir.libs');
         }
 
-        $sCheckKey = serialize(array($sClassName, $sPath));
+        $sCheckKey = serialize(array($sClassName, $xPath));
         if (!isset(self::$_aFailedClasses[$sCheckKey])) {
             if (strpos($sClassName, '\\')) {
                 // Namespaces
-                $sClassPath = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
+                $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
             } elseif (strpos($sClassName, '_')) {
                 // Old style with '_'
-                $sClassName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
+                $sFileName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
             } else {
-                return false;
+                $sFileName = $sClassName . DIRECTORY_SEPARATOR . $sClassName;
             }
-            if ($sFile = F::File_Exists($sClassName . '.php', $sPath)) {
+            if ($sFile = F::File_Exists($sFileName . '.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
-            } elseif ($sFile = F::File_Exists($sClassName . '.class.php', $sPath)) {
+            } elseif ($sFile = F::File_Exists($sFileName . '.class.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
             }
         }
@@ -376,6 +462,91 @@ class Loader {
         return false;
     }
 
+    /**
+     * Try load class using PSR-4 standards
+     * Used code from http://www.php-fig.org/psr/psr-4/examples/
+     *
+     * @param string $sClassName
+     *
+     * @return bool
+     */
+    static protected function _autoloadPSR4($sClassName) {
+
+        // An associative array where the key is a namespace prefix and the value
+        // is an array of base directories for classes in that namespace.
+        $aVendorNamespaces = C::Get('classes.namespace');
+        if (!strpos($sClassName, '\\') || !$aVendorNamespaces) {
+            return false;
+
+        }
+        // the current namespace prefix
+        $sPrefix = $sClassName;
+
+        // work backwards through the namespace names of the fully-qualified
+        // class name to find a mapped file name
+        while (false !== $iPos = strrpos($sPrefix, '\\')) {
+
+            // seeking namespace prefix
+            $sPrefix = substr($sClassName, 0, $iPos);
+
+            // the rest is the relative class name
+            $sRelativeClass = substr($sClassName, $iPos + 1);
+            $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sRelativeClass) . '.php';
+
+            // try to load a mapped file for the prefix and relative class
+            if (isset($aVendorNamespaces[$sPrefix])) {
+                if ($sFile = F::File_Exists($sFileName, $aVendorNamespaces[$sPrefix])) {
+                    return self::_includeFile($sFile, $sClassName);
+                }
+            }
+        }
+
+        // файл так и не был найден
+        return false;
+    }
+
+    /**
+     * @var array Array of class aliases
+     */
+    static protected $_aClassAliases = array();
+
+    /**
+     * Creates an alias for a class
+     *
+     * @param string $sOriginal
+     * @param string $sAlias
+     * @param bool   $bAutoload
+     *
+     * @return bool
+     */
+    static protected function _classAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
+
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
+        } else {
+            $bResult = class_alias($sOriginal, $sAlias);
+        }
+
+        if (defined('DEBUG') && DEBUG) {
+            self::$_aClassAliases[$sAlias] = array(
+                'original' => $sOriginal,
+                'autoload' => $bAutoload,
+                'result' => $bResult,
+            );
+        }
+
+        return $bResult;
+    }
+
+    /**
+     * Returns of class aliases
+     *
+     * @return array
+     */
+    static public function GetAliases() {
+
+        return self::$_aClassAliases;
+    }
 }
 
 // EOF

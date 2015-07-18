@@ -1,7 +1,8 @@
+;var ls = ls || {};
+
 /* ****************************************************
  * Frontend for LS-compatibility
  */
-var ls = ls || {};
 
 ls.photoset = ( function ($) {
 

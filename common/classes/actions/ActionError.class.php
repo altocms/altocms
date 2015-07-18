@@ -37,6 +37,16 @@ class ActionError extends Action {
      *
      */
     public function Init() {
+
+        /**
+         * issue #104, {@see https://github.com/altocms/altocms/issues/104}
+         * Проверим, не пришли ли мы в ошибку с логаута, если да, то перейдем на главную,
+         * поскольку страница на самом деле есть, но только когда мы авторизованы.
+         */
+        if (isset($_SERVER['HTTP_REFERER']) && E::ModuleSession()->GetCookie('lgp') === md5(F::RealUrl($_SERVER['HTTP_REFERER']) . 'logout')) {
+            return R::Location((string)Config::Get('module.user.logout.redirect'));
+        }
+
         /**
          * Устанавливаем дефолтный евент
          */
@@ -44,7 +54,7 @@ class ActionError extends Action {
         /**
          * Запрешаем отображать статистику выполнения
          */
-        Router::SetIsShowStats(false);
+        R::SetIsShowStats(false);
     }
 
     /**
@@ -66,8 +76,8 @@ class ActionError extends Action {
          * Например, для 404 в хидере будет послан браузеру заголовок HTTP/1.1 404 Not Found
          */
         if (array_key_exists($this->sCurrentEvent, $this->aHttpErrors)) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('system_error_' . $this->sCurrentEvent), $this->sCurrentEvent
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('system_error_' . $this->sCurrentEvent), $this->sCurrentEvent
             );
             $aHttpError = $this->aHttpErrors[$this->sCurrentEvent];
             if (isset($aHttpError['header'])) {
@@ -78,7 +88,7 @@ class ActionError extends Action {
         /**
          * Устанавливаем title страницы
          */
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('error'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('error'));
         $this->SetTemplateAction('index');
     }
 }

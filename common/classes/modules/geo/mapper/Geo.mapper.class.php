@@ -29,8 +29,8 @@ class ModuleGeo_MapperGeo extends Mapper {
      */
     public function AddTarget($oTarget) {
 
-        $sql = "INSERT INTO ?_geo_target SET ?a ";
-        if ($this->oDb->query($sql, $oTarget->_getData())) {
+        $sql = "INSERT INTO ?_geo_target(?#) VALUES(?a)";
+        if ($this->oDb->query($sql, $oTarget->getKeyProps(), $oTarget->getValProps())) {
             return true;
         }
         return false;
@@ -82,9 +82,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityTarget', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityTarget', $aRows);
         }
         return $aResult;
     }
@@ -118,9 +116,7 @@ class ModuleGeo_MapperGeo extends Mapper {
 		";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTargetType, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCountry', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCountry', $aRows);
         }
         return $aResult;
     }
@@ -154,9 +150,7 @@ class ModuleGeo_MapperGeo extends Mapper {
 		";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTargetType, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCity', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCity', $aRows);
         }
         return $aResult;
     }
@@ -228,25 +222,26 @@ class ModuleGeo_MapperGeo extends Mapper {
 
         $sql
             = "SELECT
-					*
+					gc.id AS ARRAY_KEY, gc.*
 				FROM
-					?_geo_country
+					?_geo_country AS gc
 				WHERE
 					1 = 1
 					{ AND id = ?d }
+					{ AND id IN (?a) }
 					{ AND name_ru = ? }
 					{ AND name_ru LIKE ? }
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND code = ? }
-
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru']) ? $aFilter['name_ru'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,
@@ -255,9 +250,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCountry', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCountry', $aRows);
         }
         return $aResult;
     }
@@ -295,25 +288,26 @@ class ModuleGeo_MapperGeo extends Mapper {
 
         $sql
             = "SELECT
-					*
+					gr.id AS ARRAY_KEY, gr.*
 				FROM
-					?_geo_region
+					?_geo_region AS gr
 				WHERE
 					1 = 1
 					{ AND id = ?d }
+					{ AND id IN (?a) }
 					{ AND name_ru = ? }
 					{ AND name_ru LIKE ? }
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND country_id IN ( ?a ) }
-
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru']) ? $aFilter['name_ru'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,
@@ -322,9 +316,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityRegion', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityRegion', $aRows);
         }
         return $aResult;
     }
@@ -365,26 +357,27 @@ class ModuleGeo_MapperGeo extends Mapper {
 
         $sql
             = "SELECT
-					*
+					gc.id AS ARRAY_KEY, gc.*
 				FROM
-					?_geo_city
+					?_geo_city as gc
 				WHERE
 					1 = 1
 					{ AND id = ?d }
+					{ AND id IN (?a) }
 					{ AND name_ru = ? }
 					{ AND name_ru LIKE ? }
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND country_id IN ( ?a ) }
 					{ AND region_id IN ( ?a ) }
-
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru']) ? $aFilter['name_ru'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,
@@ -394,9 +387,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCity', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCity', $aRows);
         }
         return $aResult;
     }

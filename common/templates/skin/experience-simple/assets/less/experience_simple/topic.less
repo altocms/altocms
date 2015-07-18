@@ -1,0 +1,188 @@
+//@import "../var.experience_simple.less";
+@import "../bootstrap/mixins";
+@import "mixins";
+
+
+// Заголовок топика
+.topic-title {
+    margin-bottom: 4px;
+}
+
+// Блок тегов и share
+.tags_and_share {
+    width: 100%;
+
+    .topic-tags {
+        margin-top: 16px !important;
+        .clearfix();
+        font-size: @topic-tags-font-size;
+        a {
+            text-decoration: underline !important;
+        }
+
+    }
+
+    .pluso {
+        margin: 18px 0;
+        span {
+            display: inline !important;
+        }
+    }
+
+}
+
+// Текст топика
+.topic-text {
+    margin-bottom: 6px !important;
+    .clearfix();
+    font-size: @topic-font-size !important;
+    * {
+        font-size: @topic-font-size;
+    }
+}
+
+// Подвал топика
+.content .topic .topic-footer {
+    padding-right: 0;
+}
+.content .topic .topic-footer, .content .panel .panel-footer {
+    background: #e6ebee;
+    ul {
+        padding-right: 0;
+        padding-left: 0;
+        li {
+            line-height: 20px;
+            padding: 10px 6px;
+            font-size: @topic-footer-font-size;
+            margin-right: 0;
+            &.read-more {
+                padding: 0;
+            }
+            &.topic-controls {
+                margin: 0;
+                padding-right: 18px;
+
+                a:first-child, a.right-border {
+                    border-right: 1px solid @lightness-gray;
+                    padding-right: 6px;
+                }
+            }
+            a, span {
+                font-size: @topic-footer-font-size !important;
+                line-height: 20px;
+                text-decoration: none;
+            }
+            &:first-child {
+                padding-left: 0 !important;
+            }
+            &.topic-rating {
+                margin-right: 16px;
+            }
+        }
+
+    }
+
+}
+
+// Строка с информацией о топике
+.topic-info {
+
+    ul {
+        display: block;
+        width: 100%;
+        list-style: none;
+        border: 0;
+        margin: 0;
+        padding: 0;
+        .clearfix();
+        height: 32px;
+        line-height: 32px;
+
+        li {
+            display: inline-block;
+            float: left;
+            height: 32px;
+            line-height: 32px;
+            position: relative;
+            font-size: 13px;
+
+            a, span, i, * {
+                height: 32px;
+                line-height: 32px;
+                font-size: 13px !important;
+            }
+
+            // Пользователь
+            &.topic-user {
+                max-width: 25%;
+                .sized();
+                margin-right: 10px;
+
+                img {
+                    border-radius: 16px;
+                    margin-right: 6px;
+                }
+                a {
+                    color: @dark-blue;
+                    span.caret {
+                        height: 0 !important;
+                        color: @light-gray;
+                        margin-left: 6px;
+                    }
+                }
+            }
+
+            // Блог
+            &.topic-blog {
+                max-width: 50%;
+                margin: 0 !important;
+                .sized();
+                a {
+                    border-left: 1px solid @light-gray;
+                    border-right: 1px solid @light-gray;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    text-decoration: none;
+                }
+            }
+
+            // Дата-время
+            &.topic-date-block {
+                max-width: 25%;
+                .sized();
+                margin-left: 10px;
+                font-size: 12px !important;
+                .topic-date {
+                    font-size: 12px !important;
+                }
+                .topic-time {
+                    font-size: 12px !important;
+                }
+            }
+        }
+    }
+}
+
+.comment-subscribe {
+    label {
+        font-weight: normal;
+    }
+}
+
+.photo-preview-state {
+    .marked-as-cover {
+        display: none;
+    }
+    .mark-as-cover {
+        display: inline-block;
+    }
+
+    .photoset-is-cover {
+        .marked-as-cover {
+            display: inline-block;
+        }
+        .mark-as-cover {
+            display: none;
+        }
+    }
+}

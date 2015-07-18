@@ -37,11 +37,18 @@ class ModuleViewer extends Module {
     protected $oSmarty;
 
     /**
-     * Коллекция(массив) виджетов
+     * Коллекция (массив) виджетов
      *
      * @var array
      */
     protected $aWidgets = array();
+
+    /**
+     * Массив дополнительных (добавленных) виджетов
+     *
+     * @var array
+     */
+    protected $aWidgetsAppend = array();
 
     /**
      * Признак сортировки виджетов
@@ -51,18 +58,21 @@ class ModuleViewer extends Module {
     protected $bWidgetsSorted = false;
 
     /**
-     * Массив правил организации виджетов
-     *
-     * @var array
-     */
-    protected $aBlockRules = array();
-
-    /**
      * Стандартные настройки вывода js, css файлов
      *
      * @var array
      */
     protected $aFilesDefault = array(
+        'js' => array(),
+        'css' => array()
+    );
+
+    protected $aFilesPrepend = array(
+        'js' => array(),
+        'css' => array()
+    );
+
+    protected $aFilesAppend = array(
         'js' => array(),
         'css' => array()
     );
@@ -82,18 +92,32 @@ class ModuleViewer extends Module {
     protected $sCacheDir = '';
 
     /**
-     * Заголовок HTML страницы
+     * Заголовки HTML страницы (объединяются через сепаратор перед выдачей)
+     *
+     * @var array
+     */
+    protected $aHtmlTitles = '';
+
+    /**
+     * Максимальное число заголовков, из которых строится общий заголовок HTML страницы (тег title)
+     *
+     * @var int
+     */
+    protected $iHtmlTitlesMax = 0;
+
+    /**
+     * Разделитель заголовка HTML страницы
      *
      * @var string
      */
-    protected $sHtmlTitle;
+    protected $sHtmlTitleSeparator = ' / ';
 
     /**
      * SEO ключевые слова страницы
      *
-     * @var string
+     * @var array
      */
-    protected $sHtmlKeywords;
+    protected $aHtmlKeywords;
 
     /**
      * SEO описание страницы
@@ -101,13 +125,6 @@ class ModuleViewer extends Module {
      * @var string
      */
     protected $sHtmlDescription;
-
-    /**
-     * Разделитель заголовка HTML страницы
-     *
-     * @var string
-     */
-    protected $sHtmlTitleSeparation = ' / ';
 
     /**
      * Альтернативный адрес страницы по RSS
@@ -139,6 +156,8 @@ class ModuleViewer extends Module {
      * @var array
      */
     protected $aHtmlHeadTags = array();
+
+    protected $aSpecMetaTagsAttr = array('http-equiv', 'name', 'property', 'itemprop');
 
     /**
      * Переменные для передачи в шаблон
@@ -189,7 +208,21 @@ class ModuleViewer extends Module {
      */
     protected $bLocal = false;
 
-    protected $sSkin;
+    /** @var  string Current skin */
+    protected $sViewSkin;
+
+    /** @var  string Current theme */
+    protected $sViewTheme;
+
+    protected $sForcedSkin;
+
+    protected $sForcedTheme;
+
+    protected $bAssetInit = false;
+
+    protected $nMuteErrorsCnt = 0;
+
+    protected $aResponseHeaders = array();
 
     /**
      * Константа для компиляции LESS-файлов
@@ -200,22 +233,37 @@ class ModuleViewer extends Module {
     static protected $_renderTime = 0;
     static protected $_renderStart = 0;
     static protected $_preprocessTime = 0;
+    static protected $_inRender = 0;
 
+    static protected $_renderOptionsStack = array();
+
+    /**
+     * @return int
+     */
     static public function GetRenderCount() {
 
         return self::$_renderCount;
     }
 
+    /**
+     * @return int
+     */
     static public function GetRenderTime() {
 
         return self::$_renderTime + (self::$_renderStart ? microtime(true) - self::$_renderStart : 0);
     }
 
+    /**
+     * @return int
+     */
     static public function GetPreprocessingTime() {
 
         return self::$_preprocessTime + self::GetRenderTime();
     }
 
+    /**
+     * @return int
+     */
     static public function GetTotalTime() {
 
         return self::GetPreprocessingTime() + self::GetRenderTime();
@@ -224,35 +272,84 @@ class ModuleViewer extends Module {
     /**
      * Инициализация модуля
      *
+     * @param bool $bLocal
      */
     public function Init($bLocal = false) {
 
-        $this->Hook_Run('viewer_init_start', compact('bLocal'));
+        E::ModuleHook()->Run('viewer_init_start', compact('bLocal'));
 
         $this->bLocal = (bool)$bLocal;
 
-        $this->InitSkin($this->bLocal);
+        //$this->InitSkin($this->bLocal);
+
+        if (($iTitleMax = Config::Get('view.html.title_max')) && ($iTitleMax > 0)) {
+            $this->iHtmlTitlesMax = Config::Get('view.html.title_max');
+        }
+        $this->sHtmlTitleSeparator = Config::Get('view.html.title_sep');
 
         // * Заголовок HTML страницы
-        $this->sHtmlTitle = Config::Get('view.name');
+        $this->SetHtmlTitle(Config::Get('view.name'));
 
         // * SEO ключевые слова страницы
-        $this->sHtmlKeywords = Config::Get('view.keywords');
+        $sValue = (Config::Get('view.keywords') ? Config::Get('view.keywords') : Config::Get('view.html.keywords'));
+        $this->SetHtmlKeywords($sValue);
 
         // * SEO описание страницы
-        $this->sHtmlDescription = Config::Get('view.description');
+        $sValue = (Config::Get('view.description') ? Config::Get('view.description') : Config::Get('view.html.description'));
+        $this->SetHtmlDescription($sValue);
 
         // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
-        $this->Message_IsInit();
+        E::ModuleMessage()->IsInit();
 
         $this->sCacheDir = Config::Get('path.runtime.dir');
+
+        $this->SetResponseHeader('X-Powered-By', 'Alto CMS');
+        $this->SetResponseHeader('Content-Type', 'text/html; charset=utf-8');
+    }
+
+    /**
+     * Создает и возвращает объект Smarty
+     *
+     * @return Smarty
+     */
+    public function CreateSmartyObject() {
+
+        return new Smarty();
+    }
+
+    /**
+     * Get templator Smarty
+     *
+     * @param array|null $aVariables
+     *
+     * @return Smarty
+     */
+    public function GetSmartyObject() {
+
+        $oSmarty = $this->oSmarty;
+        // For LS interface compatibility
+        if (func_num_args() && ($aVariables = func_get_arg(0)) && is_array($aVariables)) {
+            $oSmarty->assign($aVariables);
+        }
+        return $oSmarty;
+    }
+
+    protected function _initTemplator() {
+
+        if (!$this->oSmarty) {
+            $this->_tplInit();
+        }
     }
 
     /**
      * Инициализация шаблонизатора
      *
      */
-    protected function InitTemplator() {
+    protected function _tplInit() {
+
+        if ($this->oSmarty) {
+            return;
+        }
 
         // * Создаём объект Smarty
         $this->oSmarty = $this->CreateSmartyObject();
@@ -266,7 +363,13 @@ class ModuleViewer extends Module {
         $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Папки расположения шаблонов по умолчанию
-        $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
+        $aDirs = F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template')));
+        if (sizeof($aDirs) == 1) {
+            $sDir = $aDirs[0];
+            $aDirs['themes'] = F::File_NormPath($sDir . '/themes');
+            $aDirs['tpls'] = F::File_NormPath($sDir . '/tpls');
+        }
+        $this->oSmarty->setTemplateDir($aDirs);
         if (Config::Get('smarty.dir.templates')) {
             $this->oSmarty->addTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('smarty.dir.templates'))));
         }
@@ -291,31 +394,191 @@ class ModuleViewer extends Module {
             $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
         }
 
-        // Переносим накопленные переменные в шаблон
-        foreach ($this->aVarsTemplate as $sName => $xValue) {
-            $this->_assignTpl($sName, $xValue);
-            unset($this->aVarsTemplate[$sName]);
+        // Settings for Smarty 3.1.16 and more
+        $this->oSmarty->inheritance_merge_compiled_includes = false;
+
+        F::IncludeFile('./plugs/resource.file.php');
+        $this->oSmarty->registerResource('file', new Smarty_Resource_File());
+
+        // Mutes expected Smarty minor errors
+        $this->oSmarty->muteExpectedErrors();
+    }
+
+    /**
+     * @param string $sTemplate
+     * @param bool $bException
+     *
+     * @return bool|void
+     * @throws Exception
+     */
+    protected function _tplTemplateExists($sTemplate, $bException = false) {
+
+        if (!$this->oSmarty) {
+            $this->_tplInit();
+        }
+
+        $bResult = $this->oSmarty->templateExists($sTemplate);
+
+        if (!$bResult && $bException) {
+            $sSkin = $this->GetConfigSkin();
+            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $sSkin . '"';
+            if ($aTpls = $this->GetSmartyObject()->template_objects) {
+                if (is_array($aTpls)) {
+                    $sMessage .= ' (from: ';
+                    foreach($aTpls as $oTpl) {
+                        $sMessage .= $oTpl->template_resource . '; ';
+                    }
+                    $sMessage .= ')';
+                }
+            }
+            $sMessage .= '. ';
+            $oSkin = E::ModuleSkin()->GetSkin($sSkin);
+            if ((!$oSkin || $oSkin->GetCompatible() != 'alto') && !E::ActivePlugin('ls')) {
+                $sMessage .= 'Probably you need to activate plugin "Ls".';
+            }
+
+            // записываем доп. информацию - пути к шаблонам Smarty
+            $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
+            $this->_error($sMessage, $sErrorInfo);
+            return false;
+        }
+        return $bResult ? $sTemplate : $bResult;
+    }
+
+    /**
+     * @param string $sTemplate
+     * @param array  $aVariables
+     *
+     * @return object
+     */
+    protected function _tplCreateTemplate($sTemplate, $aVariables = null) {
+
+        $oSmarty = $this->GetSmartyObject($this->getTemplateVars());
+        $oTemplate = $oSmarty->createTemplate($sTemplate, $oSmarty);
+        if ($aVariables && is_array($aVariables)) {
+            $oTemplate->assign($aVariables);
+        }
+        return $oTemplate;
+    }
+
+    /**
+     * Set templator options
+     *
+     * @param array $aOptions
+     */
+    protected function _tplSetOptions($aOptions) {
+
+        self::$_renderOptionsStack[] = array(
+            'caching'        => $this->oSmarty->caching,
+            'cache_lifetime' => $this->oSmarty->cache_lifetime,
+        );
+        if (isset($aOptions['cache'])) {
+            $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
+            if ($aOptions['cache'] === false) {
+                // Отключаем кеширование
+                $this->oSmarty->cache_lifetime = 0;
+            } elseif (isset($aOptions['cache']['time'])) {
+                if ($aOptions['cache']['time'] == -1) {
+                    // Задаем бессрочное кеширование
+                    $this->oSmarty->cache_lifetime = -1;
+                } elseif ($aOptions['cache']['time']) {
+                    // Задаем время кеширования
+                    $this->oSmarty->cache_lifetime = F::ToSeconds($aOptions['cache']['time']);
+                } else {
+                    // Отключаем кеширование
+                    $this->oSmarty->cache_lifetime = 0;
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Restore templator options
+     */
+    protected function _tplRestoreOptions() {
+
+        if (self::$_renderOptionsStack) {
+            $aOptions = array_pop(self::$_renderOptionsStack);
+            if (isset($aOptions['caching'])) {
+                $this->oSmarty->caching = $aOptions['caching'];
+            }
+            if (isset($aOptions['cache_lifetime'])) {
+                $this->oSmarty->cache_lifetime = $aOptions['cache_lifetime'];
+            }
         }
     }
 
     /**
-     * Инициализация скина
+     * Загружает переменную в шаблон
      *
-     * @param bool $bLocal
+     * @param string $sName  - Имя переменной в шаблоне
+     * @param mixed  $xValue - Значение переменной
      */
-    protected function InitSkin($bLocal = false) {
+    protected function _tplAssign($sName, $xValue) {
 
-        $this->sSkin = Config::Get('view.skin');
-        if (!$bLocal) {
-            // * Load skin config
-            $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
-            if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
-                $aConfig = F::Array_Merge(F::IncludeFile($sFile, false, true), $aConfig);
+        $this->oSmarty->assign($sName, $xValue);
+    }
+
+
+    /**
+     * Initialization of skin
+     *
+     */
+    protected function _initSkin() {
+
+        $this->sViewSkin = $this->GetConfigSkin();
+
+        // Load skin's config
+        $aConfig = array();
+
+        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
+            $aConfig = F::IncludeFile($sFile, FALSE, TRUE);
+        }
+
+        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {
+            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+        }
+
+//        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
+//        if ($aConfigLoad) {
+//            foreach ($aConfigLoad as $sConfigName) {
+//                if (F::File_Exists($sFile = Config::Get('path.smarty.template') . "/settings/config/$sConfigName.php")) {
+//                    $aConfig = array_merge($aConfig, F::IncludeFile($sFile, false, true));
+//                }
+//            }
+//        }
+
+        // Checks skin's config in app dir
+        $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
+        if (F::File_Exists($sFile)) {
+            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+        }
+        // Checks skin's config from users settings
+        $aUserConfig = Config::Get('skin.' . $this->sViewSkin . '.config');
+        if ($aUserConfig) {
+            if (!$aConfig) {
+                $aConfig = $aUserConfig;
+            } else {
+                $aConfig = F::Array_MergeCombo($aConfig, $aUserConfig);
             }
-            Config::SetLevel(Config::LEVEL_SKIN);
-            if ($aConfig) {
-                Config::Load($aConfig, false);
-            }
+        }
+
+        Config::ResetLevel(Config::LEVEL_SKIN);
+        if ($aConfig) {
+            Config::Load($aConfig, false, null, null, 'skin');
+        }
+
+        // Check skin theme and set one in config if it was changed
+        if ($this->GetConfigTheme() != Config::Get('view.theme')) {
+            Config::Set('view.theme', $this->GetConfigTheme());
+        }
+
+        // Load lang files for skin
+        E::ModuleLang()->LoadLangFileTemplate(E::ModuleLang()->GetLang());
+
+        // Skip skin widgets for local viewer
+        if (!$this->bLocal) {
             // * Load skin widgets
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/widgets.php')) {
                 $aSkinWidgets = F::IncludeFile($sFile, false, true);
@@ -325,20 +588,134 @@ class ModuleViewer extends Module {
                 }
             }
         }
-
-        // * Загружаем локализованные тексты
-        $this->Assign('aLang', $this->Lang_GetLangMsg());
-        $this->Assign('oLang', $this->Lang_Dictionary());
-
-        // * Загружаем переменные из конфига
+        // Load template variables from config
         if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
-            foreach ($aVars as $sKey => $sVal) {
-                $this->Assign($sKey, $sVal);
-            }
+            $this->Assign($aVars);
+        }
+    }
+
+    /**
+     * Initialization of render before Fetch() or Display()
+     */
+    protected function _initRender() {
+
+        E::ModuleHook()->Run('render_init_start', array('bLocal' => $this->bLocal));
+
+        // If skin not initialized (or it was changed) then init one
+        if ($this->sViewSkin != $this->GetConfigSkin()) {
+            $this->_initSkin($this->bLocal);
+        } else {
+            // Level could be changed after skin initialization
+            Config::SetLevel(Config::LEVEL_SKIN);
         }
 
-        // * Получаем настройки JS-, CSS-файлов
-        $this->InitFileParams();
+        // init templator if not yet
+        $this->_initTemplator();
+
+        // Loads localized texts
+        $this->Assign('aLang', E::ModuleLang()->GetLangMsg());
+        $this->Assign('oLang', E::ModuleLang()->Dictionary());
+
+        if (!$this->bLocal && !$this->GetResponseAjax()) {
+            // Initialization of assets (JS-, CSS-files)
+            $this->InitAssetFiles();
+        }
+
+        E::ModuleHook()->Run('render_init_done', array('bLocal' => $this->bLocal));
+    }
+
+    /**
+     * Add HTTP header
+     *
+     * @param string $sHeader
+     */
+    public function AddResponseHeader($sHeader) {
+
+        if (preg_match('/^([^:]+)\s+:(.+)$/', $sHeader, $aM)) {
+            $sHeader = $aM[1] . ': ' . $aM[2];
+        }
+        $this->aResponseHeaders[] = $sHeader;
+    }
+
+    /**
+     * Sets HTTP header as "<key>: <value>"
+     *
+     * @param string $sHeaderKey
+     * @param string $sHeaderValue
+     */
+    public function SetResponseHeader($sHeaderKey, $sHeaderValue) {
+
+        $sSeekKey = strtolower($sHeaderKey) . ':';
+        foreach($this->aResponseHeaders as $iIndex => $sHeader) {
+            if (strpos(strtolower($sHeader), $sSeekKey) === 0) {
+                unset($this->aResponseHeaders[$iIndex]);
+                break;
+            }
+        }
+        $this->AddResponseHeader($sHeaderKey . ': ' . $sHeaderValue);
+    }
+
+    /**
+     * Clears HTTP Headers
+     */
+    public function ClearResponseHeaders() {
+
+        $this->aResponseHeaders[] = array();
+    }
+
+    /**
+     * Returns HTTP headers
+     *
+     * @return array
+     */
+    public function GetResponseHeaders() {
+
+        return $this->aResponseHeaders;
+    }
+
+    /**
+     * Send HTTP headers
+     *
+     * @return bool
+     */
+    public function SendResponseHeaders() {
+
+        if (headers_sent()) {
+            return false;
+        }
+        foreach($this->aResponseHeaders as $iIndex => $sHeader) {
+            header($sHeader);
+            unset($this->aResponseHeaders[$iIndex]);
+        }
+        return true;
+    }
+
+    /**
+     * Return content type from HTTP headers
+     *
+     * @param bool $bSystemHeadersOnly
+     *
+     * @return string
+     */
+    public function GetContentType($bSystemHeadersOnly = false) {
+
+        $aHeaders = headers_list();
+        if (!$bSystemHeadersOnly) {
+            if ($aHeaders) {
+                $aHeaders = array_merge($aHeaders, $this->aResponseHeaders);
+            } else {
+                $aHeaders = $this->aResponseHeaders;
+            }
+        }
+        $sResult = null;
+        if ($aHeaders) {
+            foreach ($aHeaders as $sHeader) {
+                if (preg_match('/content-type:\s*([a-z0-9\-\/]+)/i', $sHeader, $aM)) {
+                    $sResult = $aM[1];
+                }
+            }
+        }
+        return $sResult;
     }
 
     /**
@@ -348,12 +725,17 @@ class ModuleViewer extends Module {
      */
     public function GetLocalViewer() {
 
-        $sClass = $this->Plugin_GetDelegate('module', __CLASS__);
+        $sClass = E::ModulePlugin()->GetDelegate('module', __CLASS__);
 
+        /** @var ModuleViewer $oViewerLocal */
         $oViewerLocal = new $sClass(Engine::getInstance());
         $oViewerLocal->Init(true);
-        $oViewerLocal->Assign('aLang', $this->Lang_GetLangMsg());
+        $oViewerLocal->_initRender();
         $oViewerLocal->VarAssign();
+
+        $oSmarty = $oViewerLocal->GetSmartyObject();
+        $oSmarty->assign($oViewerLocal->getTemplateVars());
+
         return $oViewerLocal;
     }
 
@@ -372,53 +754,19 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Возвращает путь к общей asset-папке
-     *
-     * @return string
-     */
-    public function GetAssetDir() {
-
-        return F::File_NormPath(Config::Get('path.runtime.dir') . 'assets/');
-    }
-
-    /**
-     * Возвращает URL к общей asset-папке
-     *
-     * @return string
-     */
-    public function GetAssetUrl() {
-
-        return Config::Get('path.runtime.url') . 'assets/';
-    }
-
-    /**
      * Выполняет загрузку необходимых (возможно даже системных :)) переменных в шаблонизатор
      */
     public function VarAssign() {
 
-        if (!$this->oSmarty) {
-            $this->InitTemplator();
-        }
-
-        foreach ($this->aVarsTemplate as $sName => $xValue) {
-            $this->_assignTpl($sName, $xValue);
-            unset($this->aVarsTemplate[$sName]);
-        }
-
-        // * Загружаем весь $_REQUEST, предварительно обработав его функцией func_htmlspecialchars()
+        // * Загружаем весь $_REQUEST, предварительно обработав его функцией F::HtmlSpecialChars()
         $aRequest = $_REQUEST;
         F::HtmlSpecialChars($aRequest);
-        $this->_assignTpl('_aRequest', $aRequest);
+        $this->Assign('_aRequest', $aRequest);
 
         // * Параметры стандартной сессии
         // TODO: Убрать! Не должно этого быть на страницах сайта
-        $this->_assignTpl('_sPhpSessionName', session_name());
-        $this->_assignTpl('_sPhpSessionId', session_id());
-
-        // * Загружаем объект доступа к конфигурации
-        // * Перенесено в PluginLs_Viewer
-        // TODO: Пока здесь, но надо убирать - незачем таскать в шаблоны объект, если можно в них к стат.классу напрямую обращаться
-        $this->Assign('oConfig', Config::getInstance());
+        $this->Assign('_sPhpSessionName', session_name());
+        $this->Assign('_sPhpSessionId', session_id());
 
         // * Загружаем роутинг с учетом правил rewrite
         $aRouter = array();
@@ -428,44 +776,47 @@ class ModuleViewer extends Module {
             throw new Exception('Router rules is underfined.');
         }
         foreach ($aPages as $sPage => $aAction) {
-            $aRouter[$sPage] = Router::GetPath($sPage);
+            $aRouter[$sPage] = R::GetPath($sPage);
         }
-        $this->_assignTpl('aRouter', $aRouter);
+        $this->Assign('aRouter', $aRouter);
 
         // * Загружаем виджеты
-        $this->_assignTpl('aWidgets', $this->GetWidgets());
+        $this->Assign('aWidgets', $this->GetWidgets());
 
         // * Загружаем HTML заголовки
-        $this->_assignTpl('sHtmlTitle', htmlspecialchars($this->sHtmlTitle));
-        $this->_assignTpl('sHtmlKeywords', htmlspecialchars($this->sHtmlKeywords));
-        $this->_assignTpl('sHtmlDescription', htmlspecialchars($this->sHtmlDescription));
-        $this->_assignTpl('aHtmlHeadFiles', $this->aHtmlHeadFiles);
-        $this->_assignTpl('aHtmlRssAlternate', $this->aHtmlRssAlternate);
-        $this->_assignTpl('sHtmlCanonical', $this->sHtmlCanonical);
-        $this->_assignTpl('aHtmlHeadTags', $this->aHtmlHeadTags);
+        $this->Assign('sHtmlTitle', $this->GetHtmlTitle());
+        $this->Assign('sHtmlKeywords', $this->GetHtmlKeywords());
+        $this->Assign('sHtmlDescription', $this->GetHtmlDescription());
 
-        $this->_assignTpl('aJsAssets', $this->ViewerAsset_GetPreparedAssetLinks());
+        $this->Assign('aHtmlHeadFiles', $this->aHtmlHeadFiles);
+        $this->Assign('aHtmlRssAlternate', $this->aHtmlRssAlternate);
+        $this->Assign('sHtmlCanonical', $this->sHtmlCanonical);
+        $this->Assign('aHtmlHeadTags', $this->aHtmlHeadTags);
+
+        $this->Assign('aJsAssets', E::ModuleViewerAsset()->GetPreparedAssetLinks());
 
         // * Загружаем список активных плагинов
-        $aPlugins = $this->oEngine->GetPlugins();
-        $this->_assignTpl('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
+        $aPlugins = E::GetActivePlugins();
+        $this->Assign('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
 
         // * Загружаем пути до шаблонов плагинов
-        $aTemplateWebPathPlugin = array();
-        $aTemplatePathPlugin = array();
+        $aPluginsTemplateUrl = array();
+        $aPluginsTemplateDir = array();
+
+        /** @var Plugin $oPlugin */
         foreach ($aPlugins as $sPlugin => $oPlugin) {
             $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
-            $this->oSmarty->addTemplateDir($sDir, $oPlugin->GetName(false));
-            $aTemplatePathPlugin[$sPlugin] = $sDir;
-            $aTemplateWebPathPlugin[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
+            $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
+            $aPluginsTemplateDir[$sPlugin] = $sDir;
+            $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
         }
         if (E::ActivePlugin('ls')) {
             // LS-compatible //
-            $this->_assignTpl('aTemplateWebPathPlugin', $aTemplateWebPathPlugin);
-            $this->_assignTpl('aTemplatePathPlugin', $aTemplatePathPlugin);
+            $this->Assign('aTemplateWebPathPlugin', $aPluginsTemplateUrl);
+            $this->Assign('aTemplatePathPlugin', $aPluginsTemplateDir);
         }
 
-        $sSkinTheme = Config::Get('view.theme');
+        $sSkinTheme = $this->GetConfigTheme();
         if (!$sSkinTheme) {
             $sSkinTheme = 'default';
         }
@@ -473,7 +824,14 @@ class ModuleViewer extends Module {
         if ($this->CheckTheme($sSkinTheme)) {
             $this->oSmarty->compile_id = $sSkinTheme;
         }
-        $this->_assignTpl('sSkinTheme', $sSkinTheme);
+        $this->Assign('sSkinTheme', $sSkinTheme);
+
+        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
+        if (!$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+            // Для старых скинвов загружаем объект доступа к конфигурации
+            $this->Assign('oConfig', Config::getInstance());
+
+        }
     }
 
     /**
@@ -498,22 +856,29 @@ class ModuleViewer extends Module {
         if ($this->sResponseAjax) {
             $this->DisplayAjax($this->sResponseAjax);
         }
+
+        $this->SendResponseHeaders();
         /*
          * Если шаблон найден то выводим, иначе - ошибка
          * Но предварительно проверяем наличие делегата
          */
         if ($sTemplate) {
-            if (!$this->oSmarty) {
-                $this->InitTemplator();
-            }
-            $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+            $this->_initTemplator();
+
+            $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
-                $this->Security_SetSessionKey();
+                E::ModuleSecurity()->SetSecurityKey();
+
+                $oTpl = $this->_tplCreateTemplate($sTemplate, $this->getTemplateVars());
 
                 self::$_renderCount++;
                 self::$_renderStart = microtime(true);
-                $this->oSmarty->display($sTemplate);
+                self::$_inRender += 1;
+
+                $oTpl->display();
+
+                self::$_inRender -= 1;
                 self::$_renderTime += (microtime(true) - self::$_renderStart);
                 self::$_renderStart = 0;
             }
@@ -523,58 +888,42 @@ class ModuleViewer extends Module {
     /**
      * Возвращает отрендеренный шаблон
      *
-     * @param   string $sTemplate    - Шаблон для рендеринга
-     * @param   array  $aOptions     - Опции рендеринга
+     * @param string $sTemplate - Шаблон для рендеринга
+     * @param array  $aVars     - Переменные для локального рендеринга
+     * @param array  $aOptions  - Опции рендеринга
      *
      * @return  string
      */
-    public function Fetch($sTemplate, $aOptions = array()) {
+    public function Fetch($sTemplate, $aVars = array(), $aOptions = array()) {
 
-        if (!$this->oSmarty) {
-            $this->InitTemplator();
-        }
+        $this->_initTemplator();
 
         // * Проверяем наличие делегата
-        $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+        $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
         if ($this->TemplateExists($sTemplate, true)) {
             // Если задаются локальные параметры кеширования, то сохраняем общие
-            if (isset($aOptions['cache'])) {
-                $nOldCaching = $this->oSmarty->caching;
-                $nOldCacheLifetime = $this->oSmarty->cache_lifetime;
+            $this->_tplSetOptions($aOptions);
 
-                $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
-                if ($aOptions['cache'] === false) {
-                    // Отключаем кеширование
-                    $this->oSmarty->cache_lifetime = 0;
-                } elseif (isset($aOptions['cache']['time'])) {
-                    if ($aOptions['cache']['time'] == -1) {
-                        // Задаем бессрочное кеширование
-                        $this->oSmarty->cache_lifetime = -1;
-                    } elseif ($aOptions['cache']['time']) {
-                        // Задаем время кеширования
-                        $this->oSmarty->cache_lifetime = F::ToSeconds($aOptions['cache']['time']);
-                    } else {
-                        // Отключаем кеширование
-                        $this->oSmarty->cache_lifetime = 0;
-                    }
-                }
+            $oTpl = $this->_tplCreateTemplate($sTemplate);
+            if ($aVars) {
+                $oTpl->assign($aVars);
             }
 
             self::$_renderCount++;
             self::$_renderStart = microtime(true);
+            self::$_inRender += 1;
 
-            $sContent = $this->oSmarty->fetch($sTemplate);
+            $sContent = $oTpl->fetch($sTemplate);
 
+            self::$_inRender -= 1;
             self::$_renderTime += (microtime(true) - self::$_renderStart);
             self::$_renderStart = 0;
 
-            if (isset($aOptions['cache'])) {
-                $this->oSmarty->caching = $nOldCaching;
-                $this->oSmarty->cache_lifetime = $nOldCacheLifetime;
-            }
+            $this->_tplRestoreOptions();
 
             return $sContent;
         }
+        return null;
     }
 
     /**
@@ -589,10 +938,11 @@ class ModuleViewer extends Module {
     public function FetchWidget($sTemplate, $aVars = array(), $aOptions = array()) {
 
         // * Проверяем наличие делегата
-        $sDelegateTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+        $sDelegateTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
+        $sRenderTemplate = '';
         if ($sDelegateTemplate == $sTemplate && !$this->TemplateExists($sTemplate)) {
             $sWidgetTemplate = 'widgets/widget.' . $sTemplate;
-            $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
+            $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
             if ($this->TemplateExists($sWidgetTemplate)) {
                 $sRenderTemplate = $sWidgetTemplate;
             }
@@ -600,7 +950,7 @@ class ModuleViewer extends Module {
             if (!$sRenderTemplate) {
                 // * LS-compatible *//
                 $sWidgetTemplate = 'blocks/block.' . $sTemplate;
-                $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
+                $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
                 if ($this->TemplateExists($sWidgetTemplate)) {
                     $sRenderTemplate = $sWidgetTemplate;
                 }
@@ -610,10 +960,11 @@ class ModuleViewer extends Module {
                 $sRenderTemplate = $sWidgetTemplate;
             }
         }
-        $oSmarty = $this->GetSmartyObject();
-        $oTpl = $oSmarty->createTemplate($sRenderTemplate, $oSmarty);
-        $oTpl->assign($aVars);
-        return $oTpl->Fetch();
+        if (!$sRenderTemplate) {
+            $sRenderTemplate = $sDelegateTemplate;
+        }
+
+        return $this->Fetch($sRenderTemplate, $aVars, $aOptions);
     }
 
     /**
@@ -623,15 +974,14 @@ class ModuleViewer extends Module {
      */
     public function DisplayAjax($sType = 'json') {
 
-        $aHeaders = array();
         $sOutput = '';
 
         // * Загружаем статус ответа и сообщение
         $bStateError = false;
         $sMsgTitle = '';
         $sMsg = '';
-        $aMsgError = $this->Message_GetError();
-        $aMsgNotice = $this->Message_GetNotice();
+        $aMsgError = E::ModuleMessage()->GetError();
+        $aMsgNotice = E::ModuleMessage()->GetNotice();
         if (count($aMsgError) > 0) {
             $bStateError = true;
             $sMsgTitle = $aMsgError[0]['title'];
@@ -644,51 +994,84 @@ class ModuleViewer extends Module {
         $this->AssignAjax('sMsg', $sMsg);
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
-            if ($this->bResponseSpecificHeader && !headers_sent()) {
-                $aHeaders[] = 'Content-type: application/json';
-            }
+            $this->SetResponseHeader('Content-type', 'application/json');
             $sOutput = F::jsonEncode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
-            if ($this->bResponseSpecificHeader && !headers_sent()) {
-                $aHeaders[] = 'Content-type: application/json';
-            }
+            $this->SetResponseHeader('Content-type', 'application/json');
 
             // * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
             $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
-            if ($this->bResponseSpecificHeader && !headers_sent()) {
-                $aHeaders[] = 'Content-type: application/json';
-            }
-            $sOutput = getRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
+            $this->SetResponseHeader('Content-type', 'application/json');
+            $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
-        if ($aHeaders) {
-            foreach ($aHeaders as $sHeader) {
-                header($sHeader);
-            }
-        }
-        echo $sOutput;
+
+        $this->Flush($sOutput);
+
         exit();
     }
 
     /**
-     * Создает и возвращает объект Smarty
+     * Flush output string to client
      *
-     * @return Smarty
+     * @param string $sOutput
      */
-    public function CreateSmartyObject() {
+    public function Flush($sOutput) {
 
-        return new Smarty();
+        $this->SendResponseHeaders();
+
+        echo $sOutput;
     }
 
     /**
-     * Возвращает объект Smarty
+     * Sets forced skin
      *
-     * @return Smarty
+     * @param string $sSkin
      */
-    public function GetSmartyObject() {
+    public function SetViewSkin($sSkin) {
 
-        return $this->oSmarty;
+        $this->sForcedSkin = $sSkin;
+    }
+
+    /**
+     * Sets forced theme
+     *
+     * @param string $sTheme
+     */
+    public function SetViewTheme($sTheme) {
+
+        $this->sForcedTheme = $sTheme;
+    }
+
+    /**
+     * Returns theme of current skin from forced settings or config
+     *
+     * @param  bool $bSiteSkin - if true then returns skin for site (ignore LEVEL_ACTION)
+     *
+     * @return string
+     */
+    public function GetViewSkin($bSiteSkin = false) {
+
+        if ($this->sForcedSkin && !$bSiteSkin) {
+            return $this->sForcedSkin;
+        }
+        return $this->GetConfigSkin($bSiteSkin);
+    }
+
+    /**
+     * Returns theme of current theme from forced settings or config
+     *
+     * @param  bool $bSiteSkin - if true then returns theme for site (ignore LEVEL_ACTION)
+     *
+     * @return string
+     */
+    public function GetViewTheme($bSiteSkin = false) {
+
+        if ($this->sForcedTheme && !$bSiteSkin) {
+            return $this->sForcedTheme;
+        }
+        return $this->GetConfigTheme($bSiteSkin);
     }
 
     /**
@@ -698,12 +1081,28 @@ class ModuleViewer extends Module {
      *
      * @return  string
      */
-    public function GetSkin($bSiteSkin = true) {
+    public function GetConfigSkin($bSiteSkin = false) {
 
         if ($bSiteSkin) {
             return Config::Get('view.skin', Config::LEVEL_CUSTOM);
         } else {
             return Config::Get('view.skin');
+        }
+    }
+
+    /**
+     * Returns theme of current skin from config
+     *
+     * @param  bool $bSiteSkin - if true then returns theme for site (ignore LEVEL_ACTION)
+     *
+     * @return string
+     */
+    public function GetConfigTheme($bSiteSkin = false) {
+
+        if ($bSiteSkin) {
+            return Config::Get('view.theme', Config::LEVEL_CUSTOM);
+        } else {
+            return Config::Get('view.theme');
         }
     }
 
@@ -717,7 +1116,7 @@ class ModuleViewer extends Module {
     public function GetTemplateDir($bSiteSkin = true) {
 
         if ($bSiteSkin) {
-            return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetSkin(true));
+            return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetConfigSkin($bSiteSkin));
         } else {
             return Config::Get('path.smarty.template');
         }
@@ -744,7 +1143,7 @@ class ModuleViewer extends Module {
 
         // Для возможности кросс-доменных запросов
         if ($sResponseAjax != 'jsonp' && $bValidate) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
         }
         $this->sResponseAjax = $sResponseAjax;
         $_REQUEST['ALTO_AJAX'] = $sResponseAjax;
@@ -763,28 +1162,58 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Загружает переменную в шаблон
+     * Sets value(s) to template variable(s)
      *
-     * @param string $sName  - Имя переменной в шаблоне
-     * @param mixed  $xValue - Значение переменной
+     * @param string|array $xParam - Name of template variable or associate array
+     * @param mixed|null   $xValue - Value of variable if $xParam is string
      */
-    protected function _assignTpl($sName, $xValue) {
+    public function Assign($xParam, $xValue = null) {
 
-        $this->oSmarty->assign($sName, $xValue);
+        if (is_array($xParam) && is_null($xValue)) {
+            foreach($xParam as $sName => $xValue) {
+                $this->Assign($sName, $xValue);
+            }
+        } else {
+            $this->aVarsTemplate[$xParam] = $xValue;
+            if (self::$_inRender || $this->bLocal) {
+                $this->_tplAssign($xParam, $xValue);
+            }
+        }
     }
 
     /**
-     * Присваивает значение переменной шаблона
+     * Returns template variable(s)
      *
-     * @param string $sName  - Имя переменной шаблона
-     * @param mixed  $xValue - Значение переменной
+     * @param string|null $sVarName
+     *
+     * @return mixed
      */
-    public function Assign($sName, $xValue) {
+    public function getTemplateVars($sVarName = null) {
 
-        if ($this->oSmarty) {
-            $this->_assignTpl($sName, $xValue);
+        $xResult = null;
+        if ($sVarName) {
+            if (isset($this->aVarsTemplate[$sVarName])) {
+                $xResult = $this->aVarsTemplate[$sVarName];
+            }
         } else {
-            $this->aVarsTemplate[$sName] = $xValue;
+            $xResult = $this->aVarsTemplate;
+        }
+        return $xResult;
+    }
+
+    protected function _muteErrors() {
+
+        if ($this->nMuteErrorsCnt <= 0) {
+            $this->oSmarty->muteExpectedErrors();
+            $this->nMuteErrorsCnt++;
+        }
+    }
+
+    protected function _unmuteErrors() {
+
+        if ($this->nMuteErrorsCnt > 0) {
+            $this->oSmarty->unmuteExpectedErrors();
+            $this->nMuteErrorsCnt--;
         }
     }
 
@@ -798,27 +1227,7 @@ class ModuleViewer extends Module {
      */
     public function TemplateExists($sTemplate, $bException = false) {
 
-        if (!$this->oSmarty) {
-            $this->InitTemplator();
-        }
-        $bResult = $this->oSmarty->templateExists($sTemplate);
-        if (!$bResult && $bException) {
-            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
-            if ($aTpls = $this->GetSmartyObject()->template_objects) {
-                if (is_array($aTpls)) {
-                    $sMessage .= ' (from: ';
-                    foreach($aTpls as $oTpl) {
-                        $sMessage .= $oTpl->template_resource . '; ';
-                    }
-                    $sMessage .= ')';
-                }
-            }
-
-            // записываем доп. информацию - пути к шаблонам Smarty
-            $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
-            return $this->_error($sMessage, $sErrorInfo);
-        }
-        return $bResult ? $sTemplate : $bResult;
+        return $this->_tplTemplateExists($sTemplate, $bException);
     }
 
     /**
@@ -835,15 +1244,15 @@ class ModuleViewer extends Module {
             // Разделяем сам скин и тему
             list($sSkin, $sTheme) = explode('/', $sSkin, 2);
             if (!$sSkin) {
-                $sSkin = Config::Get('view.skin');
+                $sSkin = $this->GetConfigSkin();
             }
         } else {
             $sTheme = null;
         }
         $sCheckDir = Config::Get('path.skin.dir');
         // Если проверяется не текущий скин, то корректируем путь
-        if ($sSkin != Config::Get('view.skin')) {
-            $sCheckDir = str_replace('/' . Config::Get('view.skin') . '/', '/' . $sSkin . '/', $sCheckDir);
+        if ($sSkin != $this->GetConfigSkin()) {
+            $sCheckDir = str_replace('/' . $this->GetConfigSkin() . '/', '/' . $sSkin . '/', $sCheckDir);
         }
         // Проверяем только скин или тему скина
         if ($sTheme) {
@@ -860,7 +1269,8 @@ class ModuleViewer extends Module {
                 // записываем доп. информацию - пути к шаблонам Smarty
                 $sErrorInfo = 'Skin dir: ' . $sCheckDir;
             }
-            return $this->_error($sMessage, $sErrorInfo);
+            $this->_error($sMessage, $sErrorInfo);
+            return false;
         }
         return $bResult;
     }
@@ -872,7 +1282,7 @@ class ModuleViewer extends Module {
      */
     public function CheckSkin() {
 
-        if (!$this->SkinExists(Config::Get('view.skin'), true)) {
+        if (!$this->SkinExists($this->GetConfigSkin(), true)) {
             die('Please check skin folder');
         }
     }
@@ -886,7 +1296,7 @@ class ModuleViewer extends Module {
      */
     public function CheckTheme($sTheme) {
 
-        return $this->SkinExists(Config::Get('view.skin') . '/' . $sTheme, false);
+        return $this->SkinExists($this->GetConfigSkin() . '/' . $sTheme, false);
     }
 
     /**
@@ -915,46 +1325,36 @@ class ModuleViewer extends Module {
      * @param   int $iPriority    Приоритет, согласно которому сортируются виджеты
      * @return  bool
      */
-    public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = 0) {
-        /**
-         * Если не указана директория шаблона, но указана приналежность к плагину,
-         * то "вычисляем" правильную директорию
-         */
-        if (!isset($aParams['dir']) && isset($aParams['plugin'])) {
-            $aParams['dir'] = Plugin::GetTemplatePath($aParams['plugin']);
+    public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = null) {
+
+        if (is_null($iPriority)) {
+            $iPriority = (isset($aParams['priority']) ? $aParams['priority'] : 0);
         }
 
         $aWidgetData = array(
-            'name' => $sName,
-            'params' => $aParams,
+            'wgroup'   => $sGroup,
+            'name'     => $sName,
             'priority' => $iPriority,
+            'params'   => $aParams,
         );
+        if (isset($aWidgetData['params']['id'])) {
+            $aWidgetData['id'] = $aWidgetData['params']['id'];
+            unset($aWidgetData['params']['id']);
+        }
 
-        // Создавать виджет нужно до определения его типа, чтоб ID виджета сформировался правильно
-        $oWidget = Engine::GetEntity('Widget', $aWidgetData);
+        $oWidget = E::ModuleWidget()->MakeWidget($aWidgetData);
 
-        $sDir = isset($aParams['dir']) ? $aParams['dir'] : null;
-        $sPlugin = isset($aParams['plugin']) ? $aParams['plugin'] : null;
-        // Если смогли определить тип виджета то добавляем его
-        $sType = $this->DefineWidgetType($sName, $sDir, $sPlugin);
-        if ($sType == 'undefined') {
+        // Если тип виджета определен, то добавляем его
+        if (!$oWidget->getType()) {
             return false;
         }
 
-        $oWidget->setType($sType);
-        if ($sType == 'template') {
-            // в $sName возвращается найденный шаблон
-            $oWidget->setTemplate($sName);
-            if ($sName != $aWidgetData['name']) {
-                $oWidget->setName($sName);
-            }
-        }
-
-        // Добавляем виджет в группу
-        $this->aWidgets[$sGroup][] = $oWidget;
+        // Добавляем виджет в массив дополнительных
+        $this->aWidgetsAppend[$oWidget->getId()] = $oWidget;
 
         // Сбрасываем флаг сортировки
         $this->bWidgetsSorted = false;
+
         return true;
     }
 
@@ -965,7 +1365,7 @@ class ModuleViewer extends Module {
      * @param   array  $aWidgets        - Список добавляемых виджетов
      * @param   bool   $ClearWidgets    - Очищать или нет список виджетов, добавленных до этого, в данной группе
      * <pre>
-     * $this->Viewer_AddWidgets('right', array('tags', array('widget'=>'stream', 'priority'=>100)));
+     * E::ModuleViewer()->AddWidgets('right', array('tags', array('widget'=>'stream', 'priority'=>100)));
      * </pre>
      */
     public function AddWidgets($sGroup, $aWidgets, $ClearWidgets = true) {
@@ -980,7 +1380,7 @@ class ModuleViewer extends Module {
                     $sGroup,
                     $sWidget['widget'],
                     isset($sWidget['params']) ? $sWidget['params'] : array(),
-                    isset($sWidget['priority']) ? $sWidget['priority'] : 5
+                    isset($sWidget['priority']) ? $sWidget['priority'] : 0
                 );
             } else {
                 $this->AddWidget($sGroup, $sWidget);
@@ -1004,9 +1404,7 @@ class ModuleViewer extends Module {
      */
     public function ClearAllWidgets() {
 
-        foreach ($this->aWidgets as $sGroup => $aWidget) {
-            $this->aWidgets[$sGroup] = array();
-        }
+        $this->aWidgets = array();
     }
 
     /**
@@ -1018,9 +1416,15 @@ class ModuleViewer extends Module {
      */
     public function GetWidgets($bSort = true) {
 
+        if ($this->aWidgetsAppend) {
+            $this->AddWidgetsToList($this->aWidgetsAppend);
+            $this->aWidgetsAppend = array();
+        }
+
         if ($bSort && !$this->bWidgetsSorted) {
             $this->SortWidgets();
         }
+
         return $this->aWidgets;
     }
 
@@ -1032,35 +1436,42 @@ class ModuleViewer extends Module {
      *                            если передать параметр 'plugin'=>'myplugin'
      * @param   string $sPlugin - Имя плагина виджета, берется из параметра 'plugin'=>'myplugin'
      *
-     * @return  string ('exec', 'block', 'template', 'undefined')
+     * @return  string ('exec', 'block', 'template', '')
      */
-    protected function DefineWidgetType(&$sName, $sDir = null, $sPlugin = null) {
+    public function DefineWidgetType($sName, $sDir = null, $sPlugin = null) {
 
         // Добавляем проверку на рсширение, чтобы не делать лишних телодвижений
         $bTpl = (substr($sName, -4) == '.tpl');
         if (!$bTpl) {
-            if ($this->Widget_FileClassExists($sName, $sPlugin)) {
+            if (E::ModuleWidget()->FileClassExists($sName, $sPlugin)) {
                 // Если найден файл класса виджета, то это исполняемый виджет
-                return 'exec';
+                return array('type' => 'exec');
             }
         }
         if (strpos($sName, 'block.') && ($sTplName = $this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/')))) {
             // * LS-compatible * //
-            $sName = $sTplName;
-            return 'template';
-        } elseif ($sTplName = $this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/'))) {
-            // Если найден шаблон, то считаем, что это шаблонный виджет
-            $sName = $sTplName;
-            return 'template';
-        } elseif ($sTplName = $this->TemplateExists(is_null($sDir) ? 'widgets/widget.' . $sName : rtrim($sDir, '/') . '/widgets/widget.' . $sName)) {
-            // Если найден шаблон вида widget.name.tpl то считаем что тип 'template'
-            $sName = $sTplName;
-            return 'template';
+            return array('type' => 'template', 'name' => $sTplName);
+        }
+
+        if (!is_null($sDir)) {
+            $sDir = rtrim($sDir, '/') . '/';
+        }
+        $aCheckNames = array(
+            $sDir . 'tpls/widgets/widget.' . $sName,
+            $sDir . ltrim($sName, '/'),
+            $sDir . 'widgets/widget.' . $sName,
+        );
+        foreach ($aCheckNames as $sCheckName) {
+            if ($sTplName = $this->TemplateExists($sCheckName)) {
+                // Если найден шаблон, то считаем, что это шаблонный виджет
+                return array('type' => 'template', 'name' => $sTplName);
+            }
         }
 
         // Считаем что тип не определен
-        F::SysWarning('Can not define type of widget "' . $sName . '"');
-        return 'undefined';
+        //F::SysWarning('Can not define type of widget "' . $sName . '"');
+
+        return array('type' => null);
     }
 
 
@@ -1070,20 +1481,21 @@ class ModuleViewer extends Module {
      *  - потом те, у кого выше приоритет
      *  - потом те, которые были раньше добавлены
      *
-     * @param  array $a
-     * @param  array $b
+     * @param  ModuleWidget_EntityWidget $oW1
+     * @param  ModuleWidget_EntityWidget $oW2
+     *
      * @return int
      */
-    protected function _SortWidgetsCompare($a, $b) {
+    protected function _SortWidgetsCompare($oW1, $oW2) {
 
-        if ($a->getPriority() == $b->getPriority()) {
-            return $a->getOrder() - $b->getOrder();
-        } elseif ($a->isTop()) {
+        if ($oW1->getPriority() === $oW2->getPriority()) {
+            return $oW1->getOrder() - $oW2->getOrder();
+        } elseif ($oW1->isTop()) {
             return 1;
-        } elseif ($b->isTop()) {
+        } elseif ($oW2->isTop()) {
             return -1;
         }
-        if ($a->getPriority() < $b->getPriority()) {
+        if ($oW1->getPriority() < $oW2->getPriority()) {
             return -1;
         }
         return 1;
@@ -1105,54 +1517,83 @@ class ModuleViewer extends Module {
         $this->bWidgetsSorted = true;
     }
 
+    /**
+     * Make lists of widgets (separated by groups)
+     */
     protected function MakeWidgetsLists() {
 
-        $aWidgets = $this->Widget_GetWidgets();
-        if ($aWidgets) {
-            foreach ($aWidgets as $oWidget) {
-                if ($sGroup = $oWidget->getGroup()) {
-                    // Свойство "order" потребуется для сортировки по поядку добавления, если не задан приоритет
-                    if (!$oWidget->getOrder()) {
-                        $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
-                    }
-                    if (is_null($oWidget->getType())) {
-                        $sName = $oWidget->getName();
-                        $sType = $this->DefineWidgetType($sName, $oWidget->getDir(), $oWidget->getPluginId());
+        // Load widgets from config files
+        $aWidgets = E::ModuleWidget()->GetWidgets();
+        $iCount = $this->AddWidgetsToList($aWidgets);
 
-                        $oWidget->setType($sType);
-                        if ($sType == 'template') {
-                            $oWidget->setName($sName);
-                            /*
-                            $aParams = $oWidget->getParams();
-                            if (!isset($aParams['dir'])) {
-                                $aParams['dir'] = $oWidget->getDir();
-                                $oWidget->setParams($aParams);
-                            }
-                            */
-                        }
-                        /* LS-compatible */
-                        if (!$oWidget->getParam('plugin') && $oWidget->getPluginId()) {
-                            $oWidget->setParam('plugin', $oWidget->getPluginId());
-                        }
-                    }
-                }
-                // Список всех виджетов, в т.ч. и без группы
-                $this->aWidgets['_all_'][$oWidget->GetId()] = $oWidget;
-                // Список виджетов с разбивкой по круппам (чтоб не дублировать, сохраняем ссылку на элемент в общем списке)
-                $this->aWidgets[$sGroup][$oWidget->GetId()] = & $this->aWidgets['_all_'][$oWidget->GetId()];
-            }
+        // Check widgets added from actions
+        if ($this->aWidgetsAppend) {
+            $iCount += $this->AddWidgetsToList($this->aWidgetsAppend);
+            $this->aWidgetsAppend = array();
+        }
+
+        if ($iCount) {
             $this->SortWidgets();
         }
     }
 
     /**
-     * Инициализирует параметры вывода js- и css- файлов
+     * Adds widgets from array to current lists
+     *
+     * @param array $aWidgets
+     *
+     * @return int
      */
-    protected function InitFileParams() {
+    protected function AddWidgetsToList($aWidgets) {
 
-        $this->ViewerAsset_AssetMake(Config::Get('head.default'));
+        $iCount = 0;
+        /** @var ModuleWidget_EntityWidget $oWidget */
+        foreach ($aWidgets as $oWidget) {
+            $sGroup = $oWidget->getGroup();
+            if (!$sGroup) {
+                // group not defined
+                $sGroup = '-';
+            }
+            // Свойство "order" потребуется для сортировки по порядку добавления, если не задан приоритет
+            if (!$oWidget->getOrder()) {
+                $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
+            }
+
+            // if widget must be displayed then we add it to arrays
+            if ($oWidget->isDisplay()) {
+                // Список всех виджетов, в т.ч. и без группы
+                $this->aWidgets['_all_'][$oWidget->GetId()] = $oWidget;
+                // Список виджетов с разбивкой по круппам (чтоб не дублировать, сохраняем ссылку на элемент в общем списке)
+                $this->aWidgets[$sGroup][$oWidget->GetId()] = & $this->aWidgets['_all_'][$oWidget->GetId()];
+                $iCount += 1;
+            }
+        }
+        return $iCount;
     }
 
+    /**
+     * Инициализирует параметры вывода js- и css- файлов
+     */
+    public function InitAssetFiles() {
+
+        if ($this->aFilesPrepend['js']) {
+            $this->aFilesPrepend['js'] = array_reverse($this->aFilesPrepend['js'], true);
+        }
+        if ($this->aFilesPrepend['css']) {
+            $this->aFilesPrepend['css'] = array_reverse($this->aFilesPrepend['css'], true);
+        }
+        if ($this->aFilesPrepend['js'] || $this->aFilesPrepend['css']) {
+            E::ModuleViewerAsset()->AddAssetFiles($this->aFilesPrepend);
+            $this->aFilesPrepend = array();
+        }
+
+        E::ModuleViewerAsset()->AddAssetFiles(Config::Get('head.default'));
+
+        if ($this->aFilesAppend['js'] || $this->aFilesAppend['css']) {
+            E::ModuleViewerAsset()->AddAssetFiles($this->aFilesAppend);
+        }
+        $this->bAssetInit = true;
+    }
 
     /**
      * Добавляет js-файл в конец списка
@@ -1164,9 +1605,22 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function AppendScript($sFile, $aParams = array(), $bReplace = false) {
+    public function AppendScript($sFile, $aParams = array(), $bReplace = null) {
 
-        return $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesAppend['js'][$sFile] = $aParams;
+        } else {
+            E::ModuleViewerAsset()->AppendJs($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1179,9 +1633,22 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function PrependScript($sFile, $aParams = array(), $bReplace = false) {
+    public function PrependScript($sFile, $aParams = array(), $bReplace = null) {
 
-        return $this->ViewerAsset_PrependJs($sFile, $aParams, $bReplace);
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesPrepend['js'][$sFile] = $aParams;
+        } else {
+            E::ModuleViewerAsset()->PrependJs($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1194,9 +1661,22 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function AppendStyle($sFile, $aParams = array(), $bReplace = false) {
+    public function AppendStyle($sFile, $aParams = array(), $bReplace = null) {
 
-        return $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesAppend['css'][$sFile] = $aParams;
+        } else {
+            E::ModuleViewerAsset()->AppendCss($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1209,9 +1689,22 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function PrependStyle($sFile, $aParams = array(), $bReplace = false) {
+    public function PrependStyle($sFile, $aParams = array(), $bReplace = null) {
 
-        return $this->ViewerAsset_PrependCss($sFile, $aParams, $bReplace);
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesPrepend['css'][$sFile] = $aParams;
+        } else {
+            E::ModuleViewerAsset()->PrependCss($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1221,14 +1714,23 @@ class ModuleViewer extends Module {
      * @param array  $aParams
      * @param bool   $bReplace
      */
-    public function PrepareScript($sFile, $aParams = array(), $bReplace = false) {
+    public function PrepareScript($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (is_array($aParams)) {
+            $aParams['replace'] = $bReplace;
             $aParams['prepare'] = true;
         } else {
             $aParams = array('prepare' => true);
         }
-        return $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+        return E::ModuleViewerAsset()->AppendJs($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1238,14 +1740,23 @@ class ModuleViewer extends Module {
      * @param array  $aParams
      * @param bool   $bReplace
      */
-    public function PrepareStyle($sFile, $aParams = array(), $bReplace = false) {
+    public function PrepareStyle($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (is_array($aParams)) {
+            $aParams['replace'] = $bReplace;
             $aParams['prepare'] = true;
         } else {
             $aParams = array('prepare' => true);
         }
-        return $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+        return E::ModuleViewerAsset()->AppendCss($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1255,10 +1766,7 @@ class ModuleViewer extends Module {
      */
     protected function BuildHeadFiles() {
 
-        $sPath = Router::GetPathWebCurrent();
-
-        // * По умолчанию имеем дефолтные настройки
-        $aFiles = $this->aFilesDefault;
+        $sPath = R::GetPathWebCurrent();
 
         $this->aFileRules = Config::Get('head.rules');
         foreach ((array)$this->aFileRules as $sName => $aRule) {
@@ -1270,24 +1778,24 @@ class ModuleViewer extends Module {
 
                     // * Преобразование JS
                     if (isset($aRule['js']['empty']) && $aRule['js']['empty']) {
-                        $this->ViewerAsset_ClearJs();
+                        E::ModuleViewerAsset()->ClearJs();
                     }
                     if (isset($aRule['js']['exclude']) && is_array($aRule['js']['exclude'])) {
-                        $this->ViewerAsset_ExcludeJs($aRule['js']['exclude']);
+                        E::ModuleViewerAsset()->ExcludeJs($aRule['js']['exclude']);
                     }
                     if (isset($aRule['js']['include']) && is_array($aRule['js']['include'])) {
-                        $this->ViewerAsset_AddJsFiles($aRule['js']['exclude']);
+                        E::ModuleViewerAsset()->AddJsFiles($aRule['js']['include']);
                     }
 
                     // * Преобразование CSS
                     if (isset($aRule['css']['empty']) && $aRule['css']['empty']) {
-                        $this->ViewerAsset_ClearCss();
+                        E::ModuleViewerAsset()->ClearCss();
                     }
                     if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) {
-                        $this->ViewerAsset_ExcludeCss($aRule['js']['exclude']);
+                        E::ModuleViewerAsset()->ExcludeCss($aRule['css']['exclude']);
                     }
                     if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
-                        $this->ViewerAsset_AddCssFiles($aRule['js']['exclude']);
+                        E::ModuleViewerAsset()->AddCssFiles($aRule['css']['include']);
                     }
 
                     // * Продолжаем поиск
@@ -1298,7 +1806,7 @@ class ModuleViewer extends Module {
             }
         }
 
-        $this->ViewerAsset_Prepare();
+        E::ModuleViewerAsset()->Prepare();
 
 
         // * Объединяем файлы в наборы
@@ -1368,7 +1876,7 @@ class ModuleViewer extends Module {
     protected function BuildHtmlHeadFiles($aHeadFiles) {
 
         foreach($aHeadFiles as $sType => $aFiles) {
-            $aHeaderLinks = $this->ViewerAsset_BuildHtmlLinks($sType);
+            $aHeaderLinks = E::ModuleViewerAsset()->BuildHtmlLinks($sType);
             if (isset($aHeaderLinks[$sType]) && $aHeaderLinks[$sType]) {
                 $aHeadFiles[$sType] = join(PHP_EOL, $aHeaderLinks[$sType]);
             } else {
@@ -1387,15 +1895,16 @@ class ModuleViewer extends Module {
 
         $aCfg = array(
             'url' => array(
-                'root' => Config::Get('path.root.url'),
+                'root' => Config::Get('path.root.url'), // реальный рут сайта
+                'ajax' => R::Url('base'), // адрес для ajax-запросов
             ),
-            'assets' => $this->ViewerAsset_GetPreparedAssetLinks(),
+            'assets' => E::ModuleViewerAsset()->GetPreparedAssetLinks(),
             'lang' => Config::Get('lang.current'),
-            'wysiwyg' => Config::Get('view.wysiwyg'),
+            'wysiwyg' => Config::Get('view.wysiwyg') ? true : false,
         );
 
         $sScript = 'var ls = ls || { };' . PHP_EOL;
-        $sScript .= 'ls.cfg = ' . json_encode($aCfg) . ';' . PHP_EOL;
+        $sScript .= 'ls.cfg = ' . F::JsonEncode($aCfg) . ';' . PHP_EOL;
         $sScript = '<script>' . $sScript . '</script>' . PHP_EOL;
 
         if (isset($aText['js'])) {
@@ -1409,21 +1918,124 @@ class ModuleViewer extends Module {
     /**
      * Добавляет тег для вывода в хидере страницы
      *
-     * @param   string  $sTag
+     * @param string $sTag
      */
     public function AddHtmlHeadTag($sTag) {
 
-        $this->aHtmlHeadTags[] = $sTag;
+        $sTag = substr($sTag, 1, strlen($sTag) - 2);
+        if (strpos($sTag, ' ')) {
+            list($sTagName, $sAttributes) = explode(' ', $sTag, 2);
+        } else {
+            $sTagName = $sTag;
+            $sAttributes = array();
+        }
+        $this->SetHtmlHeadTag($sTagName, $sAttributes);
     }
 
     /**
-     * Устанавливаем заголовок страницы(тег title)
+     * @param string       $sTagName
+     * @param array|string $xAttributes
+     * @param string|bool  $xContent
+     */
+    public function SetHtmlHeadTag($sTagName, $xAttributes, $xContent = false) {
+
+        $sTagName = strtolower($sTagName);
+
+        $sKey = '';
+        $sTag = '<' . $sTagName;
+        if (is_string($xAttributes)) {
+            $sTag .= ' ' . $xAttributes;
+        } elseif (is_array($xAttributes) && sizeof($xAttributes)) {
+            $aAttrs = array();
+            foreach ($xAttributes as $sName => $sValue) {
+                if (is_string($sName)) {
+                    $aAttrs[strtolower($sName)] = $sValue;
+                } else {
+                    $aAttrs[] = $sValue;
+                }
+            }
+
+            if ($sTagName == 'meta') {
+                foreach ($this->aSpecMetaTagsAttr as $sName) {
+                    if (isset($aAttrs[$sName])) {
+                        // defines special key for meta tags
+                        $sKey = $sTagName . ' ' . $sName . '=' . $aAttrs[$sName];
+                        break;
+                    }
+                }
+            }
+
+            if ($aAttrs) {
+                $sAttr = '';
+                foreach ($aAttrs as $sName => $sValue) {
+                    if (is_string($sName)) {
+                        $sAttr .= ' ' . $sName . '="' . str_replace('"', '&quot;', $sValue) . '"';
+                    } else {
+                        $sAttr .= ' ' . htmlspecialchars($sValue, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
+                    }
+                }
+                if ($sAttr) {
+                    $sTag .= $sAttr;
+                }
+            }
+        }
+        $sTag .= '>';
+        // adds content and closing tag
+        if ($xContent !== false) {
+            $sTag .= htmlspecialchars($xContent);
+            $sTag .= '</' . $sTagName . '>';
+        }
+        // prevents duplication
+        if ($sKey) {
+            $this->aHtmlHeadTags[$sKey] = $sTag;
+        } else {
+            $this->aHtmlHeadTags[$sTag] = $sTag;
+        }
+    }
+
+    /**
+     * Additional tags for <head>
+     *
+     * @param $aParams
+     */
+    public function SetHtmlHeadTags($aParams) {
+
+        foreach($aParams as $aTag) {
+            if (is_string($aTag)) {
+                $this->AddHtmlHeadTag($aTag);
+            } elseif (is_array($aTag)) {
+                $this->SetHtmlHeadTag($aTag[0], isset($aTag[1]) ? $aTag[1] : null, isset($aTag[2]) ? $aTag[2] : false);
+            }
+        }
+    }
+
+    /**
+     * Returns all additional tags for <head>
+     *
+     * @return array
+     */
+    public function GetHtmlHeadTags() {
+
+        return $this->aHtmlHeadTags;
+    }
+
+    /**
+     * Clears all additional tags for <head>
+     *
+     */
+    public function ClearHtmlHeadTags() {
+
+        $this->aHtmlHeadTags = array();
+    }
+
+    /**
+     * Устанавливаем заголовок страницы (тег title)
      *
      * @param string $sText    Заголовок
      */
     public function SetHtmlTitle($sText) {
 
-        $this->sHtmlTitle = $sText;
+        $this->aHtmlTitles = array($sText);
     }
 
     /**
@@ -1433,37 +2045,86 @@ class ModuleViewer extends Module {
      */
     public function AddHtmlTitle($sText) {
 
-        $this->sHtmlTitle = $sText . $this->sHtmlTitleSeparation . $this->sHtmlTitle;
+        $this->aHtmlTitles[] = $sText;
     }
 
     /**
      * Возвращает текущий заголовок страницы
      *
+     * @param bool $bHtmlEncode    Convert special characters of title to HTML entities
+     *
      * @return string
      */
-    public function GetHtmlTitle() {
+    public function GetHtmlTitle($bHtmlEncode = true) {
 
-        return $this->sHtmlTitle;
+        $aTitles = array_reverse($this->aHtmlTitles);
+        if ($this->iHtmlTitlesMax && sizeof($aTitles) > $this->iHtmlTitlesMax) {
+            $aTitles = array_splice($aTitles, 0, $this->iHtmlTitlesMax);
+        }
+        if (Config::Get('view.html.title')) {
+            // required part of the tag <title>
+            if (sizeof($aTitles) && (end($aTitles) != Config::Get('view.html.title'))) {
+                $aTitles[] = Config::Get('view.html.title');
+            }
+        }
+        $sHtmlTitle = join($this->sHtmlTitleSeparator, $aTitles);
+        if ($bHtmlEncode) {
+            $sHtmlTitle = htmlspecialchars($sHtmlTitle);
+        }
+        return $sHtmlTitle;
     }
 
     /**
-     * Устанавливает ключевые слова keywords
+     * Устанавливает ключевые слова для мета-тега keywords
      *
-     * @param string $sText    Кейворды
+     * @param string $sText    ключевые слова
      */
     public function SetHtmlKeywords($sText) {
 
-        $this->sHtmlKeywords = $sText;
+        $aKeywords = array_map('trim', explode(',', $sText));
+        $this->aHtmlKeywords = $aKeywords;
     }
 
     /**
-     * Устанавливает описание страницы desciption
+     * Returns string with keywirds
+     *
+     * @param bool $bHtmlEncode
+     *
+     * @return string
+     */
+    public function GetHtmlKeywords($bHtmlEncode = true) {
+
+        $aKeywords = $this->aHtmlKeywords;
+        if ($bHtmlEncode) {
+            $aKeywords = array_map('htmlspecialchars', $aKeywords);
+        }
+        return join(', ', $aKeywords);
+    }
+
+    /**
+     * Устанавливает описание страницы для мета-тега desciption
      *
      * @param string $sText    Описание
      */
     public function SetHtmlDescription($sText) {
 
         $this->sHtmlDescription = $sText;
+    }
+
+    /**
+     * Returns description for HTML
+     *
+     * @param bool $bHtmlEncode
+     *
+     * @return string
+     */
+    public function GetHtmlDescription($bHtmlEncode = true) {
+
+        if ($bHtmlEncode) {
+            return htmlspecialchars($this->sHtmlDescription);
+        } else {
+            return $this->sHtmlDescription;
+        }
     }
 
     /**
@@ -1482,8 +2143,8 @@ class ModuleViewer extends Module {
     /**
      * Устанавливает альтернативный адрес страницы по RSS
      *
-     * @param string $sUrl    URL
-     * @param string $sTitle    Заголовок
+     * @param string $sUrl   URL
+     * @param string $sTitle Заголовок
      */
     public function SetHtmlRssAlternate($sUrl, $sTitle) {
 
@@ -1494,12 +2155,13 @@ class ModuleViewer extends Module {
     /**
      * Формирует постраничный вывод
      *
-     * @param int $iCount    Общее количество элементов
-     * @param int $iCurrentPage    Текущая страница
-     * @param int $iCountPerPage    Количество элементов на одну страницу
-     * @param int $iCountPageLine    Количество ссылок на другие страницы
-     * @param string $sBaseUrl    Базовый URL, к нему будет добавлять постикс /pageN/  и GET параметры
-     * @param array $aGetParamsList    Список GET параметров, которые необходимо передавать при постраничном переходе
+     * @param int    $iCount         Общее количество элементов
+     * @param int    $iCurrentPage   Текущая страница
+     * @param int    $iCountPerPage  Количество элементов на одну страницу
+     * @param int    $iCountPageLine Количество ссылок на другие страницы
+     * @param string $sBaseUrl       Базовый URL, к нему будет добавлять постикс /pageN/  и GET параметры
+     * @param array  $aGetParamsList Список GET параметров, которые необходимо передавать при постраничном переходе
+     *
      * @return array
      */
     public function MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl, $aGetParamsList = array()) {
@@ -1516,16 +2178,29 @@ class ModuleViewer extends Module {
             $iCurrentPage = $iCountPage;
         }
 
-        $aPagesLeft = array();
-        $iTemp = $iCurrentPage - $iCountPageLine;
-        $iTemp = $iTemp < 1 ? 1 : $iTemp;
-        for ($i = $iTemp; $i < $iCurrentPage; $i++) {
-            $aPagesLeft[] = $i;
+        $iMin = $iCurrentPage - floor($iCountPageLine / 2);
+        if ($iMin < 1) {
+            $iMin = 1;
+        }
+        $iMax = $iMin + $iCountPageLine - 1;
+        if ($iMax > $iCountPage) {
+            $iMax = $iCountPage;
+        }
+        if ($iMax - $iMin < $iCountPageLine) {
+            $iMin = $iMax - $iCountPageLine + 1;
+            if ($iMin < 1) {
+                $iMin = 1;
+            }
         }
 
+        $aPagesLeft = array();
         $aPagesRight = array();
-        for ($i = $iCurrentPage + 1; $i <= $iCurrentPage + $iCountPageLine && $i <= $iCountPage; $i++) {
-            $aPagesRight[] = $i;
+        for ($i = $iMin; $i <= $iMax; $i++) {
+            if ($i < $iCurrentPage) {
+                $aPagesLeft[] = $i;
+            } elseif ($i > $iCurrentPage) {
+                $aPagesRight[] = $i;
+            }
         }
 
         $iNextPage = $iCurrentPage < $iCountPage ? $iCurrentPage + 1 : false;
@@ -1597,8 +2272,8 @@ class ModuleViewer extends Module {
         /**
          * Задача: если это файл плагина для текущего шаблона, то смотрим этот же файл шаблона плагина в /default/
          */
-        if (Config::Get('view.skin') != 'default') {
-            $sSkin = preg_quote(Config::Get('view.skin'));
+        if ($this->GetConfigSkin() != 'default') {
+            $sSkin = preg_quote($this->GetConfigSkin());
             if (preg_match('@^/plugins/([\w\-_]+)/templates/skin/' . $sSkin . '/(.+)$/@i', $sName, $aMatch)) {
                 // => /root/plugins/[plugin name]/templates/skin/[skin name]/dir/test.tpl
                 $sPluginDir = Plugin::GetDir($aMatch[1]);
@@ -1644,8 +2319,9 @@ class ModuleViewer extends Module {
 
     public function ClearAssetsFiles() {
 
-        $sDir = $this->GetAssetDir();
+        $sDir = F::File_GetAssetDir();
         F::File_RemoveDir($sDir);
+        E::ModuleViewerAsset()->ClearAssetsCache();
     }
 
     /**
@@ -1656,13 +2332,7 @@ class ModuleViewer extends Module {
 
         $timer = microtime(true);
 
-        if ($this->sSkin != Config::Get('view.skin')) {
-            $this->InitSkin($this->bLocal);
-        }
-
-        if (!$this->oSmarty) {
-            $this->InitTemplator();
-        }
+        $this->_initRender();
 
         // * Создаются списки виджетов для вывода
         $this->MakeWidgetsLists();

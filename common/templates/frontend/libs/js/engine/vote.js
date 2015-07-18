@@ -1,191 +1,202 @@
-var ls = ls || {};
+;var ls = ls || {};
 
 /**
-* Голосование
-*/
+ * Голосование
+ */
 ls.vote = (function ($) {
-	"use strict";
+    "use strict";
 
-	/**
-	 * Дефолтные опции
-	 */
-	var defaults = {
-		// Селекторы
-		selectors : {
-			vote:    '.js-vote',
-			up:      '.js-vote-up',
-			down:    '.js-vote-down',
-			abstain: '.js-vote-abstain',
-			count:   '.js-vote-count',
-			rating:  '.js-vote-rating'
-		},
+    /**
+     * Дефолтные опции
+     */
+    var defaults = {
+        // Селекторы
+        selectors: {
+            vote: '.js-vote',
+            up: '.js-vote-up',
+            down: '.js-vote-down',
+            abstain: '.js-vote-abstain',
+            count: '.js-vote-count',
+            rating: '.js-vote-rating'
+        },
 
-		// Классы
-		classes : {
-			voted: 		'voted',
-			plus: 		'voted-up',
-			minus:  	'voted-down',
-			positive:	'vote-count-positive',
-			negative:  	'vote-count-negative',
-			voted_zero: 'voted-zero',
-			zero: 	 	'vote-count-zero',
-			not_voted:  'not-voted'
-		},
+        // Классы
+        classes: {
+            voted: 'voted',
+            plus: 'voted-up',
+            minus: 'voted-down',
+            positive: 'vote-count-positive',
+            negative: 'vote-count-negative',
+            voted_zero: 'voted-zero',
+            zero: 'vote-count-zero',
+            not_voted: 'not-voted'
+        },
 
-		type: {
-			comment: {
-				url:        aRouter['ajax'] + 'vote/comment/',
-				targetName: 'idComment'
-			},
-			topic: {
-				url:        aRouter['ajax'] + 'vote/topic/',
-				targetName: 'idTopic'
-			},
-			blog: {
-				url:        aRouter['ajax'] + 'vote/blog/',
-				targetName: 'idBlog'
-			},
-			user: {
-				url:        aRouter['ajax'] + 'vote/user/',
-				targetName: 'idUser'
-			}
-		}
-	};
+        type: {
+            comment: {
+                url: ls.routerUrl('ajax') + 'vote/comment/',
+                targetName: 'idComment'
+            },
+            topic: {
+                url: ls.routerUrl('ajax') + 'vote/topic/',
+                targetName: 'idTopic'
+            },
+            blog: {
+                url: ls.routerUrl('ajax') + 'vote/blog/',
+                targetName: 'idBlog'
+            },
+            user: {
+                url: ls.routerUrl('ajax') + 'vote/user/',
+                targetName: 'idUser'
+            }
+        }
+    };
 
-	/**
-	 * Инициализация
-	 *
-	 * @param  {Object} options Опции
-	 */
-	this.init = function(options) {
-		var self = this;
+    /**
+     * Инициализация
+     *
+     * @param  {Object} options Опции
+     */
+    this.init = function (options) {
+        var self = this;
 
-		this.options = $.extend({}, defaults, options);
-		
-		$(this.options.selectors.vote).each(function () {
-			var oVote = $(this);
+        this.options = $.extend({}, defaults, options);
 
-			var oVars = {
-				vote:     oVote,
-				up:       oVote.find(self.options.selectors.up),
-				down:     oVote.find(self.options.selectors.down),
-				abstain:  oVote.find(self.options.selectors.abstain),
-				count:    oVote.find(self.options.selectors.count),
-				rating:   oVote.find(self.options.selectors.rating),
-				id:       oVote.data('vote-id'),
-				type:     oVote.data('vote-type')
-			};
+        $(this.options.selectors.vote).each(function () {
+            var voteSection = $(this);
 
-			// Плюс
-			oVars.up.on('click', function (e) {
-				self.vote(oVars.id, 1, oVars.type, oVars);
-				e.preventDefault();
-			});
+            var voteOptions = {
+                vote: voteSection,
+                up: voteSection.find(self.options.selectors.up),
+                down: voteSection.find(self.options.selectors.down),
+                abstain: voteSection.find(self.options.selectors.abstain),
+                count: voteSection.find(self.options.selectors.count),
+                rating: voteSection.find(self.options.selectors.rating),
+                id: voteSection.data('target-id'),
+                type: voteSection.data('target-type')
+            };
 
-			// Минус
-			oVars.down.on('click', function (e) {
-				self.vote(oVars.id, -1, oVars.type, oVars);
-				e.preventDefault();
-			});
+            // Плюс
+            voteOptions.up.on('click', function (e) {
+                self.vote(voteOptions.type, voteOptions.id, 1, voteOptions);
+                e.preventDefault();
+            });
 
-			// Воздержаться
-			oVars.abstain.on('click', function (e) {
-				self.vote(oVars.id, 0, oVars.type, oVars);
-				e.preventDefault();
-			});
-		});
-	};
+            // Минус
+            voteOptions.down.on('click', function (e) {
+                self.vote(voteOptions.type, voteOptions.id, -1, voteOptions);
+                e.preventDefault();
+            });
 
-	/**
-	 * Голосование
-	 * 
-	 * @param  {Number} iTargetId ID объекта
-	 * @param  {Number} iValue    Значение
-	 * @param  {String} sType     Тип голосования
-	 * @param  {Object} oVars     Переменные текущего голосования
-	 */
-	this.vote = function(iTargetId, iValue, sType, oVars) {
-		var self = this;
+            // Воздержаться
+            voteOptions.abstain.on('click', function (e) {
+                self.vote(voteOptions.type, voteOptions.id, 0, voteOptions);
+                e.preventDefault();
+            });
+        });
+    };
 
-		if ( ! this.options.type[sType] ) return false;
+    /**
+     * Голосование
+     *
+     * @param  {String} targetType
+     * @param  {Number} targetId
+     * @param  {Number} voteValue
+     * @param  {Object} voteOption
+     */
+    this.vote = function (targetType, targetId, voteValue, voteOption) {
+        var target = this.options.type[targetType];
 
-		var params = {
-			value: iValue
-		};
-		params[this.options.type[sType].targetName] = iTargetId;
+        if (!target) {
+            return false;
+        }
 
-		ls.hook.marker('voteBefore');
+        var params = {
+            value: voteValue
+        };
+        params[target.targetName] = targetId;
 
-		ls.ajax(this.options.type[sType].url, params, function (result) {
-			var args = [iTargetId, iValue, sType, oVars, result];
-			this.onVote.apply(this, args);
-		}.bind(this));
-	};
+        ls.progressStart();
+        ls.ajax(target.url, params, function (response) {
+            ls.progressDone();
+            var args = [targetType, targetId, voteValue, voteOption, response];
+            this.onVote.apply(this, args);
+        }.bind(this));
 
-	/**
-	 * Коллбэк вызываемый при успешном голосовании
-	 * 
-	 * @param  {Number} iTargetId ID объекта
-	 * @param  {Number} iValue    Значение
-	 * @param  {String} sType     Тип голосования
-	 * @param  {Object} oVars     Переменные текущего голосования
-	 * @param  {Object} result    Объект возвращемый сервером
-	 */
-	this.onVote = function(iTargetId, iValue, sType, oVars, result) {
-		if (result.bStateError) {
-			ls.msg.error(null, result.sMsg);
-		} else {
-			ls.msg.notice(null, result.sMsg);
+        return false;
+    };
 
-			oVars.vote
-				.addClass(this.options.classes.voted)
-				.removeClass(this.options.classes.negative + ' ' + this.options.classes.positive + ' ' + this.options.classes.not_voted + ' ' + this.options.classes.zero);
+    /**
+     * Коллбэк вызываемый при успешном голосовании
+     *
+     * @param  {String} targetType
+     * @param  {Number} targetId
+     * @param  {Number} voteValue
+     * @param  {Object} voteOptions
+     * @param  {Object} response
+     */
+    this.onVote = function (targetType, targetId, voteValue, voteOptions, response) {
 
-			if (iValue > 0) {
-				oVars.vote.addClass(this.options.classes.plus);
-			} else if (iValue < 0) {
-				oVars.vote.addClass(this.options.classes.minus);
-			} else if (iValue == 0) {
-				oVars.vote.addClass(this.options.classes.voted_zero);
-			}
-			
-			if (oVars.count.length > 0 && result.iCountVote) {
-				oVars.count.text(parseInt(result.iCountVote));
-			}
+        if (!response) {
+            ls.msg.error(null, 'System error #1001');
+        } else if (response.bStateError) {
+            ls.msg.error(null, response.sMsg);
+        } else {
+            ls.msg.notice(null, response.sMsg);
 
-			result.iRating = parseFloat(result.iRating);
+            voteOptions.vote
+                .addClass(this.options.classes.voted)
+                .removeClass(this.options.classes.negative + ' ' + this.options.classes.positive + ' ' + this.options.classes.not_voted + ' ' + this.options.classes.zero);
 
-			if (result.iRating > 0) {
-				oVars.vote.addClass(this.options.classes.positive);
-				oVars.rating.text('+' + result.iRating);
-			} else if (result.iRating < 0) {
-				oVars.vote.addClass(this.options.classes.negative);
-				oVars.rating.text(result.iRating);
-			} else if (result.iRating == 0) {
-				oVars.vote.addClass(this.options.classes.zero);
-				oVars.rating.text(0);
-			}
+            if (voteValue > 0) {
+                voteOptions.vote.addClass(this.options.classes.plus);
+            } else if (voteValue < 0) {
+                voteOptions.vote.addClass(this.options.classes.minus);
+            } else if (voteValue == 0) {
+                voteOptions.vote.addClass(this.options.classes.voted_zero);
+            }
 
-			var method = 'onVote' + ls.tools.ucfirst(sType);
+            if (voteOptions.count.length > 0 && response.iCountVote) {
+                voteOptions.count.text(parseInt(response.iCountVote));
+            }
 
-			if (typeof this[method] == 'function') {
-				this[method].apply(this, [iTargetId, iValue, sType, oVars, result]);
-			}
-		}
-	};
+            response.iRating = parseFloat(response.iRating);
 
-	/**
-	 * Голосование за топик
-	 * 
-	 * @param  {Number} iTargetId ID объекта
-	 * @param  {Number} iValue    Значение
-	 * @param  {String} sType     Тип голосования
-	 * @param  {Object} oVars     Переменные текущего голосования
-	 * @param  {Object} result    Объект возвращемый сервером
-	 */
-	this.onVoteTopic = function(iTargetId, iValue, sType, oVars, result) {
-		oVars.vote.addClass('js-tooltip-vote-topic').tooltip('enter');
-	};
+            if (response.iRating > 0) {
+                voteOptions.vote.addClass(this.options.classes.positive);
+                voteOptions.rating.text('+' + response.iRating);
+            } else if (response.iRating < 0) {
+                voteOptions.vote.addClass(this.options.classes.negative);
+                voteOptions.rating.text(response.iRating);
+            } else if (response.iRating == 0) {
+                voteOptions.vote.addClass(this.options.classes.zero);
+                voteOptions.rating.text(0);
+            }
 
-	return this;
-}).call(ls.vote || {},jQuery);
+            var method = 'onVote' + ls.tools.ucfirst(targetType);
+
+            if (typeof this[method] == 'function') {
+                this[method].apply(this, [targetType, targetId, voteValue, voteOptions, response]);
+            }
+        }
+    };
+
+    /**
+     * Голосование за топик
+     *
+     * @param  {String} targetType  Тип голосования
+     * @param  {Number} targetId    ID объекта
+     * @param  {Number} voteValue   Значение
+     * @param  {Object} voteOptions Переменные текущего голосования
+     * @param  {Object} response    Объект возвращемый сервером
+     */
+    this.onVoteTopic = function (targetType, targetId, voteValue, voteOptions, response) {
+        voteOptions.vote.addClass('js-tooltip-vote-topic').tooltip('enter');
+    };
+
+    $(function(){
+        ls.vote.init();
+    });
+
+    return this;
+}).call(ls.vote || {}, jQuery);
