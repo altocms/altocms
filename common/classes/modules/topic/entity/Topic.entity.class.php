@@ -626,7 +626,14 @@ class ModuleTopic_EntityTopic extends Entity {
             $sUrlMask .= '/';
         }
 
-        $sUrl = ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
+        $sUrl = strtr($sUrlMask, $aReplace);
+        if ($bFullUrl) {
+            if ($sUrl[0] == '/') {
+                $sUrl = F::File_RootUrl() . substr($sUrl, 1);
+            } else {
+                $sUrl = F::File_RootUrl() . $sUrl;
+            }
+        }
         $this->setProp($sKey, $sUrl);
 
         return $sUrl;

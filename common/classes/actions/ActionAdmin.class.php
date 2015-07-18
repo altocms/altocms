@@ -554,6 +554,9 @@ class ActionAdmin extends Action {
                     $aConfig['module.topic.url'] = '%year%/%month%/%topic_url%/';
                 } else {
                     if ($sTopicUrl = trim($this->GetPost('topic_link_url'))) {
+                        if ($sTopicUrl[0] == '/') {
+                            $sTopicUrl = substr($sTopicUrl, 1);
+                        }
                         $aConfig['module.topic.url'] = strtolower($sTopicUrl);
                     } else {
                         $aConfig['module.topic.url'] = '';
