@@ -360,50 +360,6 @@ $(function () {
         return false;
     };
 
-    ls.stream.getMore = function (oGetMoreButton) {
-        if (this.isBusy) return;
-
-        var $oGetMoreButton = $(oGetMoreButton),
-            $oLastId = $('#activity-last-id');
-        iLastId = $oLastId.val();
-
-        if (!iLastId) return;
-
-        $oGetMoreButton.addClass('loading');
-        this.isBusy = true;
-
-        var params = $.extend({}, {
-            'iLastId':   iLastId,
-            'sDateLast': this.sDateLast
-        }, {type: $oGetMoreButton.data('param')});
-
-        var url = ls.routerUrl('stream') + 'get_more' + (params.type ? '_' + params.type : '') + '/';
-
-        ls.ajax(url, params, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(null, result.sMsg);
-            } else {
-                if (result.events_count) {
-                    $('#activity-event-list').append(result.result);
-                    $oLastId.attr('value', result.iStreamLastId);
-                }
-
-                if (!result.events_count) {
-                    $oGetMoreButton.hide();
-                }
-            }
-
-            $oGetMoreButton.removeClass('loading');
-
-            ls.hook.run('ls_stream_get_more_after', [iLastId, result]);
-
-            this.isBusy = false;
-        }.bind(this));
-    };
-
-
     $('.modal .btn.btn-primary')
         .removeClass('btn-primary')
         .addClass('btn-blue')
@@ -418,7 +374,6 @@ $(function () {
         .addClass('corner-no');
 
     $('.vote-tooltip').tooltip();
-
 
     $(window).scroll(function () {
 
@@ -453,7 +408,6 @@ $(function () {
 
         $container
             .find('a').removeAttr('rel').find('br').remove();
-
 
         $imgs.each(function() {
             var $img	= $(this);

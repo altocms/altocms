@@ -1,9 +1,15 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike   *}
 
 {if count($aStreamEvents)}
-	{foreach $aStreamEvents as $oStreamEvent name=foo}
-		{$oTarget=$oStreamEvent->getTarget()}
+	{foreach $aStreamEvents as $oStreamEvent}
+        {$oTarget = $oStreamEvent->getTarget()}
+        {if $oTarget}
+            {$oTargetTarget = $oTarget->getTarget()}
+        {/if}
+        {$sEventType = $oStreamEvent->getEventType()}
+        {$oUser = $oStreamEvent->getUser()}
+        {$bUserMale = $oUser->getProfileSex() != 'woman'}
 
 		{if {date_format date=$oStreamEvent->getDateAdded() format="j F Y"} != $sDateLast}
 			{assign var=sDateLast value={date_format date=$oStreamEvent->getDateAdded() format="j F Y"}}
@@ -13,7 +19,7 @@
                     {if {date_format date=$smarty.now format="j F Y"} == $sDateLast}
                         {$aLang.today}
                     {else}
-                        {date_format date=$oStreamEvent->getDateAdded() format="j F Y"}
+                        {$sDateLast}
                     {/if}
                 </div>
 			</li>
@@ -21,7 +27,7 @@
 
 		{$oUser=$oStreamEvent->getUser()}
 
-		<li class="stream-item stream-item-type-{$oStreamEvent->getEventType()}" style="display: block; clear: both;">
+		<li class="stream-item stream-item-type-{$sEventType}" style="display: block; clear: both;">
             <div class="row bob mal0 marr0 pab6 mab6">
                 <div class="pull-left">
                     <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('medium')}" alt="{$oUser->getDisplayName()}" class="avatar" /></a>
@@ -32,46 +38,46 @@
 
                         <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 
-                        {if $oStreamEvent->getEventType() == 'add_topic'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_topic} {else} {$aLang.stream_list_event_add_topic_female} {/if}
+                        {if $sEventType == 'add_topic'}
+                            {if $bUserMale} {$aLang.stream_list_event_add_topic} {else} {$aLang.stream_list_event_add_topic_female} {/if}
                             <a href="{$oTarget->getUrl()}">{$oTarget->getTitle()|escape:'html'}</a>
-                        {elseif $oStreamEvent->getEventType() == 'add_comment'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_comment} {else} {$aLang.stream_list_event_add_comment_female} {/if}
-                            <a href="{$oTarget->getTarget()->getUrl()}#comment{$oTarget->getId()}">{$oTarget->getTarget()->getTitle()|escape:'html'}</a>
+                        {elseif $sEventType == 'add_comment'}
+                            {if $bUserMale} {$aLang.stream_list_event_add_comment} {else} {$aLang.stream_list_event_add_comment_female} {/if}
+                            <a href="{$oTarget->getLink()}">{if $oTargetTarget}{$oTargetTarget->getTitle()|escape:'html'}{/if}</a>
                             {$sTextEvent=$oTarget->getText()|strip_tags|truncate:200}
                             {if trim($sTextEvent)}
                                 <div class="stream-comment-preview"><small>{$sTextEvent}</small></div>
                             {/if}
-                        {elseif $oStreamEvent->getEventType() == 'add_blog'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_blog} {else} {$aLang.stream_list_event_add_blog_female} {/if}
+                        {elseif $sEventType == 'add_blog'}
+                            {if $bUserMale} {$aLang.stream_list_event_add_blog} {else} {$aLang.stream_list_event_add_blog_female} {/if}
                             <a href="{$oTarget->getUrlFull()}">{$oTarget->getTitle()|escape:'html'}</a>
-                        {elseif $oStreamEvent->getEventType() == 'vote_blog'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_vote_blog} {else} {$aLang.stream_list_event_vote_blog_female} {/if}
+                        {elseif $sEventType == 'vote_blog'}
+                            {if $bUserMale} {$aLang.stream_list_event_vote_blog} {else} {$aLang.stream_list_event_vote_blog_female} {/if}
                             <a href="{$oTarget->getUrlFull()}">{$oTarget->getTitle()|escape:'html'}</a>
-                        {elseif $oStreamEvent->getEventType() == 'vote_topic'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_vote_topic} {else} {$aLang.stream_list_event_vote_topic_female} {/if}
+                        {elseif $sEventType == 'vote_topic'}
+                            {if $bUserMale} {$aLang.stream_list_event_vote_topic} {else} {$aLang.stream_list_event_vote_topic_female} {/if}
                             <a href="{$oTarget->getUrl()}">{$oTarget->getTitle()|escape:'html'}</a>
-                        {elseif $oStreamEvent->getEventType() == 'vote_comment'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_vote_comment} {else} {$aLang.stream_list_event_vote_comment_female} {/if}
-                            <a href="{$oTarget->getTarget()->getUrl()}#comment{$oTarget->getId()}">{$oTarget->getTarget()->getTitle()|escape:'html'}</a>
-                        {elseif $oStreamEvent->getEventType() == 'vote_user'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_vote_user} {else} {$aLang.stream_list_event_vote_user_female} {/if}
+                        {elseif $sEventType == 'vote_comment'}
+                            {if $bUserMale} {$aLang.stream_list_event_vote_comment} {else} {$aLang.stream_list_event_vote_comment_female} {/if}
+                            <a href="{$oTarget->getLink()}">{if $oTargetTarget}{$oTargetTarget->getTitle()|escape:'html'}{/if}</a>
+                        {elseif $sEventType == 'vote_user'}
+                            {if $bUserMale} {$aLang.stream_list_event_vote_user} {else} {$aLang.stream_list_event_vote_user_female} {/if}
                             <a href="{$oTarget->getProfileUrl()}">{$oTarget->getDisplayName()}</a>
-                        {elseif $oStreamEvent->getEventType() == 'join_blog'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_join_blog} {else} {$aLang.stream_list_event_join_blog_female} {/if}
+                        {elseif $sEventType == 'join_blog'}
+                            {if $bUserMale} {$aLang.stream_list_event_join_blog} {else} {$aLang.stream_list_event_join_blog_female} {/if}
                             <a href="{$oTarget->getUrlFull()}">{$oTarget->getTitle()|escape:'html'}</a>
-                        {elseif $oStreamEvent->getEventType() == 'add_friend'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_friend} {else} {$aLang.stream_list_event_add_friend_female} {/if}
+                        {elseif $sEventType == 'add_friend'}
+                            {if $bUserMale} {$aLang.stream_list_event_add_friend} {else} {$aLang.stream_list_event_add_friend_female} {/if}
                             <a href="{$oTarget->getProfileUrl()}">{$oTarget->getDisplayName()}</a>
-                        {elseif $oStreamEvent->getEventType() == 'add_wall'}
-                            {if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_wall} {else} {$aLang.stream_list_event_add_wall_female} {/if}
+                        {elseif $sEventType == 'add_wall'}
+                            {if $bUserMale} {$aLang.stream_list_event_add_wall} {else} {$aLang.stream_list_event_add_wall_female} {/if}
                             <a href="{$oTarget->getUrlWall()}">{$oTarget->getWallUser()->getDisplayName()}</a>
                             {$sTextEvent=$oTarget->getText()|strip_tags|truncate:200}
                             {if trim($sTextEvent)}
                                 <div class="stream-comment-preview"><small>{$sTextEvent}</small></div>
                             {/if}
                         {else}
-                            {hook run="stream_list_event_`$oStreamEvent->getEventType()`" oStreamEvent=$oStreamEvent}
+                            {hook run="stream_list_event_`$sEventType`" oStreamEvent=$oStreamEvent}
                         {/if}
                     </div>
                 </div>

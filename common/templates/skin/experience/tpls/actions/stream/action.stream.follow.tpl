@@ -45,6 +45,7 @@
             <div class="panel-footer">
                 {if !$bDisableGetMoreButton}
                     <a class="small link link-gray link-clear link-lead activity-get-more"
+                       style="display: block;"
                        id="stream_get_more"
                        data-param-type="follow" data-param-last_id="{$iStreamLastId}"
                        href="#" onclick="ls.stream.getMore(this); return false;">
