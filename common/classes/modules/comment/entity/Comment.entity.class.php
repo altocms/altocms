@@ -492,7 +492,7 @@ class ModuleComment_EntityComment extends Entity {
     public function getEditTime($bFormat = false) {
 
         if (Config::Get('module.comment.edit.enable') && ($oUser = E::User()) && ($oUser->getId() == $this->getUserId())) {
-            $sDateTime = F::DateTimeAdd($this->GetCommentDate(), Config::Get('module.comment.edit.enable'));
+            $sDateTime = F::DateTimeAdd($this->getDate(), Config::Get('module.comment.edit.enable'));
             $sNow = date('Y-m-d H:i:s');
             if ($sNow < $sDateTime) {
                 $nRest = F::DateDiffSeconds($sNow, $sDateTime);
@@ -582,6 +582,17 @@ class ModuleComment_EntityComment extends Entity {
             return false;
         }
         return strtotime($this->getDate()) < time() - F::ToSeconds($nTimeLimit);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLink() {
+
+        if ($oTarget = $this->getTarget()) {
+            return $oTarget->getLink() . '#comment' . $this->getId();
+        }
+        return null;
     }
 
     /**
