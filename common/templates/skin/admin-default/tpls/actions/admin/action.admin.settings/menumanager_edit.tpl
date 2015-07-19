@@ -199,6 +199,7 @@
                     ls.msg.error(response.sMsgTitle, response.sMsg);
                 }
             });
+            return false;
         };
 
         var changeDisplayItem = function (link) {
@@ -207,7 +208,9 @@
                 'menu_id': "{$oMenu->getId()}",
                 'item_id': $link.data('item_id')
             };
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxmenuitemdisplay/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.removeClass('icon-eye-close').removeClass('icon-eye-open').addClass(response.class);
@@ -215,6 +218,7 @@
                     ls.msg.error(response.sMsgTitle, response.sMsg);
                 }
             });
+            return false;
         };
 
     </script>
