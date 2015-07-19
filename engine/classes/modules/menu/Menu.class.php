@@ -70,7 +70,7 @@ class ModuleMenu extends Module {
         if (isset($aMenu['list'][0]))
             unset($aMenu['list'][0]);
 
-        // Тут возникает два варианта, либо есть закэширвоанные элеемнты меню,
+        // Тут возникает два варианта, либо есть закэшированные эелемнты меню,
         // либо их нет. Если есть, то вернем их
         /** @var ModuleMenu_EntityItem[] $aCashedItems */
         $aCashedItems = $this->GetCachedItems($sMenuId, $aMenu);

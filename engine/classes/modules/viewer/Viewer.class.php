@@ -536,7 +536,11 @@ class ModuleViewer extends Module {
         }
 
         if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {
-            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+            if (isset($aConfig['menu'])) {
+                $aConfig['menu'] = F::Array_MergeCombo($aConfig['menu'], F::IncludeFile($sFile, false, true));
+            } else {
+                $aConfig['menu'] = F::IncludeFile($sFile, false, true);
+            }
         }
 
 //        $aConfigLoad = F::Str2Array(Config::Get('config_load'));

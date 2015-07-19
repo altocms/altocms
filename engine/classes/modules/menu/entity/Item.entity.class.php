@@ -54,6 +54,7 @@ class ModuleMenu_EntityItem extends Entity {
      * Заполним меню HTML-кодом
      */
     public function Init() {
+
         if (!isset($this->_aData['item_flags'])) {
             $this->_aData['item_flags'] = $this->formHtml();
         }
@@ -358,6 +359,17 @@ class ModuleMenu_EntityItem extends Entity {
         $aItemFlags = array();
 
         // Ссылка
+        /*
+        if ($this->getOptions()) {
+            $aItemFlags['link_id'] = 'id="' . $this->getOptions()->getLinkId() . '"';
+            $aItemFlags['link_active'] = $this->getOptions()->getActiveLinkClass();
+            $aItemFlags['link_class'] = 'class="' . $this->getOptions()->getLinkClass() . ' [[link_active]]"';
+        } else {
+            $aItemFlags['link_id'] = '';
+            $aItemFlags['link_active'] = 'active';
+            $aItemFlags['link_class'] = '';
+        }
+*/
         $aItemFlags['link_id'] = ($this->getOptions() && ($aLinkId = $this->getOptions()->getLinkId())) ? "id='{$aLinkId}'" : '';
         $aItemFlags['link_active'] = ($this->getOptions() && ($this->getOptions()->getActiveLinkClass())) ? $this->getOptions()->getActiveLinkClass() : 'active';
         $aItemFlags['link_class'] = ($this->getOptions() && ($aLinkClass = $this->getOptions()->getLinkClass())) ? "class='{$aLinkClass} [[link_active]]'" : '';
@@ -380,6 +392,7 @@ class ModuleMenu_EntityItem extends Entity {
         // Элемент меню
         $aItemFlags['item_active'] = ($this->getOptions() && ($this->getOptions()->getActiveClass())) ? $this->getOptions()->getActiveClass() : 'active';
         $aItemFlags['item_class'] = ($this->getOptions() && ($sClass = $this->getOptions()->getClass())) ? "class='{$sClass} [[link_active]]'" : '';
+
         // получим data
         $sDataResult = '';
         if ($this->getOptions() && ($aData = $this->getOptions()->getData()) && is_array($aData)) {

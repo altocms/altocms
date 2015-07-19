@@ -1,6 +1,6 @@
 <?php
 
-$config['menu']['allowed'] = array_merge(
+$config['allowed'] = array_merge(
     Config::Get('menu.allowed'),
     array(
         'blog_list',
@@ -12,7 +12,7 @@ $config['menu']['allowed'] = array_merge(
  * Настройки берутся из главного конфига меню common/config/menu.php
  * Добавлены классы иконок
  */
-$config['menu']['data']['main'] = array(
+$config['data']['main'] = array(
     'list' => array(
         'index'  => array(
             'options' => array(
@@ -40,7 +40,7 @@ $config['menu']['data']['main'] = array(
 /**
  *  Вход и регистрация  + experience
  */
-$config['menu']['data']['login'] = array(
+$config['data']['login'] = array(
     'list' => array(
         'login'        => array(
             'link'    => '#',
@@ -69,7 +69,7 @@ if (E::IsUser()) {
     /**
      *  Меню пользователя + experience
      */
-    $config['menu']['data']['user'] = array(
+    $config['data']['user'] = array(
         'list' => array(
             'userbar' => array(
                 'text'    => array(
@@ -122,7 +122,7 @@ if (E::IsUser()) {
     /**
      *  Подменю пользователя + experience
      */
-    $config['menu']['data']['userbar'] = array(
+    $config['data']['userbar'] = array(
         'class' => 'dropdown-menu',
         'list'  => array(
             'user'         => array(
@@ -162,7 +162,7 @@ if (E::IsUser()) {
 /**
  *  Меню топиков
  */
-$config['menu']['data']['topics'] = array(
+$config['data']['topics'] = array(
     'list' => array(
         'homepage'             => array(
             'options' => array(
@@ -227,7 +227,7 @@ $config['menu']['data']['topics'] = array(
 );
 
 if (C::Get('rating.enabled')) {
-    $config['menu']['data']['topics']['list']['top'] = array(
+    $config['data']['topics']['list']['top'] = array(
         'text'    => array(
             '{{blog_menu_all_top}}',
             '&nbsp;<i class="caret"></i>',
@@ -248,7 +248,7 @@ if (C::Get('rating.enabled')) {
 /**
  *  Подменю обсуждаемых
  */
-$config['menu']['data']['discussed'] = array(
+$config['data']['discussed'] = array(
     'class' => 'dropdown-menu',
 );
 
@@ -256,7 +256,7 @@ if (C::Get('rating.enabled')) {
     /**
      *  Подменю топовых
      */
-    $config['menu']['data']['top'] = array(
+    $config['data']['top'] = array(
         'class' => 'dropdown-menu',
     );
 }
@@ -265,7 +265,7 @@ if (C::Get('rating.enabled')) {
 /**
  * Сеню с сыллками на блоги
  */
-$config['menu']['data']['blog_list'] = array(
+$config['data']['blog_list'] = array(
     'init' => array(
         'fill' => array(
             'list' => array('*'),
@@ -311,7 +311,7 @@ $config['menu']['data']['blog_list'] = array(
     )
 );
 
-$config['menu']['data']['footer_site_menu'] = array(
+$config['data']['footer_site_menu'] = array(
     'class' => 'footer-column',
     'list'        => array(
         'topic'                     => array(
@@ -337,7 +337,7 @@ $config['menu']['data']['footer_site_menu'] = array(
     )
 );
 
-$config['menu']['data']['footer_info'] = array(
+$config['data']['footer_info'] = array(
     'class' => 'footer-column',
     'list'        => array(
         'about'                    => array(

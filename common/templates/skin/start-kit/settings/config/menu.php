@@ -1,15 +1,27 @@
 <?php
-
 /**
  * Главное меню сайта
  * Настройки берутся из главного конфига меню common/config/menu.php
  */
 
+// Настройки подменю, созданных в админке
+$config['submenu'] = array(
+    'class' => 'dropdown-menu',
+    'options' => array(
+        'class'       => 'dropdown dropdown-submenu',
+        'link_class'  => 'dropdown-toggle',
+        'link_data'   => array(
+            'toggle' => 'dropdown',
+            'role'   => 'button',
+            'target' => '#',
+        ),
+    ),
+);
 
 /**
  *  Вход и регистрация
  */
-$config['menu']['data']['login'] = array(
+$config['data']['login'] = array(
     'list' => array(
         'login'        => array(
             'options' => array(
@@ -29,7 +41,7 @@ if (E::IsUser()) {
     /**
      *  Меню пользователя
      */
-    $config['menu']['data']['user'] = array(
+    $config['data']['user'] = array(
         'list' => array(
             'talk'    => array(
                 'text'    => array(
@@ -63,7 +75,7 @@ if (E::IsUser()) {
     /**
      *  Подменю пользователя
      */
-    $config['menu']['data']['userbar'] = array(
+    $config['data']['userbar'] = array(
         'class' => 'dropdown-menu',
         'list'  => array(
             'user'         => array(
@@ -102,7 +114,7 @@ if (E::IsUser()) {
 /**
  *  Меню топиков
  */
-$config['menu']['data']['topics'] = array(
+$config['data']['topics'] = array(
     'list' => array(
         'good'                 => array(
             'options' => array(
@@ -159,7 +171,7 @@ $config['menu']['data']['topics'] = array(
 );
 
 if (C::Get('rating.enabled')) {
-    $config['menu']['data']['topics']['list']['top'] = array(
+    $config['data']['topics']['list']['top'] = array(
         'text'    => array(
             '{{blog_menu_all_top}}',
             '<b class="caret"></b>',
@@ -178,7 +190,7 @@ if (C::Get('rating.enabled')) {
 /**
  *  Подменю обсуждаемых
  */
-$config['menu']['data']['discussed'] = array(
+$config['data']['discussed'] = array(
     'class' => 'dropdown-menu',
 );
 
@@ -186,7 +198,7 @@ if (C::Get('rating.enabled')) {
     /**
      *  Подменю топовых
      */
-    $config['menu']['data']['top'] = array(
+    $config['data']['top'] = array(
         'class' => 'dropdown-menu',
     );
 }
