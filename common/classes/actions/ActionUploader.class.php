@@ -301,6 +301,9 @@ class ActionUploader extends Action {
             } else {
                 $sError = E::ModuleLang()->Get('error_upload_wrong_image_type');
             }
+
+            // If anything wrong then deletes temp file
+            F::File_Delete($sTmpFile);
         } else {
 
             // Ошибки загрузки картинки
@@ -535,18 +538,19 @@ class ActionUploader extends Action {
                 return FALSE;
             }
 
-            // Пересохраним файл из кэша
+            // Пересохраним файл из кэша для применения к нему опций из конфига
             // Сохраняем фото во временный файл
             $oImg = E::ModuleImg()->Read($sTmpFile);
             $sExtension = strtolower(pathinfo($sTmpFile, PATHINFO_EXTENSION));
-            if (!$sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
+            if (!$sSavedTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
+                F::File_Delete($sTmpFile);
                 return FALSE;
             }
 
             // Окончательная запись файла только через модуль Uploader
-            if ($oStoredFile = E::ModuleUploader()->StoreImage($sTmpFile, $sTarget, $sTargetId, null, true)) {
+            if ($oStoredFile = E::ModuleUploader()->StoreImage($sSavedTmpFile, $sTarget, $sTargetId, null, true)) {
 
                 /** @var ModuleMresource_EntityMresource $oResource */
                 //$oResource = $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId, TRUE);
@@ -577,6 +581,7 @@ class ActionUploader extends Action {
 
                 // Чистим
                 E::ModuleImg()->Delete($sTmpFile);
+                E::ModuleImg()->Delete($sSavedTmpFile);
 
                 return TRUE;
             }

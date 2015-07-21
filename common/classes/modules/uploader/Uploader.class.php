@@ -737,7 +737,7 @@ class ModuleUploader extends Module {
      *                               true - crop square by min side
      *
      * @param bool $bMulti - Target has many images
-     * @return bool|string
+     * @return bool|ModuleMresource_EntityMresource
      */
     public function StoreImage($sFile, $sTarget, $sTargetId, $xSize = null, $bMulti = FALSE) {
 
