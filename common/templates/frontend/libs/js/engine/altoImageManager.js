@@ -121,6 +121,7 @@
              * @param result
              */
             var success = function (result) {
+                ls.progressDone();
                 $this.$ctrImages
                     .fadeOut(200, function () {
                         $this.$ctrImages
@@ -146,6 +147,7 @@
              * Функция, вызываемая при ошибке запроса
              */
             var error = function () {
+                ls.progressDone();
                 $this.$element.trigger('aim-load-page-error');
             };
 
@@ -153,8 +155,9 @@
              * Данные для отправки серверу
              * @type {{}}
              */
-            var data = {page: page, category: $this.category, topic_id: topicId};
+            var data = {page: page, category: $this.category, topic_id: topicId, target: $this.$ctrImages.data('target')};
 
+            ls.progressStart();
             $this._ajax(
                 $this.options.url.loadImages,
                 data,

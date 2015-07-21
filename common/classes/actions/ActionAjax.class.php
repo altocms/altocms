@@ -101,15 +101,17 @@ class ActionAjax extends Action {
      */
     protected function EventImageManagerLoadImages(){
 
+        E::ModuleSecurity()->ValidateSendForm();
+
         // Менеджер изображений может запускаться в том числе и из админки
         // Если передано название скина админки, то используем его, если же
         // нет, то ту тему, которая установлена для сайта
-        if (($sAdminTheme = getRequest('admin')) && E::IsAdmin()) {
+        if (($sAdminTheme = F::GetRequest('admin')) && E::IsAdmin()) {
             C::Set('view.skin', $sAdminTheme);
         }
 
         // Получим идентификатор пользователя, изображения которого нужно загрузить
-        $iUserId = (int)getRequest('profile', FALSE);
+        $iUserId = (int)F::GetRequest('profile', FALSE);
         if ($iUserId && E::ModuleUser()->GetUserById($iUserId)) {
             C::Set('menu.data.profile_images.uid', $iUserId);
         } else {
@@ -121,31 +123,35 @@ class ActionAjax extends Action {
             $iUserId = E::UserId();
         }
 
-        $sCategory = getRequestStr('category', FALSE);
-        $sPage = getRequestStr('page', '1');
-        $sTopicId = getRequestStr('topic_id', FALSE);
+        $sCategory = F::GetRequestStr('category', FALSE);
+        $sPage = F::GetRequestStr('page', '1');
+        $sTopicId = F::GetRequestStr('topic_id', FALSE);
+        $sTargetType = F::GetRequestStr('target');
 
         if (!$sCategory) {
             return;
         }
 
+        $aTplVariables = array(
+            'sTargetType' => $sTargetType,
+            'sTargetId' => $sTopicId,
+        );
+
         // Страница загрузки картинки с компьютера
         if ($sCategory == 'insert-from-pc') {
-            $sImages = E::ModuleViewer()->GetLocalViewer()->Fetch('modals/insert_img/inject.pc.tpl');
+            $sImages = E::ModuleViewer()->Fetch('modals/insert_img/inject.pc.tpl', $aTplVariables);
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         // Страница загрузки из интернета
         if ($sCategory == 'insert-from-link') {
-            $sImages = E::ModuleViewer()->GetLocalViewer()->Fetch("modals/insert_img/inject.link.tpl");
+            $sImages = E::ModuleViewer()->Fetch('modals/insert_img/inject.link.tpl', $aTplVariables);
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         $sTemplateName = 'inject.images.tpl';
-
-        $aTplVariables = array();
 
         $aResources = array('collection'=>array());
         $iPages = 0;
@@ -315,7 +321,7 @@ class ActionAjax extends Action {
 
         $aTplVariables['aResources'] = $aResources['collection'];
 
-        $sPath = getRequest('profile', FALSE) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
+        $sPath = F::GetRequest('profile', FALSE) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
         $sImages = E::ModuleViewer()->GetLocalViewer()->Fetch($sPath . $sTemplateName, $aTplVariables);
 
         E::ModuleViewer()->AssignAjax('images', $sImages);
@@ -334,11 +340,11 @@ class ActionAjax extends Action {
         // Менеджер изображений может запускаться в том числе и из админки
         // Если передано название скина админки, то используем его, если же
         // нет, то ту тему, которая установлена для сайта
-        if (($sAdminTheme = getRequest('admin')) && E::IsAdmin()) {
+        if (($sAdminTheme = F::GetRequest('admin')) && E::IsAdmin()) {
             C::Set('view.skin', $sAdminTheme);
         }
 
-        $sPath = ($iUserId = (int)getRequest('profile', FALSE)) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
+        $sPath = ($iUserId = (int)F::GetRequest('profile', FALSE)) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
         if ($iUserId && E::ModuleUser()->GetUserById($iUserId)) {
             C::Set('menu.data.profile_images.uid', $iUserId);
         } else {

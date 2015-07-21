@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <div class="col-md-16">
-                        <div id="image-container">
+                        <div id="image-container" data-target="{$sTargetType}" data-target-id="{$sTargetId}">
                             {include "modals/insert_img/inject.pc.tpl"}
                         </div>
                     </div>

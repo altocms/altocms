@@ -15,7 +15,7 @@
                         var uploaded = $('.js-alto-topic-uploader').altoMultiUploader('getUploaded');
                         $.each(uploaded, function(key, url) {
                             console.log(url);
-                            var $param = $('#aim-params');
+                            var $param = $('#aim-params'),
                                 align = $param.find('[name=align]').val(),
                                 title = $param.find('[name=title]').val(),
                                 size = parseInt($param.find('[name=img_width]').val(), 10);
