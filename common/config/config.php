@@ -563,7 +563,7 @@ $config['db']['params']['user']   = 'root';
 $config['db']['params']['pass']   = '';
 $config['db']['params']['type']   = 'mysqli';    // mysql, mypdo, postgresql, mssql, sqlite, ibase
 $config['db']['params']['dbname'] = 'alto';
-$config['db']['params']['charset'] = 'utf8mb4';
+$config['db']['params']['charset'] = 'utf8';     // utf8, utf8mb4;
 
 $config['db']['params']['lazy'] = true; // "ленивое" подключение к базе
 

@@ -50,6 +50,8 @@ $config['db']['params']['user'] = 'root';
 $config['db']['params']['pass'] = '';
 $config['db']['params']['type']   = 'mysqli';
 $config['db']['params']['dbname'] = 'alto';
+$config['db']['params']['charset'] = 'utf8';
+
 $config['db']['table']['prefix'] = 'prefix_';
 $config['db']['tables']['engine'] = 'InnoDB';
 
