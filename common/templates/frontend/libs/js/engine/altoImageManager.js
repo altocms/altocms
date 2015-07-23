@@ -330,6 +330,7 @@
                     $this.category = 'talk';
                     $this.topicId = $(this).data('talk-id');
                     $this._loadPage(1, $this.topicId);
+                    return false;
                 });
 
             $this.$element
@@ -348,6 +349,7 @@
                     $this.category = 'talks';
                     $this.topicId = $this._getTopicId();
                     $this._loadPage(1, $this.topicId);
+                    return false;
                 });
 
             return $this.$talkButtons;
@@ -450,6 +452,7 @@
                 .on('click', function () {
                     $this._loadPage(parseInt($this.page, 10) + 1, $this.topicId);
                     $this.$imagesNav.setPages();
+                    return false;
                 });
 
             $btnPrev
@@ -457,6 +460,7 @@
                 .on('click', function () {
                     $this._loadPage(parseInt($this.page, 10) - 1, $this.topicId);
                     $this.$imagesNav.setPages();
+                    return false;
                 });
 
             $this.$element
@@ -484,7 +488,7 @@
                         .toggleClass('hidden-options');
 
                     $this.$blockParams.slideToggle('fast');
-
+                    return false;
                 });
 
             $this.$btnTriggerParams.setReset = function () {
@@ -567,7 +571,7 @@
         },
 
         /**
-         * Страница загрузки изобрахений с компьютера пользвоателя
+         * Страница загрузки изображений с компьютера пользователя
          * @param {altoImageManager} $this
          * @returns jQuery
          * @private
@@ -597,13 +601,14 @@
                         success,
                         error
                     );
+                    return false;
                 });
 
             return $this.$pageUploadPc;
         },
 
         /**
-         * Страница загрузки изобрахений с из мнтернета
+         * Страница загрузки изображений с из интернета
          * @param {altoImageManager} $this
          * @returns jQuery
          * @private
@@ -630,12 +635,14 @@
                         success,
                         error
                     );
+                    return false;
                 });
 
             $this.$pageUploadLink.find('.js-aim-btn-insert-link')
                 .off('click')
                 .live('click', function () {
                     ls.insertImageToEditor(this);
+                    return false;
                 });
 
             return $this.$pageUploadPc;
@@ -698,6 +705,7 @@
                     }
 
                     $this.$element.modal('hide');
+                    return false;
                 });
 
             return $this.$pageImages;
@@ -727,7 +735,6 @@
                     $this.$element.trigger('aim-category-select', $this.category);
 
                     return false;
-
                 });
 
         }
