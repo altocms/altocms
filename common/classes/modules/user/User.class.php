@@ -1484,11 +1484,17 @@ class ModuleUser extends Module {
      */
     public function DeleteAvatar($oUser) {
 
+        $bResult = true;
         // * Если аватар есть, удаляем его и его рейсайзы
-        if ($sAavatar = $oUser->getProfileAvatar()) {
-            $sFile = E::ModuleUploader()->Url2Dir($sAavatar);
-            return E::ModuleUploader()->Delete($sFile) && E::ModuleUploader()->DeleteAs($sFile . '-*.*');
+        if ($sAvatar = $oUser->getProfileAvatar()) {
+            $sFile = E::ModuleUploader()->Url2Dir($sAvatar);
+            $bResult = E::ModuleImg()->Delete($sFile);
+            if ($bResult) {
+                $oUser->setProfileAvatar(null);
+                E::ModuleUser()->Update($oUser);
+            }
         }
+        return $bResult;
     }
 
     /**
@@ -1501,10 +1507,11 @@ class ModuleUser extends Module {
     public function DeleteAvatarSizes($oUser) {
 
         // * Если аватар есть, удаляем его и его рейсайзы
-        if ($sAavatar = $oUser->getProfileAvatar()) {
-            $sFile = E::ModuleUploader()->Url2Dir($sAavatar);
+        if ($sAvatar = $oUser->getProfileAvatar()) {
+            $sFile = E::ModuleUploader()->Url2Dir($sAvatar);
             return E::ModuleUploader()->DeleteAs($sFile . '-*.*');
         }
+        return true;
     }
 
     /**
@@ -1535,10 +1542,21 @@ class ModuleUser extends Module {
      * Удаляет фото пользователя
      *
      * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
      */
     public function DeletePhoto($oUser) {
 
-        E::ModuleImg()->Delete(E::ModuleUploader()->Url2Dir($oUser->getProfilePhoto()));
+        $bResult = true;
+        if ($sPhoto = $oUser->getProfilePhoto()) {
+            $sFile = E::ModuleUploader()->Url2Dir($sPhoto);
+            $bResult = E::ModuleImg()->Delete($sFile);
+            if ($bResult) {
+                $oUser->setProfilePhoto(null);
+                E::ModuleUser()->Update($oUser);
+            }
+        }
+        return $bResult;
     }
 
     /**

@@ -820,6 +820,35 @@ class ModuleUploader extends Module {
     }
 
     /**
+     * @param string                $sTargetType
+     * @param int                   $iTargetId
+     * @param ModuleUser_EntityUser $oCurrentUser
+     */
+    public function DeleteImage($sTargetType, $iTargetId, $oCurrentUser) {
+
+        if ($sTargetType == 'profile_avatar') {
+            if ($oCurrentUser && $oCurrentUser->getid() == $iTargetId) {
+                $oUser = $oCurrentUser;
+            } else {
+                $oUser = E::ModuleUser()->GetUserById($iTargetId);
+            }
+            E::ModuleUser()->DeleteAvatar($oUser);
+        } elseif ($sTargetType == 'profile_photo') {
+            if ($oCurrentUser && $oCurrentUser->getid() == $iTargetId) {
+                $oUser = $oCurrentUser;
+            } else {
+                $oUser = E::ModuleUser()->GetUserById($iTargetId);
+            }
+            E::ModuleUser()->DeletePhoto($oUser);
+        } elseif ($sTargetType == 'blog_avatar') {
+            /** @var ModuleBlog_EntityBlog $oBlog */
+            $oBlog = E::ModuleBlog()->GetBlogById($iTargetId);
+            E::ModuleBlog()->DeleteAvatar($oBlog);
+        }
+        E::ModuleMresource()->UnlinkFile($sTargetType, $iTargetId, $oCurrentUser ? $oCurrentUser->getId() : 0);
+    }
+
+    /**
      * Добавляет связь между ресурсом и целевым объектом
      *
      * @param ModuleMresource_EntityMresource $oResource

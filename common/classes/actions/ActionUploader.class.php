@@ -418,17 +418,25 @@ class ActionUploader extends Action {
             return;
         }
 
-        // * Удаляем картинку
-        E::ModuleMresource()->UnlinkFile($sTargetType, $sTargetId, E::UserId());
-
-        // Запускаем хук на действия после загрузки картинки
-        E::ModuleHook()->Run('uploader_remove_image_after', array(
+        $bResult = E::ModuleHook()->Run('uploader_remove_image_before', array(
             'sTargetId' => $sTargetId,
             'sTarget'   => $sTargetType,
             'oTarget'   => $oTarget,
         ));
 
-        // * Возвращает дефолтную аватарку
+        if ($bResult !== false) {
+            // * Удаляем картинку
+            E::ModuleUploader()->DeleteImage($sTargetType, $sTargetId, E::User());
+
+            // Запускаем хук на действия после удаления картинки
+            E::ModuleHook()->Run('uploader_remove_image_after', array(
+                'sTargetId' => $sTargetId,
+                'sTarget'   => $sTargetType,
+                'oTarget'   => $oTarget,
+            ));
+        }
+
+        // * Возвращает сообщение
         E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->Get('uploader_upload_success'));
 
     }

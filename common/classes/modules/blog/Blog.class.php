@@ -1382,6 +1382,16 @@ class ModuleBlog extends Module {
      */
     public function DeleteBlogAvatar($oBlog) {
 
+        $this->DeleteAvatar($oBlog);
+    }
+
+    /**
+     * Удаляет аватар блога с сервера
+     *
+     * @param ModuleBlog_EntityBlog $oBlog    Блог
+     */
+    public function DeleteAvatar($oBlog) {
+
         if ($oBlog) {
             // * Если аватар есть, удаляем его и его рейсайзы (старая схема)
             if ($sUrl = $oBlog->getAvatar()) {
