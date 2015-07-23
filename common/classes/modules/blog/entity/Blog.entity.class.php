@@ -381,7 +381,29 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getUserIsJoin() {
 
-        return $this->getProp('user_is_join');
+        return $this->getUserIsSubscriber();
+    }
+
+    public function getCurrentUserRole() {
+
+        return intval($this->getProp('_user_role'));
+    }
+
+    /**
+     * If the current user is an subscriber of the blog
+     *
+     * @return bool|null
+     */
+    public function getUserIsSubscriber() {
+
+        $bResult = $this->getProp('_user_is_subscriber');
+        if (is_null($bResult)) {
+            $iRole = $this->getCurrentUserRole();
+            if ($iRole) {
+                $bResult = $iRole & (ModuleBlog::BLOG_USER_ROLE_MEMBER | ModuleBlog::BLOG_USER_ROLE_MODERATOR | ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR | ModuleBlog::BLOG_USER_ROLE_OWNER);
+            }
+        }
+        return $bResult;
     }
 
     /**
@@ -391,7 +413,14 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getUserIsAdministrator() {
 
-        return $this->getProp('user_is_administrator');
+        $bResult = $this->getProp('_user_is_administrator');
+        if (is_null($bResult)) {
+            $iRole = $this->getCurrentUserRole();
+            if ($iRole) {
+                $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR;
+            }
+        }
+        return $bResult;
     }
 
     /**
@@ -401,7 +430,14 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getUserIsModerator() {
 
-        return $this->getProp('user_is_moderator');
+        $bResult = $this->getProp('_user_is_moderator');
+        if (is_null($bResult)) {
+            $iRole = $this->getCurrentUserRole();
+            if ($iRole) {
+                $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_MODERATOR;
+            }
+        }
+        return $bResult;
     }
 
     /**
@@ -608,6 +644,11 @@ class ModuleBlog_EntityBlog extends Entity {
         $this->setProp('owner', $data);
     }
 
+    public function setCurrentUserRole($data) {
+
+        $this->setProp('_user_role', $data);
+    }
+
     /**
      * Устанавливает статус администратора блога для текущего пользователя
      *
@@ -615,7 +656,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function setUserIsAdministrator($data) {
 
-        $this->setProp('user_is_administrator', $data);
+        $this->setProp('_user_is_administrator', $data);
     }
 
     /**
@@ -625,7 +666,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function setUserIsModerator($data) {
 
-        $this->setProp('user_is_moderator', $data);
+        $this->setProp('_user_is_moderator', $data);
     }
 
     /**
@@ -635,7 +676,17 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function setUserIsJoin($data) {
 
-        $this->setProp('user_is_join', $data);
+        $this->setUserIsSubscriber($data);
+    }
+
+    /**
+     * Set current user as subscriber of the blog
+     *
+     * @param bool $data
+     */
+    public function setUserIsSubscriber($data) {
+
+        $this->setProp('_user_is_subscriber', (bool)$data);
     }
 
     /**

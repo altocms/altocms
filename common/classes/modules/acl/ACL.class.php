@@ -451,7 +451,7 @@ class ModuleACL extends Module {
             }
         }
 
-        return (bool)E::ModuleBlog()->GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
+        return (bool)E::ModuleBlog()->GetBlogsAllowTo('read', $oUser, $oBlog, true);
     }
 
     /**

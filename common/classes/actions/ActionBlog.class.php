@@ -2290,7 +2290,7 @@ class ActionBlog extends Action {
                 return;
             }
         }
-        if ($oBlogUser && ($oBlogUser->getUserRole() > ModuleBlog::BLOG_USER_ROLE_GUEST)) {
+        if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_MEMBER)) {
 
             // Unsubscribe user from the blog
             if (E::ModuleBlog()->DeleteRelationBlogUser($oBlogUser)) {
@@ -2304,10 +2304,15 @@ class ActionBlog extends Action {
 
                 //  Удаляем подписку на этот блог в ленте пользователя
                 E::ModuleUserfeed()->UnsubscribeUser($this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
+                return;
             } else {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
+        }
+        if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_NOTMEMBER)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_user_request_no_accept'), E::ModuleLang()->Get('error'));
+            return;
         }
         if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_leave_error_banned'), E::ModuleLang()->Get('error'));

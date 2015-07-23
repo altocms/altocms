@@ -209,13 +209,7 @@ class ModuleBlog extends Module {
                 $oBlog->setOwner(null); // или $oBlog->setOwner(new ModuleUser_EntityUser());
             }
             if (isset($aBlogUsers[$oBlog->getId()])) {
-                $oBlog->setUserIsJoin(true);
-                $oBlog->setUserIsAdministrator($aBlogUsers[$oBlog->getId()]->IsBlogAdministrator());
-                $oBlog->setUserIsModerator($aBlogUsers[$oBlog->getId()]->IsBlogModerator());
-            } else {
-                $oBlog->setUserIsJoin(false);
-                $oBlog->setUserIsAdministrator(false);
-                $oBlog->setUserIsModerator(false);
+                $oBlog->setCurrentUserRole($aBlogUsers[$oBlog->getId()]->getUserRole());
             }
             if (isset($aBlogsVote[$oBlog->getId()])) {
                 $oBlog->setVote($aBlogsVote[$oBlog->getId()]);
@@ -1075,23 +1069,26 @@ class ModuleBlog extends Module {
      * Получает список блогов, которые доступны пользователю для заданного действия.
      * Или проверяет на заданное действие конкретный блог
      *
-     * @param string $sAllow
-     * @param string ModuleUser_EntityUser $oUser
-     * @param int    $xBlog
-     * @param bool   $bCheckOnly
+     * @param string                    $sAllow
+     * @param ModuleUser_EntityUser     $oUser
+     * @param int|ModuleBlog_EntityBlog $xBlog
+     * @param bool                      $bCheckOnly
      *
      * @return array|bool
      */
     public function GetBlogsAllowTo($sAllow, $oUser, $xBlog = null, $bCheckOnly = false) {
 
+        /** @var ModuleBlog_EntityBlog $oRequestBlog */
+        $oRequestBlog = null;
         if (is_object($xBlog)) {
-            $iBlog = intval($xBlog->GetId());
+            $iRequestBlogId = intval($xBlog->GetId());
+            $oRequestBlog = $xBlog;
         } else {
-            $iBlog = intval($xBlog);
+            $iRequestBlogId = intval($xBlog);
         }
 
-        $sCacheKey = 'blogs_allow_to_' . serialize(array($sAllow, $oUser ? $oUser->GetId() : 0, $iBlog, (bool)$bCheckOnly));
-        if ($iBlog && $bCheckOnly) {
+        $sCacheKey = 'blogs_allow_to_' . serialize(array($sAllow, $oUser ? $oUser->GetId() : 0, $iRequestBlogId, (bool)$bCheckOnly));
+        if ($iRequestBlogId && $bCheckOnly) {
             // Если только проверка прав, то проверяем временный кеш
             if (is_int($xCacheResult = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
                 return $xCacheResult;
@@ -1100,13 +1097,13 @@ class ModuleBlog extends Module {
 
         if ($oUser->isAdministrator() || $oUser->isModerator()) {
             // Если админ и если проверка на конкретный блог, то возвращаем без проверки
-            if ($iBlog) {
-                return $iBlog;
+            if ($iRequestBlogId) {
+                return $iRequestBlogId;
             }
             $aAdditionalData = array('relation_user');
             $aAllowBlogs = $this->GetBlogs($aAdditionalData);
-            if ($iBlog) {
-                return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
+            if ($iRequestBlogId) {
+                return isset($aAllowBlogs[$iRequestBlogId]) ? $aAllowBlogs[$iRequestBlogId] : array();
             }
             $this->_sortByTitle($aAllowBlogs);
             return $aAllowBlogs;
@@ -1114,14 +1111,33 @@ class ModuleBlog extends Module {
 
         if (false === ($aAllowBlogs = E::ModuleCache()->Get($sCacheKey))) {
             if ($oUser) {
+                // User is owner of the blog
+                if ($oRequestBlog && $oRequestBlog->getOwnerId() == $oUser->getId()) {
+                    return $oRequestBlog;
+                }
+
                 // Блоги, созданные пользователем
                 $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
-                if ($iBlog && isset($aAllowBlogs[$iBlog])) {
-                    return $aAllowBlogs[$iBlog];
+                if ($iRequestBlogId && isset($aAllowBlogs[$iRequestBlogId])) {
+                    return $aAllowBlogs[$iRequestBlogId];
                 }
 
                 // Блоги, в которых состоит пользователь
-                $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
+                if ($iRequestBlogId) {
+                    // Requests one blog
+                    $aBlogUsers = $this->GetBlogUsersByArrayBlog($iRequestBlogId, $oUser->getId());
+                    if ($oBlogUser = reset($aBlogUsers)) {
+                        if (!$oBlogUser->getBlog()) {
+                            if (!$oRequestBlog) {
+                                $oRequestBlog = $this->GetBlogById($iRequestBlogId);
+                            }
+                            $oBlogUser->setBlog($oRequestBlog);
+                        }
+                    }
+                } else {
+                    // Requests any allowed blogs
+                    $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
+                }
 
                 foreach ($aBlogUsers as $oBlogUser) {
                     /** @var ModuleBlog_EntityBlogType $oBlog */
@@ -1132,7 +1148,7 @@ class ModuleBlog extends Module {
                     // админа и модератора блога не проверяем
                     if ($oBlogUser->IsBlogAdministrator() || $oBlogUser->IsBlogModerator()) {
                         $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                    } else {
+                    } elseif ($oBlogUser->getUserRole() !== self::BLOG_USER_ROLE_NOTMEMBER) {
                         $bAllow = false;
                         if ($oBlogType) {
                             if ($sAllow == 'write') {
@@ -1152,8 +1168,8 @@ class ModuleBlog extends Module {
                         }
                     }
                     // Если задан конкретный блог и он найден, то проверять больше не нужно
-                    if ($iBlog && isset($aAllowBlogs[$iBlog])) {
-                        return $aAllowBlogs[$iBlog];
+                    if ($iRequestBlogId && isset($aAllowBlogs[$iRequestBlogId])) {
+                        return $aAllowBlogs[$iRequestBlogId];
                     }
                 }
             }
@@ -1190,8 +1206,8 @@ class ModuleBlog extends Module {
                 // Получаем сами блоги
                 if ($aResult['data']) {
                     // если задана только проверка, то сам блог(и) не нужен
-                    if ($iBlog && $bCheckOnly) {
-                        return in_array($iBlog, $aResult['data']);
+                    if ($iRequestBlogId && $bCheckOnly) {
+                        return in_array($iRequestBlogId, $aResult['data']);
                     }
                     if ($aBlogs = $this->GetBlogsAdditionalData($aResult['data'], array())) {
                         foreach ($aBlogs as $oBlog) {
@@ -1202,14 +1218,14 @@ class ModuleBlog extends Module {
                     }
                 }
             }
-            if ($iBlog) {
-                return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
+            if ($iRequestBlogId) {
+                return isset($aAllowBlogs[$iRequestBlogId]) ? $aAllowBlogs[$iRequestBlogId] : array();
             }
 
             $this->_sortByTitle($aAllowBlogs);
             E::ModuleCache()->Set($aAllowBlogs, $sCacheKey, array('blog_update', 'user_update'), 'P1D');
         }
-        if ($iBlog && $bCheckOnly) {
+        if ($iRequestBlogId && $bCheckOnly) {
             // Если только проверка прав, то сохраняем во временный кеш
             // Чтоб не было ложных сробатываний, используем в этом кеше числовое значение
             E::ModuleCache()->Set($sCacheKey, $aAllowBlogs ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');

@@ -80,6 +80,11 @@ class ModuleBlog_EntityBlogUser extends Entity {
         return ($this->getUserRole() == ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR);
     }
 
+    public function IsBlogMember() {
+
+        return ($this->getUserRole() == ModuleBlog::BLOG_USER_ROLE_MEMBER);
+    }
+
     /**
      * Возвращает текущую роль пользователя в блоге
      *
@@ -87,7 +92,8 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function getUserRole() {
 
-        return $this->getProp('user_role');
+        $iResult = $this->getProp('user_role');
+        return is_null($iResult) ? null : intval($iResult);
     }
 
     /**

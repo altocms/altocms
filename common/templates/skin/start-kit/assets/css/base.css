@@ -700,10 +700,10 @@ select, input[type="file"] { height: auto; }
 
 /* Header */
 .blog-header { position: relative; top: 0; left: 0; padding: 0 100px 0 79px; margin-bottom: 20px; min-height: 64px; }
-.blog-header h1 { margin-bottom: 5px; margin-top: 15px; padding-top: 10px; }
-.blog-header h1 span { cursor: help; vertical-align: text-top; }
+.blog-header h1 { margin-bottom: 5px; margin-top: 25px; padding-top: 10px; }
+.blog-header h1 span { cursor: help; vertical-align: text-top; font-size: 14px; color: #ff4136; }
 .blog-header .avatar { position: absolute; top: 0; left: 0; }
-.blog-header .actions { position: absolute; top: -5px; right: 0; }
+.blog-header .actions { position: absolute; top: -15px; right: 0; }
 
 .blog-header .vote { position: absolute; bottom: 0; right: 0; }
 .blog-header .vote-label { text-align: center; }
