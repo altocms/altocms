@@ -206,8 +206,8 @@ class ModuleBlog extends Module {
             } else {
                 $oBlog->setOwner(null); // или $oBlog->setOwner(new ModuleUser_EntityUser());
             }
-            if (isset($aBlogUsers[$oBlog->getId()])) {
-                $oBlog->setUserIsJoin(true);
+            if (isset($aBlogUsers[$oBlog->getId()]) && ($iUserRole = $aBlogUsers[$oBlog->getId()]->getUserRole())) {
+                $oBlog->setUserIsJoin($iUserRole & (ModuleBlog::BLOG_USER_ROLE_MEMBER | ModuleBlog::BLOG_USER_ROLE_MODERATOR | ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR));
                 $oBlog->setUserIsAdministrator($aBlogUsers[$oBlog->getId()]->IsBlogAdministrator());
                 $oBlog->setUserIsModerator($aBlogUsers[$oBlog->getId()]->IsBlogModerator());
             } else {
@@ -1007,7 +1007,7 @@ class ModuleBlog extends Module {
                     // админа и модератора блога не проверяем
                     if ($oBlogUser->IsBlogAdministrator() || $oBlogUser->IsBlogModerator()) {
                         $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                    } else {
+                    } elseif ($oBlogUser->getUserRole() !== self::BLOG_USER_ROLE_NOTMEMBER) {
                         $bAllow = false;
                         if ($oBlogType) {
                             if ($sAllow == 'write') {
