@@ -271,7 +271,7 @@ class Loader {
         } elseif (!F::File_CheckDir($sDir, true)) {
             die('Directory for temporary files "' . $sDir . '" does not exist');
         } elseif (!is_writeable($sDir)) {
-            die('Directory for temporary files "' . F::File_LocalDir($sDir) . '" does not writeable');
+            die('Directory for temporary files "' . F::File_LocalDir($sDir) . '" is not writeable');
         }
 
         $sDir = Config::Get('path.runtime.dir');
@@ -280,7 +280,7 @@ class Loader {
         } elseif (!F::File_CheckDir($sDir, true)) {
             die('Directory for runtime files "' . $sDir . '" does not exist');
         } elseif (!is_writeable($sDir)) {
-            die('Directory for runtime files "' . F::File_LocalDir($sDir) . '" does not writeable');
+            die('Directory for runtime files "' . F::File_LocalDir($sDir) . '" is not writeable');
         }
     }
 
