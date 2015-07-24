@@ -416,17 +416,14 @@ class ActionSettings extends Action {
                     $aFieldsContactType = F::GetRequest('profile_user_field_type');
                     $aFieldsContactValue = F::GetRequest('profile_user_field_value');
                     if (is_array($aFieldsContactType)) {
-                        foreach ($aFieldsContactType as $k => $v) {
-                            $v = (string)$v;
-                            if (isset($aFields[$v]) && isset($aFieldsContactValue[$k])
-                                && is_string(
-                                    $aFieldsContactValue[$k]
-                                )
-                            ) {
-                                E::ModuleUser()->SetUserFieldsValues(
-                                    $this->oUserCurrent->getId(), array($v => $aFieldsContactValue[$k]),
-                                    Config::Get('module.user.userfield_max_identical')
-                                );
+                        $iMax = Config::Get('module.user.userfield_max_identical');
+                        foreach ($aFieldsContactType as $iFieldNum => $iFieldType) {
+                            $iFieldType = intval($iFieldType);
+                            if (!empty($aFieldsContactValue[$iFieldNum])) {
+                                $sFieldValue = (string)$aFieldsContactValue[$iFieldNum];
+                                if (isset($aFields[$iFieldType]) && $sFieldValue) {
+                                    E::ModuleUser()->SetUserFieldsValues($this->oUserCurrent->getId(), array($iFieldType => $sFieldValue), $iMax);
+                                }
                             }
                         }
                     }

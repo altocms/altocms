@@ -81,7 +81,7 @@ ls.userfield = ( function ($) {
      */
     this.getCountFormField = function (value) {
         var iCount = 0;
-        $(this.fieldsConainer).find('select').each(function (k, v) {
+        $(this.fieldsConainer).find('.js-user-field-item:visible select').each(function (k, v) {
             if (value == $(v).val()) {
                 iCount++;
             }

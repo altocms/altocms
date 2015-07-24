@@ -224,7 +224,7 @@
                     </div>
                 </div>
 
-                <div class="panel-header">{$aLang.settings_profile_section_base}</div>
+                <div class="panel-header">{$aLang.settings_profile_section_contacts}</div>
 
                 <div class="mab12">
                     {$aUserFieldContactValues=E::User()->getUserFieldValues(true,array('contact','social'))}
