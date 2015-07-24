@@ -25,6 +25,9 @@
                 <option value="{$oBlog->getId()}"
                         {if $_aRequest.blog_id==$oBlog->getId()}selected{/if}>{$oBlog->getTitle()|escape:'html'}</option>
             {/foreach}
+            {if !$bPersonalBlog && sizeof($aBlogsAllow) <= 1}{* 1 — потому что в $aBlogsAllow всегда есть персональный блог, если они включены *}
+                <option value="" disabled="disabled">{$aLang.topic_create_blog_type_not_in_any_blog}</option>
+            {/if}
         </select>
 
         <p class="help-block">

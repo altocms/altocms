@@ -292,6 +292,7 @@ return array(
     'topic_create_blog_error_noacl' => 'You don\'t have enough power to post to this blog',
     'topic_create_blog_error_noallow' => 'You can\'t write to this blog',
     'topic_create_blog_notice' => 'Please choose blog to write to it',
+    'topic_create_blog_type_not_in_any_blog'    => 'None of the types of blogs do not allow this type of content.',
     'topic_create_title' => 'Title',
     'topic_create_title_notice' => 'Title should be meaningful so that it\'s clear what the article is about',
     'topic_create_title_error' => 'Topic\'s title should consist of 2 upto 200 chars',
