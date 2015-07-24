@@ -256,7 +256,7 @@
                 </div>
             {/if}
 
-            <input type="hidden" name="topic_type" value="topic"/>
+            <input type="hidden" name="topic_type" value="{$oContentType->getContentUrl()}" />
 
             {hook run='form_add_topic_end'}
 
