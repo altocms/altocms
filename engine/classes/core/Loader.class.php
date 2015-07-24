@@ -262,7 +262,7 @@ class Loader {
         if (!$sDir) {
             die('Application directory not defined');
         } elseif (!F::File_CheckDir($sDir, false)) {
-            die('Application directory "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+            die('Application directory "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" is not exist');
         }
 
         $sDir = Config::Get('path.tmp.dir');
