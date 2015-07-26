@@ -108,9 +108,9 @@
         {if !$bPreview}
         <div class="topic-footer">
             <ul>
-                <li class="topic-user">
+                <li class="topic-user js-popover-{$oUser->getId()}">
                     <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
-                    <a class="userlogo link link-dual link-lead link-clear js-popup-{$oUser->getId()}" href="{$oUser->getProfileUrl()}">
+                    <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}
                     </a>
                 </li>

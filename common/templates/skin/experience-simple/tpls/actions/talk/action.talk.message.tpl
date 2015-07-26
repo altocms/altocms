@@ -32,14 +32,9 @@
              <ul class="text-muted list-unstyled list-inline topic-footer-info">
                  <li data-alto-role="popover"
                      data-api="user/{$oUser->getId()}/info"
-                     data-api-param-tpl="default"
-                     data-trigger="hover"
-                     data-placement="top"
-                     data-animation="true"
-                     data-cache="true"
                      class="topic-user">
                      <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}" class="top0"/>
-                     <a class="userlogo link link-dual link-lead link-clear js-popup-{$oUser->getId()}" href="{$oUser->getProfileUrl()}">
+                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                          {$oUser->getDisplayName()}
                      </a>
                  </li>

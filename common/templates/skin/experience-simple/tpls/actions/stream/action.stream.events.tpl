@@ -37,11 +37,6 @@
 
                         <a class="userlogo link link-dual link-lead link-clear" data-alto-role="popover"
                            data-api="user/{$oUser->getId()}/info"
-                           data-api-param-tpl="default"
-                           data-trigger="hover"
-                           data-placement="top"
-                           data-animation="true"
-                           data-cache="true"
                            href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 
                         <span class="small text-muted date" title="{date_format date=$oStreamEvent->getDateAdded()}">{date_format date=$oStreamEvent->getDateAdded() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}</span>

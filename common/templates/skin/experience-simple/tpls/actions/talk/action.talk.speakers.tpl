@@ -49,11 +49,6 @@
                                  {if $oTalkUser->getUserActive()!=$TALK_USER_DELETE_BY_AUTHOR}
                                      <li data-alto-role="popover"
                                          data-api="user/{$oUser->getId()}/info"
-                                         data-api-param-tpl="default"
-                                         data-trigger="hover"
-                                         data-placement="top"
-                                         data-animation="true"
-                                         data-cache="true"
                                          id="speaker_item_{$oTalkUser->getUserId()}_area">
                                          <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                                          <a class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>

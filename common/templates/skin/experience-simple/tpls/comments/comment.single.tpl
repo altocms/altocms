@@ -34,15 +34,10 @@
                     <ul>
                         <li data-alto-role="popover"
                             data-api="user/{$oUser->getId()}/info"
-                            data-api-param-tpl="default"
-                            data-trigger="hover"
-                            data-placement="top"
-                            data-animation="true"
-                            data-cache="true"
                             data-selector="placement-top"
                             data-container="body"
                             class="comment-user">
-                            <a href="{$oUser->getProfileUrl()}" class="mal0 js-popup-user-{$oUser->getId()}">
+                            <a href="{$oUser->getProfileUrl()}" class="mal0">
                                 <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                             </a>
                             <a class="userlogo link link-blue link-lead link-clear {if $iAuthorId == $oUser->getId()}comment-topic-author{/if}"

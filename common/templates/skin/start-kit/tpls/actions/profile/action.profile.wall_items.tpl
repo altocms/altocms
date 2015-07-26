@@ -3,7 +3,7 @@
     {$aReplyWall=$oWall->getLastReplyWall()}
     <div id="wall-item-{$oWall->getId()}" class="js-wall-item comment-wrapper">
         <div class="comment">
-            <a href="{$oWallUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oWallUser->getId()}">
+            <a href="{$oWallUser->getProfileUrl()}" class="comment-avatar js-popover-user-{$oWallUser->getId()}">
                 <img src="{$oWallUser->getAvatarUrl('big')}" alt="{$oWallUser->getDisplayName()}" />
             </a>
 

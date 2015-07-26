@@ -7,8 +7,8 @@
     <div id="wall-item-{$oWall->getId()}" class="js-wall-item comment-wrapper wall-block pab6 mab6">
         <div class="comment-tools mab6">
             <ul>
-                <li class="comment-user">
-                    <a href="{$oWallUser->getProfileUrl()}" class="mal0 js-popup-user-{$oWallUser->getId()}">
+                <li class="comment-user js-popover-user-{$oWallUser->getId()}">
+                    <a href="{$oWallUser->getProfileUrl()}" class="mal0">
                         <img src="{$oWallUser->getAvatarUrl('small')}" alt="{$oWallUser->getDisplayName()}"/>
                     </a>
                     <a class="userlogo link link-blue link-lead link-clear"

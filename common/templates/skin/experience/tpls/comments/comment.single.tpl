@@ -35,8 +35,8 @@
             <div class="comment-content">
                 <div class="comment-tools">
                     <ul>
-                        <li class="comment-user">
-                            <a href="{$oUser->getProfileUrl()}" class="mal0 js-popup-user-{$oUser->getId()}">
+                        <li class="comment-user js-popover-user-{$oUser->getId()}">
+                            <a href="{$oUser->getProfileUrl()}" class="mal0">
                                 <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                             </a>
                             <a class="userlogo link link-blue link-lead link-clear {if $iAuthorId == $oUser->getId()}comment-topic-author{/if}"

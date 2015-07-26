@@ -98,8 +98,8 @@
 
             {if !$bPreview}
             <ul class="list-unstyled list-inline small topic-footer-info">
-                <li class="topic-info-author">
-                    <a href="{$oUser->getProfileUrl()}" class="avatar js-popup-{$oUser->getId()}">
+                <li class="topic-info-author js-popover-user-{$oUser->getId()}">
+                    <a href="{$oUser->getProfileUrl()}" class="avatar">
                         <img src="{$oUser->getAvatarUrl('mini')}" alt="{$oUser->getDisplayName()}" />
                     </a>
                     <a rel="author" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>

@@ -6,8 +6,7 @@
     {$aReplyWall=$oWall->getLastReplyWall()}
     <div id="wall-item-{$oWall->getId()}" class="js-wall-item comment-wrapper">
         <div class="comment">
-            <a class="wall-user-logo js-popup-user-{$oWallUser->getId()}"
-               href="{$oWallUser->getProfileUrl()}">
+            <a class="wall-user-logo js-popover-user-{$oWallUser->getId()}" href="{$oWallUser->getProfileUrl()}">
                 <img src="{$oWallUser->getAvatarUrl('medium')}" alt="user-logo"/>
             </a>
 

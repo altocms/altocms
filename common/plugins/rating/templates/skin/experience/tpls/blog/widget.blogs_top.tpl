@@ -1,6 +1,10 @@
 <ul class="blogs-list">
     {foreach $aBlogs as $oBlog}
-        <li>
+        <li data-alto-role="popover"
+            data-type="blog"
+            data-api="blog/{$oBlog->getId()}/info"
+            data-placement="auto left"
+            data-cache="false">
             <a href="{$oBlog->getUrlFull()}" class="blog-name link link-dual link-lead link-clear">
                 {$sPath = $oBlog->getAvatarPath(24)}
                 {if $sPath}

@@ -93,11 +93,6 @@
                                 <span class="avatar">
                                     <a data-alto-role="popover"
                                        data-api="user/{$oUserOwner->getId()}/info"
-                                       data-api-param-tpl="default"
-                                       data-trigger="hover"
-                                       data-placement="top"
-                                       data-animation="true"
-                                       data-cache="true"
                                        class="link link-clear" href="{$oUserOwner->getProfileUrl()}">
                                         <img src="{$oUserOwner->getAvatarUrl('mini')}" class="bor32" alt="avatar"/>
                                     </a>
@@ -111,11 +106,6 @@
                                             <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}"  class="bor32" alt="avatar"/></a>
                                             <a data-alto-role="popover"
                                                data-api="user/{$oUser->getId()}/info"
-                                               data-api-param-tpl="default"
-                                               data-trigger="hover"
-                                               data-placement="top"
-                                               data-animation="true"
-                                               data-cache="true"
                                                href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                         </span>
                                          {/foreach}

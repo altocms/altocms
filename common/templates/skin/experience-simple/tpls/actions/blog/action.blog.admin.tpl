@@ -43,11 +43,6 @@
                             </a>
                             <a data-alto-role="popover"
                                data-api="user/{$oUser->getId()}/info"
-                               data-api-param-tpl="default"
-                               data-trigger="hover"
-                               data-placement="top"
-                               data-animation="true"
-                               data-cache="true"
                                href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                             </span>
                         </td>

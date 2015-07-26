@@ -10,8 +10,8 @@
         {*</a>*}
         <div class="comment-tools mab6">
             <ul>
-                <li class="comment-user">
-                    <a href="{$oReplyUser->getProfileUrl()}" class="mal0 js-popup-user-{$oReplyUser->getId()}">
+                <li class="comment-user js-popover-user-{$oReplyUser->getId()}">
+                    <a href="{$oReplyUser->getProfileUrl()}" class="mal0">
                         <img src="{$oReplyUser->getAvatarUrl('small')}" alt="{$oReplyUser->getDisplayName()}"/>
                     </a>
                     <a class="userlogo link link-blue link-lead link-clear"

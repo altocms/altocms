@@ -13,7 +13,7 @@
         </div>
 
         <section class="comment">
-            <a href="{$oUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oUser->getId()}">
+            <a href="{$oUser->getProfileUrl()}" class="comment-avatar js-popover-user-{$oUser->getId()}">
                 <img src="{$oUser->getAvatarUrl('medium')}" alt="avatar"  />
             </a>
 

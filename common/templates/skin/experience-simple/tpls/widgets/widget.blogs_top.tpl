@@ -10,15 +10,11 @@
  <ul class="blogs-list widget-blogs-top-items">
      {foreach $aBlogs as $oBlog}
          <li data-alto-role="popover"
-               data-type="blog"
-               data-api="blog/{$oBlog->getId()}/info"
-               data-api-param-tpl="default"
-               data-trigger="hover"
-               data-placement="top"
-               data-container="body"
-               data-selector="type-blog"
-               data-animation="true"
-               data-cache="false">
+             data-type="blog"
+             data-api="blog/{$oBlog->getId()}/info"
+             data-placement="auto top"
+             data-selector="type-blog"
+             data-cache="false">
              <a href="{$oBlog->getUrlFull()}" class="blog-name link link-dual link-lead link-clear">
                 <span class="blog-line-image">
                     {$sPath = $oBlog->getAvatarPath('small')}

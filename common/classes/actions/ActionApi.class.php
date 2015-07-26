@@ -374,8 +374,15 @@ class ActionApi extends Action {
         }
 
         // Определим формат данных
-        if (isset($aData['params']['tpl']) && $aData['params']['tpl'] !== FALSE) {
-            $sResult = $this->_Fetch($sResourceName, $aResult['data'], $aData['params']['tpl']);
+        if (!empty($aData['params']['tpl'])) {
+            $sTemplate = $aData['params']['tpl'];
+        } elseif(!empty($aData['params']['role']) && $aData['params']['role'] == 'popover') {
+            $sTemplate = 'default';
+        } else {
+            $sTemplate = null;
+        }
+        if ($sTemplate) {
+            $sResult = $this->_Fetch($sResourceName, $aResult['data'], $sTemplate);
         } else {
             $sResult = $aResult['json'];
         }
@@ -399,11 +406,14 @@ class ActionApi extends Action {
 
     /**
      * Рендеринг шаблона
-     * @param $sCmd
-     * @param $aData
+     *
+     * @param string      $sCmd
+     * @param array       $aData
+     * @param string|null $sTemplate
+     *
      * @return string
      */
-    protected function _Fetch($sCmd, $aData, $sTemplate) {
+    protected function _Fetch($sCmd, $aData, $sTemplate = null) {
 
         /** @var ModuleViewer $oLocalViewer */
         $oLocalViewer = E::ModuleViewer()->GetLocalViewer();

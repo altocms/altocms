@@ -20,12 +20,7 @@
                 <ul class="comment-info">
                     <li data-alto-role="popover"
                         data-api="user/{$oUser->getId()}/info"
-                        data-api-param-tpl="default"
-                        data-trigger="hover"
-                        data-placement="top"
-                        data-animation="true"
-                        data-cache="true"
-                            class="user-block">
+                        class="user-block">
                         <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                         <a class="userlogo link link-dual link-lead link-clear mal0" href="{$oUser->getProfileUrl()}">
                             {$oUser->getDisplayName()}

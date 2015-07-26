@@ -15,7 +15,7 @@
 <section id="comment_id_{$oComment->getId()}" class="comment {$sCommentClass}">
     {if !$oComment->getDelete() OR $bOneComment OR E::IsAdmin() OR $oComment->isDeletable()}
         <a name="comment{$oComment->getId()}"></a>
-        <a href="{$oUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oUser->getId()}">
+        <a href="{$oUser->getProfileUrl()}" class="comment-avatar js-popover-user-{$oUser->getId()}">
             <img src="{$oUser->getAvatarUrl('big')}" alt="{$oUser->getDisplayName()}"/>
         </a>
         <ul class="list-unstyled small comment-info">

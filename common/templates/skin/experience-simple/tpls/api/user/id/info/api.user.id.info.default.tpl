@@ -7,9 +7,11 @@
             {if (C::Get('rating.enabled'))}
                 <li class="user-info-default-rating"><i class="fa fa-bar-chart-o"></i><span class="{if $oUser->getRating()>=0}positive{else}negative{/if}">{if $oUser->getRating()>0}+{/if}{$oUser->getRating()}</span></a></li>
             {/if}
-            <li class="user-info-default-display"><a href="{$oUser->getProfileUrl()}">
+            <li class="user-info-default-display">
+                <a href="{$oUser->getProfileUrl()}">
                     {if !$oUser->getProfileName()}{$aLang.no_name}{else}{$oUser->getProfileName()|escape:'html'}{/if}
-                </a></li>
+                </a>
+            </li>
         </ul>
     </div>
     <div class="user-info-default-bottom">

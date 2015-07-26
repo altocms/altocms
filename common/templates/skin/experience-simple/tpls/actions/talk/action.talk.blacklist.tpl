@@ -35,11 +35,6 @@
                                         <li id="user_black_list_item_{$oUser->getId()}">
                                             <a class="user" data-alto-role="popover"
                                                data-api="user/{$oUser->getId()}/info"
-                                               data-api-param-tpl="default"
-                                               data-trigger="hover"
-                                               data-placement="top"
-                                               data-animation="true"
-                                               data-cache="true"
                                                href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                             - <a href="#" onclick="return ls.talk.removeFromBlackList('{$oUser->getId()}')"
                                                  class="link link-lead link-red-blue delete"><i class="fa fa-times"></i></a>
