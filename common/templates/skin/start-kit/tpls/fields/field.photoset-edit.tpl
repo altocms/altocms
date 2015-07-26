@@ -20,9 +20,16 @@
     {var name="sTemplate"}
         <li id="uploader_item_ID">
             <img src="uploader_item_SRC" width="100px" alt="image"/>
-            <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;"></textarea>
+            <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;">{$oPhoto->getDescription()}</textarea>
             <a href="#" class="js-uploader-item-delete" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: 'ID' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
-            <a href="#" class="js-uploader-item-cover" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: 'ID' }); return false;">MARK_AS_PREVIEW</a>
+            <span class="photo-preview-state">
+                    <a href="#"
+                       onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: 'ID' }); return false;"
+                       class="js-uploader-item-cover PHOTOSET-IS-COVER">
+                        <span class="marked-as-cover">{$aLang.topic_photoset_is_preview}</span>
+                        <span class="mark-as-cover">{$aLang.topic_photoset_mark_as_preview}</span>
+                    </a>
+                </span>
         </li>
     {/var}
 </script>

@@ -82,10 +82,8 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
     if ($aParams['src']) {
         foreach ($aParams['src'] as $sID => $aData) {
             $sItems .= str_replace(
-                array('ID', 'uploader_item_SRC', 'MARK_AS_PREVIEW'),
-                array($sID, $aData['url'], $aData['cover']
-                    ? E::ModuleLang()->Get('topic_photoset_is_preview')
-                    : E::ModuleLang()->Get('topic_photoset_mark_as_preview')),
+                array('ID', 'uploader_item_SRC', 'PHOTOSET-IS-COVER'),
+                array($sID, $aData['url'], $aData['cover'] ? 'photoset-is-cover' : ''),
                 $sTemplate
             );
         }

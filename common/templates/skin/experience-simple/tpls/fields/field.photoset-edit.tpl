@@ -25,13 +25,17 @@
                 </div>
                 <div class="col-sm-20">
                     <textarea onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;"
-                              class="form-control"></textarea>
+                              class="form-control">{$oPhoto->getDescription()}</textarea>
                     <a href="#"
                        onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: 'ID' }); return false;"
                        class="link link-lead link-red-blue js-uploader-item-delete"><i class="fa fa-times"></i>&nbsp;{$aLang.topic_photoset_photo_delete}</a>
                     <span class="photo-preview-state">
-                        <a href="#" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: 'ID' }); return false;"
-                           class="link link-lead link-blue js-uploader-item-cover">MARK_AS_PREVIEW</a>
+                        <a href="#"
+                           onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: 'ID' }); return false;"
+                           class="link link-lead link-blue js-uploader-item-cover PHOTOSET-IS-COVER">
+                            <span class="marked-as-cover"><i class="fa fa-check-square-o"></i> {$aLang.topic_photoset_is_preview}</span>
+                            <span class="mark-as-cover"><i class="fa fa-square-o"></i> {$aLang.topic_photoset_mark_as_preview}</span>
+                        </a>
                     </span>
                 </div>
             </div>
