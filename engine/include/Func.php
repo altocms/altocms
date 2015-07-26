@@ -1052,6 +1052,7 @@ class Func {
                     $sUrl = 'http://';
                 }
                 if (isset($_SERVER['SERVER_NAME'])) $sUrl .= $_SERVER['SERVER_NAME'];
+                if (isset($_SERVER['SERVER_PORT']) && !in_array($_SERVER['SERVER_PORT'],array(80,443))) $sUrl .=  ':'.$_SERVER['SERVER_PORT'];
                 if (substr($sLocation, 0, 1) == '/') {
                     $sUrl .= $sLocation;
                 } else {
