@@ -20,7 +20,7 @@
     {var name="sTemplate"}
         <li id="uploader_item_ID">
             <img src="uploader_item_SRC" width="100px" alt="image"/>
-            <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;">{$oPhoto->getDescription()}</textarea>
+            <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;"></textarea>
             <a href="#" class="js-uploader-item-delete" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: 'ID' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
             <span class="photo-preview-state">
                     <a href="#"

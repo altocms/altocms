@@ -25,7 +25,7 @@
                 </div>
                 <div class="col-sm-20">
                     <textarea onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;"
-                              class="form-control">{$oPhoto->getDescription()}</textarea>
+                              class="form-control"></textarea>
                     <a href="#"
                        onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: 'ID' }); return false;"
                        class="link link-lead link-red-blue js-uploader-item-delete"><i class="fa fa-times"></i>&nbsp;{$aLang.topic_photoset_photo_delete}</a>
