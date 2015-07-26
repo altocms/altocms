@@ -1038,36 +1038,12 @@ class Func {
      */
     static public function RealUrl($sLocation, $bRealHost = false) {
 
-        $sProtocol = static::HttpProtocol();
-
-        $aParts = parse_url($sLocation);
         // если парсером хост не обнаружен, то задан относительный путь
-        if (!isset($aParts['host'])) {
+        if (!parse_url($sLocation, PHP_URL_HOST)) {
             if (!$bRealHost) {
                 $sUrl = F::File_RootUrl() . $sLocation;
             } else {
-                if (strpos($sProtocol, 'HTTPS') === 0) {
-                    $sUrl = 'https://';
-                } else {
-                    $sUrl = 'http://';
-                }
-                if (isset($_SERVER['SERVER_NAME'])) $sUrl .= $_SERVER['SERVER_NAME'];
-                if (isset($_SERVER['SERVER_PORT']) && !in_array($_SERVER['SERVER_PORT'],array(80,443))) $sUrl .=  ':'.$_SERVER['SERVER_PORT'];
-                if (substr($sLocation, 0, 1) == '/') {
-                    $sUrl .= $sLocation;
-                } else {
-                    if (isset($_SERVER['REQUEST_URI'])) {
-                        $sUri = $_SERVER['REQUEST_URI'];
-                        if ($n = strpos($sUri, '?')) {
-                            $sUri = substr($sUri, 0, $n);
-                        }
-                        if ($n = strpos($sUri, '#')) {
-                            $sUri = substr($sUri, 0, $n);
-                        }
-                        $sUrl .= '/' . $sUri;
-                    }
-                    $sUrl .= '/' . $sLocation;
-                }
+                $sUrl = static::UrlBase() . '/' . $sLocation;
             }
         } else {
             $sUrl = $sLocation;
