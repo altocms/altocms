@@ -204,7 +204,7 @@
             } else {
                 html = this.templateHTML;
                 if (html) {
-                    html = $(html.replace(/ID/g, data.id).replace(/MARK_AS_PREVIEW/g, $this.options.langCoverNeed)).show();
+                    html = $(html.replace(/ID/g, data.id).replace(/PHOTOSET-IS-COVER/g, '')).show();
                     html.find('img').prop('src', data.file);
                     html = $(html);
                     $this.uploaded.push(data.file.replace(new RegExp('-' + $this.options.previewCrop + '.*'), ''));
