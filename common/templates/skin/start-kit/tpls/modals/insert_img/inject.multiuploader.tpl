@@ -3,7 +3,7 @@
     $(function () {
         $('.js-alto-topic-uploader')
                 .altoMultiUploader({
-                    target: '{$sTargetType}',
+                    target: $('#js-alto-image-manager').data('target-type'),
                     tpl: '.js-topic-file-tpl',
                     list: '>.js-files-tpl',
                     upload: '.js-upload-topic',
@@ -72,7 +72,6 @@
             {* ¡ÀŒ  «¿√–”« » »«Œ¡–¿∆≈Õ»ﬂ *}
 
             <div class="js-alto-topic-uploader js-topic-photoset"
-                 data-target="{$sTargetType}"
                  data-target-id="{$sTargetId}"
                  data-lang-cover-done="{$aLang.topic_photoset_is_preview}"
                  data-lang-cover-need="{$aLang.topic_photoset_mark_as_preview}"
