@@ -7,7 +7,6 @@
 {/if}
 
 {if $aTags OR $aFavouriteTags}
-
     <ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
         <li><i class="fa fa-tags"></i></li>
         {if $aTags}
@@ -33,9 +32,9 @@
             {/if}
             <li class="topic-tags-edit js-favourite-tag-edit"
                 {if !$oFavourite}style="display:none;"{/if}>
-                <a href="#" onclick="return ls.favourite.showEditTags({$oTopic->getId()},'topic',this);"
-                   class="link link-lead link-light-gray link-clear">&nbsp;{$aLang.favourite_form_tags_button_show}</a>
+                &nbsp;<a href="#" onclick="return ls.favourite.showEditTags({$oTopic->getId()},'topic',this);"
+                   class="link link-lead link-light-gray link-clear">{$aLang.favourite_form_tags_button_show}</a>
             </li>
         {/if}
-
+    <ul>
 {/if}
