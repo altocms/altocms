@@ -1161,32 +1161,43 @@ class ActionTalk extends Action {
      */
     public function EventShutdown() {
 
-        if (!$this->oUserCurrent) {
+        if (!E::User()) {
             return;
         }
         $iCountTalkFavourite = E::ModuleTalk()->GetCountTalksFavouriteByUserId($this->oUserCurrent->getId());
         E::ModuleViewer()->Assign('iCountTalkFavourite', $iCountTalkFavourite);
 
-        $iCountTopicFavourite = E::ModuleTopic()->GetCountTopicsFavouriteByUserId($this->oUserCurrent->getId());
-        $iCountTopicUser = E::ModuleTopic()->GetCountTopicsPersonalByUser($this->oUserCurrent->getId(), 1);
-        $iCountCommentUser = E::ModuleComment()->GetCountCommentsByUserId($this->oUserCurrent->getId(), 'topic');
-        $iCountCommentFavourite = E::ModuleComment()->GetCountCommentsFavouriteByUserId($this->oUserCurrent->getId());
-        $iCountNoteUser = E::ModuleUser()->GetCountUserNotesByUserId($this->oUserCurrent->getId());
+        $iUserId = E::UserId();
 
-        E::ModuleViewer()->Assign('oUserProfile', $this->oUserCurrent);
-        E::ModuleViewer()->Assign(
-            'iCountWallUser',
-            E::ModuleWall()->GetCountWall(array('wall_user_id' => $this->oUserCurrent->getId(), 'pid' => null))
-        );
+        // Get stats of various user publications topics, comments, images, etc. and stats of favourites
+        $aProfileStats = E::ModuleUser()->GetUserProfileStats($iUserId);
 
-        // * Общее число публикация и избранного
-        E::ModuleViewer()->Assign('iCountCreated', $iCountNoteUser + $iCountTopicUser + $iCountCommentUser);
-        E::ModuleViewer()->Assign('iCountFavourite', $iCountCommentFavourite + $iCountTopicFavourite);
-        E::ModuleViewer()->Assign('iCountFriendsUser', E::ModuleUser()->GetCountUsersFriend($this->oUserCurrent->getId()));
+        // Получим информацию об изображениях пользователя
+        /** @var ModuleMresource_EntityMresourceCategory[] $aUserImagesInfo */
+        $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($iUserId);
+
+        E::ModuleViewer()->Assign('oUserProfile', E::User());
+        E::ModuleViewer()->Assign('aProfileStats', $aProfileStats);
+        E::ModuleViewer()->Assign('aUserImagesInfo', $aUserImagesInfo);
+
+        // Old style skin compatibility
+        E::ModuleViewer()->Assign('iCountTopicUser', $aProfileStats['count_topics']);
+        E::ModuleViewer()->Assign('iCountCommentUser', $aProfileStats['count_comments']);
+        E::ModuleViewer()->Assign('iCountTopicFavourite', $aProfileStats['favourite_topics']);
+        E::ModuleViewer()->Assign('iCountCommentFavourite', $aProfileStats['favourite_comments']);
+        E::ModuleViewer()->Assign('iCountNoteUser', $aProfileStats['count_usernotes']);
+        E::ModuleViewer()->Assign('iCountWallUser', $aProfileStats['count_wallrecords']);
+
+        E::ModuleViewer()->Assign('iPhotoCount', $aProfileStats['count_images']);
+        E::ModuleViewer()->Assign('iCountCreated', $aProfileStats['count_created']);
+
+        E::ModuleViewer()->Assign('iCountFavourite', $aProfileStats['count_favourites']);
+        E::ModuleViewer()->Assign('iCountFriendsUser', $aProfileStats['count_friends']);
 
         E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
 
-        // * Передаем во вьевер константы состояний участников разговора
+        // * Передаем константы состояний участников разговора
         E::ModuleViewer()->Assign('TALK_USER_ACTIVE', ModuleTalk::TALK_USER_ACTIVE);
         E::ModuleViewer()->Assign('TALK_USER_DELETE_BY_SELF', ModuleTalk::TALK_USER_DELETE_BY_SELF);
         E::ModuleViewer()->Assign('TALK_USER_DELETE_BY_AUTHOR', ModuleTalk::TALK_USER_DELETE_BY_AUTHOR);

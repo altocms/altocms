@@ -2111,6 +2111,56 @@ class ModuleUser extends Module {
         return $this->oMapper->IpIsBanned($sIp);
     }
 
+    /**
+     * Returns stats of user publications and favourites
+     *
+     * @param int|object $xUser
+     *
+     * @return int[]
+     */
+    public function GetUserProfileStats($xUser) {
+
+        if (is_object($xUser)) {
+            $iUserId = $xUser->getId();
+        } else {
+            $iUserId = intval($xUser);
+        }
+
+        $iCountTopicFavourite = E::ModuleTopic()->GetCountTopicsFavouriteByUserId($iUserId);
+        $iCountCommentFavourite = E::ModuleComment()->GetCountCommentsFavouriteByUserId($iUserId);
+        $iCountTopics = E::ModuleTopic()->GetCountTopicsPersonalByUser($iUserId, 1);
+        $iCountComments = E::ModuleComment()->GetCountCommentsByUserId($iUserId, 'topic');
+        $iCountWallRecords = E::ModuleWall()->GetCountWall(array('wall_user_id' => $iUserId, 'pid' => null));
+        $iImageCount = E::ModuleMresource()->GetCountImagesByUserId($iUserId);
+
+        $iCountUserNotes = $this->GetCountUserNotesByUserId($iUserId);
+        $iCountUserFriends = $this->GetCountUsersFriend($iUserId);
+
+        $aUserPublicationStats = array(
+            'favourite_topics' => $iCountTopicFavourite,
+            'favourite_comments' => $iCountCommentFavourite,
+            'count_topics' => $iCountTopics,
+            'count_comments' => $iCountComments,
+            'count_usernotes' => $iCountUserNotes,
+            'count_wallrecords' => $iCountWallRecords,
+            'count_images' => $iImageCount,
+            'count_friends' => $iCountUserFriends,
+        );
+        $aUserPublicationStats['count_created'] =
+            $aUserPublicationStats['count_topics']
+            + $aUserPublicationStats['count_comments']
+            + $aUserPublicationStats['count_images'];
+
+        if ($iUserId == E::UserId()) {
+            $aUserPublicationStats['count_created'] += $aUserPublicationStats['count_usernotes'];
+        }
+
+        $aUserPublicationStats['count_favourites'] =
+            $aUserPublicationStats['favourite_topics']
+            + $aUserPublicationStats['favourite_comments'];
+
+        return $aUserPublicationStats;
+    }
 }
 
 // EOF

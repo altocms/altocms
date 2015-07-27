@@ -65,50 +65,72 @@
                 {/if}
             {/if}
 
-
-            {*{if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}*}
-                {*<div class="profile-photo-menu">*}
-                    {*<br/>*}
-                    {*<a class="link link-lead link-blue link-clear mat8" href="#" onclick="return false;" data-toggle="file" data-target="#profile-photo-file"><i class="fa fa-pencil"></i>&nbsp;*}
-                        {*{if $oUserCurrent->getProfilePhoto()}*}
-                            {*{$aLang.settings_profile_photo_change}*}
-                        {*{else}*}
-                            {*{$aLang.settings_profile_photo_upload}*}
-                        {*{/if}*}
-                    {*</a>*}
-                    {*<br/>*}
-                    {*<a href="#" class="link link-lead link-red-blue link-clear js-profile-photo-remove" {if !$oUserCurrent->getProfilePhoto()}style="visibility: hidden;"{/if}>*}
-                        {*<i class="fa fa-times"></i>&nbsp;{$aLang.settings_profile_photo_delete}*}
-                    {*</a>*}
-                    {*<input type="file" name="photo" id="profile-photo-file" class="js-profile-photo-file"*}
-                           {*data-target=".js-profile-photo-image">*}
-                {*</div>*}
-                {*{include_once file="modals/modal.crop_img.tpl"}*}
-            {*{/if}*}
-
             {hook run='profile_sidebar_menu_before' oUserProfile=$oUserProfile}
 
             <ul class="nav nav-pills nav-stacked user-nav">
                 {hook run='profile_sidebar_menu_item_first' oUserProfile=$oUserProfile}
                 <li {if $sAction=='profile' AND ($aParams[0]=='whois' OR $aParams[0]=='')}class="active"{/if}>
-                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}"><i class="fa fa-info-circle"></i>{$aLang.user_menu_profile_whois}</a>
+                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}">
+                        <i class="fa fa-info-circle"></i>{$aLang.user_menu_profile_whois}</a>
                 </li>
-                <li {if $sAction=='profile' AND $aParams[0]=='wall'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}wall/"><i class="fa fa-edit"></i>{$aLang.user_menu_profile_wall}{if ($iCountWallUser)>0}<span class="badge pull-right">{$iCountWallUser}</span>{/if}</a></li>
-                <li {if $sAction=='profile' AND $aParams[0]=='created'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}created/topics/">
-                        <i class="fa fa-file-o"></i>{$aLang.user_menu_publication}{if ($iCountCreated)>0} <span class="badge pull-right">{$iCountCreated}</span>{/if}</a></li>
-                <li {if $sAction=='profile' AND $aParams[0]=='favourites'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}favourites/topics/"><i class="fa fa-star-o"></i>{$aLang.user_menu_profile_favourites}{if ($iCountFavourite)>0}<span class="badge pull-right">{$iCountFavourite}</span>{/if}</a></li>
-                <li {if $sAction=='profile' AND $aParams[0]=='stream'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}stream/"><i class="fa fa-bar-chart-o"></i>{$aLang.user_menu_profile_stream}</a></li>
-                <li {if $sAction=='profile' AND $aParams[0]=='friends'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}friends/"><i class="fa fa-users"></i>{$aLang.user_menu_profile_friends}{if ($iCountFriendsUser)>0} <span class="badge pull-right">{$iCountFriendsUser}</span>{/if}</a></li>
+                <li {if $sAction=='profile' AND $aParams[0]=='wall'}class="active"{/if}>
+                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}wall/">
+                        <i class="fa fa-edit"></i>{$aLang.user_menu_profile_wall}
+                        {if ($aProfileStats['count_wallrecords'])>0}
+                            <span class="badge pull-right">{$aProfileStats['count_wallrecords']}</span>
+                        {/if}
+                    </a>
+                </li>
+                <li {if $sAction=='profile' AND $aParams[0]=='created'}class="active"{/if}>
+                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}created/topics/">
+                        <i class="fa fa-file-o"></i>{$aLang.user_menu_publication}
+                        {if ($aProfileStats['count_created'])>0}
+                            <span class="badge pull-right">{$aProfileStats['count_created']}</span>
+                        {/if}
+                    </a>
+                </li>
+                <li {if $sAction=='profile' AND $aParams[0]=='favourites'}class="active"{/if}>
+                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}favourites/topics/">
+                        <i class="fa fa-star-o"></i>{$aLang.user_menu_profile_favourites}
+                        {if ($aProfileStats['count_favourites'])>0}
+                            <span class="badge pull-right">{$aProfileStats['count_favourites']}</span>
+                        {/if}
+                    </a>
+                </li>
+                <li {if $sAction=='profile' AND $aParams[0]=='stream'}class="active"{/if}>
+                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}stream/">
+                        <i class="fa fa-bar-chart-o"></i>{$aLang.user_menu_profile_stream}
+                    </a>
+                </li>
+                <li {if $sAction=='profile' AND $aParams[0]=='friends'}class="active"{/if}>
+                    <a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}friends/">
+                        <i class="fa fa-users"></i>{$aLang.user_menu_profile_friends}
+                        {if ($aProfileStats['count_friends'])>0}
+                            <span class="badge pull-right">{$aProfileStats['count_friends']}</span>
+                        {/if}
+                    </a>
+                </li>
+
                 {if E::UserId() == $oUserProfile->getId()}
-                <li {if $sAction=='talk'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                <li {if $sAction=='talk'}class="active"{/if}>
                     {if $iUserCurrentCountTalkNew}
-                    <i class="fa fa-envelope"></i>{$aLang.talk_menu_inbox} <span class="badge pull-right"> {$iUserCurrentCountTalkNew}</span></a>
+                    <a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                        <i class="fa fa-envelope"></i>{$aLang.talk_menu_inbox}
+                        <span class="badge pull-right"> {$iUserCurrentCountTalkNew}</span>
+                    </a>
                     {else}
-                    <i class="fa fa-envelope-o"></i>{$aLang.talk_menu_inbox}</a>
+                    <a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                        <i class="fa fa-envelope-o"></i>{$aLang.talk_menu_inbox}
+                    </a>
                     {/if}
                 </li>
-                <li {if $sAction=='settings'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{router page='settings'}"><i class="fa fa-cogs"></i>{$aLang.settings_menu}</a></li>
+                <li {if $sAction=='settings'}class="active"{/if}>
+                    <a class="link link-lead link-dual link-clear" href="{router page='settings'}">
+                        <i class="fa fa-cogs"></i>{$aLang.settings_menu}
+                    </a>
+                </li>
                 {/if}
+
                 {hook run='profile_sidebar_menu_item_last' oUserProfile=$oUserProfile}
             </ul>
         </div>
@@ -125,7 +147,7 @@
 {/if}
 
 
-{if E::IsUser() AND E::UserId() != $oUserProfile->getId()}
+{if E::UserId() != $oUserProfile->getId()}
 <div class="panel panel-default sidebar user-panel flat widget">
 
         <div class="panel-body pab24 js-usernote" data-user-id="{$oUserProfile->getId()}">
@@ -148,12 +170,11 @@
                 <button type="submit" class="btn btn-blue corner-no pull-right js-usernote-form-save">{$aLang.user_note_form_save}</button>
             </div>
 
-            <a href="#" class="link-dotted js-usernote-button-add"
-               {if $oUserNote}style="display:none;"{/if}>{$aLang.user_note_add}</a>
+            <a href="#" class="link-dotted js-usernote-button-add" {if $oUserNote}style="display:none;"{/if}>
+                {$aLang.user_note_add}
+            </a>
 
         </div>
-
-
 </div>
 {/if}
 

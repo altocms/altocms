@@ -1456,59 +1456,47 @@ class ActionProfile extends Action {
         if (!$this->oUserProfile) {
             return;
         }
-        /**
-         * Загружаем в шаблон необходимые переменные
-         */
-        $iCountTopicFavourite = E::ModuleTopic()->GetCountTopicsFavouriteByUserId($this->oUserProfile->getId());
-        $iCountTopicUser = E::ModuleTopic()->GetCountTopicsPersonalByUser($this->oUserProfile->getId(), 1);
-        $iCountCommentUser = E::ModuleComment()->GetCountCommentsByUserId($this->oUserProfile->getId(), 'topic');
-        $iCountCommentFavourite = E::ModuleComment()->GetCountCommentsFavouriteByUserId($this->oUserProfile->getId());
-        $iCountNoteUser = E::ModuleUser()->GetCountUserNotesByUserId($this->oUserProfile->getId());
+        $iProfileUserId = $this->oUserProfile->getId();
 
-        // Получим информацию об изображениях пользовтеля
-        // И посчитаем общее количество картинок
+        // Get stats of various user publications topics, comments, images, etc. and stats of favourites
+        $aProfileStats = E::ModuleUser()->GetUserProfileStats($iProfileUserId);
+
+        // Получим информацию об изображениях пользователя
         /** @var ModuleMresource_EntityMresourceCategory[] $aUserImagesInfo */
-        $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($this->oUserProfile->getId());
-        $iPhotoCount = E::ModuleMresource()->GetCountImagesByUserId($this->oUserProfile->getId());
+        $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($iProfileUserId);
 
+        // * Загружаем в шаблон необходимые переменные
         E::ModuleViewer()->Assign('oUserProfile', $this->oUserProfile);
-        E::ModuleViewer()->Assign('iCountTopicUser', $iCountTopicUser);
-        E::ModuleViewer()->Assign('iCountCommentUser', $iCountCommentUser);
-        E::ModuleViewer()->Assign('iCountTopicFavourite', $iCountTopicFavourite);
-        E::ModuleViewer()->Assign('iCountCommentFavourite', $iCountCommentFavourite);
-        E::ModuleViewer()->Assign('iCountNoteUser', $iCountNoteUser);
-        E::ModuleViewer()->Assign(
-            'iCountWallUser',
-            E::ModuleWall()->GetCountWall(array('wall_user_id' => $this->oUserProfile->getId(), 'pid' => null))
-        );
+        E::ModuleViewer()->Assign('aProfileStats', $aProfileStats);
+        E::ModuleViewer()->Assign('aUserImagesInfo', $aUserImagesInfo);
 
-        E::ModuleViewer()->Assign('oUserImagesInfo', $aUserImagesInfo);
-        E::ModuleViewer()->Assign('iPhotoCount', $iPhotoCount);
-
-        /**
-         * Общее число публикаций и избранного
-         */
-        E::ModuleViewer()->Assign(
-            'iCountCreated',
-            (($this->oUserCurrent && $this->oUserCurrent->getId() == $this->oUserProfile->getId()) ? $iCountNoteUser
-                : 0) + $iCountTopicUser + $iCountCommentUser + $iPhotoCount
-        );
-        E::ModuleViewer()->Assign('iCountFavourite', $iCountCommentFavourite + $iCountTopicFavourite);
-        /**
-         * Заметка текущего пользователя о юзере
-         */
-        if ($this->oUserCurrent) {
+        // * Заметка текущего пользователя о юзере
+        if (E::User()) {
             E::ModuleViewer()->Assign('oUserNote', $this->oUserProfile->getUserNote());
         }
-        E::ModuleViewer()->Assign('iCountFriendsUser', E::ModuleUser()->GetCountUsersFriend($this->oUserProfile->getId()));
 
         E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
         E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+
         E::ModuleViewer()->Assign('USER_FRIEND_NULL', ModuleUser::USER_FRIEND_NULL);
         E::ModuleViewer()->Assign('USER_FRIEND_OFFER', ModuleUser::USER_FRIEND_OFFER);
         E::ModuleViewer()->Assign('USER_FRIEND_ACCEPT', ModuleUser::USER_FRIEND_ACCEPT);
         E::ModuleViewer()->Assign('USER_FRIEND_REJECT', ModuleUser::USER_FRIEND_REJECT);
         E::ModuleViewer()->Assign('USER_FRIEND_DELETE', ModuleUser::USER_FRIEND_DELETE);
+
+        // Old style skin compatibility
+        E::ModuleViewer()->Assign('iCountTopicUser', $aProfileStats['count_topics']);
+        E::ModuleViewer()->Assign('iCountCommentUser', $aProfileStats['count_comments']);
+        E::ModuleViewer()->Assign('iCountTopicFavourite', $aProfileStats['favourite_topics']);
+        E::ModuleViewer()->Assign('iCountCommentFavourite', $aProfileStats['favourite_comments']);
+        E::ModuleViewer()->Assign('iCountNoteUser', $aProfileStats['count_usernotes']);
+        E::ModuleViewer()->Assign('iCountWallUser', $aProfileStats['count_wallrecords']);
+
+        E::ModuleViewer()->Assign('iPhotoCount', $aProfileStats['count_images']);
+        E::ModuleViewer()->Assign('iCountCreated', $aProfileStats['count_created']);
+
+        E::ModuleViewer()->Assign('iCountFavourite', $aProfileStats['count_favourites']);
+        E::ModuleViewer()->Assign('iCountFriendsUser', $aProfileStats['count_friends']);
     }
 
 }

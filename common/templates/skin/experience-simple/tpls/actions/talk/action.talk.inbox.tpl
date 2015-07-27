@@ -21,7 +21,7 @@
             <input type="hidden" name="submit_talk_del" id="form_talks_list_submit_del" value=""/>
 
             <div class="row user-toggle-publication-block">
-                <div class="col-lg-8"><a class="btn btn-default " href="#" onclick="return ls.talk.makeReadTalks();">{$aLang.talk_inbox_make_read}</a></div>
+                <div class="col-md-8"><a class="btn btn-default " href="#" onclick="return ls.talk.makeReadTalks();">{$aLang.talk_inbox_make_read}</a></div>
                 <div class="col-md-8"><a class="btn btn-default " href="#" onclick="return ls.talk.makeUnreadTalks();">{$aLang.talk_inbox_make_un_read}</a></div>
                 <div class="col-md-8"><a class="btn btn-default " href="#" onclick="return ls.talk.removeTalks();">{$aLang.talk_inbox_delete}</a></div>
             </div>
