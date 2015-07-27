@@ -140,7 +140,7 @@
 
             <div class="form-group checkbox">
                 <div class="input-group">
-                    <label for="public_topic">
+                    <label>
                         <input class="mal0" type="checkbox" id="topic_forbid_comment" name="topic_forbid_comment" value="1"
                                {if $_aRequest.topic_forbid_comment==1}checked{/if} />
                         {$aLang.topic_create_forbid_comment}
@@ -153,7 +153,7 @@
             {if E::IsAdmin()}
                 <div class="form-group checkbox">
                     <div class="input-group">
-                        <label for="public_topic">
+                        <label>
                             <input class="mal0"  type="checkbox" id="topic_publish_index" name="topic_publish_index" value="1"
                                    {if $_aRequest.topic_publish_index==1}checked{/if} />
                             {$aLang.topic_create_publish_index}
