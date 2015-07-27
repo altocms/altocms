@@ -302,6 +302,7 @@ return array(
     'topic_create_blog_error_noacl'             => 'Вы еще недостаточно окрепли, чтобы постить в этот блог',
     'topic_create_blog_error_noallow'           => 'Вы не можете писать в этот блог',
     'topic_create_blog_notice'                  => 'Выберите блог, в который будете писать',
+    'topic_create_blog_type_not_in_any_blog'    => 'Ни у одного типа блогов не разрешен этот тип контента.',
     'topic_create_title'                        => 'Заголовок',
     'topic_create_title_notice'                 => 'Заголовок должен быть наполнен смыслом, чтобы можно было понять, о чем будет статья.',
     'topic_create_title_error'                  => 'Название статьи должно быть от 2 до 200 символов',
