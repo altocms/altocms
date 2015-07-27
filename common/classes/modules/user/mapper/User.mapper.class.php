@@ -1182,7 +1182,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @param bool  $bOnlyNoEmpty Загружать только непустые поля
      * @param array $aType        Типы полей, null - все типы
      *
-     * @return array
+     * @return ModuleUser_EntityField[]
      */
     public function getUserFieldsValues($nUserId, $bOnlyNoEmpty, $aType) {
 
