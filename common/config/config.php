@@ -700,6 +700,8 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/syslabel/syslabel.js',
     '___path.frontend.dir___/libs/vendor/prettyphoto/js/jquery.prettyphoto.js',
     '___path.frontend.dir___/libs/vendor/rowgrid/jquery.row-grid.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery.pulse/jquery.pulse.min.js' => array('asset' => 'mini'),
+
     '___path.frontend.dir___/libs/vendor/parsley/parsley.js',
     '___path.frontend.dir___/libs/vendor/parsley/i18n/messages.ru.js',
     //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
