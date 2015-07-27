@@ -193,20 +193,17 @@
             <div class="form-group">
                 <textarea name="topic_text" id="topic_text" rows="20"
                           class="form-control js-editor-wysiwyg js-editor-markitup">{$_aRequest.topic_text}</textarea>
-            </div>
-
-            {* ПОЯСНЕНИЯ К РЕДАКТОРУ *}
-            {if !Config::Get('view.wysiwyg')}
-                <div class="row">
-                    <div class="col-xs-24">
+                {* ПОЯСНЕНИЯ К РЕДАКТОРУ *}
+                {if !Config::Get('view.wysiwyg')}
+                    <div class="clearfix">
                         <a class="link link-lead link-blue control-twice pull-right" href="#"
                            onclick="$('.tags-about').slideToggle(100);
-                           $(this).toggleClass('active');
-                           return false;">{$aLang.topic_create_text_notice}</a>
+                                    $(this).toggleClass('active');
+                                    return false;">{$aLang.topic_create_text_notice}</a>
                     </div>
-                </div>
-                {include file='fields/field.tags_help.tpl' sTagsTargetId="topic_text"}
-            {/if}
+                    {include file='fields/field.tags_help.tpl' sTagsTargetId="topic_text"}
+                {/if}
+            </div>
 
             {* ТЕГИ *}
             {include file="fields/field.tags-edit.tpl"}
