@@ -83,7 +83,7 @@ class Config extends Storage {
     protected $nLevel = 0;
 
     /**
-     * Disabled constract process
+     * Constructor
      */
     public function __construct() {
 
@@ -100,10 +100,10 @@ class Config extends Storage {
     /**
      * Load configuration array from file
      *
-     * @param string $sFile    - Путь до файла конфига
-     * @param bool   $bReset   - Сбосить старые значения
-     * @param string $sRootKey - Корневой ключ конфига
-     * @param int    $nLevel   - Уровень конфига
+     * @param string $sConfigFile - Путь до файла конфига
+     * @param bool   $bReset      - Сбосить старые значения
+     * @param string $sRootKey    - Корневой ключ конфига
+     * @param int    $nLevel      - Уровень конфига
      *
      * @return  bool|Config
      */
