@@ -74,14 +74,14 @@ class ModuleLang extends Module {
         // Проверку на языки делаем, только если сайт мультиязычный
         if (Config::Get('lang.multilang')) {
             // Время хранение языка в куках
-            $nSavePeriod = F::ToSeconds(Config::Get('lang.save'));
+            $iSavePeriod = F::ToSeconds(Config::Get('lang.save'));
             $sLangKey = (is_string(Config::Get('lang.in_get')) ? Config::Get('lang.in_get') : 'lang');
 
             // Получаем язык, если он был задан в URL
             $this->sCurrentLang = R::GetLang();
 
             // Проверка куки, если требуется
-            if (!$this->sCurrentLang && $nSavePeriod) {
+            if (!$this->sCurrentLang && $iSavePeriod) {
                 $sLang = (string)E::ModuleSession()->GetCookie($sLangKey);
                 if ($sLang) {
                     $this->sCurrentLang = $sLang;
@@ -92,14 +92,16 @@ class ModuleLang extends Module {
             }
         } else {
             $this->sCurrentLang = Config::Get('lang.current');
+            $iSavePeriod = 0;
+            $sLangKey = null;
         }
         // Проверяем на случай старого обозначения языков
         $this->sDefaultLang = $this->_checkLang($this->sDefaultLang);
         $this->sCurrentLang = $this->_checkLang($this->sCurrentLang);
 
-        if ($this->sCurrentLang && Config::Get('lang.multilang') && $nSavePeriod) {
+        if ($this->sCurrentLang && Config::Get('lang.multilang') && $iSavePeriod) {
             // Пишем в куки, если требуется
-            E::ModuleSession()->SetCookie($sLangKey, $this->sCurrentLang, $nSavePeriod);
+            E::ModuleSession()->SetCookie($sLangKey, $this->sCurrentLang, $iSavePeriod);
         }
 
         $this->InitLang();
@@ -271,7 +273,10 @@ class ModuleLang extends Module {
 
         $aFiles = $this->_makeFileList($xPath, static::LANG_PATTERN . '.php', $sLang);
         foreach ($aFiles as $sLangFile) {
-            $this->AddMessages(F::File_IncludeFile($sLangFile, true, true), $aParams, $sLangFor);
+            $aTexts = F::File_IncludeFile($sLangFile, true, true);
+            if ($aTexts) {
+                $this->AddMessages($aTexts, $aParams, $sLangFor);
+            }
         }
     }
 
@@ -290,9 +295,9 @@ class ModuleLang extends Module {
         if ($aFiles) {
             foreach ($aFiles as $sLangFile) {
                 $sDirModule = basename(dirname($sLangFile));
-                $aResult = F::File_IncludeFile($sLangFile, true, true);
-                if ($aResult) {
-                    $this->AddMessages($aResult, array('category' => $sPrefix, 'name' => $sDirModule), $sLangFor);
+                $aTexts = F::File_IncludeFile($sLangFile, true, true);
+                if ($aTexts) {
+                    $this->AddMessages($aTexts, array('category' => $sPrefix, 'name' => $sDirModule), $sLangFor);
                 }
             }
         }
@@ -426,9 +431,8 @@ class ModuleLang extends Module {
         }
         if (isset($this->aLangMsg[$sLang])) {
             return $this->aLangMsg[$sLang];
-        } else {
-            array();
         }
+        return array();
     }
 
     public function GetLangArray() {
@@ -484,7 +488,8 @@ class ModuleLang extends Module {
             }
         }
 
-        if (is_array($aReplace) && count($aReplace) && is_string($sLang)) {
+        if (!empty($aReplace) && is_string($sLang)) {
+            $aReplacePairs = array();
             foreach ($aReplace as $sFrom => $sTo) {
                 $aReplacePairs["%%{$sFrom}%%"] = $sTo;
             }
