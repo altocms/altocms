@@ -4,7 +4,7 @@
 {$oFavourite=$oTopic->getFavourite()}
 {$oContentType=$oTopic->getContentType()}
 
-<article class="topic topic-type_{$oTopic->getType()} js-topic">
+<article class="topic topic-type-{$oTopic->getType()} js-topic">
     {block name="topic_header"}
         <header class="topic-header">
             {if !$bPreview}
