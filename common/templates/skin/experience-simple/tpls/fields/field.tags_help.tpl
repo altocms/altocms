@@ -4,8 +4,13 @@
  <script>
      $(function(){
          // Help-tags link
-         $('.js-tags-help-link').live('click', function () {
-             $.markItUp({ replaceWith: $(this).text() });
+         $('.js-tags-help-link').on('click', function () {
+             var text = $(this).text();
+             $.markItUp({
+                 replaceWith: function(m) {
+                    return (m.selectionOuter || m.selection) + text
+                 }
+             });
              return false;
          });
      })

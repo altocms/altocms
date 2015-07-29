@@ -96,17 +96,16 @@
             <div class="form-group">
                 <textarea name="topic_text" id="topic_text" rows="20"
                           class="form-control js-editor-wysiwyg js-editor-markitup">{$_aRequest.topic_text}</textarea>
-            </div>
-            {if !Config::Get('view.wysiwyg')}
-                <div class="row">
-                    <div class="col-xs-6">
-                        <a class="link link-lead link-blue control-twice" href="#"
+
+                {if !Config::Get('view.wysiwyg')}
+                    <div class="clearfix">
+                        <a class="link link-lead link-blue control-twice pull-right" href="#"
                            onclick="$('.tags-about').slideToggle(100);
                               $(this).toggleClass('active');
                               return false;">{$aLang.topic_create_text_notice}</a>
                     </div>
-                </div>
-            {/if}
+                {/if}
+            </div>
 
             {* ПОЯСНЕНИЯ К РЕДАКТОРУ *}
             {if !Config::Get('view.wysiwyg')}
@@ -141,7 +140,7 @@
 
             <div class="form-group checkbox">
                 <div class="input-group">
-                    <label for="public_topic">
+                    <label>
                         <input class="mal0" type="checkbox" id="topic_forbid_comment" name="topic_forbid_comment" value="1"
                                {if $_aRequest.topic_forbid_comment==1}checked{/if} />
                         {$aLang.topic_create_forbid_comment}
@@ -154,7 +153,7 @@
             {if E::IsAdmin()}
                 <div class="form-group checkbox">
                     <div class="input-group">
-                        <label for="public_topic">
+                        <label>
                             <input class="mal0"  type="checkbox" id="topic_publish_index" name="topic_publish_index" value="1"
                                    {if $_aRequest.topic_publish_index==1}checked{/if} />
                             {$aLang.topic_create_publish_index}

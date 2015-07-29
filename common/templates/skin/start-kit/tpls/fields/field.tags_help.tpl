@@ -1,6 +1,6 @@
 <script type="text/javascript">
     $(function () {
-        $('.js-tags-help-button').click(function () {
+        $('.js-tags-help-button').on('click', function () {
             $(this).toggleClass('active');
             $('.js-tags-help-text').slideToggle();
             return false;
