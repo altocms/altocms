@@ -904,11 +904,6 @@ class ModuleMresource extends Module {
         }
 
         $aTopicInfo = $this->oMapper->GetTopicInfo($aFilter, $iCount, $iPage, $iPerPage);
-        $aResult = array(
-            'collection' => array(),
-            'count' => 0
-        );
-
         if ($aTopicInfo) {
 
             $aTopics = E::ModuleTopic()->GetTopicsAdditionalData(array_keys($aTopicInfo));
@@ -919,8 +914,15 @@ class ModuleMresource extends Module {
                 }
             }
 
-            $aResult['collection'] = $aTopics;
-            $aResult['count'] = $iCount;
+            $aResult = array(
+                'collection' => $aTopics,
+                'count' => $iCount,
+            );
+        } else {
+            $aResult = array(
+                'collection' => array(),
+                'count' => 0
+            );
         }
 
         return $aResult;
@@ -1095,15 +1097,17 @@ class ModuleMresource extends Module {
             // Если юзер не авторизован, то считаем все доступные для индексации топики
             $aFilter['topic_index_ignore'] = 0;
         }
+        $aFilter['topic_type'] = $sType;
 
         $aTopicInfo = $this->oMapper->GetTopicInfo($aFilter, $iCount, $iPage, $iPerPage);
         if ($aTopicInfo) {
 
-            // Результат в формате array('collection'=>..., 'count'=>...)
-            $aResult = E::ModuleTopic()->GetTopicsByFilter(array(
+            $aFilter = array(
                 'topic_id' => array_keys($aTopicInfo),
                 'topic_type' => $sType
-            ));
+            );
+            // Результат в формате array('collection'=>..., 'count'=>...)
+            $aResult = E::ModuleTopic()->GetTopicsByFilter($aFilter, 1, count($aTopicInfo));
 
             if ($aResult) {
                 /** @var ModuleTopic_EntityTopic $oTopic */
@@ -1111,6 +1115,7 @@ class ModuleMresource extends Module {
                     $oTopic->setImagesCount($aTopicInfo[$sTopicId]);
                     $aResult['collection'][$sTopicId] = $oTopic;
                 }
+                $aResult['count'] = $iCount; // total number of topics with images
             }
 
             return $aResult;

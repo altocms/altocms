@@ -124,7 +124,7 @@ class ActionAjax extends Action {
         }
 
         $sCategory = F::GetRequestStr('category', FALSE);
-        $sPage = F::GetRequestStr('page', '1');
+        $iPage = intval(F::GetRequestStr('page', '1'));
         $sTopicId = F::GetRequestStr('topic_id', FALSE);
         $sTargetType = F::GetRequestStr('target');
 
@@ -154,7 +154,7 @@ class ActionAjax extends Action {
         $sTemplateName = 'inject.images.tpl';
 
         $aResources = array('collection'=>array());
-        $iPages = 0;
+        $iPagesCount = 0;
         if ($sCategory == 'user') {       //ок
 
             // * Аватар и фото пользователя
@@ -165,9 +165,9 @@ class ActionAjax extends Action {
                     'profile_photo'
                 ),
                 'user_id'     => $iUserId,
-            ), $sPage, Config::Get('module.topic.images_per_page'));
+            ), $iPage, Config::Get('module.topic.images_per_page'));
             $sTemplateName = 'inject.images.user.tpl';
-            $iPages = 0;
+            $iPagesCount = 0;
         } elseif ($sCategory == '_topic') {
 
             // * Конкретный топик
@@ -181,9 +181,9 @@ class ActionAjax extends Action {
                     $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                         'user_id' => $iUserId,
                         'mresource_id' => $aResourcesId,
-                    ), $sPage, Config::Get('module.topic.images_per_page'));
+                    ), $iPage, Config::Get('module.topic.images_per_page'));
                     $aResources['count'] = count($aResourcesId);
-                    $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+                    $iPagesCount = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
                     $aTplVariables['oTopic'] = $oTopic;
                 }
@@ -203,9 +203,9 @@ class ActionAjax extends Action {
                     'user_id' => $iUserId,
                     'target_type' => 'talk',
                     'target_id' => $sTopicId,
-                ), $sPage, Config::Get('module.topic.images_per_page'));
+                ), $iPage, Config::Get('module.topic.images_per_page'));
                 $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, $iUserId);
-                $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+                $iPagesCount = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
                 $aTplVariables['oTopic'] = $oTopic;
             }
@@ -222,12 +222,12 @@ class ActionAjax extends Action {
                     'talk_comment',
                     'topic_comment'
                 )
-            ), $sPage, Config::Get('module.topic.images_per_page'));
+            ), $iPage, Config::Get('module.topic.images_per_page'));
             $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId(array(
                 'talk_comment',
                 'topic_comment'
             ), $iUserId);
-            $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+            $iPagesCount = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
             $sTemplateName = 'inject.images.tpl';
 
@@ -240,9 +240,9 @@ class ActionAjax extends Action {
                 $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                     'user_id' => $iUserId,
                     'mresource_id' => $aResourcesId,
-                ), $sPage, Config::Get('module.topic.images_per_page'));
+                ), $iPage, Config::Get('module.topic.images_per_page'));
                 $aResources['count'] = count($aResourcesId);
-                $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+                $iPagesCount = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
             }
 
@@ -256,7 +256,7 @@ class ActionAjax extends Action {
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => 'blog_avatar',
                 'user_id' => $iUserId,
-            ), $sPage, Config::Get('module.topic.group_images_per_page'));
+            ), $iPage, Config::Get('module.topic.group_images_per_page'));
             $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', $iUserId);
 
             // Получим блоги
@@ -270,42 +270,42 @@ class ActionAjax extends Action {
             }
 
             $sTemplateName = 'inject.images.blog.tpl';
-            $iPages = ceil($aResources['count'] / Config::Get('module.topic.group_images_per_page'));
+            $iPagesCount = ceil($aResources['count'] / Config::Get('module.topic.group_images_per_page'));
 
 
         } elseif ($sCategory == 'topics') { // ок
 
             // * Страница топиков
 
-            $aTopicsData = E::ModuleMresource()->GetTopicsPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTopicsData = E::ModuleMresource()->GetTopicsPage($iUserId, $iPage, Config::Get('module.topic.group_images_per_page'));
 
             $aTplVariables['aTopics'] = $aTopicsData['collection'];
 
             $sTemplateName = 'inject.images.topic.tpl';
-            $iPages = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
+            $iPagesCount = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
             $aResources= array('collection'=>array());
 
         }  elseif (in_array($sCategory, E::ModuleTopic()->GetTopicTypes())) { // ок
 
             // * Страница топиков
 
-            $aTopicsData = E::ModuleMresource()->GetTopicsPageByType($iUserId, $sCategory, $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTopicsData = E::ModuleMresource()->GetTopicsPageByType($iUserId, $sCategory, $iPage, Config::Get('module.topic.group_images_per_page'));
 
             $aTplVariables['aTopics'] = $aTopicsData['collection'];
 
             $sTemplateName = 'inject.images.topic.tpl';
-            $iPages = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
+            $iPagesCount = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
             $aResources= array('collection'=>array());
 
         } elseif ($sCategory == 'talks') { // ок
 
             // * Страница писем
 
-            $aTalksData = E::ModuleMresource()->GetTalksPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTalksData = E::ModuleMresource()->GetTalksPage($iUserId, $iPage, Config::Get('module.topic.group_images_per_page'));
 
             $aTplVariables['aTalks'] = $aTalksData['collection'];
             $sTemplateName = 'inject.images.talk.tpl';
-            $iPages = ceil($aTalksData['count'] / Config::Get('module.topic.group_images_per_page'));
+            $iPagesCount = ceil($aTalksData['count'] / Config::Get('module.topic.group_images_per_page'));
             $aResources= array('collection'=>array());
 
         } else {
@@ -315,8 +315,8 @@ class ActionAjax extends Action {
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => $sCategory,
                 'user_id' => $iUserId,
-            ), $sPage, Config::Get('module.topic.images_per_page'));
-            $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+            ), $iPage, Config::Get('module.topic.images_per_page'));
+            $iPagesCount = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
         }
 
         $aTplVariables['aResources'] = $aResources['collection'];
@@ -326,8 +326,8 @@ class ActionAjax extends Action {
 
         E::ModuleViewer()->AssignAjax('images', $sImages);
         E::ModuleViewer()->AssignAjax('category', $sCategory);
-        E::ModuleViewer()->AssignAjax('page', $sPage);
-        E::ModuleViewer()->AssignAjax('pages', $iPages);
+        E::ModuleViewer()->AssignAjax('page', $iPage);
+        E::ModuleViewer()->AssignAjax('pages', $iPagesCount);
 
     }
 

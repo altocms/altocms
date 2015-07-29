@@ -1463,12 +1463,13 @@ class ActionProfile extends Action {
 
         // Получим информацию об изображениях пользователя
         /** @var ModuleMresource_EntityMresourceCategory[] $aUserImagesInfo */
-        $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($iProfileUserId);
+        //$aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($iProfileUserId);
 
         // * Загружаем в шаблон необходимые переменные
         E::ModuleViewer()->Assign('oUserProfile', $this->oUserProfile);
         E::ModuleViewer()->Assign('aProfileStats', $aProfileStats);
-        E::ModuleViewer()->Assign('aUserImagesInfo', $aUserImagesInfo);
+        // unused
+        //E::ModuleViewer()->Assign('aUserImagesInfo', $aUserImagesInfo);
 
         // * Заметка текущего пользователя о юзере
         if (E::User()) {
