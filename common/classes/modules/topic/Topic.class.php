@@ -701,13 +701,13 @@ class ModuleTopic extends Module {
     /**
      * Удаляет значения полей у топика
      *
-     * @param int $sTopicId    ID топика
+     * @param int|array $aTopicsId    ID топика
      *
      * @return bool
      */
-    public function DeleteTopicValuesByTopicId($sTopicId) {
+    public function DeleteTopicValuesByTopicId($aTopicsId) {
 
-        return $this->oMapper->DeleteTopicValuesByTopicId($sTopicId);
+        return $this->oMapper->DeleteTopicValuesByTopicId($aTopicsId);
     }
 
     /**
@@ -738,6 +738,8 @@ class ModuleTopic extends Module {
         // * Если топик успешно удален, удаляем связанные данные
         if ($bResult = $this->oMapper->DeleteTopic($iTopicId)) {
             $bResult = $this->DeleteTopicAdditionalData($iTopicId);
+            $this->DeleteTopicValuesByTopicId($iTopicId);
+            $this->DeleteTopicTagsByTopicId($iTopicId);
             $this->DeleteMresources($oTopic);
             if ($oBlog) {
                 // Блог может быть удален до удаления топика
@@ -777,16 +779,18 @@ class ModuleTopic extends Module {
                 $aTopics = $xTopics;
             }
             if ($aTopics) {
-                $aTopicId = array();
+                $aTopicsId = array();
                 $aBlogId = array();
                 $aUserId = array();
                 foreach ($aTopics as $oTopic) {
-                    $aTopicId[] = $oTopic->getId();
+                    $aTopicsId[] = $oTopic->getId();
                     $aBlogId[] = $oTopic->getBlogId();
                     $aUserId[] = $oTopic->getUserId();
                 }
-                if ($bResult = $this->oMapper->DeleteTopic($aTopicId)) {
-                    $bResult = $this->DeleteTopicAdditionalData($aTopicId);
+                if ($bResult = $this->oMapper->DeleteTopic($aTopicsId)) {
+                    $bResult = $this->DeleteTopicAdditionalData($aTopicsId);
+                    $this->DeleteTopicValuesByTopicId($aTopicsId);
+                    $this->DeleteTopicTagsByTopicId($aTopicsId);
                     $this->DeleteMresources($aTopics);
                     E::ModuleBlog()->RecalculateCountTopicByBlogId($aBlogId);
                 }
@@ -797,7 +801,7 @@ class ModuleTopic extends Module {
                     $aCacheTags[] = 'topic_update_user_' . $iUserId;
                 }
                 E::ModuleCache()->CleanByTags($aCacheTags);
-                foreach($aTopicId as $iTopicId) {
+                foreach($aTopicsId as $iTopicId) {
                     E::ModuleCache()->Delete('topic_' . $iTopicId);
                 }
 
@@ -2348,11 +2352,12 @@ class ModuleTopic extends Module {
      */
     public function AddTopicQuestionVote(ModuleTopic_EntityTopicQuestionVote $oTopicQuestionVote) {
 
+        $xResult = $this->oMapper->AddTopicQuestionVote($oTopicQuestionVote);
         E::ModuleCache()->Delete(
             "topic_question_vote_{$oTopicQuestionVote->getTopicId()}_{$oTopicQuestionVote->getVoterId()}"
         );
         E::ModuleCache()->CleanByTags(array("topic_question_vote_user_{$oTopicQuestionVote->getVoterId()}"));
-        return $this->oMapper->AddTopicQuestionVote($oTopicQuestionVote);
+        return $xResult;
     }
 
     /**

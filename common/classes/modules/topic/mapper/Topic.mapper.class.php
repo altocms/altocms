@@ -1784,19 +1784,22 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Удаляет значения полей у топика
      *
-     * @param int $iTopicId    ID топика
+     * @param int|array $aTopicsId    ID топика
      *
      * @return bool
      */
-    public function DeleteTopicValuesByTopicId($iTopicId) {
+    public function DeleteTopicValuesByTopicId($aTopicsId) {
 
+        if (!(is_array($aTopicsId))) {
+            $aTopicsId = array(intval($aTopicsId));
+        }
         $sql = "DELETE FROM ?_content_values
 			WHERE
-				target_id = ?d
+				target_id IN(?a)
 				AND
 				target_type = 'topic'
 		";
-        return $this->oDb->query($sql, $iTopicId) !== false;
+        return $this->oDb->query($sql, $aTopicsId) !== false;
     }
 
     /**
