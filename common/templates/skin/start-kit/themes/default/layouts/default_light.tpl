@@ -24,11 +24,11 @@
     {$aHtmlHeadFiles.css}
 
     {if {Config::Get('view.theme')} == 'light'}
-        <link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic'
-              rel='stylesheet' type='text/css'>
+        <link href='//fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
     {/if}
 
-    <link href="{Config::Get('path.static.skin')}/images/favicon.ico?v1" rel="shortcut icon"/>
+    <link href="{asset file="img/favicon.png" theme=true}?v1" rel="shortcut icon"/> 
+
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>
 
