@@ -1,7 +1,7 @@
 {$oBlog=$oTopic->getBlog()}
 {$oUser=$oTopic->getUser()}
 {$oVote=$oTopic->getVote()}
-<article class="topic topic-type-{$oTopic->getType()} js-topic">
+<article class="topic topic-type_{$oTopic->getType()} js-topic">
     {block name="topic_header"}
         <header class="topic-header">
             {if E::IsUser() AND ($oTopic->CanEditedBy(E::User()) OR $oTopic->CanDeletedBy(E::User()))}
