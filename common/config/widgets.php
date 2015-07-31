@@ -110,7 +110,7 @@ $config['widgets'][] = array(
 );
 */
 
-$config['widgets']['profile.sidebar.tpl'] = array(
+$config['widgets']['profile.sidebar'] = array(
     'name' => 'actions/profile/action.profile.sidebar.tpl',
     'wgroup' => 'right',
     'priority' => 150,
@@ -133,7 +133,7 @@ $config['widgets']['userfeedUsers'] = array(
     ),
 );
 
-$config['widgets']['blog.tpl'] = array(
+$config['widgets']['blog'] = array(
     'name' => 'widgets/widget.blog.tpl',
     'wgroup' => 'right',
     'priority' => 300,

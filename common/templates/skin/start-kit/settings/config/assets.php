@@ -1,13 +1,13 @@
 <?php
 
-$config['head']['default']['js'] = Config::Get('head.default.js');
-$config['head']['default']['js'][] = '___path.skin.dir___/assets/js/template.js';
+$config['assets']['default']['js'] = Config::Get('assets.default.js');
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/template.js';
 
 /* Bootstrap */
-$config['head']['default']['js']['___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js'] = array('name' => 'bootstrap');
+$config['assets']['default']['js']['___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js'] = array('name' => 'bootstrap');
 
 
-$config['head']['default']['css'] = array(
+$config['assets']['default']['css'] = array(
     /* Bootstrap */
     '___path.frontend.dir___/bootstrap-3/css/bootstrap.min.css',
 
@@ -39,3 +39,5 @@ $config['head']['default']['css'] = array(
 );
 
 return $config;
+
+// EOF

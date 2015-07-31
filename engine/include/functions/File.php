@@ -959,10 +959,13 @@ class AltoFunc_File {
             } else {
                 self::$_temp = include($sFile);
             }
-            self::$nIncludedTime += (microtime(true) - self::$_time);
+            $nTime = microtime(true) - self::$_time;
+            self::$nIncludedTime += $nTime;
             self::$nIncludedCount++;
             if (F::IsDebug()) {
-                self::$aIncludedFiles[] = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
+                self::$aIncludedFiles[] = $sFile
+                    . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp))
+                    . '; time: ' . $nTime;
             }
         } catch (ErrorException $oException) {
             if ($oException->getFile() !== __FILE__) {

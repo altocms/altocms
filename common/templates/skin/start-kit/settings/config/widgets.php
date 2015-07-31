@@ -1,6 +1,6 @@
 <?php
 
-$config['widgets'][] = array(
+$config['widgets']['topbanner_image'] = array(
     'name' => 'topbanner_image.tpl',
     'wgroup' => 'topbanner',
     'params' => array(
@@ -10,7 +10,7 @@ $config['widgets'][] = array(
     'display' => true,
 );
 
-$config['widgets'][] = array(
+$config['widgets']['topbanner_slider'] = array(
     'name' => 'topbanner_slider.tpl',
     'wgroup' => 'topbanner',
     'params' => array(
@@ -32,19 +32,19 @@ $config['widgets'][] = array(
     'display' => false,
 );
 
-$config['widgets'][] = array(
+$config['widgets']['toolbar_admin'] = array(
     'name' => 'toolbar_admin.tpl',
     'wgroup' => 'toolbar',
     'priority' => 'top',
 );
 
-$config['widgets'][] = array(
+$config['widgets']['toolbar_scrollup'] = array(
     'name' => 'toolbar_scrollup.tpl',
     'wgroup' => 'toolbar',
     'priority' => -100,
 );
 
-$config['widgets'][] = array(
+$config['widgets']['people.sidebar'] = array(
     'name' => 'actions/people/action.people.sidebar.tpl',
     'wgroup' => 'right',
     'on' => 'people',

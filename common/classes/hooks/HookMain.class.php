@@ -132,10 +132,8 @@ class HookMain extends Hook {
         $sJsFooter = '';
 
         foreach (array('js', 'css') as $sType) {
-            /**
-             * Проверяем наличие списка файлов данного типа
-             */
-            $aFiles = Config::Get('footer.default.' . $sType);
+            // * Проверяем наличие списка файлов данного типа
+            $aFiles = Config::Get('assets.footer.' . $sType);
             if (is_array($aFiles) && count($aFiles)) {
                 foreach ($aFiles as $sFile) {
                     if ($sType == 'js') {

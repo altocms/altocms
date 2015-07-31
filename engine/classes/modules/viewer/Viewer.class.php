@@ -279,8 +279,6 @@ class ModuleViewer extends Module {
 
         $this->bLocal = (bool)$bLocal;
 
-        //$this->InitSkin($this->bLocal);
-
         if (($iTitleMax = Config::Get('view.html.title_max')) && ($iTitleMax > 0)) {
             $this->iHtmlTitlesMax = Config::Get('view.html.title_max');
         }
@@ -539,36 +537,30 @@ class ModuleViewer extends Module {
                 Config::Get('path.dir.common')
             )
         ;
+        // Может загружаться основной конфиг скина, так и внешние секции конфига,
+        // которые задаются ключом 'config_load'
+        // (обычно это 'classes', 'assets', 'jevix', 'widgets', 'menu')
+        $aConfigNames = array('config') + F::Str2Array(Config::Get('config_load'));
 
         // Load configs from paths
-        foreach (array('config', 'assets') as $sFileName) {
+        foreach ($aConfigNames as $sConfigName) {
             foreach ($aSkinConfigPaths as $sPath) {
-                $sFile = $sPath . $sFileName . '.php';
+                $sFile = $sPath . $sConfigName . '.php';
                 if (F::File_Exists($sFile)) {
-                    // загружаем конфиг, что позволяет сразу использовать значения в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
-                    Config::Load(F::IncludeFile($sFile, false, true), false, null, null, 'skin');
+                    $aSubConfig = F::IncludeFile($sFile, false, true);
+                    if ($sConfigName !='config' && !isset($aSubConfig[$sConfigName])) {
+                        $aSubConfig = array($sConfigName => $aSubConfig);
+                    }
+                    // загружаем конфиг, что позволяет сразу использовать значения
+                    // в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
+                    Config::Load($aSubConfig, false, null, null, $sFile);
                 }
             }
         }
 
-        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {
-            if (!isset($aConfig['menu'])) {
-                $aConfig['menu'] = array();
-            }
-            $aConfig['menu'] = F::Array_MergeCombo($aConfig['menu'], F::IncludeFile($sFile, false, true));
-        }
-
-//        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
-//        if ($aConfigLoad) {
-//            foreach ($aConfigLoad as $sConfigName) {
-//                if (F::File_Exists($sFile = Config::Get('path.smarty.template') . "/settings/config/$sConfigName.php")) {
-//                    $aConfig = array_merge($aConfig, F::IncludeFile($sFile, false, true));
-//                }
-//            }
-//        }
-
         // Checks skin's config from users settings
-        $aUserConfig = Config::Get('skin.' . $this->sViewSkin . '.config');
+        $sUserConfigKey = 'skin.' . $this->sViewSkin . '.config';
+        $aUserConfig = Config::Get($sUserConfigKey);
         if ($aUserConfig) {
             if (!$aConfig) {
                 $aConfig = $aUserConfig;
@@ -578,7 +570,7 @@ class ModuleViewer extends Module {
         }
 
         if ($aConfig) {
-            Config::Load($aConfig, false, null, null, 'skin');
+            Config::Load($aConfig, false, null, null, $sUserConfigKey);
         }
 
         // Check skin theme and set one in config if it was changed
@@ -589,17 +581,6 @@ class ModuleViewer extends Module {
         // Load lang files for skin
         E::ModuleLang()->LoadLangFileTemplate(E::ModuleLang()->GetLang());
 
-        // Skip skin widgets for local viewer
-        if (!$this->bLocal) {
-            // * Load skin widgets
-            if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/widgets.php')) {
-                $aSkinWidgets = F::IncludeFile($sFile, false, true);
-                if (isset($aSkinWidgets['widgets']) && is_array($aSkinWidgets['widgets']) && count($aSkinWidgets['widgets'])) {
-                    $aWidgets = array_merge(Config::Get('widgets'), $aSkinWidgets['widgets']);
-                    Config::Set('widgets', $aWidgets);
-                }
-            }
-        }
         // Load template variables from config
         if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
             $this->Assign($aVars);
@@ -1610,7 +1591,12 @@ class ModuleViewer extends Module {
             $this->aFilesPrepend = array();
         }
 
-        E::ModuleViewerAsset()->AddAssetFiles(Config::Get('head.default'));
+        // Compatibility with old style skins
+        if ($aAssets = Config::Get('head.default')) {
+            E::ModuleViewerAsset()->AddAssetFiles($aAssets);
+        } else {
+            E::ModuleViewerAsset()->AddAssetFiles(Config::Get('assets.default'));
+        }
 
         if ($this->aFilesAppend['js'] || $this->aFilesAppend['css']) {
             E::ModuleViewerAsset()->AddAssetFiles($this->aFilesAppend);

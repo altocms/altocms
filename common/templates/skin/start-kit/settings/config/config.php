@@ -26,13 +26,14 @@ $config['view']['header']['banner'] = true;
 $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___view.theme___/img/favicon.png';
 $config['view']['header']['name'] = 'START<span>KIT</span>';
 
-C::Set('module.uploader.images.profile_avatar.size', array(
+// Aliases for sizes of user avatar
+$config['module']['uploader']['images']['profile_avatar']['size'] = array(
     'large'  => 100,
     'big'    => 64,
     'medium' => 48,
     'small'  => 36,
     'mini'   => 24,
-));
+);
 
 return $config;
 

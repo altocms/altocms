@@ -538,10 +538,10 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
         if (!$sCompatible || $sCompatible == 'ls') {
             // It's old LS skin
-            $aOldJs = Config::Get('assets.ls.head.default.js');
-            $aOldCss = Config::Get('assets.ls.head.default.css');
-            Config::Set('head.default.js', $aOldJs);
-            Config::Set('head.default.css', $aOldCss);
+            $aOldJs = Config::Get('plugin.ls.assets.default.js');
+            $aOldCss = Config::Get('plugin.ls.assets.default.css');
+            Config::Set('assets.default.js', $aOldJs);
+            Config::Set('assets.default.css', $aOldCss);
             Config::Set('view.compatible', 'ls');
         } else {
             Config::Set('view.compatible', $sCompatible ? $sCompatible : 'alto');
