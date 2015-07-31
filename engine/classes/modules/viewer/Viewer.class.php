@@ -530,6 +530,7 @@ class ModuleViewer extends Module {
 
         // Load skin's config
         $aConfig = array();
+        Config::ResetLevel(Config::LEVEL_SKIN);
 
         $aSkinConfigPaths['sSkinConfigCommonPath'] = Config::Get('path.smarty.template') . '/settings/config/';
         $aSkinConfigPaths['sSkinConfigAppPath']    = Config::Get('path.dir.app')
@@ -544,9 +545,8 @@ class ModuleViewer extends Module {
             foreach ($aSkinConfigPaths as $sPath) {
                 $sFile = $sPath . $sFileName . '.php';
                 if (F::File_Exists($sFile)) {
-                    $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
-                    // сразу загружаем конфиг, что позволяет сразу использовать значения в остальных конфигах через Config::Get()
-                    Config::Load($aConfig, false, null, null, 'skin');
+                    // загружаем конфиг, что позволяет сразу использовать значения в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
+                    Config::Load(F::IncludeFile($sFile, false, true), false, null, null, 'skin');
                 }
             }
         }
@@ -577,7 +577,6 @@ class ModuleViewer extends Module {
             }
         }
 
-        Config::ResetLevel(Config::LEVEL_SKIN);
         if ($aConfig) {
             Config::Load($aConfig, false, null, null, 'skin');
         }
