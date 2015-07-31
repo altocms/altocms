@@ -223,28 +223,13 @@
                     </div>
                 </div>
 
-
-                {$aUserFieldValues=E::User()->getUserFieldValues(false,'')}
-                {if count($aUserFieldValues)}
-                    {foreach $aUserFieldValues as $oField}
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="input-group-addon">{$oField->getTitle()|escape:'html'}</span>
-                                <input type="text" class="span6" name="profile_user_field_{$oField->getId()}"
-                                       id="profile_user_field_{$oField->getId()}" value="{$oField->getValue()|escape:'html'}"/>
-                            </div>
-                            {*<small class="control-notice"></small>*}
-                        </div>
-                    {/foreach}
-                {/if}
-
                 <br/><br/>
-
 
                 <div class="panel-header">{$aLang.settings_profile_section_contacts}</div>
 
                 <div class="mab12">
-                    {$aUserFieldContactValues=E::User()->getUserFieldValues(true,array('contact','social'))}
+                    {$aUserFieldsContact=E::User()->getUserFieldValues(false, array('contact','social'))}
+                    {$aUserFieldContactValues=E::User()->getUserFieldValues(true, array('contact','social'))}
                     <div id="user-field-contact-container">
                         <div class="row user-field-item js-user-field-item mab12" style="display:none;">
                             <div class="col-xs-8 col-lg-8">

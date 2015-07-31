@@ -186,15 +186,6 @@
                         </div>
                     </div>
                 </div>
-
-                {$aUserFieldValues=E::User()->getUserFieldValues(false,'')}
-                {if count($aUserFieldValues)}
-                    {foreach $aUserFieldValues as $oField}
-                        <label for="profile_user_field_{$oField->getId()}">{$oField->getTitle()|escape:'html'}</label>
-                        <input type="text" class="span6" name="profile_user_field_{$oField->getId()}"
-                               id="profile_user_field_{$oField->getId()}" value="{$oField->getValue()|escape:'html'}"/>
-                    {/foreach}
-                {/if}
             </fieldset>
         </div>
 
@@ -204,7 +195,8 @@
                     {$aLang.settings_profile_section_contacts}
                 </legend>
 
-                {$aUserFieldContactValues=E::User()->getUserFieldValues(true,array('contact','social'))}
+                {$aUserFieldsContact=E::User()->getUserFieldValues(false, array('contact','social'))}
+                {$aUserFieldContactValues=E::User()->getUserFieldValues(true, array('contact','social'))}
                 <div id="user-field-contact-container">
                     <div class="row user-field-item js-user-field-item" style="display:none;">
                         <div class="col-sm-6 col-lg-6">

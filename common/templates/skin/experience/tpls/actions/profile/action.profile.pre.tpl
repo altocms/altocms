@@ -87,7 +87,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true,array('contact'))}
+                    {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true, array('contact'))}
                     {if $aUserFieldContactValues}
                         {foreach $aUserFieldContactValues as $oField}
                             <tr>
@@ -114,7 +114,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true,array('social'))}
+                    {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true, array('social'))}
                     {if $aUserFieldContactValues}
                         {foreach $aUserFieldContactValues as $oField}
                             <tr>

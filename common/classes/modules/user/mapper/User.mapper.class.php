@@ -1134,16 +1134,21 @@ class ModuleUser_MapperUser extends Mapper {
      *
      * @param array|null $aType Типы полей, null - все типы
      *
-     * @return array
+     * @return ModuleUser_EntityField[]
      */
-    public function getUserFields($aType) {
+    public function getUserFields($aType = array()) {
 
         if (!is_null($aType) && !is_array($aType)) {
             $aType = array($aType);
         }
-        $sql = 'SELECT * FROM ?_user_field WHERE 1=1 { AND type IN (?a) }';
-        $aFields = $this->oDb->select($sql, (is_null($aType) || !count($aType)) ? DBSIMPLE_SKIP : $aType);
-        if (!count($aFields)) {
+        $sql = "
+            SELECT *
+            FROM ?_user_field
+            WHERE
+              1=1
+              { AND type IN (?a) }";
+        $aFields = $this->oDb->select($sql, empty($aType) ? DBSIMPLE_SKIP : $aType);
+        if (empty($aFields)) {
             return array();
         }
         $aResult = array();
@@ -1178,49 +1183,34 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получить значения дополнительных полей профиля пользователя
      *
-     * @param int   $nUserId      ID пользователя
-     * @param bool  $bOnlyNoEmpty Загружать только непустые поля
-     * @param array $aType        Типы полей, null - все типы
+     * @param int   $iUserId       ID пользователя
+     * @param array $aType         Типы полей, null - все типы
      *
      * @return ModuleUser_EntityField[]
      */
-    public function getUserFieldsValues($nUserId, $bOnlyNoEmpty, $aType) {
+    public function getUserFieldsValues($iUserId, $aType) {
 
         if (!is_null($aType) && !is_array($aType)) {
             $aType = array($aType);
         }
-        /*
-         * Если запрашиваем без типа, то необходимо вернуть ВСЕ возможные поля с этим типом,
-         * в не звависимости, указал ли их пользователь у себя в профиле или нет
-         * Выглядит костыльно
-         */
-        if (is_array($aType) && count($aType) == 1 && $aType[0] == '') {
-            $sql
-                = "
-                SELECT f.*, v.value FROM ?_user_field AS f
-                    LEFT JOIN ?_user_field_value AS v ON f.id = v.field_id
-                WHERE v.user_id = ?d AND f.type IN (?a)";
 
-        } else {
-            $sql
-                = "
+        $sql
+            = "
                 SELECT v.value, f.*
-                FROM ?_user_field_value AS v, ?_user_field AS f
+                FROM ?_user_field_value AS v
+                  JOIN ?_user_field AS f ON f.id = v.field_id
                 WHERE
                     v.user_id = ?d
-                    AND v.field_id = f.id
                     { AND f.type IN (?a) }";
-        }
+
+        $aRows = $this->oDb->select($sql, $iUserId, empty($aType) ? DBSIMPLE_SKIP : $aType);
         $aResult = array();
-        $aRows = $this->oDb->select($sql, $nUserId, (is_null($aType) || !count($aType)) ? DBSIMPLE_SKIP : $aType);
         if ($aRows) {
             foreach ($aRows as $aRow) {
-                if ($bOnlyNoEmpty && !$aRow['value']) {
-                    continue;
-                }
                 $aResult[] = E::GetEntity('User_Field', $aRow);
             }
         }
+
         return $aResult;
     }
 

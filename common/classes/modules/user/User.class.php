@@ -1632,30 +1632,75 @@ class ModuleUser extends Module {
      */
     public function getUserFields($aType = null) {
 
-        return $this->oMapper->getUserFields($aType);
+        $sCacheKey = 'user_fields';
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
+            $data = $this->oMapper->getUserFields();
+            E::ModuleCache()->Set($data, $sCacheKey, array('user_fields_update'), 'P10D', 'tmp,');
+        }
+        $aResult = array();
+        if ($data) {
+            if (empty($aType)) {
+                $aResult = $data;
+            } else {
+                if (!is_array($aType)) {
+                    $aType = array($aType);
+                }
+                foreach($data as $oUserField) {
+                    if (in_array($oUserField->getType(), $aType)) {
+                        $aResult[$oUserField->getId()] = $oUserField;
+                    }
+                }
+            }
+        }
+
+        return $aResult;
     }
 
     /**
      * Получить значения дополнительных полей профиля пользователя
      *
-     * @param int          $nUserId      - ID пользователя
-     * @param bool         $bOnlyNoEmpty - Загружать только непустые поля
-     * @param array|string $xType        - Типы полей, null - все типы
+     * @param int          $iUserId       ID пользователя
+     * @param bool         $bNotEmptyOnly Загружать только непустые поля
+     * @param array|string $xType         Типы полей, null - все типы
      *
      * @return ModuleUser_EntityField[]
      */
-    public function getUserFieldsValues($nUserId, $bOnlyNoEmpty = true, $xType = array()) {
+    public function getUserFieldsValues($iUserId, $bNotEmptyOnly = true, $xType = array()) {
 
         if (!is_array($xType)) {
             $xType = array($xType);
         }
-        $sCacheKey = 'user_fields_values_' . serialize(array($nUserId, $bOnlyNoEmpty, $xType));
+        $sCacheKey = 'user_fields_values_' . serialize(array($iUserId, $bNotEmptyOnly, $xType));
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->getUserFieldsValues($nUserId, $bOnlyNoEmpty, $xType);
-            E::ModuleCache()->Set($data, $sCacheKey, array('user_fields_update', "user_update_{$nUserId}"), 'P10D');
+            $aResult = array();
+            // Get all user fields
+            $aAllFields = $this->getUserFields($xType);
+            // Get user fields with values and group them by ID
+            $data = $this->oMapper->getUserFieldsValues($iUserId, $xType);
+            $aValuesByTypes = array();
+            foreach($data as $oFieldValue) {
+                if ($oFieldValue->getValue()) {
+                    $aValuesByTypes[$oFieldValue->getId()][] = $oFieldValue;
+                }
+            }
+            // Forming result
+            foreach($aAllFields as $iIdx => $oUserField) {
+                if (isset($aValuesByTypes[$oUserField->getId()])) {
+                    // If field of the type has values then add them ...
+                    foreach($aValuesByTypes[$oUserField->getId()] as $oFieldValue) {
+                        $aResult[] = $oFieldValue;
+                    }
+                } elseif(!$bNotEmptyOnly) {
+                    // ... else add empty field (if has no flag $bNotEmptyOnly)
+                    $aResult[] = $oUserField;
+                }
+            }
+            E::ModuleCache()->Set($aResult, $sCacheKey, array('user_fields_update', "user_update_{$iUserId}"), 'P10D');
+        } else {
+            $aResult = $data;
         }
 
-        return $data;
+        return $aResult;
     }
 
     /**

@@ -18,7 +18,7 @@
 <div class="row">
 
     <div class="col-lg-6">
-        {$aUserFieldValues=$oUserProfile->getUserFieldValues(true,array(''))}
+        {$aUserFieldValues=$oUserProfile->getUserFieldValues(true)}
         {if $oUserProfile->getProfileSex()!='other' OR $oUserProfile->getProfileBirthday() OR $oGeoTarget OR $oUserProfile->getProfileAbout() OR count($aUserFieldValues)}
             <h4>{$aLang.profile_privat}</h4>
             <table class="table table-profile-info">
@@ -61,18 +61,6 @@
                     </tr>
                 {/if}
 
-                {if $aUserFieldValues}
-                    {foreach $aUserFieldValues as $oField}
-                        <tr>
-                            <td class="text-muted cell-label">
-                                <span class="icon-contact icon-contact-{$oField->getName()}"></span> {$oField->getTitle()|escape:'html'}
-                                :
-                            </td>
-                            <td>{$oField->getValue(true,true)}</td>
-                        </tr>
-                    {/foreach}
-                {/if}
-
                 {hook run='profile_whois_privat_item' oUserProfile=$oUserProfile}
             </table>
         {/if}
@@ -81,15 +69,15 @@
     </div>
 
     <div class="col-lg-6">
-        {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true,array('contact'))}
+        {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true, array('contact'))}
         {if $aUserFieldContactValues}
             <h4>{$aLang.profile_contacts}</h4>
             <table class="table table-profile-info">
                 {foreach $aUserFieldContactValues as $oField}
                     <tr>
-                        <td class="text-muted cell-label"><span
-                                    class="icon-contact icon-contact-{$oField->getName()}"></span> {$oField->getTitle()|escape:'html'}
-                            :
+                        <td class="text-muted cell-label">
+                            <span class="icon-contact icon-contact-{$oField->getName()}"></span>
+                            {$oField->getTitle()|escape:'html'}:
                         </td>
                         <td>{$oField->getValue(true,true)}</td>
                     </tr>
@@ -97,15 +85,15 @@
             </table>
         {/if}
 
-        {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true,array('social'))}
+        {$aUserFieldContactValues=$oUserProfile->getUserFieldValues(true, array('social'))}
         {if $aUserFieldContactValues}
             <h4>{$aLang.profile_social}</h4>
             <table class="table table-profile-info">
                 {foreach $aUserFieldContactValues as $oField}
                     <tr>
-                        <td class="text-muted cell-label"><span
-                                    class="icon-contact icon-contact-{$oField->getName()}"></span> {$oField->getTitle()|escape:'html'}
-                            :
+                        <td class="text-muted cell-label">
+                            <span class="icon-contact icon-contact-{$oField->getName()}"></span>
+                            {$oField->getTitle()|escape:'html'}:
                         </td>
                         <td>{$oField->getValue(true,true)}</td>
                     </tr>

@@ -227,7 +227,8 @@
                 <div class="panel-header">{$aLang.settings_profile_section_contacts}</div>
 
                 <div class="mab12">
-                    {$aUserFieldContactValues=E::User()->getUserFieldValues(true,array('contact','social'))}
+                    {$aUserFieldsContact=E::User()->getUserFieldValues(false, array('contact','social'))}
+                    {$aUserFieldContactValues=E::User()->getUserFieldValues(true, array('contact','social'))}
                     <div id="user-field-contact-container">
                         <div class="row user-field-item js-user-field-item mab12" style="display:none;">
                             <div class="col-xs-8 col-lg-8">

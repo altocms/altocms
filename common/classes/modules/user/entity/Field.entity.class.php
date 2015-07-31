@@ -80,31 +80,31 @@ class ModuleUser_EntityField extends Entity {
      */
     public function getValue($bEscapeValue = false, $bTransformed = false) {
 
-        if (!isset($this->_aData['value']) || !$this->_aData['value']) {
-            return '';
+        $sValue = $this->getProp('value');
+        if (!$sValue) {
+            return $sValue;
         }
         if ($bEscapeValue) {
-            $this->_aData['value'] = htmlspecialchars($this->_aData['value']);
+            $sValue = htmlspecialchars($sValue);
         }
 
         if ($bTransformed) {
-            if (!$this->_aData['pattern']) {
-                return $this->_aData['value'];
+            if (!($sPattern = $this->getProp('pattern'))) {
+                return $sValue;
             }
-            $sReturn = str_replace('{*}', $this->_aData['value'], $this->_aData['pattern']);
+            $sValue = str_replace('{*}', $sValue, $sPattern);
             /**
              * Грязный хак сайта в профиле (
              * @todo Сделать валидацию полей в профиле
              */
             if ($this->getName() == 'www') {
-                $sReturn = str_replace(
-                    array('http://http://', 'http://https://'), array('http://', 'https://'), $sReturn
+                $sValue = str_replace(
+                    array('http://http://', 'http://https://'), array('http://', 'https://'), $sValue
                 );
             }
-            return $sReturn;
-        } else {
-            return (isset($this->_aData['value'])) ? $this->_aData['value'] : '';
         }
+
+        return $sValue;
     }
 
 

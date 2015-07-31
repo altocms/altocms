@@ -495,6 +495,9 @@ class ModuleUser_EntityUser extends Entity {
         return $this->getProp('user_settings_notice_new_friend');
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getLastSession() {
 
         return $this->getProp('user_last_session');
@@ -503,12 +506,12 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает значения пользовательских полей
      *
-     * @param bool   $bOnlyNoEmpty    Возвращать или нет только не пустые
-     * @param string|array $xType           Тип полей
+     * @param bool         $bNotEmptyOnly Возвращать или нет только не пустые
+     * @param string|array $xType         Тип полей
      *
-     * @return array
+     * @return ModuleUser_EntityField[]
      */
-    public function getUserFieldValues($bOnlyNoEmpty = true, $xType = array()) {
+    public function getUserFieldValues($bNotEmptyOnly = true, $xType = array()) {
 
         $aUserFields = $this->getProp('_user_fields');
         if (is_null($aUserFields)) {
@@ -516,10 +519,15 @@ class ModuleUser_EntityUser extends Entity {
             $this->setProp('_user_fields', $aUserFields);
         }
         $aResult = array();
+        if (!is_array($xType)) {
+            $aType = array($xType);
+        } else {
+            $aType = $xType;
+        }
         if ($aUserFields) {
             foreach($aUserFields as $iIndex => $oUserField) {
-                if (!$bOnlyNoEmpty || $oUserField->getValue()) {
-                    if (!$xType || (!is_array($xType) && $xType == $oUserField->getType()) || (is_array($xType) && in_array($oUserField->getType(), $xType))) {
+                if (!$bNotEmptyOnly || $oUserField->getValue()) {
+                    if (empty($aType) || in_array($oUserField->getType(), $aType)) {
                         $aResult[$iIndex] = $oUserField;
                     }
                 }
