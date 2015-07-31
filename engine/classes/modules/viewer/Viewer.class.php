@@ -530,17 +530,32 @@ class ModuleViewer extends Module {
 
         // Load skin's config
         $aConfig = array();
+        Config::ResetLevel(Config::LEVEL_SKIN);
 
-        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
-            $aConfig = F::IncludeFile($sFile, FALSE, TRUE);
+        $aSkinConfigPaths['sSkinConfigCommonPath'] = Config::Get('path.smarty.template') . '/settings/config/';
+        $aSkinConfigPaths['sSkinConfigAppPath']    = Config::Get('path.dir.app')
+            . F::File_LocalPath(
+                $aSkinConfigPaths['sSkinConfigCommonPath'],
+                Config::Get('path.dir.common')
+            )
+        ;
+
+        // Load configs from paths
+        foreach (array('config', 'assets') as $sFileName) {
+            foreach ($aSkinConfigPaths as $sPath) {
+                $sFile = $sPath . $sFileName . '.php';
+                if (F::File_Exists($sFile)) {
+                    // загружаем конфиг, что позволяет сразу использовать значения в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
+                    Config::Load(F::IncludeFile($sFile, false, true), false, null, null, 'skin');
+                }
+            }
         }
 
         if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {
-            if (isset($aConfig['menu'])) {
-                $aConfig['menu'] = F::Array_MergeCombo($aConfig['menu'], F::IncludeFile($sFile, false, true));
-            } else {
-                $aConfig['menu'] = F::IncludeFile($sFile, false, true);
+            if (!isset($aConfig['menu'])) {
+                $aConfig['menu'] = array();
             }
+            $aConfig['menu'] = F::Array_MergeCombo($aConfig['menu'], F::IncludeFile($sFile, false, true));
         }
 
 //        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
@@ -552,11 +567,6 @@ class ModuleViewer extends Module {
 //            }
 //        }
 
-        // Checks skin's config in app dir
-        $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
-        if (F::File_Exists($sFile)) {
-            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
-        }
         // Checks skin's config from users settings
         $aUserConfig = Config::Get('skin.' . $this->sViewSkin . '.config');
         if ($aUserConfig) {
@@ -567,7 +577,6 @@ class ModuleViewer extends Module {
             }
         }
 
-        Config::ResetLevel(Config::LEVEL_SKIN);
         if ($aConfig) {
             Config::Load($aConfig, false, null, null, 'skin');
         }
