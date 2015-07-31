@@ -66,7 +66,4 @@ C::Set('module.uploader.images.profile_avatar.size', array(
     'mini'   => '16x16crop',
 ));
 
-// Настройка css- и js-наборов
-require 'assets.php';
-
 return $config;

@@ -531,14 +531,24 @@ class ModuleViewer extends Module {
         // Load skin's config
         $aConfig = array();
 
-        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
-            $aConfig = F::IncludeFile($sFile, FALSE, TRUE);
-        }
+        $aSkinConfigPaths['sSkinConfigCommonPath'] = Config::Get('path.smarty.template') . '/settings/config/';
+        $aSkinConfigPaths['sSkinConfigAppPath']    = Config::Get('path.dir.app')
+            . F::File_LocalPath(
+                $aSkinConfigPaths['sSkinConfigCommonPath'],
+                Config::Get('path.dir.common')
+            )
+        ;
 
-        // Checks skin's config in app dir
-        $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
-        if (F::File_Exists($sFile)) {
-            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+        // Load configs from paths
+        foreach (array('config', 'assets') as $sFileName) {
+            foreach ($aSkinConfigPaths as $sPath) {
+                $sFile = $sPath . $sFileName . '.php';
+                if (F::File_Exists($sFile)) {
+                    $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+                    // сразу загружаем конфиг, что позволяет сразу использовать значения в остальных конфигах через Config::Get()
+                    Config::Load($aConfig, false, null, null, 'skin');
+                }
+            }
         }
 
         if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {

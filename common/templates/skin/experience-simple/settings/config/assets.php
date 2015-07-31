@@ -5,7 +5,7 @@
  */
 
 /**
- * config.php
+ * assets.php
  * Файл конфигурационных параметров темы оформления Experience
  *
  * @author      Андрей Г. Воронов <andreyv@gladcode.ru>
@@ -22,7 +22,7 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jqu
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.js";
-if (isset($config['view']['fix_menu']) && $config['view']['fix_menu']) {
+if (Config::Get('view.fix_menu')) {
     $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.js";
 }
 
@@ -71,5 +71,7 @@ $config['head']['default']['css'] = array(
     //'___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css.map',
     '___path.skin.dir___/themes/___view.theme___/css/custom.___view.theme___.css',
 );
+
+return $config;
 
 // EOF
