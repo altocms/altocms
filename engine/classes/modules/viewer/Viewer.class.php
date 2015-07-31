@@ -535,12 +535,17 @@ class ModuleViewer extends Module {
             $aConfig = F::IncludeFile($sFile, FALSE, TRUE);
         }
 
+        // Checks skin's config in app dir
+        $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
+        if (F::File_Exists($sFile)) {
+            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+        }
+
         if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {
-            if (isset($aConfig['menu'])) {
-                $aConfig['menu'] = F::Array_MergeCombo($aConfig['menu'], F::IncludeFile($sFile, false, true));
-            } else {
-                $aConfig['menu'] = F::IncludeFile($sFile, false, true);
+            if (!isset($aConfig['menu'])) {
+                $aConfig['menu'] = array();
             }
+            $aConfig['menu'] = F::Array_MergeCombo($aConfig['menu'], F::IncludeFile($sFile, false, true));
         }
 
 //        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
@@ -552,11 +557,6 @@ class ModuleViewer extends Module {
 //            }
 //        }
 
-        // Checks skin's config in app dir
-        $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
-        if (F::File_Exists($sFile)) {
-            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
-        }
         // Checks skin's config from users settings
         $aUserConfig = Config::Get('skin.' . $this->sViewSkin . '.config');
         if ($aUserConfig) {
