@@ -169,6 +169,15 @@ class Loader {
                 // Загружаем все конфиг-файлы плагина
                 $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
+                    // move config.php to begin of array
+                    if (sizeof($aConfigFiles) > 1) {
+                        $sConfigFile = $sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/config.php';
+                        $iIndex = array_search($sConfigFile, $aConfigFiles);
+                        if ($iIndex) {
+                            $aConfigFiles = array_merge(array_splice($aConfigFiles, $iIndex, 1), $aConfigFiles);
+                        }
+                    }
+
                     foreach ($aConfigFiles as $sConfigFile) {
                         $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
