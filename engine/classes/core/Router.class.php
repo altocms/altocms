@@ -1116,14 +1116,18 @@ class Router extends LsObject {
                 $sResult .= $this->_getUrlPart($aData, 'path');
             }
         } elseif ($sPart == 'path') {
-            if (isset($aData['action'])) {
-                $sResult = '/' . $aData['action'];
-            }
-            if (isset($aData['event'])) {
-                $sResult .= '/' . $aData['event'];
-            }
-            if (isset($aData['params'])) {
-                $sResult .= '/' . $aData['params'];
+            if (isset($aData['path'])) {
+                $sResult = $aData['path'];
+            } else {
+                if (isset($aData['action'])) {
+                    $sResult = '/' . $aData['action'];
+                }
+                if (isset($aData['event'])) {
+                    $sResult .= '/' . $aData['event'];
+                }
+                if (isset($aData['params'])) {
+                    $sResult .= '/' . $aData['params'];
+                }
             }
         } elseif (isset($aData[$sPart])) {
             $sResult = $aData[$sPart];

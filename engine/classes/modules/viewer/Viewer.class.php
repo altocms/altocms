@@ -1925,13 +1925,21 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Добавляет тег для вывода в хидере страницы
+     * Добавляет тег для вывода в <HEAD>
      *
      * @param string $sTag
      */
     public function AddHtmlHeadTag($sTag) {
 
-        $sTag = substr($sTag, 1, strlen($sTag) - 2);
+        if ($sTag[0] == '<') {
+            $sTag = substr($sTag, 1);
+        }
+        if (substr($sTag, -2) == '/>') {
+            $sTag = substr($sTag, 0, strlen($sTag) - 2);
+        } elseif (substr($sTag, -1) == '>') {
+            $sTag = substr($sTag, 0, strlen($sTag) - 1);
+        }
+
         if (strpos($sTag, ' ')) {
             list($sTagName, $sAttributes) = explode(' ', $sTag, 2);
         } else {
