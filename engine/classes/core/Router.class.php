@@ -1053,8 +1053,15 @@ class Router extends LsObject {
      */
     public function RestorePath($sPath) {
 
-        list ($sFrom, $sTo) = $this->_getRewriteRule(null, $sPath);
-        return $sFrom ? $sFrom : $sPath;
+        if (strpos($sPath, '/')) {
+            list($sAction, $sOthers) = explode('/', $sPath, 2);
+            list ($sFrom, $sTo) = $this->_getRewriteRule(null, $sAction);
+            $sResult = ($sFrom ? $sFrom . '/' . $sOthers : $sPath);
+        } else {
+            list ($sFrom, $sTo) = $this->_getRewriteRule(null, $sPath);
+            $sResult = ($sFrom ? $sFrom : $sPath);
+        }
+        return $sResult;
     }
 
     /**
