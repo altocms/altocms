@@ -24,6 +24,12 @@ $config['$root$']['classes']['class'] = array(
     'LS' => '___path.dir.plugin.ls___libs/Ls.class.php',
 );
 
+// набор алиасов для совместимости LS
+$config['$root$']['lang']['aliases'] = array(
+    'ru' => 'russian',
+    'en' => 'english',
+);
+
 return $config;
 
 

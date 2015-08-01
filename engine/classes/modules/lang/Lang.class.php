@@ -348,7 +348,13 @@ class ModuleLang extends Module {
      */
     public function LoadLangFileTemplate($sLangName = null, $sLangFor = null) {
 
-        $this->_loadFiles(Config::Get('path.smarty.template') . '/settings/language/', $sLangName, null, $sLangFor);
+        $aLangPaths = array(
+            Config::Get('path.smarty.template') . '/settings/language/',
+        );
+        $aLangPaths[] = Config::Get('path.dir.app')
+            . F::File_LocalPath($aLangPaths[0], Config::Get('path.dir.common'));
+
+        $this->_loadFiles($aLangPaths, $sLangName, null, $sLangFor);
     }
 
     /**

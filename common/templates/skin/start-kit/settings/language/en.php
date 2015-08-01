@@ -22,4 +22,5 @@ return array(
 	'blogs_name_search' => 'Blogs search',
 	'people_name_search' => 'People search',
 );
-?>
+
+// EOF

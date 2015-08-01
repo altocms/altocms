@@ -696,10 +696,13 @@ $config['security']['user_session_key']  = 'user_key';
  */
 // * Языковые настройки
 $config['lang']['allow'] = array('ru', 'en');                               // какие языки доступны на сайте; если не задано или задан только один язык, то настройки мультиязычности игнорируются
+/*
 $config['lang']['aliases'] = array(                                         // набор алиасов для совместимости LS
     'ru' => 'russian',
     'en' => 'english',
 );
+*/
+
 // Настройки мультиязычного сайта
 $config['lang']['in_url'] = true;                                           // проверка языка в URL
 $config['lang']['in_get'] = true;                                           // проверка языка в GET-параметре: 'lang=ru'
