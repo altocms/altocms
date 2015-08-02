@@ -78,12 +78,6 @@ class Loader {
             Config::Set('path.root.subdir', $sPathSubdir);
         }
 
-        // Paths to dirs of plugins
-        $aPluginsList = F::GetPluginsList(false, false);
-        foreach ($aPluginsList as $aPlugin) {
-            Config::Set('path.dir.plugin.' . $aPlugin['id'], $aPlugin['path']);
-        }
-
         // Подгружаем конфиг из файлового кеша, если он есть
         Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
@@ -148,11 +142,6 @@ class Loader {
          */
         $sConfigFile = $sConfigDir . '/config.local.php';
         if (F::File_Exists($sConfigFile)) {
-            /*
-            if ($aConfig = F::File_IncludeFile($sConfigFile, true, Config::Get())) {
-                Config::Load($aConfig, true, null, $nConfigLevel, $sConfigFile);
-            }
-            */
             if ($aConfig = F::File_IncludeFile($sConfigFile, true)) {
                 Config::Set($aConfig, false, null, $nConfigLevel, $sConfigFile);
             }
@@ -164,8 +153,10 @@ class Loader {
          */
         $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
         if ($aPluginsList = F::GetPluginsList(false, false)) {
-            //$aPluginsList = array_map('trim', $aPluginsList);
             foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
+                // Paths to dirs of plugins
+                Config::Set('path.dir.plugin.' . $aPluginInfo['id'], $aPluginInfo['path']);
+
                 // Загружаем все конфиг-файлы плагина
                 $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
