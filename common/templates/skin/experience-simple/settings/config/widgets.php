@@ -14,53 +14,53 @@
  * @version     0.0.1 от 29.05.2014 1:20
  */
 
-$config['widgets'][] = array(
+$config['widgets']['toolbar_write'] = array(
     'name'     => 'toolbar_write.tpl',
     'wgroup'   => 'toolbar',
     'priority' => 99,
 );
-$config['widgets'][] = array(
+$config['widgets']['toolbar_search'] = array(
     'name'     => 'toolbar_search.tpl',
     'wgroup'   => 'toolbar',
     'priority' => 10000,
 );
 
-$config['widgets'][] = array(
+$config['widgets']['toolbar_login'] = array(
     'name'     => 'toolbar_login.tpl',
     'wgroup'   => 'toolbar',
     'priority' => 1000,
 );
 
-$config['widgets'][] = array(
+$config['widgets']['toolbar_menu'] = array(
     'name'     => 'toolbar_menu.tpl',
     'wgroup'   => 'toolbar',
     'priority' => 100,
 );
-$config['widgets'][] = array(
+$config['widgets']['toolbar_admin'] = array(
     'name'     => 'toolbar_admin.tpl',
     'wgroup'   => 'toolbar',
     'priority' => 'top',
 );
 
-$config['widgets'][] = array(
+$config['widgets']['toolbar_scrollup'] = array(
     'name'     => 'toolbar_scrollup.tpl',
     'wgroup'   => 'toolbar',
     'priority' => -100,
 );
 
-$config['widgets'][] = array(
+$config['widgets']['people.sidebar'] = array(
     'name'   => 'actions/people/action.people.sidebar.tpl',
     'wgroup' => 'right',
     'on'     => 'people, search',
 );
 
-$config['widgets'][] = array(
+$config['widgets']['UserfeedBlogs'] = array(
     'name'   => 'UserfeedBlogs',
     'wgroup' => 'right',
     'on'     => 'feed/track',
 );
 
-$config['widgets'][] = array(
+$config['widgets']['UserfeedUsers'] = array(
     'name'   => 'UserfeedUsers',
     'wgroup' => 'right',
     'on'     => 'feed/track',
