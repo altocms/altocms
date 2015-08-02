@@ -592,8 +592,6 @@ ls = (function ($) {
             }
         };
 
-        ls.hook.run('ls_ajax_before', [ajaxOptions, callback, more], this);
-
         return $.ajax(ajaxOptions);
     };
 
@@ -671,25 +669,17 @@ ls = (function ($) {
             }
         }.bind(this);
 
-        options.error = function() {
+        options.error = function () {
+            form.find('[type=submit]').prop('disabled', false).removeClass('loading');
             if (more.progress) {
                 ls.progressDone();
             }
-        };
-
-        if (more.error) {
-            options.error = function() {
-                progressDone();
+            ls.debug("ajax error: ");
+            ls.debug.apply(this, arguments);
+            if ($.type(more.error) == 'function') {
+                more.error();
             }
-        } else {
-            options.error = more.error || function () {
-                progressDone();
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
-            }.bind(this);
-        }
-
-        ls.hook.run('ls_ajaxsubmit_before', [options, form, callback, more], this);
+        }.bind(this);
 
         if (more.progress) {
             ls.progressStart();

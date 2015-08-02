@@ -23,7 +23,7 @@
         $('.js-editor-markitup').markItUp(settings);
         ls.insertToEditor = function(markup) {
             $.markItUp({ replaceWith: markup });
-        }
+        };
 
         {if Config::Get('view.float_editor')}
         $(function(){
@@ -37,7 +37,7 @@
                 editorClass: '.markItUp',
                 headerClass: '.markItUpHeader'
             });
-        })
+        });
         {/if}
     });
 </script>

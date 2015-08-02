@@ -147,8 +147,9 @@
              * Функция, вызываемая при ошибке запроса
              */
             var error = function () {
-                ls.progressDone();
+                ls.progressDone(true);
                 $this.$element.trigger('aim-load-page-error');
+                ls.msg.error(null, 'System error #1001');
             };
 
             /**
@@ -192,7 +193,9 @@
              * Функция, вызываемая при ошибке запроса
              */
             var error = function () {
+                ls.progressDone(true);
                 $this.$element.trigger('aim-refresh-categories-error');
+                ls.msg.error(null, 'System error #1001');
             };
 
             /**
@@ -253,7 +256,7 @@
          * @returns {altoImageManager}
          */
         _ajax: function (url, data, success, error) {
-            var $this = this;
+            var $this = this, more = {};
 
             // Заблокируем другие аякс-запросы и включим лоадеры
             if ($this.blockButtons) {
@@ -276,6 +279,13 @@
             if ($this.options.admin !== undefined) {
                 data.admin = $this.options.admin;
             }
+
+            if ($.type(error) == 'function') {
+                more.error = error;
+            }
+            more.complete = function() {
+                $this.blockButtons = false;
+            };
 
             // Отправим запрос
             ls[queryType](url, data,
@@ -303,7 +313,7 @@
                         }
                     }
 
-                });
+                }, more);
 
             return $this;
         }

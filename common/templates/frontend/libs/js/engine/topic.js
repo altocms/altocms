@@ -72,12 +72,19 @@ ls.topic = (function ($) {
      * @param previewPlace
      */
     this.showPreviewText = function (form, previewPlace) {
+        var more = {};
+
         if (form) {
             form = $(form).closest('form');
         }
         previewPlace = $(previewPlace);
 
         if (form.length && previewPlace.length) {
+            more.error = function(){
+                ls.progressDone();
+                ls.msg.error(null, 'System error #1001');
+            };
+
             ls.progressStart();
             ls.ajaxSubmit(this.options.routers.preview, form, function (result) {
                 ls.progressDone();
@@ -90,7 +97,7 @@ ls.topic = (function ($) {
 
                     ls.hook.run('ls_topic_preview_after', [form, previewPlace, result]);
                 }
-            });
+            }, more);
         }
     };
 

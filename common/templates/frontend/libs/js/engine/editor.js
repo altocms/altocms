@@ -112,11 +112,11 @@ ls.editor = (function ($) {
      * Функция, закрепляющая шапку редактора markitUp вверху страницы
      * при скролле
      *
-     * @param {int} step Отступ шапки. Индивидуально для каждой темы
+     * @param {{}} options
      */
     this.float = function (options) {
         // Получим все редакторы на странице
-        var aMarkItUp = $(options.textareaClass);
+        var aMarkItUp = $(options.textareaClass).not(':hidden');
 
         // Если хоть один редактор найден, то он и будет
         // отслеживаться
@@ -129,7 +129,7 @@ ls.editor = (function ($) {
                 // Положение текущего скролла
                 var htmlTop = $(window).scrollTop();
 
-                // Переберём редакторы, может кто-то ущел за пределы страницы
+                // Переберём редакторы, может кто-то ушел за пределы страницы
                 aMarkItUp.each(function () {
                     var $this = $(this);
                     var editor = $this.parents(options.editorClass);
@@ -138,13 +138,14 @@ ls.editor = (function ($) {
                         $this = $('.mce-edit-area')
                     }
                     var header = editor.find(options.headerClass);
-                    if ($this.offset().top < htmlTop + options.topStep + header.outerHeight()
+
+                    if ($this.offset() && $this.offset().top < htmlTop + options.topStep + header.outerHeight()
                         && $this.offset().top + $this.outerHeight() - 60 - options.topStep > htmlTop + options.topStep + header.outerHeight()) {
                         header.css({
                             position: 'fixed',
                             top: options.topStep,
                             width: $this.outerWidth() + options.dif
-                        }).addClass('float')
+                        }).addClass('float');
 
                         if (options.css !== 'undefined') {
                             header.css(options.css)
