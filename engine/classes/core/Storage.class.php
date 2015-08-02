@@ -24,7 +24,7 @@ class Storage {
      *
      * @var array
      */
-    protected $aStorageVals = array();
+    protected $aStorage = array();
 
     protected $nSaveMode = self::SAVE_MODE_ARR;
 
@@ -304,16 +304,102 @@ class Storage {
     }
 
     /**
+     * Returns item from storage by key
+     *
+     * @param string       $sStorageKey
+     * @param string|array $xKey
+     *
+     * @return array|mixed|null
+     */
+    public function GetStorageItem($sStorageKey, $xKey) {
+
+        if ($this->nSaveMode != self::SAVE_MODE_ARR) {
+            return $this->GetItem($sStorageKey, $xKey);
+        }
+
+        if (isset($this->aStorage[$sStorageKey])) {
+            if (is_null($xKey)) {
+                return $this->aStorage[$sStorageKey];
+            } else {
+                if (is_array($xKey)) {
+                    $aKeys = array_values($xKey);
+                } else {
+                    $aKeys = explode('.', $xKey);
+                }
+                switch (count($aKeys)) {
+                    case 1:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]];
+                        }
+                        break;
+                    case 2:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]];
+                        }
+                        break;
+                    case 3:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]];
+                        }
+                        break;
+                    case 4:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]];
+                        }
+                        break;
+                    case 5:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]];
+                        }
+                        break;
+                    case 6:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]];
+                        }
+                        break;
+                    case 7:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]][$aKeys[6]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]][$aKeys[6]];
+                        }
+                        break;
+                    case 8:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]][$aKeys[6]][$aKeys[7]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]][$aKeys[6]][$aKeys[7]];
+                        }
+                        break;
+                    case 9:
+                        if (isset($this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]][$aKeys[6]][$aKeys[7]][$aKeys[8]])) {
+                            return $this->aStorage[$sStorageKey][$aKeys[0]][$aKeys[1]][$aKeys[2]][$aKeys[3]][$aKeys[4]][$aKeys[5]][$aKeys[6]][$aKeys[7]][$aKeys[8]];
+                        }
+                        break;
+                    default:
+                        $xData = $this->aStorage[$sStorageKey];
+                        foreach ($aKeys as $sK) {
+                            if (isset($xData[$sK])) {
+                                $xData = $xData[$sK];
+                            } else {
+                                return array();
+                            }
+                        }
+                        return $xData;
+                }
+            }
+        }
+        return array();
+    }
+
+
+    /**
      * Возвращает ссылку на элемент данных
      *
      * @param string       $sStorageKey
-     * @param string|array $aKeys
+     * @param string|array $xKeys
      *
      * @return  array|null
      */
-    public function GetItem($sStorageKey, $aKeys) {
+    public function GetItem($sStorageKey, $xKeys) {
 
-        return $this->_checkItem($sStorageKey, $aKeys, false, false);
+        return $this->_checkItem($sStorageKey, $xKeys, false, false);
     }
 
     /**

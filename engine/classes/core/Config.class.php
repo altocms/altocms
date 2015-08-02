@@ -184,25 +184,33 @@ class Config extends Storage {
     }
 
     /**
-     * Возвращает текущий полный конфиг
+     * Return all config array or its part (if composite key passed)
      *
-     * @param string $sKey   - Корневой ключ конфига
-     * @param int    $nLevel - Уровень конфига
+     * @param string $sRootKey Root config key
+     * @param int    $nLevel   Config level
+     * @param string $sKey     Composite key of config item
      *
-     * @return  array
+     * @return array|mixed|null
      */
-    public function GetConfig($sKey = null, $nLevel = null) {
+    public function GetConfig($sRootKey = null, $nLevel = null, $sKey = null) {
 
         if (is_null($nLevel)) {
             $nLevel = $this->nLevel;
         }
 
-        $sStorageKey = $this->_storageKey($sKey, $nLevel);
-        $aResult = parent::GetStorage($sStorageKey);
-        if (!$aResult) {
-            $aResult = array();
+        $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
+        if (is_null($sKey)) {
+            $xResult = parent::GetStorage($sStorageKey);
+            if (!$xResult) {
+                $xResult = array();
+            }
+        } else {
+            $xResult = parent::GetStorageItem($sStorageKey, $sKey);
+            if (!$xResult) {
+                $xResult = null;
+            }
         }
-        return $aResult;
+        return $xResult;
     }
 
     /**
@@ -405,24 +413,13 @@ class Config extends Storage {
     public function GetValue($sKey, $sRootKey = self::DEFAULT_CONFIG_ROOT, $nLevel = null, $bRaw = false) {
 
         $sKeyMap = $sRootKey . '.' . (is_null($nLevel) ? '' : ($nLevel . '.')) . $sKey;
-        if (!isset($this->aQuickMap[$sKeyMap]) || $bRaw) {
-            // Return config by path (separator=".")
-            $aKeys = explode('.', $sKey);
-
-            $xConfigData = $this->GetConfig($sRootKey, $nLevel);
-            foreach ((array)$aKeys as $sK) {
-                if (isset($xConfigData[$sK])) {
-                    $xConfigData = $xConfigData[$sK];
-                } else {
-                    return null;
-                }
-            }
-
+        if ((!isset($this->aQuickMap[$sKeyMap]) && !array_key_exists($sKeyMap,$this->aQuickMap)) || $bRaw) {
+            $xConfigData = $this->GetConfig($sRootKey, $nLevel, $sKey);
             if ($bRaw) {
+                // return raw data
                 return $xConfigData;
             }
-
-            if (is_array($xConfigData) || (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false)) {
+            if ((is_array($xConfigData) && !empty($xConfigData)) || (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false)) {
                 $xConfigData = $this->_keyReplace($xConfigData, $sRootKey);
             }
             $this->aQuickMap[$sKeyMap] = $xConfigData;
@@ -650,7 +647,7 @@ class Config extends Storage {
     }
 
     /**
-     * Find all keys recursivly in config array
+     * Find all keys recursively in config array
      *
      * @return array
      */
