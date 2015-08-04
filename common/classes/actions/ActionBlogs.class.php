@@ -110,7 +110,7 @@ class ActionBlogs extends Action {
         );
 
         // * Передан ли номер страницы
-        $iPage = preg_match("/^\d+$/i", $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
+        $iPage = preg_match('/^\d+$/i', $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
 
         // * Получаем список блогов
         $aResult = E::ModuleBlog()->GetBlogsByFilter(
@@ -131,7 +131,7 @@ class ActionBlogs extends Action {
         E::ModuleViewer()->Assign('aBlogs', $aBlogs);
         E::ModuleViewer()->Assign('sBlogOrder', htmlspecialchars($sOrder));
         E::ModuleViewer()->Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
-        E::ModuleViewer()->Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        E::ModuleViewer()->Assign('sBlogOrderWayNext', ($sOrderWay == 'desc' ? 'asc' : 'desc'));
         E::ModuleViewer()->Assign('sShow', 'collective');
         E::ModuleViewer()->Assign('sBlogsRootPage', R::GetPath('blogs'));
 
@@ -148,7 +148,7 @@ class ActionBlogs extends Action {
     protected function EventShowBlogsPersonal() {
 
         // * По какому полю сортировать
-        $sOrder = 'blog_count_topic';
+        $sOrder = F::GetRequestStr('order', 'blog_title');
 
         // * В каком направлении сортировать
         $sOrderWay = F::GetRequestStr('order_way', 'desc');
@@ -159,7 +159,7 @@ class ActionBlogs extends Action {
         );
 
         // * Передан ли номер страницы
-        $iPage = preg_match("/^\d+$/i", $this->GetParamEventMatch(0, 2)) ? $this->GetParamEventMatch(0, 2) : 1;
+        $iPage = preg_match('/^\d+$/i', $this->GetParamEventMatch(0, 2)) ? $this->GetParamEventMatch(0, 2) : 1;
 
         // * Получаем список блогов
         $aResult = E::ModuleBlog()->GetBlogsByFilter(
@@ -178,7 +178,7 @@ class ActionBlogs extends Action {
         E::ModuleViewer()->Assign('aBlogs', $aBlogs);
         E::ModuleViewer()->Assign('sBlogOrder', htmlspecialchars($sOrder));
         E::ModuleViewer()->Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
-        E::ModuleViewer()->Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        E::ModuleViewer()->Assign('sBlogOrderWayNext', ($sOrderWay == 'desc' ? 'asc' : 'desc'));
         E::ModuleViewer()->Assign('sShow', 'personal');
         E::ModuleViewer()->Assign('sBlogsRootPage', R::GetPath('blogs') . 'personal/');
 
