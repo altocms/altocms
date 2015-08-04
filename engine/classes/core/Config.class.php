@@ -206,9 +206,6 @@ class Config extends Storage {
             }
         } else {
             $xResult = parent::GetStorageItem($sStorageKey, $sKey);
-            if (!$xResult) {
-                $xResult = null;
-            }
         }
         return $xResult;
     }
@@ -369,7 +366,7 @@ class Config extends Storage {
         $xResult = static::getInstance()->GetValue($sKey, $sRootKey, $nLevel, $bRaw);
 
         // LS-compatibility
-        if (!$bRaw && is_null($xResult) && strpos($sKey, 'db.table.') === 0) {
+        if (!$bRaw && is_null($xResult) && strpos($sKey, 'db.table.') === 0 && $sKey !== 'db.table.prefix') {
             $xResult = str_replace('db.table.', static::Get('db.table.prefix'), $sKey);
         }
         return $xResult;

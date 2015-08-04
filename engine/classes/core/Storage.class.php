@@ -309,7 +309,7 @@ class Storage {
      * @param string       $sStorageKey
      * @param string|array $xKey
      *
-     * @return array|mixed|null
+     * @return mixed|null
      */
     public function GetStorageItem($sStorageKey, $xKey) {
 
@@ -385,7 +385,7 @@ class Storage {
                 }
             }
         }
-        return array();
+        return null;
     }
 
 
