@@ -101,7 +101,7 @@
 
     {block name="topic_footer"}
         {if !$bPreview}
-            <div class="topic-footer">
+        <div class="topic-footer">
             <ul>
                 <li class="topic-user js-popover-{$oUser->getId()}">
                     <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
@@ -144,9 +144,8 @@
                 {hook run='topic_show_info' topic=$oTopic bTopicList=true oVote=$oVote}
 
             </ul>
-        {/if}
-
         </div>
+        {/if}
     {/block}
 </div> <!-- /.topic -->
 {/if}

@@ -92,7 +92,7 @@
 
     {block name="topic_footer"}
         {if !$bPreview}
-            <div class="topic-footer">
+        <div class="topic-footer">
             <ul>
 
                 {hook run='topic_show_info' topic=$oTopic bTopicList=true oVote=$oVote}
@@ -152,11 +152,9 @@
                         {/if}
                     </li>
                 {/if}
-
             </ul>
-        {/if}
-
         </div>
+        {/if}
     {/block}
 </div> <!-- /.topic -->
 {/if}
