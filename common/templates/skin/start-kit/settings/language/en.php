@@ -16,7 +16,11 @@ return array(
 	'footer_menu_project_help' => 'Help',
 	
 	'blog_expand_info' => 'About blog',
-	
+
+	'all_blogs' => 'All blogs',
+	'personal_blogs' => 'Personal blogs',
+//	'my_blogs' => 'My blogs',
+
 	'topic_create_submit_preview_close' => 'Close',
 	
 	'blogs_name_search' => 'Blogs search',

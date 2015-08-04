@@ -16,7 +16,11 @@ return array(
 	'footer_menu_project_help' => 'Помощь',
 	
 	'blog_expand_info' => 'О блоге',
-	
+
+	'all_blogs' => 'Все блоги',
+	'personal_blogs' => 'Персональные блоги',
+//	'my_blogs' => 'Мои блоги',
+
 	'topic_create_submit_preview_close' => 'Свернуть',
 
 	'blogs_name_search' => 'Поиск по названию',
