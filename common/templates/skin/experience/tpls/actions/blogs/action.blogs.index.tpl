@@ -40,8 +40,8 @@
     <div class="content-inner-panel">
         <div id="blogs-list-search" style="display:none;"></div>
         <div id="blogs-list-original">
-            {router page='blogs' assign=sBlogsRootPage}
-            {include file='commons/common.blog_list.tpl' bBlogsUseOrder=true sBlogsRootPage=$sBlogsRootPage}
+            {*{router page='blogs' assign=sBlogsRootPage}*}
+            {include file='commons/common.blog_list.tpl' bBlogsUseOrder=true}
         </div>
     </div>
     <div class="content-inner-paging">
