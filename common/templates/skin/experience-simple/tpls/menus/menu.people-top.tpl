@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="row">
-    <div class="col-lg-12 user-toggle-publication-block">
+    <div class="col-lg-24 mab12">
 
         <a class="btn btn-default {if $sMenuItemSelect=='all'}active{/if}" href="{router page='people'}">
             {$aLang.people_menu_users_all}

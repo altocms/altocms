@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="row profile-header-submenu">
-    <div class="col-lg-18 user-toggle-publication-block">
+    <div class="col-lg-24 mab12">
 
         <a class="btn btn-default {if $sMenuSubItemSelect=='topics'}active{/if}"
            href="{$oUserProfile->getProfileUrl()}favourites/topics/">{$aLang.user_menu_profile_favourites_topics}  {if $iCountTopicFavourite} ({$iCountTopicFavourite}) {/if}</a>
