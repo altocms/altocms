@@ -7,9 +7,13 @@
  * http://code.google.com/p/jevix/
  *
  * @author ur001 <ur001ur001@gmail.com>, http://ur001.habrahabr.ru
- * @version 1.12
+ * @author https://github.com/altocms/Jevix
+ *
+ * @version 1.13
  *
  * История версий:
+ * 1.13:
+ *  + Добавлено задание значений атрибутов с помощью регулярных выражений (в квадратных скобках)
  * 1.12:
  *  + Добавлено задание разрешеных протоколов для разных параметров
  * 1.11:
@@ -1062,56 +1066,63 @@ class Jevix{
 			}
 
 			if(is_string($paramAllowedValues)){
-				switch($paramAllowedValues){
-					case '#int':
-						if(!is_numeric($value)) {
-							$this->error("Недопустимое значение для атрибута тега $tag $param=$value. Ожидалось число");
-							continue(2);
-						}
-						break;
-
-					case '#text':
-						$value = htmlspecialchars($value);
-						break;
-
-					case '#link':
-						// Ява-скрипт в ссылке
-						if(preg_match('/javascript:/ui', $value)) {
-							$this->error('Попытка вставить JavaScript в URI');
-							continue(2);
-						}
-						// Первый символ должен быть a-z0-9 или #!
-						if(!preg_match('/^[a-z0-9\/\#]/ui', $value)) {
-							$this->error('URI: Первый символ адреса должен быть буквой или цифрой');
-							continue(2);
-						}
-                        // HTTP в начале если нет
-                        $sProtocol = '(' . $this->_getAllowedProtocols('#link') . ')' . ($this->_getSkipProtocol('#link') ? '?' : '');
-                        if (!preg_match('@^' . $sProtocol . '//@ui', $value)
-                            && !preg_match('/^(\/|\#)/ui', $value)
-                            && !preg_match('/^(mailto):/ui', $value)
-                        ) {
-                            $value = 'http://' . $value;
-                        }
-                        break;
-
-                    case '#image':
-						// Ява-скрипт в пути к картинке
-						if(preg_match('/javascript:/ui', $value)) {
-							$this->error('Попытка вставить JavaScript в пути к изображению');
-							continue(2);
-						}
-						// HTTP в начале если нет
-                        $sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
-						if(!preg_match('@^' . $sProtocol . '\/\/@ui', $value) && !preg_match('/^\//ui', $value)) {
-                            $value = 'http://'.$value;
-                        }
-						break;
-
-					default:
-						$this->error("Неверное описание атрибута тега в настройке Jevix: $param => $paramAllowedValues");
+				if (substr($paramAllowedValues, 0, 1) == '[' && substr($paramAllowedValues, -1) == ']') {
+					if(!preg_match(substr($paramAllowedValues, 1, strlen($paramAllowedValues) - 2), $value)) {
+						$this->error("Недопустимое значение для атрибута тега $tag $param=$value");
 						continue(2);
-						break;
+					}
+				} else {
+					switch($paramAllowedValues){
+						case '#int':
+							if(!is_numeric($value)) {
+								$this->error("Недопустимое значение для атрибута тега $tag $param=$value. Ожидалось число");
+								continue(2);
+							}
+							break;
+
+						case '#text':
+							$value = htmlspecialchars($value);
+							break;
+
+						case '#link':
+							// Ява-скрипт в ссылке
+							if(preg_match('/javascript:/ui', $value)) {
+								$this->error('Попытка вставить JavaScript в URI');
+								continue(2);
+							}
+							// Первый символ должен быть a-z0-9 или #!
+							if(!preg_match('/^[a-z0-9\/\#]/ui', $value)) {
+								$this->error('URI: Первый символ адреса должен быть буквой или цифрой');
+								continue(2);
+							}
+							// HTTP в начале если нет
+							$sProtocol = '(' . $this->_getAllowedProtocols('#link') . ')' . ($this->_getSkipProtocol('#link') ? '?' : '');
+							if (!preg_match('@^' . $sProtocol . '//@ui', $value)
+								&& !preg_match('/^(\/|\#)/ui', $value)
+								&& !preg_match('/^(mailto):/ui', $value)
+							) {
+								$value = 'http://' . $value;
+							}
+							break;
+
+						case '#image':
+							// Ява-скрипт в пути к картинке
+							if(preg_match('/javascript:/ui', $value)) {
+								$this->error('Попытка вставить JavaScript в пути к изображению');
+								continue(2);
+							}
+							// HTTP в начале если нет
+							$sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
+							if(!preg_match('@^' . $sProtocol . '\/\/@ui', $value) && !preg_match('/^\//ui', $value)) {
+								$value = 'http://'.$value;
+							}
+							break;
+
+						default:
+							$this->error("Неверное описание атрибута тега в настройке Jevix: $param => $paramAllowedValues");
+							continue(2);
+							break;
+					}
 				}
 			}
 

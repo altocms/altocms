@@ -39,7 +39,7 @@ return array(
                       'data-src',
                       'alt'    => '#text',
                       'align'  => array('right', 'left', 'center', 'middle'),
-                      'width'  => '#int',
+                      'width'  => '[~\d+(%|px)?~]',
                       'height' => '#int',
                       'hspace' => '#int',
                       'vspace' => '#int',
