@@ -445,7 +445,7 @@ class ModulePlugin extends Module {
                     foreach ($aOverlap as $sResource => $aConflict) {
                         E::ModuleMessage()->AddError(
                             E::ModuleLang()->Get(
-                                'plugins_activation_overlap',
+                                'action.admin.plugin_activation_overlap',
                                 array(
                                     'resource' => $sResource,
                                     'delegate' => $aConflict['delegate'],
