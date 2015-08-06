@@ -457,6 +457,9 @@ class ModuleLang extends Module {
      */
     public function Get($sName, $aReplace = array(), $bDelete = true) {
 
+        if (empty($sName)) {
+            return 'EMPTY_LANG_TEXT';
+        }
         if ($sName[0] == '[') {
             if ($sName[1] == ']') {
                 $sLang = $this->sCurrentLang;
