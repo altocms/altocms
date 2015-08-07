@@ -709,6 +709,10 @@ class ModuleUploader extends Module {
             $sDriverName = $this->DefineDriver($sDestination);
         }
         if ($sDriverName) {
+            /**
+             * TODO: Создать интерфейс или абстрактный класс, от которого будут унаследованы все «драйверы»
+             * @var $oDriver ModuleUploader_EntityDriverFile
+             */
             $oDriver = $this->GetDriver($sDriverName);
             $oStoredItem = $oDriver->Store($sFile, $sDestination);
             if ($oStoredItem) {
