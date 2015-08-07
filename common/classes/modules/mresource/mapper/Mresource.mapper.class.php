@@ -161,10 +161,10 @@ class ModuleMresource_MapperMresource extends Mapper {
 
         $aFilter = (isset($aCriteria['filter']) ? $aCriteria['filter'] : array());
         if (isset($aCriteria['fields'])) {
-            if (is_array($aCriteria['filter'])) {
-                $sFields = implode(',', $aCriteria['filter']);
+            if (is_array($aCriteria['fields'])) {
+                $sFields = implode(',', $aCriteria['fields']);
             } else {
-                $sFields = (string)$aCriteria['filter'];
+                $sFields = (string)$aCriteria['fields'];
             }
         } else {
             $sFields = 'mrt.*, mr.*';

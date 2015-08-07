@@ -26,9 +26,10 @@ class ModuleUploader_EntityDriverFile extends Entity {
 
         if (!$sDestination) {
             $oUser = E::ModuleUser()->GetUserCurrent();
-            if ($oUser) {
+            if (!$oUser) {
                 return false;
             }
+            /* FIXME: функция, видимо, куда-то переехала, здесь её нет. */
             $sDestination = $this->GetUserFileDir($oUser->getId());
         }
         if ($sDestination) {
