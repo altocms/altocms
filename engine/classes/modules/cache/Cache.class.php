@@ -415,6 +415,23 @@ class ModuleCache extends Module {
         return md5(Config::Get('sys.cache.prefix') . $sKey);
     }
 
+    protected function _prepareTags($aTags) {
+
+        // Теги - это массив строковых значений
+        if (empty($aTags)) {
+            $aTags = array();
+        } elseif (!is_array($aTags)) {
+            if (!is_string($aTags)) {
+                $aTags = array();
+            } else {
+                $aTags = array((string)$aTags);
+            }
+        } else {
+            $aTags = array_map('strval', $aTags);
+        }
+        return $aTags;
+    }
+
     /**
      * @param string $sCacheType
      *
@@ -483,13 +500,8 @@ class ModuleCache extends Module {
         }
 
         // Теги - это массив строковых значений
-        if (!is_array($aTags)) {
-            if (!$aTags || !is_string($aTags)) {
-                $aTags = array();
-            } else {
-                $aTags = array((string)$aTags);
-            }
-        }
+        $aTags = $this->_prepareTags($aTags);
+
         if (is_string($nTimeLife)) {
             $nTimeLife = F::ToSeconds($nTimeLife);
         } else {
@@ -686,6 +698,7 @@ class ModuleCache extends Module {
 
         // Проверим разрешено ли кэширование
         if ($this->_cacheOn($sCacheType)) {
+            $aTags = $this->_prepareTags($aTags);
             $bResult = $this->_backendClean($sCacheType, $sMode, $aTags);
         } else {
             $bResult = false;
@@ -705,9 +718,7 @@ class ModuleCache extends Module {
      */
     public function CleanByTags($aTags, $sCacheType = null) {
 
-        if (!is_array($aTags)) {
-            $aTags = array((string)$aTags);
-        }
+        $aTags = $this->_prepareTags($aTags);
 
         if ($sCacheType && strpos($sCacheType, ',') !== false) {
             $aCacheTypes = explode(',', $sCacheType);
@@ -745,6 +756,7 @@ class ModuleCache extends Module {
      * @return array
      */
     public function GetStats() {
+
         return $this->aStats;
     }
 
