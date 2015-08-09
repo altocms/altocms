@@ -512,22 +512,30 @@ class ActionAjax extends Action {
         }
 
         // * Голосуем
+
+        /** @var ModuleVote_EntityVote $oTopicCommentVote */
         $oTopicCommentVote = E::GetEntity('Vote');
+        $oTopicCommentVote->setTarget($oComment);
         $oTopicCommentVote->setTargetId($oComment->getId());
         $oTopicCommentVote->setTargetType('comment');
+        $oTopicCommentVote->setVoter($this->oUserCurrent);
         $oTopicCommentVote->setVoterId($this->oUserCurrent->getId());
         $oTopicCommentVote->setDirection($iValue);
         $oTopicCommentVote->setDate(F::Now());
-        $iVal = (float)E::ModuleRating()->VoteComment($this->oUserCurrent, $oComment, $iValue);
-        $oTopicCommentVote->setValue($iVal);
 
+        if ($iValue != 0) {
+            $nDeltaRating = (float)E::ModuleRating()->VoteComment($this->oUserCurrent, $oComment, $iValue);
+        } else {
+            $nDeltaRating = 0.0;
+        }
+        $oTopicCommentVote->setValue($nDeltaRating);
         $oComment->setCountVote($oComment->getCountVote() + 1);
+
         if (E::ModuleVote()->AddVote($oTopicCommentVote) && E::ModuleComment()->UpdateComment($oComment)) {
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('comment_vote_ok'), E::ModuleLang()->Get('attention'));
             E::ModuleViewer()->AssignAjax('iRating', $oComment->getRating());
-            /**
-             * Добавляем событие в ленту
-             */
+
+            // * Добавляем событие в ленту
             E::ModuleStream()->Write($oTopicCommentVote->getVoterId(), 'vote_comment', $oComment->getId());
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error'), E::ModuleLang()->Get('error'));
@@ -597,18 +605,25 @@ class ActionAjax extends Action {
         }
 
         // * Голосуем
+
+        /** @var ModuleVote_EntityVote $oTopicVote */
         $oTopicVote = E::GetEntity('Vote');
+        $oTopicVote->setTarget($oTopic);
         $oTopicVote->setTargetId($oTopic->getId());
         $oTopicVote->setTargetType('topic');
+        $oTopicVote->setVoter($this->oUserCurrent);
         $oTopicVote->setVoterId($this->oUserCurrent->getId());
         $oTopicVote->setDirection($iValue);
         $oTopicVote->setDate(F::Now());
-        $iVal = 0;
+
         if ($iValue != 0) {
-            $iVal = (float)E::ModuleRating()->VoteTopic($this->oUserCurrent, $oTopic, $iValue);
+            $nDeltaRating = (float)E::ModuleRating()->VoteTopic($this->oUserCurrent, $oTopic, $iValue);
+        } else {
+            $nDeltaRating = 0.0;
         }
-        $oTopicVote->setValue($iVal);
+        $oTopicVote->setValue($nDeltaRating);
         $oTopic->setCountVote($oTopic->getCountVote() + 1);
+
         if ($iValue == 1) {
             $oTopic->setCountVoteUp($oTopic->getCountVoteUp() + 1);
         } elseif ($iValue == -1) {
@@ -623,9 +638,8 @@ class ActionAjax extends Action {
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_vote_ok_abstain'), E::ModuleLang()->Get('attention'));
             }
             E::ModuleViewer()->AssignAjax('iRating', $oTopic->getRating());
-            /**
-             * Добавляем событие в ленту
-             */
+
+            // * Добавляем событие в ленту
             E::ModuleStream()->Write($oTopicVote->getVoterId(), 'vote_topic', $oTopic->getId());
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
@@ -638,57 +652,61 @@ class ActionAjax extends Action {
      *
      */
     protected function EventVoteBlog() {
-        /**
-         * Пользователь авторизован?
-         */
+
+        // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
-        /**
-         * Блог существует?
-         */
+
+        // * Блог существует?
         if (!($oBlog = E::ModuleBlog()->GetBlogById(F::GetRequestStr('idBlog', null, 'post')))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        /**
-         * Голосует за свой блог?
-         */
+
+        // * Голосует за свой блог?
         if ($oBlog->getOwnerId() == $this->oUserCurrent->getId()) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_self'), E::ModuleLang()->Get('attention'));
             return;
         }
-        /**
-         * Уже голосовал?
-         */
+
+        // * Уже голосовал?
         if ($oBlogVote = E::ModuleVote()->GetVote($oBlog->getId(), 'blog', $this->oUserCurrent->getId())) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_already'), E::ModuleLang()->Get('attention'));
             return;
         }
-        /**
-         * Имеет право на голосование?
-         */
+
+        // * Имеет право на голосование?
         switch (E::ModuleACL()->CanVoteBlog($this->oUserCurrent, $oBlog)) {
             case ModuleACL::CAN_VOTE_BLOG_TRUE:
                 $iValue = F::GetRequestStr('value', null, 'post');
                 if (in_array($iValue, array('1', '-1'))) {
+
+                    /** @var ModuleVote_EntityVote $oBlogVote */
                     $oBlogVote = E::GetEntity('Vote');
+                    $oBlogVote->setTarget($oBlog);
                     $oBlogVote->setTargetId($oBlog->getId());
                     $oBlogVote->setTargetType('blog');
+                    $oBlogVote->setVoter($this->oUserCurrent);
                     $oBlogVote->setVoterId($this->oUserCurrent->getId());
                     $oBlogVote->setDirection($iValue);
                     $oBlogVote->setDate(F::Now());
-                    $iVal = (float)E::ModuleRating()->VoteBlog($this->oUserCurrent, $oBlog, $iValue);
-                    $oBlogVote->setValue($iVal);
+
+                    if ($iValue != 0) {
+                        $nDeltaRating = (float)E::ModuleRating()->VoteBlog($this->oUserCurrent, $oBlog, $iValue);
+                    } else {
+                        $nDeltaRating = 0.0;
+                    }
+                    $oBlogVote->setValue($nDeltaRating);
                     $oBlog->setCountVote($oBlog->getCountVote() + 1);
+
                     if (E::ModuleVote()->AddVote($oBlogVote) && E::ModuleBlog()->UpdateBlog($oBlog)) {
                         E::ModuleViewer()->AssignAjax('iCountVote', $oBlog->getCountVote());
                         E::ModuleViewer()->AssignAjax('iRating', $oBlog->getRating());
                         E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('blog_vote_ok'), E::ModuleLang()->Get('attention'));
-                        /**
-                         * Добавляем событие в ленту
-                         */
+
+                        // * Добавляем событие в ленту
                         E::ModuleStream()->Write($oBlogVote->getVoterId(), 'vote_blog', $oBlog->getId());
                     } else {
                         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
@@ -721,70 +739,71 @@ class ActionAjax extends Action {
      *
      */
     protected function EventVoteUser() {
-        /**
-         * Пользователь авторизован?
-         */
+
+        // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
-        /**
-         * Пользователь существует?
-         */
+
+        // * Пользователь существует?
         if (!($oUser = E::ModuleUser()->GetUserById(F::GetRequestStr('idUser', null, 'post')))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        /**
-         * Голосует за себя?
-         */
+
+        // * Голосует за себя?
         if ($oUser->getId() == $this->oUserCurrent->getId()) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_self'), E::ModuleLang()->Get('attention'));
             return;
         }
-        /**
-         * Уже голосовал?
-         */
+
+        // * Уже голосовал?
         if ($oUserVote = E::ModuleVote()->GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId())) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_already'), E::ModuleLang()->Get('attention'));
             return;
         }
-        /**
-         * Имеет право на голосование?
-         */
+
+        // * Имеет право на голосование?
         if (!E::ModuleACL()->CanVoteUser($this->oUserCurrent, $oUser)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_acl'), E::ModuleLang()->Get('attention'));
             return;
         }
-        /**
-         * Как проголосовал
-         */
+
+        // * Как проголосовал
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1'))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
             return;
         }
-        /**
-         * Голосуем
-         */
+
+        // * Голосуем
+
+        /** @var ModuleVote_EntityVote $oUserVote */
         $oUserVote = E::GetEntity('Vote');
+        $oUserVote->setTarget($oUser);
         $oUserVote->setTargetId($oUser->getId());
         $oUserVote->setTargetType('user');
+        $oUserVote->setVoter($this->oUserCurrent);
         $oUserVote->setVoterId($this->oUserCurrent->getId());
         $oUserVote->setDirection($iValue);
         $oUserVote->setDate(F::Now());
-        $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $iValue);
-        $oUserVote->setValue($iVal);
-        //$oUser->setRating($oUser->getRating()+$iValue);
+
+        if ($iValue != 0) {
+            $nDeltaRating = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $iValue);
+        } else {
+            $nDeltaRating = 0.0;
+        }
+        $oUserVote->setValue($nDeltaRating);
         $oUser->setCountVote($oUser->getCountVote() + 1);
+
         if (E::ModuleVote()->AddVote($oUserVote) && E::ModuleUser()->Update($oUser)) {
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
             E::ModuleViewer()->AssignAjax('iRating', number_format($oUser->getRating(), Config::Get('view.skill_length')));
             E::ModuleViewer()->AssignAjax('iSkill', number_format($oUser->getSkill(), Config::Get('view.rating_length')));
             E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
-            /**
-             * Добавляем событие в ленту
-             */
+
+            // * Добавляем событие в ленту
             E::ModuleStream()->Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
@@ -850,6 +869,8 @@ class ActionAjax extends Action {
         $oTopic->setUserQuestionIsVote(true);
 
         // * Голосуем(отвечаем на опрос)
+
+        /** @var ModuleTopic_EntityTopicQuestionVote $oTopicQuestionVote */
         $oTopicQuestionVote = E::GetEntity('Topic_TopicQuestionVote');
         $oTopicQuestionVote->setTopicId($oTopic->getId());
         $oTopicQuestionVote->setVoterId($this->oUserCurrent->getId());
