@@ -1263,44 +1263,49 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsByFilter($aFilter) {
 
-        if (isset($aFilter['blog_type'])) {
-            $aBlogsType = (array)$aFilter['blog_type'];
-            unset($aFilter['blog_type']);
-            if (isset($aBlogsType['*'])) {
-                $aBlogsId = $aBlogsType['*'];
-                unset($aBlogsType['*']);
-            } else {
-                $aBlogsId = array();
-            }
-            $sCacheKey = 'topic_count_by_blog_type_' . serialize($aFilter);
-            if (false === ($aData = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
-                $aData = $this->oMapper->GetCountTopicsByBlogtype($aFilter);
-                E::ModuleCache()->Set($aData, $sCacheKey, array('topic_update', 'topic_new', 'blog_update', 'blog_new'), 'P1D', 'tmp,');
-            }
+        $sTmpCacheKey = 'get_count_topics_by_' . serialize($aFilter) . '_' . E::UserId();
+        if (FALSE === ($iResult = E::ModuleCache()->GetTmp($sTmpCacheKey))) {
 
             $iResult = 0;
-            if ($aData) {
-                foreach($aBlogsType as $sBlogType) {
-                    if (isset($aData[$sBlogType])) {
-                        $iResult += $aData[$sBlogType];
+            if (isset($aFilter['blog_type'])) {
+                $aBlogsType = (array)$aFilter['blog_type'];
+                unset($aFilter['blog_type']);
+                if (isset($aBlogsType['*'])) {
+                    $aBlogsId = $aBlogsType['*'];
+                    unset($aBlogsType['*']);
+                } else {
+                    $aBlogsId = array();
+                }
+                $sCacheKey = 'topic_count_by_blog_type_' . serialize($aFilter);
+                if (false === ($aData = E::ModuleCache()->Get($sCacheKey))) {
+                    $aData = $this->oMapper->GetCountTopicsByBlogtype($aFilter);
+                    E::ModuleCache()->Set($aData, $sCacheKey, array('topic_update', 'topic_new', 'blog_update', 'blog_new'), 'P1D');
+                }
+
+                if ($aData) {
+                    foreach($aBlogsType as $sBlogType) {
+                        if (isset($aData[$sBlogType])) {
+                            $iResult += $aData[$sBlogType];
+                        }
                     }
                 }
+                if ($aBlogsId) {
+                    $aFilter['blog_id'] = $aBlogsId;
+                    $aFilter['blog_type_exclude'] = $aBlogsType;
+                    $iCount = $this->GetCountTopicsByFilter($aFilter);
+                    $iResult += $iCount;
+                }
+                return $iResult;
+            } else {
+                $sCacheKey = 'topic_count_' . serialize($aFilter);
+                if (false === ($iResult = E::ModuleCache()->Get($sCacheKey))) {
+                    $iResult = $this->oMapper->GetCountTopics($aFilter);
+                    E::ModuleCache()->Set($iResult, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+                }
             }
-            if ($aBlogsId) {
-                $aFilter['blog_id'] = $aBlogsId;
-                $aFilter['blog_type_exclude'] = $aBlogsType;
-                $iCount = $this->GetCountTopicsByFilter($aFilter);
-                $iResult += $iCount;
-            }
-            return $iResult;
-        } else {
-            $sCacheKey = 'topic_count_' . serialize($aFilter);
-            if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-                $data = $this->oMapper->GetCountTopics($aFilter);
-                E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
-            }
-            return $data;
+            E::ModuleCache()->SetTmp($iResult, $sTmpCacheKey);
         }
+        return $iResult ? $iResult : 0;
     }
 
     /**
