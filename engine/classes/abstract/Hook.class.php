@@ -32,6 +32,10 @@ abstract class Hook extends LsObject {
      */
     protected function AddHook($sName, $sCallBack, $sClassNameHook = null, $iPriority = 1) {
 
+        if (func_num_args() == 3 && is_integer($sClassNameHook)) {
+            $iPriority = $sClassNameHook;
+            $sClassNameHook = null;
+        }
         if (is_null($sClassNameHook)) {
             $sCallBack = array($this, $sCallBack);
             E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
@@ -57,8 +61,14 @@ abstract class Hook extends LsObject {
             E::ModuleHook()->AddExecFunction($sName, array($this, 'FetchTemplate'), $iPriority, array('template' => $sCallBack));
             return;
         }
-        if ((func_num_args() < 4) && (is_null($sClassNameHook) || is_int($sClassNameHook))) {
+        if (func_num_args() == 3 && is_integer($sClassNameHook)) {
             $iPriority = $sClassNameHook;
+            $sClassNameHook = null;
+        }
+        if (is_null($sClassNameHook)) {
+            if (is_string($sCallBack)) {
+                $sCallBack = array($this, $sCallBack);
+            }
             E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
         } else {
             E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));

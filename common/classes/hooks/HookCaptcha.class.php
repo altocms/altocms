@@ -20,7 +20,7 @@ class HookCaptcha extends Hook {
      */
     public function RegisterHook() {
 
-        $this->AddHookTemplate('registration_captcha', 'TemplateCaptcha', __CLASS__);
+        $this->AddHookTemplate('registration_captcha', 'TemplateCaptcha');
     }
 
     /**
