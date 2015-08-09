@@ -785,7 +785,7 @@ class ModuleCache extends Module {
 
     /**
      * LS-compatible
-     *
+     * @deprecated
      * @param mixed  $data         - Данные для сохранения в кеше
      * @param string $sCacheKey    - Имя ключа кеширования
      */
@@ -796,7 +796,7 @@ class ModuleCache extends Module {
 
     /**
      * LS-compatible
-     *
+     * @deprecated
      * @param string $sCacheKey    - Имя ключа кеширования
      *
      * @return mixed

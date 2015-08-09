@@ -13,8 +13,7 @@ class PluginMenutest_HookMenutest extends Hook {
      */
     public function RegisterHook() {
 
-        $this->AddHook('render_init_done', 'CodeHook');
-
+        $this->AddHook('module_menu_preparemenus_after', 'CodeHook');
     }
 
 

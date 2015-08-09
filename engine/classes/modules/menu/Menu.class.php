@@ -52,6 +52,28 @@ class ModuleMenu extends Module {
     }
 
     /**
+     * Подготавливет все меню для вывода
+     */
+    public function PrepareMenus() {
+
+        $aMenus = Config::Get('menu.data');
+        $bChanged = false;
+        if ($aMenus && is_array($aMenus)) {
+
+            foreach($aMenus as $sMenuId => $aMenu) {
+                if (isset($aMenu['init']['fill'])) {
+                    $aMenus[$sMenuId] = $this->Prepare($sMenuId, $aMenu);
+                    $bChanged = true;
+                }
+            }
+            if ($bChanged) {
+                Config::Set('menu.data', null);
+                Config::Set('menu.data', $aMenus);
+            }
+        }
+    }
+
+    /**
      * Подготавливает меню для вывода, заполняя его из указанных в
      * конфиге параметров.
      *
@@ -238,7 +260,21 @@ class ModuleMenu extends Module {
         }
         Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewConfigData));
         Config::Set("menu.data.{$oMenu->getId()}.list", $aNewConfigData);
+    }
 
+    /**
+     * Сбрасывет сохраненное меню в исходное состояние
+     *
+     * @param ModuleMenu_EntityMenu| string $xMenu
+     */
+    public function ResetMenu($xMenu) {
+
+        if (is_object($xMenu)) {
+            $sMenuId = $xMenu->getId();
+        } else {
+            $sMenuId = (string)$xMenu;
+        }
+        Config::ResetCustomConfig("menu.data.{$sMenuId}");
     }
 
     /**

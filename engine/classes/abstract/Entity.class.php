@@ -820,7 +820,7 @@ abstract class Entity extends LsObject {
 
         // Ключ кэша
         $sCacheKey = md5(serialize($aRules) . (string)$bConcatenateResult . (string)$sOwnerClassName);
-        if (!(FALSE === ($data = E::ModuleCache()->GetLife($sCacheKey)))) {
+        if (!(FALSE === ($data = E::ModuleCache()->GetTmp($sCacheKey)))) {
             return $data;
         }
 
@@ -867,7 +867,15 @@ abstract class Entity extends LsObject {
             }
 
             if (is_string($xRule) && $bConcatenateResult) {
-                $bResult .= $xRule;
+                if (strpos($xRule, 'hook:') === 0) {
+                    $bResult .= E::ModuleHook()->Run(substr($xRule, 5));
+                } elseif (strpos($xRule, 'text:') === 0) {
+                    $bResult .= substr($xRule, 5);
+                } elseif (strpos($xRule, 'func:') === 0) {
+                    $bResult .= call_user_func(substr($xRule, 5));
+                } else {
+                    $bResult .= $xRule;
+                }
                 continue;
             }
 
@@ -898,11 +906,20 @@ abstract class Entity extends LsObject {
             }
             // Вызовем метод
             if ($sTmpMethodName && $aTmpMethodParams !== FALSE) {
-                $sTmpMethodName = $sOwnerClassName . '_' . F::StrCamelize($sTmpMethodName);
-                if ($bConcatenateResult) {
-                    $bResult .= call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                if (strpos($sTmpMethodName, 'hook:') === 0) {
+                    $xCallResult = E::ModuleHook()->Run(substr($sTmpMethodName, 5), $aTmpMethodParams, false);
+                } elseif (strpos($sTmpMethodName, 'text:') === 0) {
+                    $xCallResult = substr($sTmpMethodName, 5);
+                } elseif (strpos($sTmpMethodName, 'func:') === 0) {
+                    $xCallResult = call_user_func_array(substr($sTmpMethodName, 5), $aTmpMethodParams);
                 } else {
-                    $bResult = $bResult || call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                    $sTmpMethodName = $sOwnerClassName . '_' . F::StrCamelize($sTmpMethodName);
+                    $xCallResult = call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                }
+                if ($bConcatenateResult) {
+                    $bResult .= $xCallResult;
+                } else {
+                    $bResult = $bResult || $xCallResult;
                 }
 
                 if ($bResult && !$bConcatenateResult) {
@@ -913,7 +930,7 @@ abstract class Entity extends LsObject {
         }
 
         // Закэшируем результат
-        E::ModuleCache()->SetLife($bResult, $sCacheKey);
+        E::ModuleCache()->SetTmp($bResult, $sCacheKey);
 
         return $bResult;
 

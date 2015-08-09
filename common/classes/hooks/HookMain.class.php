@@ -75,21 +75,7 @@ class HookMain extends Hook {
 
     public function RenderInitDone() {
 
-        $aMenus = Config::Get('menu.data');
-        $bChanged = false;
-        if ($aMenus && is_array($aMenus)) {
-
-            foreach($aMenus as $sMenuId => $aMenu) {
-                if (isset($aMenu['init']['fill'])) {
-                    $aMenus[$sMenuId] = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
-                    $bChanged = true;
-                }
-            }
-            if ($bChanged) {
-                Config::Set('menu.data', null);
-                Config::Set('menu.data', $aMenus);
-            }
-        }
+        E::ModuleMenu()->PrepareMenus();
     }
 
     public function insertFields() {
