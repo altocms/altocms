@@ -197,7 +197,7 @@
 
      <div class="user-toggle-publication-block">
          <a class="btn btn-light-gray {if $sMenuSubItemSelect=='good'}active{/if}"
-            href="{$sMenuSubBlogUrl}newall/">{$aLang.blog_menu_collective_good}
+            href="{$sMenuSubBlogUrl}good/">{$aLang.blog_menu_collective_good}
          </a>
          <a class="btn btn-light-gray {if $sMenuSubItemSelect=='new'}active{/if}"
             href="{$sMenuSubBlogUrl}newall/">
@@ -242,9 +242,10 @@
                              href="{$sMenuSubBlogUrl}top/?period=all">{$aLang.blog_menu_top_period_all}</a></li>
              </ul>
 
-             {hook run='menu_blog_blog_item'}
          </div>
          {/if}
+
+         {hook run='menu_blog_blog_item'}
      </div>
 
      {if $bCloseBlog}
