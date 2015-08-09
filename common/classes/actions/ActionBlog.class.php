@@ -20,60 +20,77 @@
  * @since   1.0
  */
 class ActionBlog extends Action {
+
     /**
      * Главное меню
      *
      * @var string
      */
     protected $sMenuHeadItemSelect = 'blog';
+
     /**
      * Какое меню активно
      *
      * @var string
      */
     protected $sMenuItemSelect = 'blog';
+
     /**
      * Какое подменю активно
      *
      * @var string
      */
     protected $sMenuSubItemSelect = 'good';
+
     /**
      * УРЛ блога который подставляется в меню
      *
      * @var string
      */
     protected $sMenuSubBlogUrl;
+
     /**
      * Текущий пользователь
      *
      * @var ModuleUser_EntityUser|null
      */
     protected $oUserCurrent = null;
+
+    /**
+     * Текущий блог
+     *
+     * @var ModuleBlog_EntityBlog|null
+     */
+    protected $oCurrentBlog = null;
+
     /**
      * Число новых топиков в коллективных блогах
      *
      * @var int
      */
     protected $iCountTopicsCollectiveNew = 0;
+
     /**
      * Число новых топиков в персональных блогах
      *
      * @var int
      */
     protected $iCountTopicsPersonalNew = 0;
+
     /**
      * Число новых топиков в конкретном блоге
      *
      * @var int
      */
     protected $iCountTopicsBlogNew = 0;
+
     /**
      * Число новых топиков
      *
      * @var int
      */
     protected $iCountTopicsNew = 0;
+
     /**
      * Список URL с котрыми запрещено создавать блог
      *
@@ -93,6 +110,10 @@ class ActionBlog extends Action {
      * @var
      */
     protected $aBlogTypes;
+
+    protected $aMenuFilters = array('bad', 'new', 'newall', 'discussed', 'top');
+
+    protected $sMenuDefault = 'good';
 
     /**
      * Инизиализация экшена
@@ -242,7 +263,7 @@ class ActionBlog extends Action {
 
             // Читаем блог - это для получения полного пути блога,
             // если он в будущем будет зависит от других сущностей (компании, юзер и т.п.)
-            $oBlog = E::ModuleBlog()->GetBlogById($oBlog->getId());
+            $this->oCurrentBlog = $oBlog = E::ModuleBlog()->GetBlogById($oBlog->getId());
 
             // Добавляем событие в ленту
             E::ModuleStream()->Write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
@@ -284,6 +305,7 @@ class ActionBlog extends Action {
         if (!$oBlog = E::ModuleBlog()->GetBlogById($sBlogId)) {
             return parent::EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
 
         // Проверяем тип блога
         if ($oBlog->getType() == 'personal') {
@@ -412,6 +434,8 @@ class ActionBlog extends Action {
         if (!$oBlog = E::ModuleBlog()->GetBlogById($sBlogId)) {
             return parent::EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
+
         //  Проверям авторизован ли пользователь
         if (!E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
@@ -971,8 +995,9 @@ class ActionBlog extends Action {
         if (!($oBlog = E::ModuleBlog()->GetBlogByUrl($sBlogUrl))) {
             return parent::EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
 
-        //  Меню
+            //  Меню
         $this->sMenuSubItemSelect = '';
         $this->sMenuSubBlogUrl = $oBlog->getUrlFull();
 
@@ -1018,9 +1043,9 @@ class ActionBlog extends Action {
             $sPeriod =  F::GetRequestStr('period');
         }
         $sBlogUrl = $this->sCurrentEvent;
-        $sShowType = in_array($this->GetParamEventMatch(0, 0), array('bad', 'new', 'newall', 'discussed', 'top'))
+        $sShowType = in_array($this->GetParamEventMatch(0, 0), $this->aMenuFilters)
             ? $this->GetParamEventMatch(0, 0)
-            : 'good';
+            : $this->sMenuDefault;
         if (!in_array($sShowType, array('discussed', 'top'))) {
             $sPeriod = 'all';
         }
@@ -1034,8 +1059,9 @@ class ActionBlog extends Action {
         if (!$oBlog) {
             return parent::EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
 
-        //  Определяем права на отображение закрытого блога
+            //  Определяем права на отображение закрытого блога
         $oBlogType = $oBlog->GetBlogType();
         if ($oBlogType) {
             $bCloseBlog = !$oBlog->CanReadBy($this->oUserCurrent);
@@ -1571,8 +1597,9 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
+        $this->oCurrentBlog = $oBlog;
 
-        // * Проверяем, имеет ли право текущий пользователь добавлять invite в blog
+            // * Проверяем, имеет ли право текущий пользователь добавлять invite в blog
         $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
         $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
         if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$this->oUserCurrent->isModerator() && !$bBlogAdministrator) {
@@ -1713,6 +1740,8 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
+        $this->oCurrentBlog = $oBlog;
+
         //  Пользователь существует и активен?
         $oUser = E::ModuleUser()->GetUserById($sUserId);
         if (!$oUser || $oUser->getActivate() != 1) {
@@ -1761,6 +1790,8 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
+        $this->oCurrentBlog = $oBlog;
+
         //  Пользователь существует и активен?
         $oUser = E::ModuleUser()->GetUserById($sUserId);
         if (!$oUser || $oUser->getActivate() != 1) {
@@ -1922,6 +1953,7 @@ class ActionBlog extends Action {
         if (!$oBlog || !$oBlog->getBlogType() || !($oBlog->getBlogType()->IsPrivate()||$oBlog->getBlogType()->IsReadOnly())) {
             return $this->EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
 
         // * Получаем связь "блог-пользователь" и проверяем, чтобы ее тип был INVITE или REJECT
         if (!$oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId())) {
@@ -1994,6 +2026,7 @@ class ActionBlog extends Action {
         if (!$oBlog || !$oBlog->getBlogType() || !($oBlog->getBlogType()->IsPrivate()||$oBlog->getBlogType()->IsReadOnly())) {
             return $this->EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
 
         // Проверим, что текущий пользователь имеет право принимать решение
         if (!($oBlog->getUserIsAdministrator() || $oBlog->getUserIsModerator() || $oBlog->getOwnerId() == E::UserId())) {
@@ -2061,6 +2094,7 @@ class ActionBlog extends Action {
         if (!$nBlogId || (!$oBlog = E::ModuleBlog()->GetBlogById($nBlogId))) {
             return parent::EventNotFound();
         }
+        $this->oCurrentBlog = $oBlog;
 
         // * Проверям авторизован ли пользователь
         if (!E::ModuleUser()->IsAuthorization()) {
@@ -2152,7 +2186,7 @@ class ActionBlog extends Action {
         if (($iBlogId == 0) && $this->oUserCurrent) {
             $oBlog = E::ModuleBlog()->GetPersonalBlogByUserId($this->oUserCurrent->getId());
         } elseif ($iBlogId) {
-            $oBlog = E::ModuleBlog()->GetBlogById($iBlogId);
+            $this->oCurrentBlog = $oBlog = E::ModuleBlog()->GetBlogById($iBlogId);
         } else {
             $oBlog = null;
         }
@@ -2183,6 +2217,7 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
+        $this->oCurrentBlog = $oBlog;
 
         // Type of the blog
         $oBlogType = $oBlog->getBlogType();
