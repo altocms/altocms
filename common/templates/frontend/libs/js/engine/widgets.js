@@ -51,8 +51,15 @@ ls.widgets = (function ($) {
     this.load = function (but, widgetName, params, success) {
         var type = $(but).data('type');
 
-        if (!type) return;
+        if (!type) {
+            ls.log('Error: type not defined in data');
+            return;
+        }
         type = widgetName + '_' + type;
+        if (!this.options.type[type]) {
+            ls.log('Error: type "' + type + '" not defined in options');
+            return;
+        }
 
         params = $.extend(true, {}, this.options.type[type].params || {}, params || {});
 

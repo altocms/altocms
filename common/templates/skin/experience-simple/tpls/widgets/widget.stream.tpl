@@ -12,7 +12,7 @@
                title="{$aLang.widget_stream_comments_all}">{$aLang.widget_stream}</a>
             <a href="#"
                onclick="
-                        var b = $(this).parents('.widget-type-stream')
+                        var b = $(this).parents('.widget-type-stream');
                         b.height(b.height());
 			            ls.widgets.load($('.js-widget-stream-navs a.active'), 'stream', null, function(html){
                             b.css('height', 'auto');
