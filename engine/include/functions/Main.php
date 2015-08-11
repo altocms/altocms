@@ -160,6 +160,9 @@ class AltoFunc_Main {
             if (defined('JSON_NUMERIC_CHECK')) {
                 $iOptions = $iOptions | JSON_NUMERIC_CHECK;
             }
+            if (defined('JSON_UNESCAPED_UNICODE')) {
+                $iOptions |= JSON_UNESCAPED_UNICODE;
+            }
             return json_encode($xData, $iOptions);
         }
         if (is_null($xData)) {
