@@ -60,25 +60,11 @@ CREATE INDEX user_role_index ON prefix_user (user_role);
 UPDATE prefix_user SET user_role = 3 WHERE user_id in (SELECT user_id FROM prefix_user_administrator);
 UPDATE prefix_user SET user_role = 3 WHERE user_id = 1;
 
-UPDATE
-  prefix_mresource_target
-SET
-  target_type = 'photoset'
-WHERE
-  mresource_id IN (
-    SELECT id
-    FROM (SELECT
-            r.uuid,
-            t.id,
-            p.path
-          FROM
-            prefix_mresource r,
-            prefix_mresource_target t,
-            prefix_topic_photo p
-          WHERE
-            t.mresource_id = r.mresource_id) n
-    WHERE n.path LIKE CONCAT('%', n.uuid, '%')
-);
+UPDATE prefix_mresource_target m
+  inner join prefix_mresource r on m.mresource_id = r.mresource_id
+  inner join prefix_topic_photo p on m.target_id = p.topic_id
+    set m.target_type = 'photoset'
+    where p.path LIKE CONCAT('%', r.uuid, '%');
 
 UPDATE
   prefix_mresource_target AS mt
