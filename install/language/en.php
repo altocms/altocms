@@ -64,7 +64,7 @@ return array(
     'db_params_convert' => 'Convert LiveStreet 0.5.1 base into 1.0.3',
     'db_params_convert_from_10' => 'Convert LiveStreet 1.0 base into 1.0.3',
     'db_params_convert_to_alto' => 'Convert LiveStreet 1.0.3 base into Alto CMS 1.0',
-    'db_params_convert_to_11' => 'Convert Alto CMS 1.0 base into Alto CMS 1.1',
+    'db_params_convert_to_11' => 'Convert Alto CMS 1.0.x base into Alto CMS 1.1',
     'db_params_convert_from_alto_097' => 'Convert Alto CMS 0.9.7 base into Alto CMS 1.0',
     'db_params_user' => 'Username',
     'db_params_password' => 'Password',

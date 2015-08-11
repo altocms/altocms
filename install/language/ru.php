@@ -83,7 +83,7 @@ return array(
     'db_params_convert'                => 'Конвертировать базу LiveStreet 0.5.1 в 1.0.3',
     'db_params_convert_from_10'        => 'Конвертировать базу LiveStreet 1.0 в 1.0.3',
     'db_params_convert_to_alto'        => 'Конвертировать базу LiveStreet 1.0.3 в Alto CMS 1.0',
-    'db_params_convert_to_11'          => 'Конвертировать базу Alto CMS 1.0 в Alto CMS 1.1',
+    'db_params_convert_to_11'          => 'Конвертировать базу Alto CMS 1.0.x в Alto CMS 1.1',
     'db_params_convert_from_alto_097'  => 'Конвертировать базу Alto CMS 0.9.7 в Alto CMS 1.0',
     'db_params_user'                   => 'Имя пользователя',
     'db_params_password'               => 'Пароль',

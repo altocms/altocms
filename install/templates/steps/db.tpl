@@ -27,8 +27,8 @@
 
 <p>
 	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_create" value="1" ___INSTALL_DB_CREATE_CHECK___ /> ___LANG_DB_PARAMS_CREATE___</label>
+	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_ALTO___</label>
 	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_from_alto_097" value="1" ___INSTALL_DB_CONVERT_FROM_ALTO_097_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_FROM_ALTO_097___</label>
-    <label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_ALTO___</label>
     <label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto_11" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_11_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_11___</label>
 </p>
 
