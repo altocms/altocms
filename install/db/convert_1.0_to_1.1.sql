@@ -74,10 +74,10 @@ UPDATE prefix_user SET user_role = 3 WHERE user_id = 1;
 
 -- STEP 11
 UPDATE prefix_mresource_target m
-  inner join prefix_mresource r on m.mresource_id = r.mresource_id
-  inner join prefix_topic_photo p on m.target_id = p.topic_id
-set m.target_type = 'photoset'
-where p.path LIKE CONCAT('%', r.uuid, '%');
+  INNER JOIN prefix_mresource r on m.mresource_id = r.mresource_id
+  INNER JOIN prefix_topic_photo p on m.target_id = p.topic_id
+SET m.target_type = 'photoset'
+WHERE p.path LIKE CONCAT('%', r.uuid, '%');
 
 -- STEP 12
 UPDATE
