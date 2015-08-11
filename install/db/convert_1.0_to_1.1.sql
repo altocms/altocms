@@ -9,7 +9,7 @@ ALTER TABLE  prefix_user CHANGE  `user_profile_birthday`  `user_profile_birthday
 
 -- STEP 2
 -- Таблица связей типов блогов и типов контента
-CREATE TABLE prefix_blog_type_content
+CREATE TABLE IF NOT EXISTS prefix_blog_type_content
 (
   content_id   INT UNSIGNED NOT NULL,
   blog_type_id INT UNSIGNED NOT NULL
