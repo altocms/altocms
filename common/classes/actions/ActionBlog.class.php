@@ -129,10 +129,10 @@ class ActionBlog extends Action {
         $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
 
         //  Подсчитываем новые топики
-        $this->iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
-        $this->iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
-        $this->iCountTopicsBlogNew = $this->iCountTopicsCollectiveNew;
-        $this->iCountTopicsNew = $this->iCountTopicsCollectiveNew + $this->iCountTopicsPersonalNew;
+        //$this->iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
+        //$this->iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+        //$this->iCountTopicsBlogNew = $this->iCountTopicsCollectiveNew;
+        //$this->iCountTopicsNew = $this->iCountTopicsCollectiveNew + $this->iCountTopicsPersonalNew;
 
         //  Загружаем в шаблон JS текстовки
         E::ModuleLang()->AddLangJs(
@@ -1087,6 +1087,9 @@ class ActionBlog extends Action {
             E::ModuleViewer()->SetHtmlCanonical($oBlog->getUrlFull() . $sShowType . '/');
         }
 
+        //  Получаем число новых топиков в текущем блоге (даже для закрытых блогов)
+        $this->iCountTopicsBlogNew = E::ModuleTopic()->GetCountTopicsByBlogNew($oBlog);
+
         if (!$bCloseBlog) {
             //  Получаем список топиков
             $aResult = E::ModuleTopic()->GetTopicsByBlog(
@@ -1113,8 +1116,6 @@ class ActionBlog extends Action {
                     Config::Get('pagination.pages.count'), $oBlog->getUrlFull() . $sShowType,
                     array('period' => $sPeriod)
                 );
-            //  Получаем число новых топиков в текущем блоге
-            $this->iCountTopicsBlogNew = E::ModuleTopic()->GetCountTopicsByBlogNew($oBlog);
 
             E::ModuleViewer()->Assign('aPaging', $aPaging);
             E::ModuleViewer()->Assign('aTopics', $aTopics);
