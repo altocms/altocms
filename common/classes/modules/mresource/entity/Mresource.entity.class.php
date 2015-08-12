@@ -466,7 +466,7 @@ class ModuleMresource_EntityMresource extends Entity {
      *
      * @return null|mixed
      */
-    protected function getParamValue($sName) {
+    public function getParamValue($sName) {
 
         $this->extractParams();
         if (isset($this->aParams[$sName])) {
