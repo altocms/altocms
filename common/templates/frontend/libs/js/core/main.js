@@ -751,14 +751,16 @@ ls = (function ($) {
             size = parseInt(form.find('[name=img_width]').val(), 10),
             html = '';
 
-        align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
-        size = (size == 0) ? '' : 'width="' + size + '%"';
-        html = '<img src="' + url + '" title="' + title + '" ' + align + ' ' + size + ' />';
-        form.find('[name=img_url]').val('');
-        title = form.find('[name=title]').val('');
+        if (url && url !== 'http://' && url !== 'https://') {
+            align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
+            size = (size == 0) ? '' : 'width="' + size + '%"';
+            html = '<img src="' + url + '" title="' + title + '" ' + align + ' ' + size + ' />';
+            form.find('[name=img_url]').val('');
+            title = form.find('[name=title]').val('');
 
-        ls.insertToEditor(html);
-        form.parents('.modal').first().modal('hide');
+            ls.insertToEditor(html);
+            form.parents('.modal').first().modal('hide');
+        }
         return false;
     };
 
