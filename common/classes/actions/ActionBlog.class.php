@@ -824,8 +824,14 @@ class ActionBlog extends Action {
 
         $aReturn = E::ModuleComment()->GetCommentsByTargetId($oTopic, 'topic', $iPage, Config::Get('module.comment.nested_per_page'));
         $iMaxIdComment = $aReturn['iMaxIdComment'];
+        /** @var ModuleComment_EntityComment[] $aComments */
         $aComments = $aReturn['comments'];
 
+        if ($aComments && $iMaxIdComment && isset($aComments[$iMaxIdComment])) {
+            $sLastCommentDate = $aComments[$iMaxIdComment]->getDate();
+        } else {
+            $sLastCommentDate = null;
+        }
         // Если используется постраничность для комментариев - формируем ее
         if (Config::Get('module.comment.use_nested') && Config::Get('module.comment.nested_per_page')) {
             $aPaging = E::ModuleViewer()->MakePaging(
@@ -863,13 +869,15 @@ class ActionBlog extends Action {
                 E::ModuleTopic()->AddTopicRead($oTopicRead);
             } else {
                 if (($oTopicRead->getCommentCountLast() != $oTopic->getCountComment())
-                    || ($oTopicRead->getCommentIdLast() != $iMaxIdComment)) {
+                    || ($oTopicRead->getCommentIdLast() != $iMaxIdComment)
+                    || (!is_null($sLastCommentDate) && $oTopicRead->getDateRead() <= $sLastCommentDate)
+                ) {
                     $oTopicRead->setCommentCountLast($oTopic->getCountComment());
                     $oTopicRead->setCommentIdLast($iMaxIdComment);
+                    $oTopicRead->setDateRead(F::Now());
                     E::ModuleTopic()->UpdateTopicRead($oTopicRead);
                 }
             }
-            //E::ModuleTopic()->SetTopicRead($oTopicRead);
         }
 
         // Выставляем SEO данные
