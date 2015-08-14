@@ -1407,11 +1407,12 @@ class Router extends LsObject {
                 }
                 $aEvents = (array)$aEvents;
                 foreach ($aEvents as $sEventPreg) {
-                    if ($sEventPreg == $sCurrentEvent) {
+                    if (($sCurrentEventName && $sEventPreg == $sCurrentEventName) || $sEventPreg == $sCurrentEvent) {
                         // * Это название event`a
                         $bResult = true;
                         break 2;
                     } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
+                        // LS-compatibility
                         // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
                         $bResult = true;
                         break 2;
