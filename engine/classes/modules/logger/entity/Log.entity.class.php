@@ -270,7 +270,12 @@ class ModuleLogger_EntityLog extends Entity {
             if (is_file($sCheckFileName) && !is_writeable($sCheckFileName)) {
                 F::SysWarning('Cannot write to file ' . $sCheckFileName);
             } else {
+                // Ignore errors
+                $nErrorReporting = F::ErrorIgnored(E_NOTICE | E_WARNING, true);
                 $fp = @fopen($sCheckFileName, 'c');
+                // Restore errors
+                F::ErrorReporting($nErrorReporting);
+
                 if (!$fp) {
                     // It is not clear what to do here
                     if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
