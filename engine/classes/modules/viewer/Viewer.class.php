@@ -810,9 +810,11 @@ class ModuleViewer extends Module {
         /** @var Plugin $oPlugin */
         foreach ($aPlugins as $sPlugin => $oPlugin) {
             $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
-            $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
-            $aPluginsTemplateDir[$sPlugin] = $sDir;
-            $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
+            if ($sDir) {
+                $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
+                $aPluginsTemplateDir[$sPlugin] = $sDir;
+                $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
+            }
         }
         if (E::ActivePlugin('ls')) {
             // LS-compatible //
