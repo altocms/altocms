@@ -451,7 +451,7 @@ class ModuleViewer extends Module {
     protected function _tplCreateTemplate($sTemplate, $aVariables = null) {
 
         $oSmarty = $this->GetSmartyObject($this->getTemplateVars());
-        $oTemplate = $oSmarty->createTemplate($sTemplate, $oSmarty);
+        $oTemplate = $oSmarty->createTemplate($sTemplate, null, null, $oSmarty, false);
         if ($aVariables && is_array($aVariables)) {
             $oTemplate->assign($aVariables);
         }
@@ -917,7 +917,7 @@ class ModuleViewer extends Module {
             self::$_renderStart = microtime(true);
             self::$_inRender += 1;
 
-            $sContent = $oTpl->fetch($sTemplate);
+            $sContent = $oTpl->fetch();
 
             self::$_inRender -= 1;
             self::$_renderTime += (microtime(true) - self::$_renderStart);

@@ -32,7 +32,7 @@ class ModuleTools extends Module {
      * Строит логарифмическое облако - расчитывает значение size в зависимости от count
      * У объектов в коллекции обязательно должны быть методы getCount() и setSize()
      *
-     * @param aray $aCollection    Список тегов
+     * @param array $aCollection   Список тегов
      * @param int  $iMinSize       Минимальный размер
      * @param int  $iMaxSize       Максимальный размер
      *

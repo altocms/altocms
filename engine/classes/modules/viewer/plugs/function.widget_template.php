@@ -30,8 +30,6 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
     $sWidgetName = $aParams['name'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
 
-    $oEngine = Engine::getInstance();
-
     // Проверяем делигирование
     $sTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetName);
 
@@ -46,7 +44,7 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
             }
             $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
         }
-        $sResult = $oSmartyTemplate->fetch($sTemplate);
+        $sResult = $oSmartyTemplate->smarty->fetch($sTemplate);
     } else {
         $sResult = null;
     }
