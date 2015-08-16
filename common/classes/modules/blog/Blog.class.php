@@ -1057,12 +1057,13 @@ class ModuleBlog extends Module {
      * Получает список блогов в которые может постить юзер
      *
      * @param ModuleUser_EntityUser $oUser - Объект пользователя
+     * @param bool                  $bSortByTitle
      *
      * @return array
      */
-    public function GetBlogsAllowByUser($oUser) {
+    public function GetBlogsAllowByUser($oUser, $bSortByTitle = true) {
 
-        return $this->GetBlogsAllowTo('write', $oUser);
+        return $this->GetBlogsAllowTo('write', $oUser, null, false, $bSortByTitle);
     }
 
     /**
@@ -1073,10 +1074,11 @@ class ModuleBlog extends Module {
      * @param ModuleUser_EntityUser     $oUser
      * @param int|ModuleBlog_EntityBlog $xBlog
      * @param bool                      $bCheckOnly
+     * @param bool                      $bSortByTitle
      *
      * @return array|bool
      */
-    public function GetBlogsAllowTo($sAllow, $oUser, $xBlog = null, $bCheckOnly = false) {
+    public function GetBlogsAllowTo($sAllow, $oUser, $xBlog = null, $bCheckOnly = false, $bSortByTitle = true) {
 
         /** @var ModuleBlog_EntityBlog $oRequestBlog */
         $oRequestBlog = null;
@@ -1105,7 +1107,9 @@ class ModuleBlog extends Module {
             if ($iRequestBlogId) {
                 return isset($aAllowBlogs[$iRequestBlogId]) ? $aAllowBlogs[$iRequestBlogId] : array();
             }
-            $this->_sortByTitle($aAllowBlogs);
+            if ($bSortByTitle) {
+                $this->_sortByTitle($aAllowBlogs);
+            }
             return $aAllowBlogs;
         }
 
@@ -1222,7 +1226,9 @@ class ModuleBlog extends Module {
                 return isset($aAllowBlogs[$iRequestBlogId]) ? $aAllowBlogs[$iRequestBlogId] : array();
             }
 
-            $this->_sortByTitle($aAllowBlogs);
+            if ($bSortByTitle) {
+                $this->_sortByTitle($aAllowBlogs);
+            }
             E::ModuleCache()->Set($aAllowBlogs, $sCacheKey, array('blog_update', 'user_update'), 'P1D');
         }
         if ($iRequestBlogId && $bCheckOnly) {

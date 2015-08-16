@@ -136,12 +136,21 @@ class ModuleTopic extends Module {
      * Возвращает доступные для создания пользователем типы контента
      *
      * @param ModuleUser_EntityUser $oUser
+     *
      * @return ModuleTopic_EntityContentType[]
      */
     public function GetAllowContentTypeByUserId($oUser) {
 
+        if ($oUser && ($oUser->isAdministrator() || $oUser->isModerator())) {
+            // Для админа и модератора доступны все активные типы контента
+            /** @var ModuleTopic_EntityContentType[] $aContentTypes */
+            $aContentTypes = E::ModuleTopic()->GetContentTypes(array('content_active' => 1));
+
+            return $aContentTypes;
+        }
+
         // Получим все блоги пользователя
-        $aBlogs = E::ModuleBlog()->GetBlogsAllowByUser($oUser);
+        $aBlogs = E::ModuleBlog()->GetBlogsAllowByUser($oUser, false);
 
         // Добавим персональный блог пользователю
         if ($oUser) {
@@ -171,9 +180,8 @@ class ModuleTopic extends Module {
                     }
                 }
             }
-
-
         }
+
         return $aAllowContentTypes;
     }
 
