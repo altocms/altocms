@@ -917,7 +917,9 @@ abstract class Entity extends LsObject {
                     $xCallResult = call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
                 }
                 if ($bConcatenateResult) {
-                    $bResult .= $xCallResult;
+                    if (!empty($xCallResult) && (is_string($xCallResult) || is_numeric($xCallResult))) {
+                        $bResult .= $xCallResult;
+                    }
                 } else {
                     $bResult = $bResult || $xCallResult;
                 }
