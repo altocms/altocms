@@ -27,15 +27,15 @@ function smarty_function_include_once($aParams, $oSmartyTemplate) {
     }
 
     $sTemplate = E::ModulePlugin()->GetDelegate('template', $aParams['file']);
-    $aIncluded = (array)$oSmartyTemplate->getTemplateVars('_included_files');
+    $aIncluded = (array)$oSmartyTemplate->smarty->getTemplateVars('_included_files');
 
     if (!in_array($sTemplate, $aIncluded)) {
         unset($aParams['file']);
         if ($aParams) {
-            $oSmartyTemplate->assign($aParams);
+            $oSmartyTemplate->smarty->assign($aParams);
         }
         $sResult = $oSmartyTemplate->smarty->fetch($sTemplate);
-        $oSmartyTemplate->append('_included_files', $sTemplate);
+        $oSmartyTemplate->smarty->append('_included_files', $sTemplate);
     } else {
         $sResult = '';
     }

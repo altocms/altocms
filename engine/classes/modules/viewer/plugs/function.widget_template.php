@@ -36,13 +36,13 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
     if ($sTemplate) {
         if ($aWidgetParams) {
             foreach ($aWidgetParams as $sKey => $sVal) {
-                $oSmartyTemplate->assign($sKey, $sVal);
+                $oSmartyTemplate->smarty->assign($sKey, $sVal);
             }
             if (!isset($aWidgetParams['params'])) {
                 /* LS-compatible */
-                $oSmartyTemplate->assign('params', $aWidgetParams);
+                $oSmartyTemplate->smarty->assign('params', $aWidgetParams);
             }
-            $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
+            $oSmartyTemplate->smarty->assign('aWidgetParams', $aWidgetParams);
         }
         $sResult = $oSmartyTemplate->smarty->fetch($sTemplate);
     } else {
