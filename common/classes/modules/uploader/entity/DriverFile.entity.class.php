@@ -29,8 +29,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
             if (!$oUser) {
                 return false;
             }
-            /* FIXME: функция, видимо, куда-то переехала, здесь её нет. */
-            $sDestination = $this->GetUserFileDir($oUser->getId());
+            $sDestination = E::ModuleUploader()->GetUserFileDir($oUser->getId());
         }
         if ($sDestination) {
             $sMimeType = ModuleImg::MimeType($sFile);
