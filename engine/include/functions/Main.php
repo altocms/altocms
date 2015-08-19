@@ -103,7 +103,7 @@ class AltoFunc_Main {
     }
 
     /**
-     * @param   float $nValue
+     * @param   int|float $nValue
      * @param   int   $nDecimal
      *
      * @return  string
@@ -112,7 +112,7 @@ class AltoFunc_Main {
 
         $aUnits = self::$sMemSizeUnits;
         $nIndex = 0;
-        $nResult = intval($nValue);
+        $nResult = $nValue;
         while ($nResult >= 1024) {
             $nIndex += 1;
             $nResult = $nResult / 1024;
@@ -133,7 +133,7 @@ class AltoFunc_Main {
      *
      * @param $sNum
      *
-     * @return int|number
+     * @return int|float
      */
     static public function MemSize2Int($sNum) {
 
@@ -145,7 +145,7 @@ class AltoFunc_Main {
                 $nValue *= pow(1024, $nIdx);
             }
         }
-        return intval($nValue);
+        return $nValue;
     }
 
     /**
