@@ -446,7 +446,7 @@ class ModuleUploader extends Module {
      * @param string $sUrl
      * @param string $sTarget
      * @param string $sDir
-     * @param array  $aParams
+     * @param array  $aParams [max_size => «размер в килобайтах»]
      *
      * @return bool
      */
