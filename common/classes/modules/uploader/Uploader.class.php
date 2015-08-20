@@ -246,8 +246,7 @@ class ModuleUploader extends Module {
             return false;
         }
         // Check images
-        $aImageExtensions = (array)$aConfig['image_extensions'];
-        if ($aImageExtensions && in_array($sExtension, $aImageExtensions)) {
+        if (!empty($aConfig['image_extensions']) && in_array($sExtension, (array)$aConfig['image_extensions'])) {
             if (!$this->_checkUploadedImage($sFile, $sConfigKey)) {
                 return false;
             }
@@ -340,7 +339,7 @@ class ModuleUploader extends Module {
              *     ),
              * );
              */
-            if (($sExtension != '*') && $aConfig && $aImageExtensions && $aConfig['transform']) {
+            if (($sExtension != '*') && $aImageExtensions && !empty($aConfig['transform'])) {
                 foreach($aConfig['transform'] as $sKey => $aVal) {
                     if (strpos($sKey, '@mime(') === 0) {
                         $sMimeFound = null;
@@ -447,7 +446,7 @@ class ModuleUploader extends Module {
      * @param string $sUrl
      * @param string $sTarget
      * @param string $sDir
-     * @param array  $aParams
+     * @param array  $aParams [max_size => «размер в килобайтах»]
      *
      * @return bool
      */
