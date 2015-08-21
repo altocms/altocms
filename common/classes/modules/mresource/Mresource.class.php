@@ -152,39 +152,38 @@ class ModuleMresource extends Module {
     /**
      * Add relations between mresources and target
      *
-     * @param array|ModuleMresource_EntityMresource $aMresourcesRel
+     * @param array|ModuleMresource_EntityMresource $aMresources
      * @param string                                $sTargetType
      * @param int                                   $iTargetId
      *
      * @return bool
      */
-    public function AddTargetRel($aMresourcesRel, $sTargetType, $iTargetId) {
+    public function AddTargetRel($aMresources, $sTargetType, $iTargetId) {
 
-        if (!is_array($aMresourcesRel)) {
-            $aMresourcesRel = array($aMresourcesRel);
+        if (!is_array($aMresources)) {
+            $aMresources = array($aMresources);
         }
-        $aMresourcesRel = $this->BuildMresourceHashList($aMresourcesRel);
-        $aNewMresources = $aMresourcesRel;
+        $aMresources = $this->BuildMresourceHashList($aMresources);
+        $aNewMresources = $aMresources;
 
         // Проверяем, есть ли эти ресурсы в базе
-        $aMresources = $this->oMapper->GetMresourcesByHashUrl(array_keys($aMresourcesRel));
-        if ($aMresources) {
-            /** @var ModuleMresource_EntityMresource $oMresource */
-            foreach($aMresources as $oMresource) {
-                if (isset($aMresourcesRel[$oMresource->GetHash()])) {
+        $aMresourcesDb = $this->oMapper->GetMresourcesByHashUrl(array_keys($aMresources));
+        if ($aMresourcesDb) {
+            /** @var ModuleMresource_EntityMresource $oMresourceDb */
+            foreach($aMresourcesDb as $oMresourceDb) {
+                if (isset($aMresources[$oMresourceDb->GetHash()])) {
                     // Такой ресурс есть, удаляем из списка на добавление
-                    $aMresourcesRel[$oMresource->GetHash()]->SetMresourceId($oMresource->GetId());
-                    unset($aNewMresources[$oMresource->GetHash()]);
+                    $aMresources[$oMresourceDb->GetHash()]->SetMresourceId($oMresourceDb->GetId());
+                    unset($aNewMresources[$oMresourceDb->GetHash()]);
                 }
             }
         }
 
         // Добавляем новые ресурсы, если есть
         if ($aNewMresources) {
-
-            /** @var ModuleMresource_EntityMresource $oMresource */
-            foreach ($aNewMresources as $oMresource) {
-                $oSavedMresource = $this->GetMresourcesByUuid($oMresource->GetStorageUuid());
+            /** @var ModuleMresource_EntityMresource $oNewMresource */
+            foreach ($aNewMresources as $oNewMresource) {
+                $oSavedMresource = $this->GetMresourcesByUuid($oNewMresource->GetStorageUuid());
                 // Если ресурс в базе есть, но файла нет (если удален извне), то удаляем ресус из базы
                 if ($oSavedMresource && !$oSavedMresource->isLink() && !$oSavedMresource->Exists()) {
                     $this->DeleteMresources($oSavedMresource, false);
@@ -192,23 +191,22 @@ class ModuleMresource extends Module {
                 }
                 if (!$oSavedMresource) {
                     // Если ресурса нет, то добавляем
-                    $nId = $this->oMapper->Add($oMresource);
+                    $nId = $this->oMapper->Add($oNewMresource);
                 } else {
                     // Если ресурс есть, то просто его ID берем
                     $nId = $oSavedMresource->getId();
                 }
-                if ($nId && isset($aMresourcesRel[$oMresource->GetHash()])) {
+                if ($nId && isset($aMresources[$oNewMresource->GetHash()])) {
                     // Такой ресурс есть, удаляем из списка на добавление
-                    $aMresourcesRel[$oMresource->GetHash()]->SetMresourceId($nId);
+                    $aMresources[$oNewMresource->GetHash()]->SetMresourceId($nId);
                 }
             }
         }
 
         // Добавляем связь ресурса с сущностью
-        if ($aMresourcesRel) {
-
+        if ($aMresources) {
             /** @var ModuleMresource_EntityMresource $oMresource */
-            foreach($aMresourcesRel as $oMresource) {
+            foreach($aMresources as $oMresource) {
                 if (!$oMresource->GetTargetType()) {
                     $oMresource->SetTargetType($sTargetType);
                 }
