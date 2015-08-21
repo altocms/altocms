@@ -61,6 +61,8 @@ class AltoFunc_File {
         return self::$aIncludedFiles;
     }
 
+    static protected $_root = array();
+
     /**
      * Если загружена конфигурация, то возвращает корневую папку проекта,
      * в противном случае - корневую папку выполняемого веб-приложения
@@ -69,8 +71,11 @@ class AltoFunc_File {
      */
     static public function RootDir() {
 
-        if (class_exists('Config', false) && Config::Get('path.root.dir')) {
+        if (!empty(self::$_root['dir'])) {
+            $sDir = self::$_root['dir'];
+        } elseif (class_exists('Config', false) && Config::Get('path.root.dir')) {
             $sDir = Config::Get('path.root.dir');
+            self::$_root['dir'] = $sDir;
         } elseif (defined('ALTO_DIR')) {
             $sDir = ALTO_DIR;
         } elseif (isset($_SERVER['DOCUMENT_ROOT'])) {
@@ -94,7 +99,9 @@ class AltoFunc_File {
      */
     static public function RootUrl($xAddLang = false) {
 
-        if (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
+        if (!empty(self::$_root['url'][$xAddLang])) {
+            $sUrl = self::$_root['url'][$xAddLang];
+        } elseif (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
 
             // Если требуется, то добавляем в URL язык
             if ($xAddLang && Config::Get('lang.in_url') && class_exists('Router', false)) {
@@ -109,6 +116,7 @@ class AltoFunc_File {
                     $sUrl = static::NormPath($sUrl . '/' . $sLang . '/');
                 }
             }
+            self::$_root['url'][$xAddLang] = $sUrl;
         } elseif (isset($_SERVER['HTTP_HOST'])) {
             $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
         } else {

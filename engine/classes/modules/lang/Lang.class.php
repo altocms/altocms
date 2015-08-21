@@ -60,6 +60,8 @@ class ModuleLang extends Module {
      */
     protected $aLangMsgJs = array();
 
+    protected $bDeleteUndefinedVars;
+
     /**
      * Инициализация модуля
      *
@@ -70,6 +72,7 @@ class ModuleLang extends Module {
 
         $this->sDefaultLang = Config::Get('lang.default');
         $this->aLangPaths = F::File_NormPath(Config::Get('lang.paths'));
+        $this->bDeleteUndefinedVars = Config::Get('module.lang.delete_undefined');
 
         // Проверку на языки делаем, только если сайт мультиязычный
         if (Config::Get('lang.multilang')) {
@@ -505,7 +508,7 @@ class ModuleLang extends Module {
             $sText = strtr($sText, $aReplacePairs);
         }
 
-        if (Config::Get('module.lang.delete_undefined') && $bDelete && is_string($sText)) {
+        if ($this->bDeleteUndefinedVars && $bDelete && is_string($sText)) {
             $sText = preg_replace('|\%\%[\S]+\%\%|U', '', $sText);
         }
         return $sText;

@@ -349,13 +349,11 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if (Config::Get('classes')) {
-            if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
-                return self::_classAlias($sParentClass, $sClassName);
-            }
-            if (self::_autoloadDefinedClass($sClassName)) {
-                return true;
-            }
+        if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
+            return self::_classAlias($sParentClass, $sClassName);
+        }
+        if (self::_autoloadDefinedClass($sClassName)) {
+            return true;
         }
 
         if (class_exists('Engine', false) && (E::GetStage() >= E::STAGE_INIT)) {

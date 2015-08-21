@@ -11,6 +11,9 @@
 /**
  * Class Decorator
  *
+ * @mixin Module
+ * @method Init
+ *
  * @package engine
  * @since 1.1
  */
@@ -94,7 +97,6 @@ class Decorator extends LsObject {
             }
         }
 
-        //$xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgsRef);
         switch (count($aArgs)) {
             case 0:
                 $xResult = $this->oComponent->$sMethod();
@@ -212,7 +214,7 @@ class Decorator extends LsObject {
      * @param object $oComponent
      * @param bool   $bHookEnable
      *
-     * @return object
+     * @return Decorator
      */
     static function Create($oComponent, $bHookEnable = true) {
 

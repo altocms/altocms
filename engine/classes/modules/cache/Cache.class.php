@@ -135,6 +135,8 @@ class ModuleCache extends Module {
 
     protected $nCacheMode = self::CACHE_MODE_AUTO;
 
+    protected $sCachePrefix;
+
     /**
      * Статистика кеширования
      *
@@ -165,12 +167,16 @@ class ModuleCache extends Module {
 
         $this->bUseCache = Config::Get('sys.cache.use');
         $this->sCacheType = Config::Get('sys.cache.type');
+        $this->sCachePrefix = Config::Get('sys.cache.prefix');
 
         $aCacheTypes = (array)Config::Get('sys.cache.backends');
+
         // Доступные механизмы кеширования
         $this->aCacheTypesAvailable = array_map('strtolower', array_keys($aCacheTypes));
+
         // Механизмы принудительного кеширования
         $this->aCacheTypesForce = (array)Config::Get('sys.cache.force');
+
         if ($this->aCacheTypesForce === true) {
             // Разрешены все
             $this->aCacheTypesForce = $this->aCacheTypesAvailable;
@@ -317,7 +323,7 @@ class ModuleCache extends Module {
         if (is_null($sCacheType) || $sCacheType === true) {
             $sCacheType = $this->sCacheType;
         }
-        if ($this->_backendInit($sCacheType) && Config::Get('sys.cache.concurrent_delay')) {
+        if ($this->_backendInit($sCacheType) && ($sCacheType != 'tmp')) {
             return intval(Config::Get('sys.cache.concurrent_delay'));
         }
         return 0;
@@ -412,7 +418,7 @@ class ModuleCache extends Module {
      */
     protected function _hash($sKey) {
 
-        return md5(Config::Get('sys.cache.prefix') . $sKey);
+        return md5($this->sCachePrefix . $sKey);
     }
 
     protected function _prepareTags($aTags) {

@@ -247,17 +247,6 @@ class Engine extends LsObject {
     protected $aPlugins = array();
 
     /**
-     * Содержит конфиг модулей.
-     * Используется для получания списка модулей для авто-загрузки. Остальные модули загружаются при первом обращении.
-     * В конфиге определен так:
-     * <pre>
-     * $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','Lang','Message','User');
-     * </pre>
-     *
-     * @var array
-     */
-    protected $aConfigModule;
-    /**
      * Время загрузки модулей в микросекундах
      *
      * @var int
@@ -363,7 +352,7 @@ class Engine extends LsObject {
      */
     protected function InitModules() {
 
-        /** @var Module $oModule */
+        /** @var Decorator $oModule */
         foreach ($this->aModules as $oModule) {
             if (!$oModule->isInit()) {
                 $this->InitModule($oModule);
@@ -374,7 +363,7 @@ class Engine extends LsObject {
     /**
      * Инициализирует модуль
      *
-     * @param Module $oModule     - Объект модуля
+     * @param Decorator $oModule - Объект модуля
      *
      * @throws Exception
      */
@@ -483,9 +472,9 @@ class Engine extends LsObject {
      */
     protected function LoadModules() {
 
-        $this->LoadConfig();
-        if (!empty($this->aConfigModule['_autoLoad_'])) {
-            foreach ($this->aConfigModule['_autoLoad_'] as $sModuleName) {
+        $aAutoloadModules = C::Get('module._autoLoad_');
+        if (!empty($aAutoloadModules)) {
+            foreach ($aAutoloadModules as $sModuleName) {
                 $sModuleClass = 'Module' . $sModuleName;
                 if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
                     //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
@@ -506,15 +495,6 @@ class Engine extends LsObject {
     public function GetLoadedModules() {
 
         return $this->aModules;
-    }
-
-    /**
-     * Выполняет загрузку конфигов
-     *
-     */
-    protected function LoadConfig() {
-
-        $this->aConfigModule = Config::Get('module');
     }
 
     /**
