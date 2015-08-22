@@ -75,7 +75,7 @@ class ModuleSkin extends Module {
             $aList = glob($sPattern, GLOB_ONLYDIR);
             if ($aList) {
                 if (!isset($aFilter['type'])) $aFilter['type'] = '';
-                $sActiveSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
+                $sActiveSkin = Config::Get('view.skin');
                 foreach ($aList as $sSkinDir) {
                     $sSkin = basename($sSkinDir);
                     $aData = array(
