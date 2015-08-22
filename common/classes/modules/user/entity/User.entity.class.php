@@ -56,9 +56,7 @@ class ModuleUser_EntityUser extends Entity {
         );
         $this->aValidateRules[] = array(
             'password',
-            'string',
-            'allowEmpty' => false,
-            'min'        => 5,
+            'password',
             'on'         => array('registration'),
         );
         $this->aValidateRules[] = array(
@@ -163,6 +161,18 @@ class ModuleUser_EntityUser extends Entity {
             return true;
         }
         return E::ModuleLang()->Get('registration_mail_error_used');
+    }
+
+    public function ValidatePassword($sValue, $aParams) {
+
+        $iMinLength = Config::Val('module.security.password_len', 3);
+        if ($sValue && $this->getLogin() && $sValue === $this->getLogin()) {
+            return E::ModuleLang()->Get('registration_password_error', array('min' => $iMinLength));
+        }
+        if (mb_strlen($sValue, 'UTF-8') < $iMinLength) {
+            return E::ModuleLang()->Get('registration_password_error', array('min' => $iMinLength));
+        }
+        return true;
     }
 
     /**

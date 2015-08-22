@@ -155,7 +155,7 @@
         jQuery(function ($) {
             var selectFirstInput = function() {
                 $('#modal-auth .tab-pane.active input[type=text]:first:visible').focus();
-            }
+            };
             $('#modal-auth').on('shown.bs.modal', selectFirstInput);
             $('#modal-auth [data-toggle=tab]').on('shown.bs.tab', selectFirstInput);
 

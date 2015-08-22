@@ -78,6 +78,12 @@ ls.user = (function ($) {
      */
     this.validateRegistrationField = function(form, fieldName, fieldValue, params) {
         var fields = [];
+        if (fieldName == 'password') {
+            var login = $(form).find('[name=login]').val();
+            if (login) {
+                params['login'] = login;
+            }
+        }
         fields.push({field: fieldName, value: fieldValue, params: params || {}});
         this.validateRegistrationFields(form, fields);
     };
