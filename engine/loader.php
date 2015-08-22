@@ -32,6 +32,7 @@ define('ALTO_DEBUG_FILES', 2);
 if (is_file(__DIR__ . '/config.defines.php')) {
     include(__DIR__ . '/config.defines.php');
 }
+defined('DEBUG') || define('DEBUG', 0);
 
 // load basic config with paths
 $config = include(__DIR__ . '/config.php');
