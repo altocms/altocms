@@ -7,23 +7,24 @@ include_once __DIR__ . '/function.hook.php';
  *
  * @param $aParams
  * @param $oSmarty
+ *
  * @internal param $sMenuId
  * @internal param bool $sMenuClass
  * @internal param string $sActiveClass
+ *
  * @return string
  */
 function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
     // Меню нет - уходим
-    /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
-    if (!isset($aParams['id']) || !($aMenu = Config::Get('menu.data.' . $aParams['id']))) {
+    if (!isset($aParams['id']) || !($aMenu = E::ModuleMenu()->GetPreparedMenu($aParams['id']))) {
         return '';
     }
-    /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
     if (!isset($aMenu['items'])) {
         return '';
     }
 
+    /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
     $aMenuItems = $aMenu['items'];
 
     /** @var string $sMenu Запрашиваемое меню */
@@ -36,12 +37,10 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
         $sMenuClass = isset($aMenu['class']) ? 'class="' . $aMenu['class'] . '"' : '';
     }
 
-
     // Открываем меню
     if (!isset($aParams['hideul'])) {
         $sMenu .= "<ul {$sMenuClass}>";
     }
-
 
     // Меню пустое
     $bEmpty = TRUE;
@@ -83,7 +82,6 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
         $sMenu .= $oMenuItemHtml;
 
         $bEmpty = FALSE;
-
     }
 
     // Закрываем меню
@@ -102,5 +100,6 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
     }
 
     return '';
-
 }
+
+// EOF
