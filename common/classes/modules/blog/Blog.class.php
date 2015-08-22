@@ -633,7 +633,7 @@ class ModuleBlog extends Module {
      *
      * @param bool|array $xReturnOptions  true - Возвращать только ID блогов, array - Доп.данные блога
      *
-     * @return array
+     * @return ModuleBlog_EntityBlog[]
      */
     public function GetBlogs($xReturnOptions = null) {
 
@@ -1601,7 +1601,7 @@ class ModuleBlog extends Module {
      * @param   array   $aFilter
      * @param   bool    $bTypeCodesOnly
      *
-     * @return  array
+     * @return  ModuleBlog_EntityBlogType[]
      */
     public function GetBlogTypes($aFilter = array(), $bTypeCodesOnly = false) {
 

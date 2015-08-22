@@ -136,12 +136,21 @@ class ActionAdmin extends Action {
         return $sMode;
     }
 
+    /**
+     * @param int $nParam
+     * @param     $sData
+     */
     protected function _saveMode($nParam = 0, $sData) {
 
         $sKey = R::GetAction() . '.' . R::GetActionEvent() . '.' . $nParam;
         E::ModuleSession()->Set($sKey, $sData);
     }
 
+    /**
+     * @param null $nNumParam
+     *
+     * @return int
+     */
     protected function _getPageNum($nNumParam = null) {
 
         $nPage = 1;
@@ -239,6 +248,7 @@ class ActionAdmin extends Action {
                 $sPlugin = (string)$aPlugin;
             }
             if (isset($aPlugins[$sPlugin])) {
+                /** @var ModulePlugin_EntityPlugin $oPluginEntity */
                 $oPluginEntity = $aPlugins[$sPlugin];
                 $sPluginName = $oPluginEntity->GetName();
                 $aPluginInfo = array(
@@ -311,6 +321,10 @@ class ActionAdmin extends Action {
         return $aInfo;
     }
 
+    /**
+     * @param array  $aInfo
+     * @param string $sMode
+     */
     protected function _EventReportOut($aInfo, $sMode = 'txt') {
 
         E::ModuleSecurity()->ValidateSendForm();
@@ -328,6 +342,10 @@ class ActionAdmin extends Action {
         exit;
     }
 
+    /**
+     * @param array $aInfo
+     * @param array $aParams
+     */
     protected function _reportTxt($aInfo, $aParams) {
 
         $sText = '[report]' . "\n";
@@ -353,6 +371,10 @@ class ActionAdmin extends Action {
         exit;
     }
 
+    /**
+     * @param array $aInfo
+     * @param array $aParams
+     */
     protected function _reportXml($aInfo, $aParams) {
 
         $sText = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<report';
@@ -716,8 +738,8 @@ class ActionAdmin extends Action {
     /**
      * Сохраняет пользовательские настройки
      *
-     * @param $aFields
-     * @param $aData
+     * @param array $aFields
+     * @param array $aData
      */
     protected function _eventConfigSave($aFields, $aData) {
 
@@ -772,6 +794,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aWidgetsList', $aWidgets);
     }
 
+    /**
+     * @param ModuleWidget_EntityWidget $oWidget
+     */
     public function _eventWidgetsEdit($oWidget) {
 
         if ($this->GetPost()) {
@@ -806,6 +831,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('oWidget', $oWidget);
     }
 
+    /**
+     * @param $aWidgets
+     */
     public function _eventWidgetsActivate($aWidgets) {
 
         if ($this->GetPost()) {
@@ -819,6 +847,9 @@ class ActionAdmin extends Action {
         }
     }
 
+    /**
+     * @param $aWidgets
+     */
     public function _eventWidgetsDeactivate($aWidgets) {
 
         if ($this->GetPost()) {
@@ -910,6 +941,11 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
+    /**
+     * @param $aPlugins
+     *
+     * @return bool
+     */
     protected function _eventPluginsActivate($aPlugins) {
 
         if (is_array($aPlugins)) {
@@ -921,6 +957,11 @@ class ActionAdmin extends Action {
         return E::ModulePlugin()->Activate($sPluginId);
     }
 
+    /**
+     * @param $aPlugins
+     *
+     * @return bool|null
+     */
     protected function _eventPluginsDeactivate($aPlugins) {
 
         if (is_array($aPlugins)) {
@@ -932,6 +973,9 @@ class ActionAdmin extends Action {
         return E::ModulePlugin()->Deactivate($sPluginId);
     }
 
+    /**
+     * @param $aPlugins
+     */
     protected function _eventPluginsDelete($aPlugins) {
 
         E::ModulePlugin()->Delete($aPlugins);
@@ -1019,6 +1063,9 @@ class ActionAdmin extends Action {
         R::Location('admin/content-pages');
     }
 
+    /**
+     * @param $sMode
+     */
     protected function _eventPagesEdit($sMode) {
 
         $this->_setTitle(E::ModuleLang()->Get('action.admin.pages_title'));
@@ -1061,7 +1108,7 @@ class ActionAdmin extends Action {
     /**
      * Обработка отправки формы при редактировании страницы
      *
-     * @param $oPageEdit
+     * @param ModulePage_EntityPage $oPageEdit
      */
     protected function SubmitEditPage($oPageEdit) {
 
@@ -1126,6 +1173,7 @@ class ActionAdmin extends Action {
             return;
         }
         // * Заполняем свойства
+        /** @var ModulePage_EntityPage $oPage */
         $oPage = E::GetEntity('Page');
         $oPage->setActive(F::GetRequest('page_active') ? 1 : 0);
         $oPage->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
@@ -1157,9 +1205,7 @@ class ActionAdmin extends Action {
             return;
         }
 
-        /**
-         * Добавляем страницу
-         */
+        // * Добавляем страницу
         if (E::ModulePage()->AddPage($oPage)) {
             E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.pages_create_submit_save_ok'));
             $this->SetParam(0, null);
@@ -1179,53 +1225,40 @@ class ActionAdmin extends Action {
         E::ModuleSecurity()->ValidateSendForm();
 
         $bOk = true;
-        /**
-         * Проверяем есть ли заголовок топика
-         */
+
+        // * Проверяем есть ли заголовок топика
         if (!F::CheckVal(F::GetRequest('page_title', null, 'post'), 'text', 2, 200)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_title_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем есть ли заголовок топика, с заменой всех пробельных символов на "_"
-         */
+
+        // * Проверяем есть ли заголовок топика, с заменой всех пробельных символов на "_"
         $pageUrl = preg_replace("/\s+/", '_', (string)F::GetRequest('page_url', null, 'post'));
         $_REQUEST['page_url'] = $pageUrl;
         if (!F::CheckVal(F::GetRequest('page_url', null, 'post'), 'login', 1, 50)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_url_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем на счет плохих УРЛов
-         */
-        /*if (in_array(F::GetRequest('page_url',null,'post'),$this->aBadPageUrl)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_url_error_bad').' '.join(',',$this->aBadPageUrl),E::ModuleLang()->Get('error'));
-            $bOk=false;
-        }*/
-        /**
-         * Проверяем есть ли содержание страницы
-         */
+
+        // * Проверяем есть ли содержание страницы
         if (!F::CheckVal(F::GetRequest('page_text', null, 'post'), 'text', 1, 50000)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_text_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем страницу в которую хотим вложить
-         */
+
+        // * Проверяем страницу в которую хотим вложить
         if (F::GetRequest('page_pid') != 0 && !($oPageParent = E::ModulePage()->GetPageById(F::GetRequest('page_pid')))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_parent_page_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем сортировку
-         */
+
+        // * Проверяем сортировку
         if (F::GetRequest('page_sort') && !is_numeric(F::GetRequest('page_sort'))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_sort_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Выполнение хуков
-         */
+
+        // * Выполнение хуков
         E::ModuleHook()->Run('check_page_fields', array('bOk' => &$bOk));
 
         return $bOk;
@@ -1551,6 +1584,13 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('nCountModerators', E::ModuleUser()->GetCountModerators());
     }
 
+    /**
+     * @param $aUsersId
+     * @param $nDays
+     * @param $sComment
+     *
+     * @return bool
+     */
     protected function _eventUsersCmdBan($aUsersId, $nDays, $sComment) {
 
         if ($aUsersId) {
@@ -1579,6 +1619,11 @@ class ActionAdmin extends Action {
         return false;
     }
 
+    /**
+     * @param $aUsersId
+     *
+     * @return bool
+     */
     protected function _eventUsersCmdUnban($aUsersId) {
 
         if ($aUsersId) {
@@ -1593,6 +1638,13 @@ class ActionAdmin extends Action {
         return false;
     }
 
+    /**
+     * @param $sIp
+     * @param $nDays
+     * @param $sComment
+     *
+     * @return bool
+     */
     protected function _eventIpsCmdBan($sIp, $nDays, $sComment) {
 
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
@@ -1622,6 +1674,9 @@ class ActionAdmin extends Action {
         return false;
     }
 
+    /**
+     * @param $sMode
+     */
     protected function _eventUsersList($sMode) {
 
         $this->SetTemplateAction('users/list');
@@ -1952,6 +2007,7 @@ class ActionAdmin extends Action {
 
         if ($aUsers) {
             if ($bOk && $aUsers) {
+                /** @var ModuleTalk_EntityTalk $oTalk */
                 $oTalk = E::GetEntity('Talk_Talk');
                 $oTalk->setUserId($this->oUserCurrent->getId());
                 $oTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -1967,6 +2023,7 @@ class ActionAdmin extends Action {
                 // теперь рассылаем остальным
                 foreach ($aUsers as $sUserLogin) {
                     if ($sUserLogin && ($oUserRecipient = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                        /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                         $oTalkUser = E::GetEntity('Talk_TalkUser');
                         $oTalkUser->setTalkId($oTalk->getId());
                         $oTalkUser->setUserId($oUserRecipient->GetId());
@@ -2013,6 +2070,7 @@ class ActionAdmin extends Action {
         if ($aUsers) {
             // Если указано, то шлем самому себе со списком получателей
             if (F::GetRequest('send_copy_self')) {
+                /** @var ModuleTalk_EntityTalk $oSelfTalk */
                 $oSelfTalk = E::GetEntity('Talk_Talk');
                 $oSelfTalk->setUserId($this->oUserCurrent->getId());
                 $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -2022,6 +2080,7 @@ class ActionAdmin extends Action {
                 $oSelfTalk->setDateLast($sDate);
                 $oSelfTalk->setUserIp($sIp);
                 if (($oSelfTalk = E::ModuleTalk()->AddTalk($oSelfTalk))) {
+                    /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                     $oTalkUser = E::GetEntity('Talk_TalkUser');
                     $oTalkUser->setTalkId($oSelfTalk->getId());
                     $oTalkUser->setUserId($this->oUserCurrent->getId());
@@ -2040,6 +2099,7 @@ class ActionAdmin extends Action {
                 // теперь рассылаем остальным - каждому отдельное сообщение
                 foreach ($aUsers as $sUserLogin) {
                     if ($sUserLogin && $sUserLogin != $this->oUserCurrent->getLogin() && ($oUserRecipient = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                        /** @var ModuleTalk_EntityTalk $oTalk */
                         $oTalk = E::GetEntity('Talk_Talk');
                         $oTalk->setUserId($this->oUserCurrent->getId());
                         $oTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -2049,6 +2109,7 @@ class ActionAdmin extends Action {
                         $oTalk->setDateLast($sDate);
                         $oTalk->setUserIp($sIp);
                         if (($oTalk = E::ModuleTalk()->AddTalk($oTalk))) {
+                            /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                             $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($oUserRecipient->GetId());
@@ -2056,6 +2117,7 @@ class ActionAdmin extends Action {
                             E::ModuleTalk()->AddTalkUser($oTalkUser);
 
                             // Отправка самому себе, чтобы можно было читать ответ
+                            /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                             $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($this->oUserCurrent->getId());
@@ -2196,6 +2258,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
+    /**
+     * @param $sCmd
+     */
     protected function _eventBanListCmd($sCmd) {
 
         if ($sCmd == 'adm_ban_user') {
@@ -2232,6 +2297,9 @@ class ActionAdmin extends Action {
         R::ReturnBack(true);
     }
 
+    /**
+     * @param $nPage
+     */
     protected function _eventBanlistIds($nPage) {
 
         $this->SetTemplateAction('users/banlist_ids');
@@ -2474,6 +2542,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
+    /**
+     * @param $sLogTxt
+     */
     protected function _eventLogsSqlErrors($sLogTxt) {
 
         $aLogs = $this->_parseLog($sLogTxt);
@@ -2496,6 +2567,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
+    /**
+     * @param $sLogTxt
+     */
     protected function _eventLogsSql($sLogTxt) {
 
         $aLogs = $this->_parseLog($sLogTxt);
@@ -3026,11 +3100,11 @@ class ActionAdmin extends Action {
                 } else {
                     E::ModuleMessage()->AddError($oBlogType->_getValidateError(), E::ModuleLang()->Get('error'));
                 }
+                E::ModuleViewer()->Assign('oBlogType', $oBlogType);
             } else {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.blogtypes_err_id_notfound'), E::ModuleLang()->Get('error'));
             }
         }
-        E::ModuleViewer()->Assign('oBlogType', $oBlogType);
     }
 
     /**
@@ -3459,7 +3533,6 @@ class ActionAdmin extends Action {
                 $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
             }
 
-
             $aAllowedData = array_flip($aAllowedData);
             if (isset($aAllowedData[$oItem->getId()])) {
                 unset($aAllowedData[$oItem->getId()]);
@@ -3480,8 +3553,6 @@ class ActionAdmin extends Action {
         }
 
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-        return;
-
     }
 
     public function EventAjaxDisplayItem() {
@@ -3523,7 +3594,6 @@ class ActionAdmin extends Action {
                 $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
             }
 
-
             $aAllowedData = array_flip($aAllowedData);
             if (isset($aAllowedData[$oItem->getId()])) {
 
@@ -3533,7 +3603,6 @@ class ActionAdmin extends Action {
                 } else {
                     $bDisplay = !$bDisplay;
                 }
-
 
                 if ($bDisplay) {
                     E::ModuleViewer()->AssignAjax('class', 'icon-eye-open');
@@ -3550,19 +3619,15 @@ class ActionAdmin extends Action {
 
                 return;
             }
-
         }
 
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-        return;
-
     }
 
     protected function _eventMenuEdit() {
 
         // * Получаем тип
         $sMenuId = $this->GetParam(1);
-
 
         if (!$oMenu = E::ModuleMenu()->GetMenu($sMenuId)) {
             return parent::EventNotFound();
@@ -3581,6 +3646,7 @@ class ActionAdmin extends Action {
         // * Проверяем отправлена ли форма с данными
         if (getRequestPost('submit_add_new_item')) {
 
+            $sItemTitle = '';
             if (!(($sItemLink = trim(F::GetRequestStr('menu-item-link'))) && ($sItemTitle = trim(F::GetRequestStr('menu-item-title'))))) {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
                 return null;
@@ -3623,7 +3689,6 @@ class ActionAdmin extends Action {
 
                 $aMenu['list'] = $aNewItemConfig;
                 Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
-
 
                 R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
@@ -3686,7 +3751,6 @@ class ActionAdmin extends Action {
                     array($sItemName)
                 );
 
-
                 $aMenu['init']['fill']['list'] = $aNewItems;
 
                 // Добавим имя в список
@@ -3708,9 +3772,7 @@ class ActionAdmin extends Action {
                 R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
                 return null;
-
             }
-
 
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
             return null;
@@ -3734,10 +3796,10 @@ class ActionAdmin extends Action {
         if (strpos($oMenu->getId(), 'submenu_') === 0) {
             $aMenus = Config::Get('menu.data');
             $bFound = false;
-            foreach ($aMenus as $k=>$v) {
-                foreach ($v['list'] as $sItemKey => $aItemData) {
+            foreach ($aMenus as $sConfigMenuId => $aConfigMenuData) {
+                foreach ($aConfigMenuData['list'] as $sItemKey => $aItemData) {
                     if (isset($aItemData['submenu']) && $aItemData['submenu'] == $sMenuId) {
-                        $sMenuListKey = 'menu.data.' . $k;
+                        $sMenuListKey = 'menu.data.' . $sConfigMenuId;
                         $aMenu = C::Get($sMenuListKey);
                         if ($aMenu && isset($aMenu['list'][$sItemKey]['submenu'])) {
                             $aMenu['list'][$sItemKey]['submenu'] = '';
@@ -3755,12 +3817,9 @@ class ActionAdmin extends Action {
             R::Location("admin/settings-menumanager/");
         }
 
-
-
         R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
         return FALSE;
-
     }
 
     private function _prepareMenus() {
@@ -3817,15 +3876,12 @@ class ActionAdmin extends Action {
                 'sMode' => $sMode,
             ));
 
-
             // Установим заголовок страницы
             $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_manager'));
-
 
             // Установми страницу вывода
             $this->SetTemplateAction('settings/menu_manager');
         }
-
     }
 
     /**********************************************************************************/
@@ -3846,6 +3902,7 @@ class ActionAdmin extends Action {
                 if (!$this->checkUserField()) {
                     return;
                 }
+                /** @var ModuleUser_EntityField $oField */
                 $oField = E::GetEntity('User_Field');
                 $oField->setName(F::GetRequestStr('name'));
                 $oField->setTitle(F::GetRequestStr('title'));
@@ -3895,6 +3952,7 @@ class ActionAdmin extends Action {
                 if (!$this->checkUserField()) {
                     return;
                 }
+                /** @var ModuleUser_EntityField $oField */
                 $oField = E::GetEntity('User_Field');
                 $oField->setId(F::GetRequestStr('id'));
                 $oField->setName(F::GetRequestStr('name'));
@@ -4039,6 +4097,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
+        /** @var ModuleTopic_EntityContentType $oContentType */
         $oContentType = E::GetEntity('Topic_ContentType');
         $oContentType->setContentTitle(F::GetRequest('content_title'));
         $oContentType->setContentTitleDecl(F::GetRequest('content_title_decl'));
@@ -4093,6 +4152,11 @@ class ActionAdmin extends Action {
         return null;
     }
 
+    /**
+     * @param ModuleTopic_EntityContentType $oContentType
+     *
+     * @return bool
+     */
     protected function _eventContentTypesEditSubmit($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
@@ -4196,7 +4260,6 @@ class ActionAdmin extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-
     }
 
     public function EventAjaxChangeOrderFields() {
@@ -4260,6 +4323,11 @@ class ActionAdmin extends Action {
 
     }
 
+    /**
+     * @param ModuleTopic_EntityContentType $oContentType
+     *
+     * @return bool
+     */
     protected function SubmitAddField($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
@@ -4272,6 +4340,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
+        /** @var ModuleTopic_EntityField $oField */
         $oField = E::GetEntity('Topic_Field');
         $oField->setFieldType(F::GetRequest('field_type'));
         $oField->setContentId($oContentType->getContentId());
@@ -4325,7 +4394,6 @@ class ActionAdmin extends Action {
             $_REQUEST['field_required'] = $oField->getFieldRequired();
             $_REQUEST['field_values'] = $oField->getFieldValues();
         }
-
     }
 
     /**
@@ -4480,6 +4548,7 @@ class ActionAdmin extends Action {
 
         $nValue = $this->GetPost('value');
 
+        /** @var ModuleVote_EntityVote $oUserVote */
         $oUserVote = E::GetEntity('Vote');
         $oUserVote->setTargetId($oUser->getId());
         $oUserVote->setTargetType('user');
@@ -4497,7 +4566,6 @@ class ActionAdmin extends Action {
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.vote_error'), E::ModuleLang()->Get('error'));
         }
-
     }
 
     public function EventAjaxSetProfile() {
@@ -4561,6 +4629,7 @@ class ActionAdmin extends Action {
         if ($this->IsPost()) {
             Config::Set('module.user.captcha_use_registration', false);
 
+            /** @var ModuleUser_EntityUser $oUser */
             $oUser = E::GetEntity('ModuleUser_EntityUser');
             $oUser->_setValidateScenario('registration');
 
@@ -4622,7 +4691,6 @@ class ActionAdmin extends Action {
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
         }
-
     }
 
     /**

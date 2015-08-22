@@ -13,6 +13,10 @@
  */
 class ModuleWidget extends Module {
 
+    const WIDGET_TYPE_UNKNOWN = 0;
+    const WIDGET_TYPE_TEMPLATE = 1;
+    const WIDGET_TYPE_EXEC = 2;
+
     protected $aWidgets = array();
     protected $aConfig = array();
 
@@ -111,6 +115,9 @@ class ModuleWidget extends Module {
             foreach ($aWidgets as $sKey => $aWidgetData) {
                 if ($aWidgetData) {
                     // Если ID виджета не задан, то он формируется автоматически
+                    if (!isset($aWidgetData['id']) && !is_numeric($sKey)) {
+                        $aWidgetData['id'] = $sKey;
+                    }
                     $oWidget = $this->MakeWidget($aWidgetData);
                     $aResult[$oWidget->getId()] = $oWidget;
                 }

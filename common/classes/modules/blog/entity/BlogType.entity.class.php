@@ -16,20 +16,20 @@
 /**
  * Class ModuleBlog_EntityBlogType
  *
- * @method SetAllowAdd()
- * @method SetMinRateAdd()
- * @method SetMaxNum()
- * @method SetAllowList()
- * @method SetIndexIgnore()
- * @method SetMembership()
- * @method SetMinRateWrite()
- * @method SetMinRateRead()
- * @method SetMinRateComment()
- * @method SetActive()
- * @method SetContentType()
- * @method SetAclWrite()
- * @method SetAclRead()
- * @method SetAclComment()
+ * @method SetAllowAdd($xParam)
+ * @method SetMinRateAdd($xParam)
+ * @method SetMaxNum($xParam)
+ * @method SetAllowList($xParam)
+ * @method SetIndexIgnore($xParam)
+ * @method SetMembership($xParam)
+ * @method SetMinRateWrite($xParam)
+ * @method SetMinRateRead($xParam)
+ * @method SetMinRateComment($xParam)
+ * @method SetActive($xParam)
+ * @method SetContentType($xParam)
+ * @method SetAclWrite($xParam)
+ * @method SetAclRead($xParam)
+ * @method SetAclComment($xParam)
  */
 class ModuleBlog_EntityBlogType extends Entity {
 

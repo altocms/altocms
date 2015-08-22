@@ -11,8 +11,23 @@
 /**
  * Объект типа контента
  *
+ * @method setContentTitle($xParam)
+ * @method setContentTitleDecl($xParam)
+ * @method setContentUrl($xParam)
+ * @method setContentCandelete($xParam)
+ * @method setContentAccess($xParam)
+ * @method setContentSort($xParam)
+ *
+ * @method getContentId()
+ * @method getContentTitle()
+ * @method getContentTitleDecl()
+ * @method getContentUrl()
+ * @method getContentCandelete()
+ * @method getContentAccess()
+ *
  * @package modules.topic
  * @since   1.0
+ *
  */
 class ModuleTopic_EntityContentType extends Entity {
 

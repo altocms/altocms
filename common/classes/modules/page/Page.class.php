@@ -105,7 +105,7 @@ class ModulePage extends Module {
      *
      * @param int $sId
      *
-     * @return object
+     * @return ModulePage_EntityPage
      */
     public function GetPageById($sId) {
 

@@ -17,7 +17,6 @@
  * @method setTemplate()
  * @method setOrder()
  *
- * @method getType()
  * @method getCondition()
  */
 class ModuleWidget_EntityWidget extends Entity {
@@ -41,6 +40,11 @@ class ModuleWidget_EntityWidget extends Entity {
             }
         }
 
+        /* LS-compatible */
+        if (!$this->getParam('plugin') && ($sPluginId = $this->getPluginId())) {
+            $this->setParam('plugin', $sPluginId);
+        }
+
         if ($sName && is_null($this->getType())) {
             $aTypeData = E::ModuleViewer()->DefineWidgetType($sName, $this->GetDir(), $this->GetPluginId());
             if (isset($aTypeData['type'])) {
@@ -49,10 +53,6 @@ class ModuleWidget_EntityWidget extends Entity {
                 if ($aTypeData['type'] == 'template' && !empty($aTypeData['name'])) {
                     $this->setTemplate($aTypeData['name']);
                     $this->setName($aTypeData['name']);
-                }
-                /* LS-compatible */
-                if (!$this->getParam('plugin') && $this->getPluginId()) {
-                    $this->setParam('plugin', $this->getPluginId());
                 }
             }
         }
@@ -293,6 +293,30 @@ class ModuleWidget_EntityWidget extends Entity {
         $xResult = $this->getPropArray('off');
 
         return $xResult;
+    }
+
+    /**
+     * Returns type of widget
+     *
+     * @return mixed|null
+     */
+    public function GetType() {
+
+        $sType = $this->getProp('type');
+        if (is_null($sType) && ($sName = $this->getName())) {
+            $aTypeData = E::ModuleViewer()->DefineWidgetType($sName, $this->GetDir(), $this->GetPluginId());
+            if (isset($aTypeData['type'])) {
+                $sType = $aTypeData['type'];
+                $this->setType($sType);
+
+                if ($aTypeData['type'] == 'template' && !empty($aTypeData['name'])) {
+                    $this->setTemplate($aTypeData['name']);
+                    $this->setName($aTypeData['name']);
+                }
+                $this->setProp('type', $sType);
+            }
+        }
+        return $sType;
     }
 
     /**

@@ -63,10 +63,10 @@ function smarty_function_widget($aParams, $oSmartyTemplate) {
         $oWidget = $aParams['object'];
     }
     if ($oWidget) {
+        $sWidgetType = $oWidget->getType();
         $sWidgetName = $oWidget->GetName();
         $sWidgetTemplate = $oWidget->GetTemplate();
         $aWidgetParams = $oWidget->getParams();
-        $sWidgetType = $oWidget->getType();
     }
 
     $sResult = '';
