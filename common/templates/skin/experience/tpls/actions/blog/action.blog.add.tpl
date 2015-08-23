@@ -71,7 +71,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-times"></i></span>
-                        <input type="text" id="blog_limit_rating_topic" name="blog_limit_rating_topic" value="{$_aRequest.blog_limit_rating_topic}" class="form-control" />
+                        <input type="text" id="blog_limit_rating_topic" name="blog_limit_rating_topic" value="{$_aRequest.blog_limit_rating_topic|default:'0'}" class="form-control" />
                     </div>
                     <small class="control-notice">{$aLang.blog_create_rating_notice}</small>
                 </div>

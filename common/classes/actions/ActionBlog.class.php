@@ -221,32 +221,32 @@ class ActionBlog extends Action {
 
         E::ModuleViewer()->Assign('aBlogTypes', $this->aBlogTypes);
 
-        // Запускаем проверку корректности ввода полей при добалении блога.
-        // Дополнительно проверяем, что был отправлен POST запрос.
-        if (!$this->checkBlogFields()) {
-            return false;
-        }
+        if (F::isPost('submit_blog_add')) {
+            // Запускаем проверку корректности ввода полей при добалении блога.
+            if (!$this->checkBlogFields()) {
+                return false;
+            }
 
-        //  Если всё ок то пытаемся создать блог
-        /** @var ModuleBlog_EntityBlog $oBlog */
-        $oBlog = E::GetEntity('Blog');
-        $oBlog->setOwnerId($this->oUserCurrent->getId());
+            //  Если всё ок то пытаемся создать блог
+            /** @var ModuleBlog_EntityBlog $oBlog */
+            $oBlog = E::GetEntity('Blog');
+            $oBlog->setOwnerId($this->oUserCurrent->getId());
 
-        // issue 151 (https://github.com/altocms/altocms/issues/151)
-        // Некорректная обработка названия блога
-        // $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
-        $oBlog->setTitle(E::ModuleTools()->RemoveAllTags(F::GetRequestStr('blog_title')));
+            // issue 151 (https://github.com/altocms/altocms/issues/151)
+            // Некорректная обработка названия блога
+            // $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+            $oBlog->setTitle(E::ModuleTools()->RemoveAllTags(F::GetRequestStr('blog_title')));
 
-        // * Парсим текст на предмет разных HTML-тегов
-        $sText = E::ModuleText()->Parser(F::GetRequestStr('blog_description'));
-        $oBlog->setDescription($sText);
-        $oBlog->setType(F::GetRequestStr('blog_type'));
-        $oBlog->setDateAdd(F::Now());
-        $oBlog->setLimitRatingTopic(F::GetRequestStr('blog_limit_rating_topic'));
-        $oBlog->setUrl(F::GetRequestStr('blog_url'));
-        $oBlog->setAvatar(null);
+            // * Парсим текст на предмет разных HTML-тегов
+            $sText = E::ModuleText()->Parser(F::GetRequestStr('blog_description'));
+            $oBlog->setDescription($sText);
+            $oBlog->setType(F::GetRequestStr('blog_type'));
+            $oBlog->setDateAdd(F::Now());
+            $oBlog->setLimitRatingTopic(floatval(F::GetRequestStr('blog_limit_rating_topic')));
+            $oBlog->setUrl(F::GetRequestStr('blog_url'));
+            $oBlog->setAvatar(null);
 
-        // * Загрузка аватара блога перенесена в модуль
+            // * Загрузка аватара блога перенесена в модуль
 //        if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
 //            if ($sPath = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
 //                $oBlog->setAvatar($sPath);
@@ -256,24 +256,25 @@ class ActionBlog extends Action {
 //            }
 //        }
 
-        // * Создаём блог
-        E::ModuleHook()->Run('blog_add_before', array('oBlog' => $oBlog));
-        if ($this->_addBlog($oBlog)) {
-            E::ModuleHook()->Run('blog_add_after', array('oBlog' => $oBlog));
+            // * Создаём блог
+            E::ModuleHook()->Run('blog_add_before', array('oBlog' => $oBlog));
+            if ($this->_addBlog($oBlog)) {
+                E::ModuleHook()->Run('blog_add_after', array('oBlog' => $oBlog));
 
-            // Читаем блог - это для получения полного пути блога,
-            // если он в будущем будет зависит от других сущностей (компании, юзер и т.п.)
-            $this->oCurrentBlog = $oBlog = E::ModuleBlog()->GetBlogById($oBlog->getId());
+                // Читаем блог - это для получения полного пути блога,
+                // если он в будущем будет зависит от других сущностей (компании, юзер и т.п.)
+                $this->oCurrentBlog = $oBlog = E::ModuleBlog()->GetBlogById($oBlog->getId());
 
-            // Добавляем событие в ленту
-            E::ModuleStream()->Write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
+                // Добавляем событие в ленту
+                E::ModuleStream()->Write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
 
-            // Подписываем владельца блога на свой блог
-            E::ModuleUserfeed()->SubscribeUser($oBlog->getOwnerId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
+                // Подписываем владельца блога на свой блог
+                E::ModuleUserfeed()->SubscribeUser($oBlog->getOwnerId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
 
-            R::Location($oBlog->getUrlFull());
-        } else {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                R::Location($oBlog->getUrlFull());
+            } else {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            }
         }
         return true;
     }
@@ -362,7 +363,7 @@ class ActionBlog extends Action {
                 $oBlog->setOldType($oBlog->getType());
             }
             $oBlog->setType(F::GetRequestStr('blog_type'));
-            $oBlog->setLimitRatingTopic(F::GetRequestStr('blog_limit_rating_topic'));
+            $oBlog->setLimitRatingTopic(floatval(F::GetRequestStr('blog_limit_rating_topic')));
 
             if ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator()) {
                 $oBlog->setUrl(F::GetRequestStr('blog_url')); // разрешаем смену URL блога только админу
@@ -620,10 +621,10 @@ class ActionBlog extends Action {
             $bOk = false;
         }
         //  Преобразуем ограничение по рейтингу в число
-        if (!F::CheckVal( F::GetRequestStr('blog_limit_rating_topic'), 'float')) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_rating_error'), E::ModuleLang()->Get('error'));
-            $bOk = false;
-        }
+        //if (!F::CheckVal( F::GetRequestStr('blog_limit_rating_topic'), 'float')) {
+        //    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_rating_error'), E::ModuleLang()->Get('error'));
+        //    $bOk = false;
+        //}
         //  Выполнение хуков
         E::ModuleHook()->Run('check_blog_fields', array('bOk' => &$bOk));
         return $bOk;
