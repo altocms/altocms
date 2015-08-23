@@ -21,9 +21,16 @@ class ModuleMenu_EntityMenu extends Entity {
     protected $_description = NULL;
 
     public function Init() {
+
         $this->_aItems = isset($this->_aData['items']) ? $this->_aData['items'] : NULL;
     }
 
+    /**
+     * @param      $sTextTemplate
+     * @param null $sLang
+     *
+     * @return mixed
+     */
     public function getLangText($sTextTemplate, $sLang = NULL) {
 
         return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
@@ -39,9 +46,11 @@ class ModuleMenu_EntityMenu extends Entity {
 
     /**
      * Получает описание элемента меню
+     *
      * @return bool|mixed|null
      */
     public function getDescription(){
+
         if ($this->_description) {
             return $this->_description;
         }
@@ -92,6 +101,7 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return int
      */
     public function getLength() {
+
         return count($this->_aItems);
     }
 
@@ -99,8 +109,9 @@ class ModuleMenu_EntityMenu extends Entity {
      * Добавляет элемент меню в произвольное место списка меню
      *
      * @param ModuleMenu_EntityItem $oMenuItem
-     * @param mixed $xPosition Позиция в списке. Может задаваться числом, а
-     * может строками 'first'|'last'
+     * @param mixed                 $xPosition Позиция в списке. Может задаваться числом, а
+     *                                         может строками 'first'|'last'
+     *
      * @return array
      */
     public function AddItem($xPosition, $oMenuItem) {
@@ -131,9 +142,11 @@ class ModuleMenu_EntityMenu extends Entity {
 
     /**
      * Возвращает ид. меню
+     *
      * @return int|null
      */
     public function getId() {
+
         return isset($this->_aData['id']) ? $this->_aData['id'] : NULL;
     }
 
@@ -218,17 +231,32 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return bool|ModuleMenu_EntityItem
      */
     public function GetItem($xPosition) {
+
         return $this->SelectItem($xPosition);
     }
 
     /**
      * Возвращает элемент меню из указанной позиции, синоним {@see SelectItem}
      *
-     * @param $sItemId
-     * @return bool|ModuleMenu_EntityItem
+     * @param string $sItemId
+     *
+     * @return ModuleMenu_EntityItem|null
      */
     public function GetItemById($sItemId) {
+
         return isset($this->_aItems[$sItemId]) ? $this->_aItems[$sItemId] : NULL;
+    }
+
+    /**
+     * Удаляет элемент меню по его ID
+     *
+     * @param string $sItemId
+     */
+    public function RemoveItemById($sItemId) {
+
+        if (isset($this->_aItems[$sItemId])) {
+            unset($this->_aItems[$sItemId]);
+        }
     }
 
     /**
@@ -237,6 +265,7 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return ModuleMenu_EntityItem[]
      */
     public function GetItems() {
+
         $aAllowedItems = $this->_aItems;
         $aAllowedData = $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
         if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
@@ -262,7 +291,10 @@ class ModuleMenu_EntityMenu extends Entity {
      * @param $aMenuItems
      */
     public function SetItems($aMenuItems) {
+
         $this->_aItems = $aMenuItems;
     }
 
 }
+
+// EOF

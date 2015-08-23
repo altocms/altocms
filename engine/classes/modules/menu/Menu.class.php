@@ -279,7 +279,8 @@ class ModuleMenu extends Module {
     public function SaveMenu($oMenu) {
 
         // Установим объект для дальнейшего использования
-        Config::Set("menu.data.{$oMenu->getId()}.items", $oMenu->GetItems());
+        //Config::Set("menu.data.{$oMenu->getId()}.items", $oMenu->GetItems());
+        $this->aPreparedMenu[$oMenu->getId()] = $oMenu->GetItems();
 
         // И конфиг сохраним
         $aNewConfigData = array();
