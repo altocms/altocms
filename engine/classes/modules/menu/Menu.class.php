@@ -62,12 +62,14 @@ class ModuleMenu extends Module {
         if ($aMenus && is_array($aMenus)) {
 
             foreach($aMenus as $sMenuId => $aMenu) {
-                if (isset($aMenu['init']['fill'])) {
-                    $aPreparedMenu = $this->Prepare($sMenuId, $aMenu);
-                } else {
-                    $aPreparedMenu = $aMenu;
+                if (!isset($this->aPreparedMenu[$sMenuId])) {
+                    if (isset($aMenu['init']['fill'])) {
+                        $aPreparedMenu = $this->Prepare($sMenuId, $aMenu);
+                    } else {
+                        $aPreparedMenu = $aMenu;
+                    }
+                    $this->SetPreparedMenu($sMenuId, $aPreparedMenu);
                 }
-                $this->SetPreparedMenu($sMenuId, $aPreparedMenu);
             }
         }
     }
