@@ -5,7 +5,7 @@
     <div class="panel panel-default sidebar flat widget widget-tag-city">
         <div class="panel-body pab24">
             <div class="panel-header">
-                <i class="fa fa-tag"></i>{$aLang.widget_city_tags}
+                <i class="fa fa-map-marker"></i>{$aLang.widget_city_tags}
             </div>
 
             <div class="panel-content">

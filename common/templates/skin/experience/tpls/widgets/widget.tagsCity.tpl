@@ -5,7 +5,7 @@
     <div class="panel panel-default sidebar raised widget widget-tag-city">
         <div class="panel-body">
             <div class="panel-header">
-                <i class="fa fa-tag"></i>{$aLang.widget_city_tags}
+                <i class="fa fa-map-marker"></i>{$aLang.widget_city_tags}
             </div>
 
             <div class="panel-content">
@@ -31,6 +31,4 @@
     </div>
 
 {/if}
-
-
 

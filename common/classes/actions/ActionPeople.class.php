@@ -120,6 +120,7 @@ class ActionPeople extends Action {
             return parent::EventNotFound();
         }
         // Получаем статистику
+        // Old skin compatibility
         $this->GetStats();
 
         // Передан ли номер страницы
