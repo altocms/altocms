@@ -1,4 +1,5 @@
 ;jQuery(document).ready(function ($) {
+    var body = $('body');
     // Хук начала инициализации javascript-составляющих шаблона
     ls.hook.run('ls_template_init_start', [], window);
 
@@ -6,18 +7,18 @@
 
     // Определение браузера
     if ($.browser.opera) {
-        $('body').addClass('opera opera' + parseInt($.browser.version));
+        body.addClass('opera opera' + parseInt($.browser.version));
     }
     if ($.browser.mozilla) {
-        $('body').addClass('mozilla mozilla' + parseInt($.browser.version));
+        body.addClass('mozilla mozilla' + parseInt($.browser.version));
     }
     if ($.browser.webkit) {
-        $('body').addClass('webkit webkit' + parseInt($.browser.version));
+        body.addClass('webkit webkit' + parseInt($.browser.version));
     }
     if ($.browser.msie) {
-        $('body').addClass('ie');
+        body.addClass('ie');
         if (parseInt($.browser.version) > 8) {
-            $('body').addClass('ie' + parseInt($.browser.version));
+            body.addClass('ie' + parseInt($.browser.version));
         }
     }
 
@@ -70,6 +71,14 @@
         firstDay: 1
     });
 
+    $('.js-search-link').click(function(){
+        var type = $(this).data('search-type'), form = $('form.search');
+
+        if (type && form.length) {
+            form.prop('action', ls.routerUrl('search') + type).submit();
+            return false;
+        }
+    });
 
     // Поиск по тегам
     $('.js-tag-search-form').submit(function () {
@@ -90,7 +99,7 @@
     });
 
     // Stylization of [type=file]
-    $('body').on('change', '.btn-file input[type=file]', function(){
+    body.on('change', '.btn-file input[type=file]', function(){
         var input = $(this),
             value = input.val(), // get value
             pos = value.lastIndexOf('/') > value.lastIndexOf('\\') ? value.lastIndexOf('/') : value.lastIndexOf('\\'),
@@ -110,7 +119,7 @@
     // Кнопка "UP"
     ls.toolbar.up.init();
 
-    $('body').tooltip({
+    body.tooltip({
         selector: '.js-title-comment, .js-title-topic',
         placement: 'left'
     });

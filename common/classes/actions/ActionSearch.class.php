@@ -452,6 +452,9 @@ class ActionSearch extends Action {
 
         $sEvent = R::GetActionEvent();
 
+        if ((!$sEvent || $sEvent =='index') && F::GetRequestStr('q', null, 'get')) {
+            $sEvent = 'topics';
+        }
         if ($sEvent == 'comments') {
             return $this->EventComments();
         } elseif ($sEvent == 'blogs') {
@@ -526,10 +529,17 @@ class ActionSearch extends Action {
 
         $this->SetTemplateAction('results');
 
+        $aRes = array(
+            'aCounts' => array(
+                'topics' => $aResult['count'],
+                'comments' => null,
+            ),
+        );
+
         // *  Отправляем данные в шаблон
         E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
-        E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
-        E::ModuleViewer()->Assign('aRes', $aResult);
+        E::ModuleViewer()->Assign('bIsResults', !empty($aResult['count']));
+        E::ModuleViewer()->Assign('aRes', $aRes);
         E::ModuleViewer()->Assign('aTopics', $aTopics);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
@@ -584,10 +594,17 @@ class ActionSearch extends Action {
 
         $this->SetTemplateAction('results');
 
+        $aRes = array(
+            'aCounts' => array(
+                'topics' => null,
+                'comments' => $aResult['count'],
+            ),
+        );
+
         // *  Отправляем данные в шаблон
         E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
-        E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
-        E::ModuleViewer()->Assign('aRes', $aResult);
+        E::ModuleViewer()->Assign('bIsResults', !empty($aResult['count']));
+        E::ModuleViewer()->Assign('aRes', $aRes);
         E::ModuleViewer()->Assign('aComments', $aComments);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
     }

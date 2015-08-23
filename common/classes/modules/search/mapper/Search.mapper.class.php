@@ -65,9 +65,8 @@ class ModuleSearch_MapperSearch extends Mapper {
         }
         $sWeight = implode('+', $aWeight);
         $aResult = array();
-        if (!$aParams['bSkipTags']) {
-            $sql
-                = "
+
+        $sql = "
                 SELECT t.topic_id,
                     $sWeight AS weight
                 FROM ?_topic AS t
@@ -85,17 +84,16 @@ class ModuleSearch_MapperSearch extends Mapper {
                 LIMIT ?d, ?d
             ";
 
-            $aRows = $this->oDb->selectPage(
-                $iCount, $sql,
-                $aData['regexp']['words'],
-                $aData['regexp']['words'],
-                ($iCurrPage - 1) * $iPerPage, $iPerPage
-            );
+        $aRows = $this->oDb->selectPage(
+            $iCount, $sql,
+            $aData['regexp']['words'],
+            $aData['regexp']['words'],
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
-            if ($aRows) {
-                foreach ($aRows as $aRow) {
-                    $aResult[] = $aRow['topic_id'];
-                }
+        if ($aRows) {
+            foreach ($aRows as $aRow) {
+                $aResult[] = $aRow['topic_id'];
             }
         }
 
@@ -115,10 +113,10 @@ class ModuleSearch_MapperSearch extends Mapper {
      */
     public function GetCommentsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
 
-        $aRegExp = $this->PrepareRegExp($sRegExp);
+        $aData = $this->PrepareRegExp($sRegExp);
         $aResult = array();
-        if (!$aParams['bSkipTags']) {
-            $sql = "
+
+        $sql = "
                 SELECT DISTINCT c.comment_id,
                     CASE WHEN (LOWER(c.comment_text) REGEXP ?) THEN 1 ELSE 0 END weight
                 FROM ?_comment AS c
@@ -128,20 +126,18 @@ class ModuleSearch_MapperSearch extends Mapper {
                     AND
                         (
                             (LOWER(c.comment_text) REGEXP ?)
-                            {OR (LOWER(c.comment_text) REGEXP ?)}
                         )
                 ORDER BY
                     weight DESC,
                     c.comment_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage(
-                $iCount, $sql,
-                $aRegExp[0],
-                $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage
-            );
-        }
+        $aRows = $this->oDb->selectPage(
+            $iCount, $sql,
+            $aData['regexp']['words'],
+            $aData['regexp']['words'],
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
         if ($aRows) {
             foreach ($aRows as $aRow) {
@@ -166,8 +162,8 @@ class ModuleSearch_MapperSearch extends Mapper {
 
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
-        if (!$aParams['bSkipTags']) {
-            $sql = "
+
+        $sql = "
                 SELECT DISTINCT b.blog_id,
                     CASE WHEN (LOWER(b.blog_title) REGEXP ?) THEN 1 ELSE 0 END weight
                 FROM ?_blog AS b
@@ -184,13 +180,12 @@ class ModuleSearch_MapperSearch extends Mapper {
                     b.blog_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage(
-                $iCount, $sql,
-                $aRegExp[0],
-                $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage
-            );
-        }
+        $aRows = $this->oDb->selectPage(
+            $iCount, $sql,
+            $aRegExp[0],
+            $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
         if ($aRows) {
             foreach ($aRows as $aRow) {

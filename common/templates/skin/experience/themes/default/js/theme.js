@@ -17,7 +17,7 @@ $(function () {
         }).on('hide.bs.modal', function () {
             $('body').removeClass("modal-open-noscroll");
         })
-    })
+    });
 
 
     //noinspection JSUnresolvedFunction
@@ -138,6 +138,14 @@ $(function () {
         ls.tools.textPreview('#form_comment_text', false, 'comment_preview_' + this.iCurrentShowFormComment);
     };
 
+    $('.js-search-link').click(function(){
+        var type = $(this).data('search-type'), form = $('form.search');
+
+        if (type && form.length) {
+            form.prop('action', ls.routerUrl('search') + type).submit();
+            return false;
+        }
+    });
 
     // Поиск по тегам
     $('.js-tag-search-form').submit(function () {
