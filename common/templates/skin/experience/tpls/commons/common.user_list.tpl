@@ -90,7 +90,7 @@
                                data-uid="{$oUserList->getId()}"
                                data-placement="right" data-original-title="{$aLang.user_friend_add}"
                                data-toggle="modal"><i class="fa fa-user"></i></a>
-                        {elseif {$oUserList->getUserFriend()->isFriend()}}
+                        {elseif $oUserList->getUserFriend()->isFriend()}
                             <a href="#" class="small link link-light-gray link-clear link-lead" title="{$aLang.user_friend_del}"
                                data-placement="right" data-original-title="{$aLang.user_friend_del}"
                                onclick="return ls.user.removeFriend(this,{$oUserList->getId()},'del');">
