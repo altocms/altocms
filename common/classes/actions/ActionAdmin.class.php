@@ -917,6 +917,7 @@ class ActionAdmin extends Action {
         if ($this->GetPost('plugin_action') == 'delete' && ($aSelectedPlugins = $this->GetPost('plugin_sel'))) {
             // Удаление плагинов
             $this->_eventPluginsDelete($aSelectedPlugins);
+            R::Location('admin/site-plugins/');
         } elseif ($sAction = $this->GetPost('plugin_action')) {
             $aPlugins = $this->GetPost('plugin_sel');
             if ($sAction == 'activate') {
