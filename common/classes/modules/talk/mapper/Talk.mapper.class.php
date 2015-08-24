@@ -200,18 +200,25 @@ class ModuleTalk_MapperTalk extends Mapper {
         ";
         if ($this->oDb->query($sql, $oTalkUser->getTalkId(), $oTalkUser->getUserId())) {
             $sql = "
-                UPDATE SET talk_user_active = ?d
+                UPDATE ?_talk_user
+                SET talk_user_active = ?d
+                WHERE talk_id=?d AND user_id=?d
             ";
-            $xResult = $this->oDb->query($sql, $oTalkUser->getUserActive());
+            $xResult = $this->oDb->query(
+                $sql,
+                $oTalkUser->getUserActive(),
+                $oTalkUser->getTalkId(),
+                $oTalkUser->getUserId()
+            );
         } else {
             $sql = "
                 INSERT INTO ?_talk_user (
-                  talk_id,
+                    talk_id,
                     user_id,
                     date_last,
                     talk_user_active
                 )
-			VALUES(?d, ?d, ?, ?d)
+			    VALUES(?d, ?d, ?, ?d)
 		";
             $xResult = $this->oDb->query(
                 $sql,
