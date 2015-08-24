@@ -28,4 +28,5 @@ class PluginExample_ActionExample extends ActionPlugin {
 
     }
 }
-?>
+
+// EOF
