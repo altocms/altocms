@@ -71,44 +71,6 @@ $config['default']['js'] = array(
         'compress' => false,
         'merge'    => false
     ),
-
-    /* markitUp */
-    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => array(
-        'dir_from' => '___path.frontend.dir___/libs/vendor/markitup/',
-        'name'     => 'markitup',
-    ),
-
-    /* tinyMCE */
-    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => array(
-        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
-        'name'     => 'tinymce_4',
-        'compress' => false,
-        'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => array(
-        'dir_from'  => '___path.frontend.dir___/libs/vendor/tinymce_4/',
-        'prepare'   => true,
-        'compress'  => false,
-        'merge'     => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => array(
-        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
-        'prepare'  => true,
-        'compress' => false,
-        'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => array(
-        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
-        'prepare'  => true,
-        'compress' => false,
-        'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
-        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
-        'prepare'  => true,
-        'compress' => false,
-        'merge'    => false,
-    ),
     '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => array(
         'dir_from'  => '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/',
         'prepare'   => true,
@@ -158,6 +120,51 @@ $config['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/masonry.pkgd.js',
     '___path.frontend.dir___/libs/vendor/imagesloaded.pkgd.js',
 );
+
+if (Config::Get('view.wysiwyg')) {
+    $config['default']['js'] = array_merge($config['default']['js'], array(
+        /* tinyMCE */
+        '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js' => array(
+            'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+            'name'     => 'tinymce_4',
+            'compress' => false,
+            'merge'    => false,
+        ),
+        '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'      => array(
+            'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+            'prepare'  => true,
+            'compress' => false,
+            'merge'    => false,
+        ),
+        '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'        => array(
+            'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+            'prepare'  => true,
+            'compress' => false,
+            'merge'    => false,
+        ),
+        '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'        => array(
+            'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+            'prepare'  => true,
+            'compress' => false,
+            'merge'    => false,
+        ),
+        '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
+            'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+            'prepare'  => true,
+            'compress' => false,
+            'merge'    => false,
+        ),
+    ));
+}
+else {
+    $config['default']['js'] = array_merge($config['default']['js'], array(
+        /* markitUp */
+        '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js' => array(
+            'dir_from' => '___path.frontend.dir___/libs/vendor/markitup/',
+            'name'     => 'markitup',
+        ),
+    ));
+}
 
 //потенциально проблемные файлы выводим в футере
 $config['footer']['js'] = array(

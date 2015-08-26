@@ -57,20 +57,25 @@ $config['assets']['default']['css'] = array(
     '___path.skin.dir___/assets/css/hover.css',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
+);
 
-    /* tinyMCE */
-    '___path.skin.dir___/assets/css/tinymce.css'       => array(
-        'name'      => 'template-tinymce.css',
-        'prepare'   => true,
-        'merge'     => false,
-    ),
+if (Config::Get('view.wysiwyg')) {
+    $config['assets']['default']['css'] = array_merge($config['assets']['default']['css'], array(
+        /* tinyMCE */
+        '___path.skin.dir___/assets/css/tinymce.css' => array(
+            'name'    => 'template-tinymce.css',
+            'prepare' => true,
+            'merge'   => false,
+        ),
+    ));
+}
 
-
+$config['assets']['default']['css'] = array_merge($config['assets']['default']['css'], array(
     /* Theme */
     '___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css',
     //'___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css.map',
     '___path.skin.dir___/themes/___view.theme___/css/custom.___view.theme___.css',
-);
+));
 
 return $config;
 
