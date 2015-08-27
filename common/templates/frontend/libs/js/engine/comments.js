@@ -189,7 +189,7 @@ ls.comments = (function ($) {
         if (replyForm) {
             replyForm.find('.btn,[class|=btn],.button').prop('disabled', true);
         }
-    }
+    };
 
     /**
      * Activates comment form
@@ -211,41 +211,31 @@ ls.comments = (function ($) {
     /**
      * Hides comment form
      */
-    this.formCommentHide = function() {
-        var replyForm = this.getReplyForm();
+    this.formCommentHide = function(replyForm) {
+
+        if (!replyForm) {
+            replyForm = this.getReplyForm();
+        }
 
         if(replyForm){
             $('.comment-actions [class|=comment]').removeClass('active');
             replyForm.hide();
         }
         $('.comment-preview').text('').hide();
+        $('#comment_id_0').show();
     };
 
     /**
-     * Hides/shows comment form
-     *
-     * @param idComment
-     * @param bNoFocus
-     * @param mode
-     * @returns {boolean}   - false - форма скрыта, true - форма видима
+     * Show comment form
      */
-    this.toggleCommentForm = function (idComment, bNoFocus, mode) {
-        var replyForm = this.getReplyForm(),
-            textarea = replyForm.find('textarea'),
-            textareaId = textarea.attr('id');
+    this.formCommentShow = function(replyForm, idComment, bNoFocus, mode) {
+        var textarea, textareaId;
 
-        if (!replyForm.length) {
-            return false;
+        if (!replyForm) {
+            replyForm = this.getReplyForm();
         }
-        if (!mode) {
-            mode = 'reply';
-        }
-        $('#comment_preview_' + this.iCurrentShowFormComment).remove();
-
-        if (this.iCurrentShowFormComment == idComment && replyForm.is(':visible')) {
-            this.formCommentHide();
-            return false;
-        }
+        textarea = replyForm.find('textarea');
+        textareaId = textarea.attr('id');
 
         if (this.options.wysiwyg) {
             tinyMCE.execCommand('mceRemoveEditor', true, textareaId);
@@ -291,7 +281,38 @@ ls.comments = (function ($) {
         if (!idComment) {
             $('.comment-actions [class|=comment]').removeClass('active');
         }
-        return true;
+        $('#comment_id_0').hide();
+    };
+
+    /**
+     * Hides/shows comment form
+     *
+     * @param idComment
+     * @param bNoFocus
+     * @param mode
+     * @returns {boolean}   - false - форма скрыта, true - форма видима
+     */
+    this.toggleCommentForm = function (idComment, bNoFocus, mode) {
+        var replyForm = this.getReplyForm(),
+            textarea = replyForm.find('textarea'),
+            textareaId = textarea.attr('id');
+
+        if (!replyForm.length) {
+            return false;
+        }
+        if (!mode) {
+            mode = 'reply';
+        }
+        $('#comment_preview_' + this.iCurrentShowFormComment).remove();
+
+        if (this.iCurrentShowFormComment == idComment && replyForm.is(':visible')) {
+            this.formCommentHide(replyForm, idComment);
+            return false;
+        } else {
+            this.formCommentShow(replyForm, idComment, bNoFocus, mode);
+            return false;
+        }
+
     };
 
     this.reply = function(idComment) {

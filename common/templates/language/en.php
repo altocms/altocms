@@ -1436,6 +1436,7 @@ return array(
     'grid' => 'Display as a grid',
     'list' => 'Display as list',
     'text_confirm' => 'Сonfirm',
+    'text_send' => 'Send',
     'text_cancel' => 'Сancel',
     'text_yes' => 'Yes',
     'text_no' => 'No',

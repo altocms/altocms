@@ -171,10 +171,12 @@
                 <input type="hidden" name="cmt_target_id" value="{$iTargetId}"/>
                 <input type="hidden" name="reply" value="0" id="form_comment_reply"/>
 
+                <button type="button" onclick="ls.comments.formCommentHide();"
+                        class="btn btn-light btn-normal corner-no pull-right js-button-cancel">{$aLang.text_cancel}</button>
                 <button type="submit" name="submit_comment"
                         id="comment-button-submit"
                         onclick="ls.comments.add(this,'{$iTargetId}','{$sTargetType}'); return false;"
-                        class="btn btn-blue btn-normal corner-no js-button-submit">{$aLang.comment_add}</button>
+                        class="btn btn-blue btn-normal corner-no js-button-submit">{$aLang.text_send}</button>
                 <button type="submit" name="edit_comment"
                         id="comment-button-edit"
                         onclick="ls.comments.editSubmit(this, '{$iTargetId}', '{$sTargetType}'); return false;"

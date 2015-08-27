@@ -1422,6 +1422,7 @@ return array(
     'list'                                      => 'Отображать списком',
 
     'text_confirm'                              => 'Подтвердить',
+    'text_send'                                 => 'Отправить',
     'text_cancel'                               => 'Отмена',
     'text_yes'                                  => 'Да',
     'text_no'                                   => 'Нет',
