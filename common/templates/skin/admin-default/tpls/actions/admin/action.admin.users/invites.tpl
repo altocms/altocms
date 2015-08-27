@@ -41,42 +41,42 @@ admin.sort = function(sort, order) {
         </th>
         <th>
             {if $sInviteSort=='code'}
-            <a href="#" onclick="admin.sort('code', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_code}</b></a>
+            <a href="#" onclick="admin.sort('code', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$aLang.action.admin.invite_code}</b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="admin.sort('code', 1); return false;"> {$oLang->adm_invite_code} </a>
+            <a href="#" onclick="admin.sort('code', 1); return false;"> {$aLang.action.admin.invite_code} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='user_from'}
-            <a href="#" onclick="admin.sort('user_from', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_user_from} </b></a>
+            <a href="#" onclick="admin.sort('user_from', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$aLang.action.admin.invite_user_from} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="admin.sort('user_from', 1); return false;"> {$oLang->adm_invite_user_from} </a>
+            <a href="#" onclick="admin.sort('user_from', 1); return false;"> {$aLang.action.admin.invite_user_from} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='date_add'}
-            <a href="#" onclick="admin.sort('date_add', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_date_add} </b></a>
+            <a href="#" onclick="admin.sort('date_add', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$aLang.action.admin.invite_date_add} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="admin.sort('date_add', 1); return false;"> {$oLang->adm_invite_date_add} </a>
+            <a href="#" onclick="admin.sort('date_add', 1); return false;"> {$aLang.action.admin.invite_date_add} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='user_to'}
-            <a href="#" onclick="admin.sort('user_to', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_user_to} </b></a>
+            <a href="#" onclick="admin.sort('user_to', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$aLang.action.admin.invite_user_to} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="admin.sort('user_to', 1); return false;"> {$oLang->adm_invite_user_to} </a>
+            <a href="#" onclick="admin.sort('user_to', 1); return false;"> {$aLang.action.admin.invite_user_to} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='date_used'}
-            <a href="#" onclick="admin.sort('date_used', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_date_used} </b></a>
+            <a href="#" onclick="admin.sort('date_used', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$aLang.action.admin.invite_date_used} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="admin.sort('date_used', 1); return false;"> {$oLang->adm_invite_date_used} </a>
+            <a href="#" onclick="admin.sort('date_used', 1); return false;"> {$aLang.action.admin.invite_date_used} </a>
             {/if}
         </th>
     </tr>
@@ -117,7 +117,7 @@ admin.sort = function(sort, order) {
     <button class="btn btn-danger" name="btn-delete" style="float: right;">Delete</button>
 {include file='inc.paging.tpl'}
 {else}
-    {$oLang->user_empty}
+    {$aLang.user_empty}
 {/if}
 </form>
 

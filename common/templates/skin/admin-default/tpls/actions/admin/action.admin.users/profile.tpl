@@ -119,12 +119,12 @@
 
         <div class="row-fluid">
             <div class="strength span3">
-                {$oLang->user_skill}
+                {$aLang.user_skill}
                 <div class="total" id="user_skill_{$oUserProfile->getId()}">{$oUserProfile->getSkill()}</div>
             </div>
 
             <div class="voting span3">
-                {$oLang->user_rating}
+                {$aLang.user_rating}
 
                 <div style="display: inline-block; margin: auto;">
                     <i class="icon icon-arrow-up icon-green adm_vote_plus"
@@ -140,7 +140,7 @@
             </div>
 
             <div class="voting span3">
-                {$oLang->user_vote_count}
+                {$aLang.user_vote_count}
                 <div class="count">{$oUserProfile->getCountVote()}</div>
             </div>
         </div>

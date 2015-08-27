@@ -103,30 +103,30 @@
 <div class="b-wbox -box">
 
 <div class="b-wbox-header">
-	<div class="b-wbox-header-title">{$oLang->profile_privat}</div>
+	<div class="b-wbox-header-title">{$aLang.profile_privat}</div>
 </div>
 
 <table class="table">
     {if $oUserProfile->getProfileSex()!='other'}
         <tr>
-            <td class="adm_var">{$oLang->profile_sex}:</td>
+            <td class="adm_var">{$aLang.profile_sex}:</td>
             <td>
                 {if $oUserProfile->getProfileSex()=='man'}
-                {$oLang->profile_sex_man}
+                {$aLang.profile_sex_man}
                 {else}
-                {$oLang->profile_sex_woman}
+                {$aLang.profile_sex_woman}
                 {/if}
             </td>
         </tr>
     {/if}
 
     <tr>
-        <td class="adm_var">{$oLang->profile_birthday}:</td>
+        <td class="adm_var">{$aLang.profile_birthday}:</td>
         <td>{$oUserProfile->getProfileBirthday()}</td>
     </tr>
 
     <tr>
-        <td class="adm_var">{$oLang->profile_place}:</td>
+        <td class="adm_var">{$aLang.profile_place}:</td>
         <td>
             {if $oUserProfile->getProfileCountry()}
                 <a href="{router page='people'}country/{$oUserProfile->getProfileCountry()|escape:'html'}/">{$oUserProfile->getProfileCountry()|escape:'html'}</a>{if $oUserProfile->getProfileCity()}
@@ -139,7 +139,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var" id="user_profile_about_label">{$oLang->profile_about}:</td>
+        <td class="adm_var" id="user_profile_about_label">{$aLang.profile_about}:</td>
         <td class="adm_field">
             <button class="btn btn-default btn-mini"
                     onclick="admin.editField('user_profile_about', this, 'text'); return false;">
@@ -151,7 +151,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var" id="user_profile_site_label">{$oLang->profile_site}:</td>
+        <td class="adm_var" id="user_profile_site_label">{$aLang.profile_site}:</td>
         <td class="adm_field">
             <button class="btn btn-default btn-mini"
                     onclick="admin.editField('user_profile_site', this, 'url'); return false;">
@@ -167,7 +167,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var" id="user_profile_email_label">{$oLang->settings_profile_mail}:</td>
+        <td class="adm_var" id="user_profile_email_label">{$aLang.settings_profile_mail}:</td>
         <td class="adm_field">
             <button class="btn btn-default btn-mini"
                     onclick="admin.editField('user_profile_email', this, 'email'); return false;">
@@ -197,16 +197,16 @@
 <div class="b-wbox -box">
 	
 <div class="b-wbox-header">
-	<div class="b-wbox-header-title">{$oLang->profile_activity}</div>
+	<div class="b-wbox-header-title">{$aLang.profile_activity}</div>
 </div>
 
 <table class="table">
     <tr>
-        <td class="adm_var">{$oLang->profile_date_registration}:</td>
+        <td class="adm_var">{$aLang.profile_date_registration}:</td>
         <td>{date_format date=$oUserProfile->getDateRegister()} (ip:{$oUserProfile->getIpRegister()})</td>
     </tr>
     <tr>
-        <td class="adm_var">{$oLang->profile_date_last}:</td>
+        <td class="adm_var">{$aLang.profile_date_last}:</td>
         <td>
             {if $oSession}
                 {date_format date=$oSession->getDateLast()} (ip:{$oSession->getIpLast()})
@@ -215,7 +215,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var">{$oLang->profile_friends}:</td>
+        <td class="adm_var">{$aLang.profile_friends}:</td>
         <td class="friends">
             {if $aUsersFriend}
                 {foreach from=$aUsersFriend item=oUserFriend}
@@ -231,7 +231,7 @@
     </tr>
 
     {*<tr>*}
-        {*<td class="adm_var">{$oLang->profile_friends_self}:</td>*}
+        {*<td class="adm_var">{$aLang.profile_friends_self}:</td>*}
         {*<td class="friends">*}
             {*{if $aUsersSelfFrend}*}
                 {*{foreach from=$aUsersSelfFrend item=oUserFrend}*}
@@ -243,7 +243,7 @@
 
     {if Config::Get('general.reg.invite') and $oUserInviteFrom}
         <tr>
-            <td class="adm_var">{$oLang->profile_invite_from}:</td>
+            <td class="adm_var">{$aLang.profile_invite_from}:</td>
             <td class="friends">
                 <a href="{$oUserInviteFrom->getProfileUrl()}">{$oUserInviteFrom->getDisplayName()}</a>
             </td>
@@ -252,7 +252,7 @@
 
     {if Config::Get('general.reg.invite') and $aUsersInvite}
         <tr>
-            <td class="adm_var">{$oLang->profile_invite_to}:</td>
+            <td class="adm_var">{$aLang.profile_invite_to}:</td>
             <td class="friends">
                 {foreach from=$aUsersInvite item=oUserInvite}
                     <a href="{$oUserInvite->getProfileUrl()}">{$oUserInvite->getDisplayName()}</a>{if !$oUserInvite@last}, {/if}
@@ -262,7 +262,7 @@
     {/if}
 
     <tr>
-        <td class="adm_var">{$oLang->profile_blogs_self}:</td>
+        <td class="adm_var">{$aLang.profile_blogs_self}:</td>
         <td>
             {if $aBlogsOwner}
                 {foreach from=$aBlogsOwner item=oBlog name=blog_owner}
@@ -276,7 +276,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var">{$oLang->profile_blogs_administration}:</td>
+        <td class="adm_var">{$aLang.profile_blogs_administration}:</td>
         <td>
             {if $aBlogsAdministration}
                 {foreach from=$aBlogsAdministration item=oBlogUser name=blog_user}
@@ -291,7 +291,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var">{$oLang->profile_blogs_moderation}:</td>
+        <td class="adm_var">{$aLang.profile_blogs_moderation}:</td>
         <td>
             {if $aBlogsModeration}
                 {foreach from=$aBlogsModeration item=oBlogUser name=blog_user}
@@ -306,7 +306,7 @@
     </tr>
 
     <tr>
-        <td class="adm_var">{$oLang->profile_blogs_join}:</td>
+        <td class="adm_var">{$aLang.profile_blogs_join}:</td>
         <td>
             {if $aBlogsUser}
                 {foreach from=$aBlogsUser item=oBlogUser name=blog_user}

@@ -97,7 +97,7 @@
 </div>
 
 {else}
-    {$oLang->user_empty}
+    {$aLang.user_empty}
 {/if}
 </form>
 </div>
