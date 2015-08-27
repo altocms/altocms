@@ -1237,7 +1237,7 @@ class ModuleUploader extends Module {
      * @param int|array|null $xUsers
      * @param array|null     $aStructurize
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetTargetImages($sTargetType, $xTargetId = null, $xUsers = null, $aStructurize = null) {
 
@@ -1258,7 +1258,7 @@ class ModuleUploader extends Module {
      * @param int|array|null $xUsers
      * @param array|null     $aStructurize
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetMediaObjects($sTargetType, $xTargetId = null, $xUsers = null, $aStructurize = null) {
 
@@ -1278,7 +1278,7 @@ class ModuleUploader extends Module {
      * @param $sTargetType
      * @param $xTargetId
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetImagesByUserAndTarget($xUsers, $sTargetType, $xTargetId = null) {
 

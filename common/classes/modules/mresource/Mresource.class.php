@@ -319,7 +319,7 @@ class ModuleMresource extends Module {
      * @param int|array|null $xTargetId
      * @param int|array|null $xUserId
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId = null, $xUserId = null) {
 

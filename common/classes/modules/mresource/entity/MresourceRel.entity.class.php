@@ -8,6 +8,13 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleMresource_EntityMresourceRel
+ *
+ * @method int GetMresourceId()
+ * @methos string getTargetType()
+ *
+ */
 class ModuleMresource_EntityMresourceRel extends ModuleMresource_EntityMresource {
 
     public function GetId() {
