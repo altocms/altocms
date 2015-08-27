@@ -225,7 +225,7 @@ class ModuleImg extends Module {
      */
     public function Resize($xImage, $iWidth = null, $iHeight = null, $bFit = true) {
 
-        if (!$xImage || (!$iWidth && !$iHeight)) {
+        if (!$xImage || (!$iWidth && !$iHeight) || (!is_numeric($iWidth) && !is_numeric($iHeight))) {
             return false;
         }
         if (!is_object($xImage)) {
@@ -811,11 +811,14 @@ class ModuleImg extends Module {
      */
     public function AutoresizeSkinImage($sFile, $sPrefix, $iSize) {
 
+        $xResult = false;
         $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $iSize);
         if ($sImageFile) {
             if ($iSize) {
                 $oImg = $this->Resize($sImageFile, $iSize, $iSize);
-                $xResult = $oImg->SaveUpload($sFile);
+                if ($oImg) {
+                    $xResult = $oImg->SaveUpload($sFile);
+                }
             } else {
                 $xResult = $this->Copy($sImageFile, $sFile);
             }
@@ -823,7 +826,6 @@ class ModuleImg extends Module {
             // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
             //$oImg = $this->Create($nSize, $nSize);
             //$xResult = $oImg->SaveUpload($sFile);
-            $xResult = false;
         }
         return $xResult;
     }

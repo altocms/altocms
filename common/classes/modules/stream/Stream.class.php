@@ -496,8 +496,8 @@ class ModuleStream extends Module {
     /**
      * Проверяет подписан ли пользователь на конкретного пользователя
      *
-     * @param $iUserId          ID пользователя
-     * @param $iTargetUserId    ID пользователя на которого подписан
+     * @param int $iUserId          ID пользователя
+     * @param int $iTargetUserId    ID пользователя на которого подписан
      *
      * @return bool
      */

@@ -591,7 +591,7 @@ class ModuleUser_EntityUser extends Entity {
     public function isOnline() {
 
         if ($oSession = $this->getSession()) {
-            if ($oSession->GetSessionExit()) {
+            if ($oSession->getDateExit()) {
                 // User has logout
                 return false;
             }
@@ -695,10 +695,16 @@ class ModuleUser_EntityUser extends Entity {
             $nW = $nH = intval($xSize);
         }
 
-        $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
+        $sResizePath = $sPath . '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
+            $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sResizePath, 'avatar', max($nH, $nW));
         }
+        if ($sResizePath) {
+            $sPath = $sResizePath;
+        } elseif (!F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', null);
+        }
+
         return E::ModuleUploader()->Dir2Url($sPath);
     }
 

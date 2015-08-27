@@ -345,6 +345,7 @@ class ModuleBlog_EntityBlog extends Entity {
         }
 
         $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
+        $sResizePath = null;
         if ($xSize) {
             if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
                 $xSize = $sRealSize;
@@ -353,12 +354,18 @@ class ModuleBlog_EntityBlog extends Entity {
                 $xSize = substr($xSize, 1);
             }
             if ($nSize = intval($xSize)) {
-                $sPath .= '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+                $sResizePath = $sPath . '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+                if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
+                    $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
+                }
             }
         }
-        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
+        if ($sResizePath) {
+            $sPath = $sResizePath;
+        } elseif (!F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', null);
         }
+
         return E::ModuleUploader()->Dir2Url($sPath);
     }
 
