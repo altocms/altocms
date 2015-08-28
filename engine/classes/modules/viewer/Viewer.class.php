@@ -1597,8 +1597,8 @@ class ModuleViewer extends Module {
         }
 
         // Compatibility with old style skins
-        if ($aAssets = Config::Get('head.default')) {
-            E::ModuleViewerAsset()->AddAssetFiles($aAssets);
+        if ($aOldAssetsConfig = Config::Get('head.default')) {
+            E::ModuleViewerAsset()->AddAssetFiles($aOldAssetsConfig);
         } else {
             E::ModuleViewerAsset()->AddAssetFiles(Config::Get('assets.default'));
         }
