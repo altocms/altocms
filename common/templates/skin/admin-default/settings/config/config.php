@@ -6,7 +6,7 @@ $config['smarty']['dir']['templates'] = array(
     'tpls'   => '___path.skins.dir___/___view.skin___/tpls/',
 );
 
-$config['head']['default']['css'] = array(
+$config['assets']['default']['css'] = array(
     '___path.frontend.dir___/libs/vendor/markitup/skins/default/style.css',
     '___path.frontend.dir___/libs/vendor/markitup/sets/default/style.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
@@ -27,7 +27,7 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/themes/___view.theme___/theme.css',
 );
 
-$config['head']['default']['js'] = array(
+$config['assets']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
