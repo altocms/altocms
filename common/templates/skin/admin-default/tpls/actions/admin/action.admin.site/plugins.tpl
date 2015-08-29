@@ -72,8 +72,8 @@
                                 </div>
                             </td>
                             <td class="center">
-                                {if $oPlugin->isActive() AND $oPlugin->GetProperty('settings') != ''}
-                                    <a href="{$oPlugin->GetProperty('settings')}">{$aLang.plugins_plugin_settings}</a>
+                                {if $oPlugin->isActive() AND $oPlugin->GetSettings()}
+                                    <a href="{$oPlugin->GetSettings()|escape:'url'}">{$aLang.action.admin.plugin_settings}</a>
                                 {/if}
                             </td>
                         </tr>
