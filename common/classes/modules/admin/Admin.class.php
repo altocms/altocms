@@ -219,6 +219,7 @@ class ModuleAdmin extends Module {
 
         $bResult = $this->oMapper->UpdateCustomConfig($aConfig);
         E::ModuleCache()->CleanByTags(array('config_update'));
+
         return $bResult;
     }
 
@@ -247,11 +248,11 @@ class ModuleAdmin extends Module {
      */
     public function DelCustomConfig($sKeyPrefix = null) {
 
-        $sCacheKey = 'config_' . $sKeyPrefix;
         // Удаляем в базе
         $bResult = $this->oMapper->DeleteCustomConfig($sKeyPrefix);
         // Чистим кеш
-        E::ModuleCache()->CleanByTags(array($sCacheKey));
+        E::ModuleCache()->CleanByTags(array('config_update'));
+
         return $bResult;
     }
 

@@ -313,13 +313,22 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     public function GetCustomConfig($sPrefix = '') {
 
         if ($sPrefix) {
+            $sPrefix = addslashes($sPrefix);
+            if (substr($sPrefix, -1) == '.') {
+                $sRootPath = substr($sPrefix, 0, strlen($sPrefix) - 1);
+            } else {
+                $sRootPath = $sPrefix;
+                $sPrefix .= '.';
+            }
             $sql = "
-                SELECT storage_key, storage_val
+                SELECT storage_key AS ARRAY_KEY, storage_key, storage_val
                 FROM ?_storage
-                WHERE storage_key LIKE '" . $sPrefix . "%'";
+                WHERE
+                    storage_key = '" . $sRootPath . "'
+                    OR storage_key LIKE '" . $sPrefix . "%'";
         } else {
             $sql = "
-                SELECT storage_key, storage_val
+                SELECT storage_key AS ARRAY_KEY, storage_key, storage_val
                 FROM ?_storage
             ";
         }
@@ -334,10 +343,19 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     public function DeleteCustomConfig($sPrefix = '') {
 
         if ($sPrefix) {
+            $sPrefix = addslashes($sPrefix);
+            if (substr($sPrefix, -1) == '.') {
+                $sRootPath = substr($sPrefix, 0, strlen($sPrefix) - 1);
+            } else {
+                $sRootPath = $sPrefix;
+                $sPrefix .= '.';
+            }
             $sql = "
                 DELETE
                 FROM ?_storage
-                WHERE storage_key LIKE '" . $sPrefix . "%'";
+                WHERE
+                    storage_key = '" . $sRootPath . "'
+                    OR storage_key LIKE '" . $sPrefix . "%'";
         } else {
             $sql = "
                 DELETE

@@ -94,7 +94,7 @@ class Config extends Storage {
     public function __destruct() {
 
         if (DEBUG) {
-            var_dump('Config', self::$aElapsedTime);
+            //var_dump('Config', self::$aElapsedTime);
         }
     }
 
@@ -940,6 +940,15 @@ class Config extends Storage {
         self::_deleteCustomCfg();
         // перестраиваем конфиг в кеш-файле
         self::ReReadCustomConfig();
+    }
+
+    /**
+     * Invalidate cache of custom configuration
+     */
+    static public function InvalidateCustomConfig() {
+
+        // удаляем кеш-файл
+        self::_deleteCustomCfg();
     }
 
     /**
