@@ -250,12 +250,37 @@ class ModuleMenu_EntityMenu extends Entity {
     /**
      * Удаляет элемент меню по его ID
      *
-     * @param string $sItemId
+     * @param string|array|object $xItem
+     * @param bool                $bClearCache
      */
-    public function RemoveItemById($sItemId) {
+    public function RemoveItemById($xItem, $bClearCache = false) {
 
-        if (isset($this->_aItems[$sItemId])) {
-            unset($this->_aItems[$sItemId]);
+        if (is_array($xItem)) {
+            /** @var string|object $xItemId */
+            foreach($xItem as $xItemId) {
+                if (is_object($xItemId)) {
+                    $sItemId = $xItemId->getId();
+                } else {
+                    $sItemId = (string)$xItemId;
+                }
+                if (isset($this->_aItems[$sItemId])) {
+                    unset($this->_aItems[$sItemId]);
+                }
+            }
+        } else {
+            if (is_object($xItem)) {
+                $sItemId = $xItem->getId();
+            } else {
+                $sItemId = (string)$xItem;
+            }
+            if (isset($this->_aItems[$sItemId])) {
+                unset($this->_aItems[$sItemId]);
+            }
+        }
+
+        if ($bClearCache) {
+            Config::ResetCustomConfig('menu.data.' . $this->getId() . '.list');
+            E::ModuleMenu()->SaveMenu($this);
         }
     }
 

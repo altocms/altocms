@@ -288,8 +288,10 @@ class ModuleMenu extends Module {
         foreach ($oMenu->GetItems() as $sMenuId => $oMenuItem) {
             $aNewConfigData[$sMenuId] = $oMenuItem ? $oMenuItem->getItemConfig() : "";
         }
-        Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewConfigData));
+
+        Config::Set("menu.data.{$oMenu->getId()}.list", null);
         Config::Set("menu.data.{$oMenu->getId()}.list", $aNewConfigData);
+        Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewConfigData));
     }
 
     /**
