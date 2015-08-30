@@ -13,10 +13,8 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeLib('Jevix/jevix.class.php');
-
 /**
- * Модуль обработки текста на основе типографа Jevix
+ * Модуль обработки текста на основе типографа Jevix/Qevix
  * Позволяет вырезать из текста лишние HTML теги и предотвращает различные попытки внедрить в текст JavaScript
  * <pre>
  * $sText=E::ModuleText()->Parser($sTestSource);
@@ -27,12 +25,13 @@ F::IncludeLib('Jevix/jevix.class.php');
  * @since   1.0
  */
 class ModuleText extends Module {
+
     /**
      * Объект типографа
      *
-     * @var Jevix
+     * @var Jevix|Qevix
      */
-    protected $oJevix;
+    protected $oTextParser;
 
     protected $aLinks = array();
 
@@ -58,20 +57,50 @@ class ModuleText extends Module {
             ),
         );
 
-        /**
-         * Создаем объект типографа и запускаем его конфигурацию
-         */
-        $this->oJevix = new Jevix();
-        $this->JevixConfig();
+        // * Create a typographer and load its configuration
+        $this->_createTextParser($this->aCheckTagLinks);
 
-        foreach($this->aCheckTagLinks as $sTag => $aParams) {
-            $this->oJevix->cfgSetTagCallbackFull($sTag, array($this, 'CallbackCheckLinks'));
+    }
+
+    /**
+     * Create a typographer and load its configuration
+     */
+    protected function _createTextParser($aCheckTagLinks) {
+
+        $sParser = C::Get('module.text.parser');
+        if ($sParser && strtolower($sParser) == 'qevix') {
+            $this->oTextParser = new Qevix();
+            $this->_loadTextParserConfig('qevix');
+
+            foreach($aCheckTagLinks as $sTag => $aParams) {
+                $this->oTextParser->cfgSetTagBuildCallback($sTag, array($this, 'CallbackCheckLinks'));
+            }
+        } else {
+            $this->oTextParser = new Jevix();
+            $this->_loadTextParserConfig();
+
+            foreach($aCheckTagLinks as $sTag => $aParams) {
+                $this->oTextParser->cfgSetTagCallbackFull($sTag, array($this, 'CallbackCheckLinks'));
+            }
+        }
+    }
+
+    /**
+     * @param string $sParser
+     */
+    protected function _loadTextParserConfig($sParser = null) {
+
+        if ($sParser == 'qevix') {
+            $this->LoadQevixConfig();
+        } else {
+            $this->LoadJevixConfig();
         }
     }
 
     /**
      * Конфигурирует типограф
      *
+     * @deprecated
      */
     protected function JevixConfig() {
         // загружаем конфиг
@@ -87,7 +116,7 @@ class ModuleText extends Module {
     public function LoadJevixConfig($sType = 'default', $bClear = true) {
 
         if ($bClear) {
-            $this->oJevix->tagsRules = array();
+            $this->oTextParser->tagsRules = array();
         }
         $aConfig = Config::Get('jevix.' . $sType);
         if (is_array($aConfig)) {
@@ -102,16 +131,47 @@ class ModuleText extends Module {
                             $aParams[1][0] = $this;
                         }
                     }
-                    call_user_func_array(array($this->oJevix, $sMethod), $aParams);
+                    call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
                 }
             }
-            /**
-             * Хардкодим некоторые параметры
-             */
-            unset($this->oJevix->entities1['&']); // разрешаем в параметрах символ &
-            if (Config::Get('view.noindex') && isset($this->oJevix->tagsRules['a'])) {
-                $this->oJevix->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
+
+            // * Хардкодим некоторые параметры
+            unset($this->oTextParser->entities1['&']); // разрешаем в параметрах символ &
+            if (Config::Get('view.noindex') && isset($this->oTextParser->tagsRules['a'])) {
+                $this->oTextParser->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
             }
+        }
+    }
+
+    /**
+     * Загружает конфиг Qevix'а
+     *
+     * @param string $sType     Тип конфига
+     * @param bool   $bClear    Очищать предыдущий конфиг или нет
+     */
+    public function LoadQevixConfig($sType = 'default', $bClear = true) {
+
+        if ($bClear) {
+            $this->oTextParser->tagsRules = array();
+        }
+        $aConfig = Config::Get('jevix.' . $sType);
+        if (is_array($aConfig)) {
+            foreach ($aConfig as $sMethod => $aExec) {
+                foreach ($aExec as $aParams) {
+                    call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
+                }
+            }
+
+            // * Хардкодим некоторые параметры
+            unset($this->oTextParser->entities1['&']); // разрешаем в параметрах символ &
+            if (Config::Get('view.noindex') && isset($this->oTextParser->tagsRules['a'])) {
+                $this->oTextParser->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
+            }
+        }
+
+        $this->oTextParser->cfgSetTagBuildCallback('ls', array($this, 'CallbackTagLs'));
+        if (C::Get('module.text.char.@')) {
+            $this->oTextParser->cfgSetSpecialCharCallback('@', array($this, 'CallbackTagAt'));
         }
     }
 
@@ -122,24 +182,34 @@ class ModuleText extends Module {
      */
     public function GetJevix() {
 
-        return $this->oJevix;
+        return $this->oTextParser;
     }
 
     /**
      * Парсинг текста с помощью Jevix
+     *
+     * @deprecated
+     */
+    public function JevixParser($sText, &$aError = null) {
+
+        return $this->TextParser($sText, $aError);
+    }
+
+    /**
+     * Парсинг текста
      *
      * @param string $sText     Исходный текст
      * @param array  $aError    Возвращает список возникших ошибок
      *
      * @return string
      */
-    public function JevixParser($sText, &$aError = null) {
+    public function TextParser($sText, &$aError = null) {
 
         // Если конфиг пустой, то загружаем его
-        if (!count($this->oJevix->tagsRules)) {
+        if (!count($this->oTextParser->tagsRules)) {
             $this->LoadJevixConfig();
         }
-        $sResult = $this->oJevix->parse($sText, $aError);
+        $sResult = $this->oTextParser->parse($sText, $aError);
         return $sResult;
     }
 
@@ -226,7 +296,8 @@ class ModuleText extends Module {
      * @version 0.1 Базовый функционал
      * @version 0.2 Добавлены блочный и шаблонный сниппеты
      *
-     * @param $sText
+     * @param string $sText
+     *
      * @return string
      */
     public function SnippetParser($sText) {
@@ -282,7 +353,7 @@ class ModuleText extends Module {
                     // Попытаемся получить результат от обработчика
                     // Может сниппет уже был в обработке, тогда просто возьмем его из кэша
                     $sCacheKey = $sSnippetName . md5(serialize($aParams));
-                    if (FALSE === ($sResult = E::ModuleCache()->GetLife($sCacheKey))) {
+                    if (FALSE === ($sResult = E::ModuleCache()->GetTmp($sCacheKey))) {
 
                         // Определим тип сниппета, может быть шаблонным, а может и исполняемым
                         // по умолчанию сниппет ссчитаем исполняемым. Если шаблонный, то его
@@ -299,7 +370,7 @@ class ModuleText extends Module {
                         ));
 
                         // Запишем результат обработки в кэш
-                        E::ModuleCache()->SetLife($sResult, $sCacheKey);
+                        E::ModuleCache()->SetTmp($sResult, $sCacheKey);
 
                     }
 
@@ -338,7 +409,7 @@ class ModuleText extends Module {
 
         $sResult = $this->FlashParamParser($sText);
         $sResult = $this->SnippetParser($sResult);
-        $sResult = $this->JevixParser($sResult);
+        $sResult = $this->TextParser($sResult);
         $sResult = $this->VideoParser($sResult);
 
         // Clear links on local resources
@@ -402,7 +473,7 @@ class ModuleText extends Module {
      *
      * @param string $sText Исходный текст
      *
-     * @return mixed
+     * @return string
      */
     public function CodeSourceParser($sText) {
 
@@ -456,22 +527,43 @@ class ModuleText extends Module {
      * <ls user="admin" />
      * </pre>
      *
-     * @param string $sTag    Тег на ктором сработал колбэк
-     * @param array  $aParams Список параметров тега
+     * @param string $sTag     Тег на ктором сработал колбэк
+     * @param array  $aParams  Список параметров тега
+     * @param string $sContent
      *
      * @return string
      */
-    public function CallbackTagLs($sTag, $aParams) {
+    public function CallbackTagLs($sTag, $aParams, $sContent) {
 
         $sText = '';
         if (isset($aParams['user'])) {
-            if ($oUser = E::ModuleUser()->GetUserByLogin($aParams['user'])) {
-                $sText .= "<a href=\"{$oUser->getUserWebPath()}\" class=\"ls-user\">{$oUser->getLogin()}</a> ";
+            $sText = $this->CallbackTagAt($aParams['user']);
+        }
+        return $sText;
+    }
+
+    public function CallbackTagAt($sString) {
+
+        $sText = '';
+        if ($sString) {
+            if ($oUser = E::ModuleUser()->GetUserByLogin($sString)) {
+                if (E::ModuleViewer()->TemplateExists('tpls/snippets/snippet.user.tpl')) {
+                    // Получим html-код сниппета
+                    $aVars = array('oUser' => $oUser);
+                    $sText = trim(E::ModuleViewer()->Fetch('tpls/snippets/snippet.user.tpl', $aVars));
+                } else {
+                    $sText = "<a href=\"{$oUser->getProfileUrl()}\">{$oUser->getDisplayName()}</a> ";
+                }
             }
         }
         return $sText;
     }
 
+    /**
+     * @param string $sUrl
+     *
+     * @return string
+     */
     public function _restoreLocalUrl($sUrl) {
 
         if (substr($sUrl, 0, 1) == '@') {
@@ -483,10 +575,10 @@ class ModuleText extends Module {
     /**
      * Учет ссылок в тексте
      *
-     * @param $sTag
-     * @param $aParams
-     * @param $sContent
-     * @param $sText
+     * @param string $sTag
+     * @param array  $aParams
+     * @param string $sContent
+     * @param string $sText
      *
      * @return string
      */
@@ -518,6 +610,11 @@ class ModuleText extends Module {
         return $sText;
     }
 
+    /**
+     * @param bool $bUrlOnly
+     *
+     * @return array
+     */
     public function GetLinks($bUrlOnly = false) {
 
         if ($bUrlOnly) {
@@ -592,7 +689,7 @@ class ModuleText extends Module {
                         }
                     }
                     if ($aClosingTags) {
-                        // need to close openned tags
+                        // need to close open tags
                         ksort($aClosingTags);
                         foreach ($aClosingTags as $aTag) {
                             $sResult .= $aTag['tag'];
