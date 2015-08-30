@@ -60,7 +60,7 @@
     {$aHtmlHeadFiles.js}
 
     <script type="text/javascript">
-        var tinyMCE = false;
+        var tinyMCE = tinymce = false;
         ls.lang.load({json var = $aLangJs});
         ls.registry.set('comment_max_tree', {json var=Config::Get('module.comment.max_tree')});
         ls.registry.set('widget_stream_show_tip', {json var=Config::Get('block.stream.show_tip')});
