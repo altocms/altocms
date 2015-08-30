@@ -78,6 +78,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('site-skins', 'EventSkins');
         $this->AddEvent('site-widgets', 'EventWidgets');
         $this->AddEvent('site-plugins', 'EventPlugins');
+        $this->AddEvent('site-scripts', 'EventScripts');
 
         $this->AddEvent('logs-error', 'EventLogs');
         $this->AddEvent('logs-sqlerror', 'EventLogs');
@@ -993,6 +994,139 @@ class ActionAdmin extends Action {
         $this->_setTitle(E::ModuleLang()->Get('action.admin.plugins_title'));
         $this->SetTemplateAction('site/plugins_add');
         E::ModuleViewer()->Assign('sMode', 'add');
+    }
+
+    /**********************************************************************************/
+
+    public function EventScripts() {
+
+        $this->sMainMenuItem = 'site';
+
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.scripts_title'));
+        $this->SetTemplateAction('site/scripts');
+
+        if ($this->GetParam(0) == 'add') {
+            return $this->_eventScriptsAdd();
+        } elseif ($this->GetParam(0) == 'edit') {
+            return $this->_eventScriptsEdit();
+        }
+        return $this->_eventScriptsList();
+    }
+
+    protected function _eventScriptsList() {
+
+        if ($sAction = $this->GetPost('script_action')) {
+            $aSelected = $this->GetPost('script_sel');
+            if ($sAction == 'delete' && $aSelected) {
+                // Delete scripts
+                $this->_eventScriptsDelete($aSelected);
+            } elseif ($sAction == 'activate') {
+                $this->_eventScriptsActivate($aSelected);
+            } elseif ($sAction == 'deactivate') {
+                $this->_eventScriptsDeactivate($aSelected);
+            }
+            R::Location('admin/site-scripts/');
+        }
+
+        $sMode = $this->GetParam(1, 'all');
+
+        if ($sMode == 'active') {
+            $aScripts = E::ModuleAdmin()->GetScriptsList(true);
+        } elseif ($sMode == 'inactive') {
+            $aScripts = E::ModuleAdmin()->GetScriptsList(false);
+        } else {
+            $aScripts = E::ModuleAdmin()->GetScriptsList();
+        }
+
+        E::ModuleViewer()->Assign('aScripts', $aScripts);
+        E::ModuleViewer()->Assign('sMode', $sMode);
+    }
+
+    protected function _eventScriptSave($aScript = null) {
+
+        if (!$aScript) {
+            $sScriptId = 'script-' . time();
+            $aScript = array(
+                'id' => $sScriptId,
+            );
+        }
+        $aScript['name'] = $this->GetPost('script_name');
+        $aScript['description'] = $this->GetPost('script_description');
+        $aScript['place'] = $this->GetPost('script_place');
+        $aScript['disable'] = !intval($this->GetPost('script_active'));
+        $aScript['code'] = $this->GetPost('script_code');
+        if ($this->GetPost('script_exclude_adminpanel')) {
+            $aScript['off'] = 'admin/*';
+        } else {
+            $aScript['off'] = null;
+        }
+
+        E::ModuleAdmin()->SaveScript($aScript);
+        R::Location('admin/site-scripts');
+    }
+
+    protected function _eventScriptsAdd() {
+
+        if ($this->GetPost()) {
+            $this->_eventScriptSave();
+        }
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.scripts_title'));
+        $this->SetTemplateAction('site/scripts_add');
+        E::ModuleViewer()->Assign('sMode', 'add');
+    }
+
+    protected function _eventScriptsEdit() {
+
+        $sScriptId = $this->GetParam(1);
+        $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+        if ($this->GetPost()) {
+            $this->_eventScriptSave($aScript);
+        }
+
+        $_REQUEST['script_name'] = $aScript['name'];
+        $_REQUEST['script_description'] = $aScript['description'];
+        $_REQUEST['script_place'] = $aScript['place'];
+        $_REQUEST['script_code'] = $aScript['code'];
+        $_REQUEST['script_active'] = ($aScript['disable'] ? 0 : 1);
+        $_REQUEST['script_exclude_adminpanel'] = ($aScript['off'] == 'admin/*');
+
+        E::ModuleViewer()->Assign('aEditScript', $aScript);
+
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.scripts_title'));
+        $this->SetTemplateAction('site/scripts_add');
+        E::ModuleViewer()->Assign('sMode', 'edit');
+    }
+
+    protected function _eventScriptsDelete($aSelected) {
+
+        foreach($aSelected as $sScriptId) {
+            $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+            if ($aScript) {
+                E::ModuleAdmin()->DeleteScript($aScript);
+            }
+        }
+    }
+
+    protected function _eventScriptsActivate($aSelected) {
+
+        foreach($aSelected as $sScriptId) {
+            $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+            if ($aScript) {
+                $aScript['disable'] = 0;
+                E::ModuleAdmin()->SaveScript($aScript);
+            }
+        }
+    }
+
+    protected function _eventScriptsDeactivate($aSelected) {
+
+        foreach($aSelected as $sScriptId) {
+            $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+            if ($aScript) {
+                $aScript['disable'] = 1;
+                E::ModuleAdmin()->SaveScript($aScript);
+            }
+        }
     }
 
     /**********************************************************************************/

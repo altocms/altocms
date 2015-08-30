@@ -74,6 +74,29 @@ var admin = admin || {};
         }
     };
 
+    // scripts
+    $this.script = {
+        turn:function (scriptId, action) {
+            if (!action) {
+                action = 'deactivate';
+            } else if (action != 'deactivate') {
+                action = 'activate';
+            }
+            $('tr[id^=script-] .check-row [type=checkbox]').prop("checked", "");
+            $('tr[id^=script-' + scriptId + '] .check-row [type=checkbox]').prop("checked", "checked");
+            $('#form_scripts_list input[name=script_action]').val(action);
+            $('#form_scripts_list').submit();
+        },
+
+        turnOn:function (scriptId) {
+            return $this.script.turn(scriptId, 'activate');
+        },
+
+        turnOff:function (scriptId) {
+            return $this.script.turn(scriptId, 'deactivate');
+        }
+    };
+
     $this.popoverExt = function (element, options) {
         options = $.extend({
             attr:{ },

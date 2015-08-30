@@ -151,10 +151,13 @@
                     <a href="{router page="admin"}site-skins/">{$aLang.action.admin.menu_site_skins}</a>
                 </li>
                 <li class="menu-item_widgets {if $sEvent=='site-widgets'}active{/if}">
-                    <a href="{router page="admin"}site-widgets/">{$aLang.action.admin.menu_widgets}</a>
+                    <a href="{router page="admin"}site-widgets/">{$aLang.action.admin.menu_site_widgets}</a>
                 </li>
                 <li class="menu-item_plugins {if $sEvent=='site-plugins'}active{/if}">
-                    <a href="{router page="admin"}site-plugins/">{$aLang.action.admin.menu_plugins}</a>
+                    <a href="{router page="admin"}site-plugins/">{$aLang.action.admin.menu_site_plugins}</a>
+                </li>
+                <li class="menu-item_scripts {if $sEvent=='site-scripts'}active{/if}">
+                    <a href="{router page="admin"}site-scripts/">{$aLang.action.admin.menu_site_scripts}</a>
                 </li>
                 {hook run='admin_menu_site'}
             </ul>
@@ -221,12 +224,5 @@
         </li>
         {hook run='admin_menu_end'}
     </ul>
-
-<div class="site-search">
-    <form method="get" action="{router page='search'}topics/">
-        <input type="text" name="q" class="search-input" placeholder="{$aLang.search_submit}..." style="">
-        <button type="submit" style=""><i class="icon icon-magnifier"></i></button>
-    </form>
-</div>
 
 {/block}

@@ -39,6 +39,7 @@ return array(
     'menu_site_skins' => 'Appearance',
     'menu_site_widgets' => 'Widgets',
     'menu_site_plugins' => 'Plugins',
+    'menu_site_scripts' => 'Counts and scripts',
     'menu_logs' => 'Logs',
     'menu_logs_error' => 'System errors',
     'menu_logs_sqlerror' => 'SQL errors',
@@ -601,6 +602,32 @@ return array(
     'plugin_load' => 'Load a plugin',
     'plugin_added_ok' => 'A plugin was successfully added in the list inactive',
     'plugin_added_err' => 'An error of copying of a plugin in a shared folder of plugins',
+
+    /***
+     * SCRIPTS
+     */
+
+    'scripts_title' => 'Management of scripts',
+    'scripts_sub_all' => 'All scripts',
+    'scripts_sub_active' => 'Active scripts',
+    'scripts_sub_inactive' => 'Inactive scripts',
+    'scripts_add' => 'Add script',
+    'scripts_edit' => 'Change settings',
+
+    'script_edit_name' => 'Name',
+    'script_edit_description' => 'Description',
+    'script_edit_code' => 'Code (text)',
+    'script_edit_active' => 'Active',
+    'script_edit_place' => 'Place',
+    'script_edit_place_head' => 'In tag < HEAD >',
+    'script_edit_place_body' => 'In tag < BODY > (in begin)',
+    'script_edit_place_end' => 'In tag < BODY > (at end)',
+    'script_edit_show_code' => 'Show code',
+    'script_exclude_adminpanel' => 'Exclude adminpanel',
+    'script_exclude_adminpanel_note' => 'If checked then script will be included in the pages of Adminpanel',
+    'script_submit_delete' => 'Delete scripts',
+    'script_delete_confirm' => 'Are you sure you want to delete these scripts?',
+    'script_need_select_for_delete' => 'Select the scripts to delete',
 
     /***
      * USERFIELDS

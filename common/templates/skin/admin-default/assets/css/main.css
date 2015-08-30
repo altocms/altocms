@@ -140,7 +140,7 @@ label                                   { display: block }
 .b-wbox-content                         { padding: 12px 15px }
 .b-wbox-header label.checkbox           { padding: 9px 15px; border-left: 1px solid #eee; display: block; float: right; white-space: nowrap; }
 .b-wbox-header                          { height: 36px }
-.b-wbox-header span.icon                { border-right: 1px solid #DDD; float: left; opacity: .7; padding: 11px; }
+.b-wbox-header span.icon                { border-right: 1px solid #DDD; float: left; opacity: .7; padding: 11px; width: 36px; }
 .b-wbox-header .close                   { float: right; margin: 8px 10px 0 0; }
 .b-content-header-title                 { color: #555; font-size: 28px; margin-bottom: 30px; }
 .b-wbox-header-title                    { color: #fff; float: left; font-size: 14px; font-weight: bold; padding: 10px; margin: 0; height: 36px; }

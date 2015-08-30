@@ -508,7 +508,56 @@ class ModuleAdmin extends Module {
         return $bOk;
     }
 
+    /**
+     * @param bool $bActive
+     *
+     * @return array
+     */
+    public function GetScriptsList($bActive = null) {
 
+        $aResult = array();
+        $aScripts = (array)C::Get('script');
+        if ($aScripts) {
+            if (is_null($bActive)) {
+                return $aScripts;
+            }
+            foreach($aScripts as $sScriptName => $aScript) {
+                if ($bActive) {
+                    if (!isset($aScript['disable']) && !$aScript['disable']) {
+                        $aResult[$sScriptName] = $aScript;
+                    }
+                } else {
+                    if (isset($aScript['disable']) && $aScript['disable']) {
+                        $aResult[$sScriptName] = $aScript;
+                    }
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    public function GetScriptById($sScriptId) {
+
+        $aScript = C::Get('script.' . $sScriptId);
+        return $aScript;
+    }
+
+    public function SaveScript($aScript) {
+
+        $sConfigKey = 'script.' . $aScript['id'];
+        Config::WriteCustomConfig(array($sConfigKey => $aScript));
+    }
+
+    public function DeleteScript($xScript) {
+
+        if (is_array($xScript)) {
+            $sScriptId = $xScript['id'];
+        } else {
+            $sScriptId = (string)$xScript;
+        }
+        $sConfigKey = 'script.' . $sScriptId;
+        Config::ResetCustomConfig($sConfigKey);
+    }
 }
 
 // EOF

@@ -41,9 +41,10 @@ return array(
     'menu_menu_manager'          => 'Менеджер меню',
 
     'menu_site' => 'Сайт',
-    'menu_site_skins' => 'Оформление',
+    'menu_site_skins'   => 'Оформление',
     'menu_site_widgets' => 'Виджеты',
     'menu_site_plugins' => 'Плагины',
+    'menu_site_scripts' => 'Счетчики и скрипты',
 
     'menu_logs' => 'Журналы',
     'menu_logs_error' => 'Ошибки системы',
@@ -666,6 +667,31 @@ return array(
     'plugin_load' => 'Загрузить плагин',
     'plugin_added_ok' => 'Плагин был успешно добавлен в список неактивных',
     'plugin_added_err' => 'Ошибка копирования плагина в общую папку плагинов',
+
+    /***
+     * SCRIPTS
+     */
+    'scripts_title' => 'Управление скриптами',
+    'scripts_sub_all' => 'Все скрипты',
+    'scripts_sub_active' => 'Активные скрипты',
+    'scripts_sub_inactive' => 'Неактивные скрипты',
+    'scripts_add' => 'Добавить скрипт',
+    'scripts_edit' => 'Изменить настройки',
+
+    'script_edit_name' => 'Название',
+    'script_edit_description' => 'Описание',
+    'script_edit_code' => 'Код (текст)',
+    'script_edit_active' => 'Активен',
+    'script_edit_place' => 'Расположение',
+    'script_edit_place_head' => 'Внутри тега < HEAD >',
+    'script_edit_place_body' => 'Внутри тега < BODY > (в начало)',
+    'script_edit_place_end' => 'Внутри тега < BODY > (в конец)',
+    'script_edit_show_code' => 'Показать код',
+    'script_exclude_adminpanel' => 'Исключить админпанель',
+    'script_exclude_adminpanel_note' => 'Если указать, то скрипт не будет включаться в страницы админпанели',
+    'script_submit_delete' => 'Удалить скрипты',
+    'script_delete_confirm' => 'Вы уверены, что желаете удалить указанные скрипты?',
+    'script_need_select_for_delete' => 'Выберите скрипты для удаления',
 
     /*** USERFIELDS */
     'user_fields_title' => 'Поля контактов пользователей',
