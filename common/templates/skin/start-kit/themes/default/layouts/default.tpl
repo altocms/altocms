@@ -54,14 +54,11 @@
         var ALTO_SECURITY_KEY   = '{$ALTO_SECURITY_KEY}';
         var SESSION_ID          = '{$_sPhpSessionId}';
 
-
         var tinyMCE = tinymce = false;
         var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
 
         var aRouter = [];
-        {foreach from=$aRouter key=sPage item=sPath}
-        aRouter['{$sPage}'] = '{$sPath}';
-        {/foreach}
+        {strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
 
         {$SWF_DIR_NAME=E::ViewerAsset_AssetFileHashDir("{Config::Get('path.root.dir')}common/templates/frontend/libs/vendor/jquery.fileapi/FileAPI/")}
         window.FileAPI = {

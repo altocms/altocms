@@ -53,6 +53,10 @@ $config['view']['html']['title_sep']   = ' / ';   // разделитель дл
 $config['view']['skill_length'] = 2;// Длинна представления силы пользователя 0, 1, 2 или 3 знака после запятой. Округление идёт в большую сторону.
 $config['view']['rating_length'] = 2;// Длинна представления рейтинга пользователя 0, 1, или 2 знака после запятой. Округление идёт в большую сторону.
 
+$config['view']['set_editors'] = array(
+    'default' => 'markitup',    // default simple editor
+    'wysiwyg' => 'tinymce',     // wysiwyg editor
+);
 /**
  * Настройка пагинации
  */

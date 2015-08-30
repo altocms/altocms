@@ -39,16 +39,12 @@
 		var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
 		var SESSION_ID				= '{$_sPhpSessionId}';
 		var BLOG_USE_TINYMCE		= '{Config::Get('view.tinymce')}';
-		
-		var TINYMCE_LANG = 'en';
-		{if Config::Get('lang.current') == 'ru'}
-			TINYMCE_LANG = 'ru';
-		{/if}
 
-		var aRouter = new Array();
-		{foreach from=$aRouter key=sPage item=sPath}
-			aRouter['{$sPage}'] = '{$sPath}';
-		{/foreach}
+		var tinyMCE = tinymce = false;
+		var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
+
+		var aRouter = [];
+		{strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
 	</script>
 	
 	
@@ -56,7 +52,6 @@
 
 	
 	<script type="text/javascript">
-		var tinyMCE = false;
 		ls.lang.load({json var = $aLangJs});
 		ls.registry.set('comment_max_tree',{json var=$oConfig->Get('module.comment.max_tree')});
 		ls.registry.set('block_stream_show_tip',{json var=$oConfig->Get('block.stream.show_tip')});

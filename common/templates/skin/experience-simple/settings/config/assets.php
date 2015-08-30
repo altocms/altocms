@@ -59,17 +59,27 @@ $config['assets']['default']['css'] = array(
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
 
     /* tinyMCE */
+    /*
     '___path.skin.dir___/assets/css/tinymce.css'       => array(
         'name'      => 'template-tinymce.css',
         'prepare'   => true,
         'merge'     => false,
     ),
-
+    */
 
     /* Theme */
     '___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css',
     //'___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css.map',
     '___path.skin.dir___/themes/___view.theme___/css/custom.___view.theme___.css',
+);
+
+/* *** Editor tinyMCE *** */
+$config['editor']['tinymce']['css'] = array(
+    '___path.skin.dir___/assets/css/tinymce.css'       => array(
+        'name'      => 'template-tinymce.css',
+        'prepare'   => true,
+        'merge'     => false,
+    ),
 );
 
 return $config;

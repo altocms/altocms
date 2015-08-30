@@ -1585,6 +1585,7 @@ class ModuleViewer extends Module {
      */
     public function InitAssetFiles() {
 
+        // Load 'prepend' assets
         if ($this->aFilesPrepend['js']) {
             $this->aFilesPrepend['js'] = array_reverse($this->aFilesPrepend['js'], true);
         }
@@ -1597,12 +1598,34 @@ class ModuleViewer extends Module {
         }
 
         // Compatibility with old style skins
-        if ($aOldAssetsConfig = Config::Get('head.default')) {
+        if ($aOldAssetsConfig = C::Get('head.default')) {
             E::ModuleViewerAsset()->AddAssetFiles($aOldAssetsConfig);
         } else {
             E::ModuleViewerAsset()->AddAssetFiles(Config::Get('assets.default'));
         }
 
+        // Load edior's assets
+        if ($aEditors = C::Get('view.set_editors')) {
+            if (C::Get('view.wysiwyg')) {
+                if (isset($aEditors['wysiwyg'])) {
+                    $sEditor = $aEditors['wysiwyg'];
+                } else {
+                    $sEditor = 'tinymce';
+                }
+            } else {
+                if (isset($aEditors['default'])) {
+                    $sEditor = $aEditors['default'];
+                } else {
+                    $sEditor = 'markitup';
+                }
+            }
+            $aEditorAssets = C::Get('assets.editor.' . $sEditor);
+            if ($aEditorAssets) {
+                E::ModuleViewerAsset()->AddAssetFiles($aEditorAssets);
+            }
+        }
+
+        // Load 'append' assets
         if ($this->aFilesAppend['js'] || $this->aFilesAppend['css']) {
             E::ModuleViewerAsset()->AddAssetFiles($this->aFilesAppend);
         }

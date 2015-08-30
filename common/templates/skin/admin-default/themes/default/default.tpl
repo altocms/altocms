@@ -54,13 +54,11 @@
             'week_start': {cfg name="l10n.week_start" default=0}
         };
 
-        var tinymce = false;
+        var tinyMCE = tinymce = false;
         var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
 
-        var aRouter = new Array();
-        {foreach from=$aRouter key=sPage item=sPath}
-        aRouter['{$sPage}'] = '{$sPath}';
-        {/foreach}
+        var aRouter = [];
+        {strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
     </script>
 
 	<style>
