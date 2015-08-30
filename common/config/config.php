@@ -545,7 +545,6 @@ $config['module']['topic']['photoset']['per_page'] = 20;            // числ�
 // Какие модули должны быть загружены на старте
 $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');
 
-
 /**
  * Настройки модуля API
  */
@@ -553,6 +552,11 @@ $config['module']['api']['ajax'] = true;        // Не авторизованн
 $config['module']['api']['get'] = false;        // Сторонний get-запрос на получение данных
 $config['module']['api']['post'] = false;       // Сторонний post-зпрос на изменение данных
 
+/**
+ * Настройки модуля Text
+ */
+$config['module']['text']['parser'] = 'Jevix';  // Text parser class: Jevix or Qevix
+$config['module']['text']['char']['@'] = true;  // Convert @user into link to profile
 
 /**
  * Настройка базы данных

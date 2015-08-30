@@ -1,1 +1,1 @@
-<a href='{$oUser->getUserWebPath()}'>{$oUser->getDisplayName()}</a>
+<a href="{$oUser->getProfileUrl()}" data-alto-role="popover" data-api="user/{$oUser->getId()}/info">{$oUser->getDisplayName()}</a>

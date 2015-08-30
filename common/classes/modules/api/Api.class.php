@@ -48,14 +48,14 @@ class ModuleApi extends Module {
      * @param $aError
      */
     public function SetLastError($aError) {
-        E::ModuleCache()->SetLife($aError, 'MODULE_API_LAST_ERROR');
+        E::ModuleCache()->SetTmp($aError, 'MODULE_API_LAST_ERROR');
     }
 
     /**
      * Получение последней ошибки
      */
     public function GetLastError() {
-        return E::ModuleCache()->GetLife('MODULE_API_LAST_ERROR');
+        return E::ModuleCache()->GetTmp('MODULE_API_LAST_ERROR');
     }
 
     /**
