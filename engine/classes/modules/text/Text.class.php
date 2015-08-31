@@ -72,9 +72,9 @@ class ModuleText extends Module {
             $this->oTextParser = new Qevix();
             $this->_loadTextParserConfig('qevix');
 
-            foreach($aCheckTagLinks as $sTag => $aParams) {
+            /*foreach($aCheckTagLinks as $sTag => $aParams) {
                 $this->oTextParser->cfgSetTagBuildCallback($sTag, array($this, 'CallbackCheckLinks'));
-            }
+            }*/
         } else {
             $this->oTextParser = new Jevix();
             $this->_loadTextParserConfig();
@@ -152,7 +152,7 @@ class ModuleText extends Module {
     public function LoadQevixConfig($sType = 'default', $bClear = true) {
 
         // Временный костыль по методам, отсутствующим в Qevix
-        $aExcludeConfig = array(
+        static $aExcludeConfig = array(
             'cfgSetAutoReplace',
             'cfgSetTagParamCombination',
         );
@@ -163,8 +163,8 @@ class ModuleText extends Module {
         $aConfig = Config::Get('jevix.' . $sType);
         if (is_array($aConfig)) {
             foreach ($aConfig as $sMethod => $aExec) {
-                foreach ($aExec as $aParams) {
-                    if (!in_array($sMethod, $aExcludeConfig)) {
+                if (!in_array($sMethod, $aExcludeConfig)) {
+                    foreach ($aExec as $aParams) {
                         call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
                     }
                 }
