@@ -455,7 +455,7 @@ class Config extends Storage {
         // Config section inherits of other (use $extends$ key)
         if (!$sKeyMap || !empty(self::$aKeyExtends[$sKeyMap])) {
             $xConfigData = $this->GetConfig($sRootKey, $nLevel, $sKey);
-            if ($xConfigData && isset($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
+            if (is_array($xConfigData) && !empty($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
                 $xConfigData = $this->_extendsConfig($xConfigData, $sRootKey, $nLevel);
             }
             if ($sKeyMap) {
@@ -601,7 +601,7 @@ class Config extends Storage {
             // $xConfigData is array
             $xResult = array();
             // e.g.: '$extends$' => '___module.uploader.images.default___',
-            if (isset($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
+            if (is_array($xConfigData) && !empty($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
                 $xConfigData = $this->_extendsConfig($xConfigData, $sRoot, $nLevel);
             }
             foreach ($xConfigData as $sKey => $xData) {
@@ -640,18 +640,20 @@ class Config extends Storage {
      */
     protected function _extendsConfig($xConfigData, $sRoot = null, $nLevel) {
 
-        $sLinkKey = $this->_storageKey($sRoot, '*') . '.' . $xConfigData[self::KEY_EXTENDS];
-        if (isset($this->aQuickMap[$sLinkKey])) {
-            $aParentData = $this->aQuickMap[$sLinkKey];
-        } else {
-            $aParentData = $this->_keyReplace($xConfigData[self::KEY_EXTENDS], $sRoot, $nLevel);
-            $this->aQuickMap[$sLinkKey] = $aParentData;
-        }
-        unset($xConfigData[self::KEY_EXTENDS]);
-        if (!empty($xConfigData[self::KEY_RESET])) {
-            $xConfigData = F::Array_Merge($aParentData, $xConfigData);
-        } else {
-            $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
+        if (isset($xConfigData[self::KEY_EXTENDS])) {
+            $sLinkKey = $this->_storageKey($sRoot, '*') . '.' . $xConfigData[self::KEY_EXTENDS];
+            if (isset($this->aQuickMap[$sLinkKey])) {
+                $aParentData = $this->aQuickMap[$sLinkKey];
+            } else {
+                $aParentData = $this->_keyReplace($xConfigData[self::KEY_EXTENDS], $sRoot, $nLevel);
+                $this->aQuickMap[$sLinkKey] = $aParentData;
+            }
+            unset($xConfigData[self::KEY_EXTENDS]);
+            if (!empty($xConfigData[self::KEY_RESET])) {
+                $xConfigData = F::Array_Merge($aParentData, $xConfigData);
+            } else {
+                $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
+            }
         }
 
         return $xConfigData;
