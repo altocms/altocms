@@ -151,6 +151,12 @@ class ModuleText extends Module {
      */
     public function LoadQevixConfig($sType = 'default', $bClear = true) {
 
+        // Временный костыль по методам, отсутствующим в Qevix
+        $aExcludeConfig = array(
+            'cfgSetAutoReplace',
+            'cfgSetTagParamCombination',
+        );
+
         if ($bClear) {
             $this->oTextParser->tagsRules = array();
         }
@@ -158,7 +164,9 @@ class ModuleText extends Module {
         if (is_array($aConfig)) {
             foreach ($aConfig as $sMethod => $aExec) {
                 foreach ($aExec as $aParams) {
-                    call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
+                    if (!in_array($sMethod, $aExcludeConfig)) {
+                        call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
+                    }
                 }
             }
 
