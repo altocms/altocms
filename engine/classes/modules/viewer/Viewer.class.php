@@ -1604,7 +1604,7 @@ class ModuleViewer extends Module {
             E::ModuleViewerAsset()->AddAssetFiles(Config::Get('assets.default'));
         }
 
-        // Load edior's assets
+        // Load editor's assets
         if ($aEditors = C::Get('view.set_editors')) {
             if (C::Get('view.wysiwyg')) {
                 if (isset($aEditors['wysiwyg'])) {
