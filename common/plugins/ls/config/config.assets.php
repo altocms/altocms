@@ -12,7 +12,8 @@
 $config['assets']['default']['js']  = array(
     '___path.frontend.dir___/libs/vendor/html5shiv.min.js' => array('browser'=>'lt IE 9'), // хак для IE версии ниже 9
     //'___path.root.engine_lib___/external/jquery/jquery.js' => array('name'=>'jquery.js'), // файлы с таким же параметром 'name' добавляться повторно не будут
-    '___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    //'___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-1.11.3.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery.rich-array.min.js' => array('asset' => 'mini'),
