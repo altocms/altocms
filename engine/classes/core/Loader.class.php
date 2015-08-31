@@ -436,7 +436,7 @@ class Loader {
     static protected function _autoloadPSR0($sClassName, $xPath = null) {
 
         if (!$xPath) {
-            $xPath = C::Get('path.dir.libs');
+            $xPath = Config::Get('path.dir.libs');
         }
 
         $sCheckKey = serialize(array($sClassName, $xPath));
@@ -472,7 +472,7 @@ class Loader {
 
         // An associative array where the key is a namespace prefix and the value
         // is an array of base directories for classes in that namespace.
-        $aVendorNamespaces = C::Get('classes.namespace');
+        $aVendorNamespaces = Config::Get('classes.namespace');
         if (!strpos($sClassName, '\\') || !$aVendorNamespaces) {
             return false;
 
