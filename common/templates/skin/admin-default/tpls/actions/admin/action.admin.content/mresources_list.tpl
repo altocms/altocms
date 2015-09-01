@@ -9,15 +9,16 @@
             <a class="btn btn-default {if $sMode==$sTargetType}active{/if}"
                href="{router page='admin'}content-mresources/list/{$sTargetType}/">
                 {if (strpos($sTargetType, 'single-image-uploader') === 0)}
-                    {$sTargetType = str_replace('single-image-uploader', $aLang['target_type_single-image-uploader'], $sTargetType)}
+                    {$sTargetTypeTitle = str_replace('single-image-uploader', $aLang['target_type_single-image-uploader'], $sTargetType)}
                 {else}
                     {if (strpos($sTargetType, 'plugin.') === 0)}
-                        {$sTargetType=E::Lang_Get("{$sTargetType}")}
+                        {$sTargetTypeTitle=E::ModuleLang()->Get("{$sTargetType}")}
                     {else}
-                        {$sTargetType=$aLang["target_type_{$sTargetType}"]}
+                        {$sTargetTypeTitle=$aLang["target_type_{$sTargetType}"]}
                     {/if}
                 {/if}
-                {$sTargetType}
+                {$sTargetTypeTitle|escape}
+                {if !$sTargetTypeTitle}{$sTargetType|escape}{/if}
             </a>
         {/foreach}
     </div>
