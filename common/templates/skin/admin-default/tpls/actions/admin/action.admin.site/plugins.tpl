@@ -73,7 +73,7 @@
                             </td>
                             <td class="center">
                                 {if $oPlugin->isActive() AND $oPlugin->GetSettings()}
-                                    <a href="{$oPlugin->GetSettings()|escape:'url'}">{$aLang.action.admin.plugin_settings}</a>
+                                    <a href="{$oPlugin->GetSettings()|escape:'htmlall'}">{$aLang.action.admin.plugin_settings}</a>
                                 {/if}
                             </td>
                         </tr>
