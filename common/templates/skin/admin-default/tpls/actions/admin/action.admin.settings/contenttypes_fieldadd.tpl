@@ -4,29 +4,64 @@
 
 <div class="span12">
 
+{* Поведение функции admin.onSelectField можно расширить с помощью
+        хука admin_content_add_field_properties, добавив следующий код, например:
+
 {literal}
 <script>
+$(function () {
+    $('#field_type').off().on('change', function () {
+        var selected = $(this).val();
 
-function selectfield(f){
-	$('#select_inputval').css({'display':'none'});
-	$('#daoobj_select').css({'display':'none'});
-	//для типа выпадающий список
-	if(f=='select'){
-		$('#select_inputval').css({'display':'block'});
-	}
-	//для ДАОсвязей
-	if(f=='daoobj'){
-		$('#daoobj_select').css({'display':'block'});
-	}
-	return false;
-}
+        /* наш код */
+        /*
+        var myDiv = $('#my-type-id');
+
+        myDiv.show();
+        if ('mytype' == selected) {
+            myDiv.show();
+        }
+        */
+
+        return admin.onSelectField.apply(this);
+    });
+});
+</script>
+{/literal}
+*}
+{literal}
+<script>
+var admin = admin || {};
+admin.onSelectField = function () {
+    var selected = $(this).val(),
+        daoobj = $('#daoobj_select'),
+        inputval = $('#select_inputval')
+    ;
+    inputval.css({'display': 'none'});
+    daoobj.css({'display': 'none'});
+
+    //для типа выпадающий список
+    if (selected == 'select') {
+        inputval.css({'display': 'block'});
+    }
+    //для ДАОсвязей
+    if (selected == 'daoobj') {
+        daoobj.css({'display': 'block'});
+    }
+
+    return false;
+};
+
+$(function () {
+    $('#field_type').on('change', admin.onSelectField);
+});
 </script>
 {/literal}
 
 
 <form action="" method="post" id="popup-login-form" class="form-horizontal uniform">
-	<input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
-		{*<input type="hidden" name="topic_type" value="{$oContentType->getContentId()}"/>*}
+    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
+        {*<input type="hidden" name="topic_type" value="{$oContentType->getContentId()}"/>*}
 
     <div class="b-wbox">
         <div class="b-wbox-header">
@@ -49,7 +84,7 @@ function selectfield(f){
                 </label>
 
                 <div class="controls">
-                    <select name="field_type" id="field_type" onChange="selectfield(jQuery(this).val());" class="input-text input-width-300" {if $sEvent=='fieldedit'}disabled{/if}>
+                    <select name="field_type" id="field_type" class="input-text input-width-300" {if $sEvent=='fieldedit'}disabled{/if}>
                         <option value="input" {if $_aRequest.field_type=='input'}selected{/if} title="{$aLang.action.admin.contenttypes_field_input_notice}">
                             {$aLang.action.admin.contenttypes_field_input}</option>
                         <option value="textarea" {if $_aRequest.field_type=='textarea'}selected{/if} title="{$aLang.action.admin.contenttypes_field_textarea_notice}">
@@ -65,7 +100,7 @@ function selectfield(f){
                         <option value="single-image-uploader" {if $_aRequest.field_type=='single-image-uploader'}selected{/if} title="{$aLang.action.admin.contenttypes_field_image_notice}">
                             {$aLang.action.admin.contenttypes_field_image}</option>
                         {hook run='admin_content_add_field_list'}
-					</select>
+                    </select>
                 </div>
             </div>
 
@@ -107,6 +142,8 @@ function selectfield(f){
                 {/if}
             </div>
 
+            {hook run='admin_content_add_field_properties'}
+
             <div class="form-actions">
                 <button type="submit"  name="submit_field" class="btn btn-primary" id="popup-field-submit">
                     {$aLang.action.admin.contenttypes_submit}
@@ -115,7 +152,7 @@ function selectfield(f){
         </div>
     </div>
 
-	</form>
+    </form>
 
 
 </div>
