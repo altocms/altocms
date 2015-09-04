@@ -164,6 +164,10 @@ class ModuleMail extends Module {
 
         // * Создаём объект phpMailer и устанвливаем ему необходимые настройки
         $this->oMailer = new PHPMailer();
+        // Вывод ошибок через ob_get_clean() возможен только с включением этой опции.
+        // Иначе все ошибки будут с содержанием: «Cannot send email».
+        // Однако, в случае ошибки отправки, в лог будет записан текст запросов к smtp-серверу, включая логин и пароль.
+        $this->oMailer->SMTPDebug = defined('DEBUG') && DEBUG;
         $this->oMailer->Host = $this->sHost;
         $this->oMailer->Port = $this->iPort;
         $this->oMailer->Username = $this->sUsername;
