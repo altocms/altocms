@@ -487,6 +487,7 @@ return array(
     'set_sys_mail_smtp_user' => 'The SMTP settings - the user',
     'set_sys_mail_smtp_password' => 'The SMTP settings - the password',
     'set_sys_mail_smtp_auth' => 'Use authorization when sending',
+    'set_sys_mail_smtp_secure' => 'Use secured connection type',
     'set_sys_mail_include_comment' => 'Includes the comment text in the notice of new comments',
     'set_sys_mail_include_talk' => 'Includes the message text in the notice of new personal messages',
     'set_section_sys_logs' => 'Settings of logging',

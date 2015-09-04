@@ -146,6 +146,13 @@ $config['sys'] =
             'config' => 'sys.mail.smtp.auth',
         ),
         array(
+            'label' => 'action.admin.set_sys_mail_smtp_secure',
+            'type' => 'select',
+            'options' => array('', 'tls', 'ssl'),
+            'config' => 'sys.mail.smtp.secure',
+            'valtype' => 'string',
+        ),
+        array(
             'label' => 'action.admin.set_sys_mail_include_comment',
             'type' => 'checkbox',
             'config' => 'sys.mail.include_comment',

@@ -543,6 +543,7 @@ return array(
     'set_sys_mail_smtp_user'=>'Настройки SMTP - пользователь',
     'set_sys_mail_smtp_password'=>'Настройки SMTP - пароль',
     'set_sys_mail_smtp_auth'=>'Использовать авторизацию при отправке',
+    'set_sys_mail_smtp_secure' => 'Использовать шифрование',
     'set_sys_mail_include_comment'=>'Включает в уведомление о новых комментах текст коммента',
     'set_sys_mail_include_talk'=>'Включает в уведомление о новых личных сообщениях текст сообщения',
 
