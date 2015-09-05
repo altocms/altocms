@@ -455,10 +455,11 @@ class ModuleLang extends Module {
      * @param string $sName    - Имя текстовки
      * @param array  $aReplace - Список параметром для замены в текстовке
      * @param bool   $bDelete  - Удалять или нет параметры, которые не были заменены
+     * @param bool   $bEmptyResult
      *
      * @return string
      */
-    public function Get($sName, $aReplace = array(), $bDelete = true) {
+    public function Get($sName, $aReplace = array(), $bDelete = true, $bEmptyResult = false) {
 
         if (empty($sName)) {
             return 'EMPTY_LANG_TEXT';
@@ -487,7 +488,7 @@ class ModuleLang extends Module {
                     $aLangMsg = $aLangMsg[$k];
                 } else {
                     //return  'NOT_FOUND_LANG_TEXT';
-                    return strtoupper($sName);
+                    return $bEmptyResult ? null : strtoupper($sName);
                 }
             }
             $sText = (string)$aLangMsg;
@@ -496,7 +497,7 @@ class ModuleLang extends Module {
                 $sText = $this->aLangMsg[$sLang][$sName];
             } else {
                 //return 'NOT_FOUND_LANG_TEXT';
-                return strtoupper($sName);
+                return $bEmptyResult ? null : strtoupper($sName);
             }
         }
 
@@ -512,6 +513,40 @@ class ModuleLang extends Module {
             $sText = preg_replace('|\%\%[\S]+\%\%|U', '', $sText);
         }
         return $sText;
+    }
+
+    /**
+     * Return text by text key
+     * If text key in brackets '{{..}}' then it will return text from brackets when text key not found
+     *
+     * @param string $sText    String as a simple key or in brackets as '{{..}}'
+     * @param array  $aReplace List params for replacement
+     * @param bool   $bDelete  Delete params from text if they cuold not replace
+     * @param string $sLang    Language
+     *
+     * @return string
+     */
+    public function Text($sText, $aReplace = array(), $bDelete = true, $sLang = '') {
+
+        if (is_string($bDelete)) {
+            $sLang = $bDelete;
+            $bDelete = true;
+        } elseif (is_string($aReplace)) {
+            $sLang = $aReplace;
+            $bDelete = true;
+            $aReplace = array();
+        }
+        if (substr($sText, 0, 2) == '{{' && substr($sText, -2) == '}}') {
+            $sTextKey = mb_substr($sText, 2, mb_strlen($sText) - 4);
+            $sResult = $this->Get('[' . $sLang . ']' . $sTextKey, $aReplace, $bDelete, true);
+            if (is_null($sResult)) {
+                $sResult = $sTextKey;
+            }
+        } else {
+            $sResult = $this->Get('[' . $sLang . ']' . $sText, $aReplace, $bDelete);
+        }
+
+        return $sResult;
     }
 
     /**
