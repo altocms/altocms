@@ -25,7 +25,7 @@ class AltoFunc_Array {
 
         foreach ($aData as $xKey => $xValue) {
             if (is_array($xValue)) {
-                $array[$xKey] = static::ChangeValue($xValue, $sBefore, $sAfter);
+                $array[$xKey] = static::ChangeValues($xValue, $sBefore, $sAfter);
             } elseif (!is_object($xValue)) {
                 $aData[$xKey] = $sBefore . $aData[$xKey] . $sAfter;
             }
@@ -49,13 +49,15 @@ class AltoFunc_Array {
         } elseif (!is_array($aData) && !($aData instanceof DataArray)) {
             $aData = (array)$aData;
         }
-        foreach ($aData as $nKey => $sValue) {
-            if (is_int($nKey) && is_string($sValue)) {
-                unset($aData[$nKey]);
-                if ($sValue) $aData[$sValue] = $xDefValue;
+        $aResult = array();
+        foreach ($aData as $xKey => $xValue) {
+            if (is_int($xKey) && is_string($xValue) && $xValue) {
+                $aResult[$xValue] = $xDefValue;
+            } else {
+                $aResult[$xKey] = $xValue;
             }
         }
-        return $aData;
+        return $aResult;
     }
 
     /**
