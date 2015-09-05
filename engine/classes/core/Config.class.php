@@ -458,6 +458,9 @@ class Config extends Storage {
             if (is_array($xConfigData) && !empty($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
                 $xConfigData = $this->_extendsConfig($xConfigData, $sRootKey, $nLevel);
             }
+            if (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false) {
+                $xConfigData = $this->_resolveKeyLink($xConfigData, $sRootKey, $nLevel);
+            }
             if ($sKeyMap) {
                 $this->aQuickMap[$sKeyMap] = $xConfigData;
                 if (isset(self::$aKeyExtends[$sKeyMap])) {
