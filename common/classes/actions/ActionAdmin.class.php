@@ -507,8 +507,8 @@ class ActionAdmin extends Action {
         $aFields = F::IncludeFile(Config::Get('path.dir.config') . 'actions/admin.settings.php', false, true);
         foreach ($aFields as $nSec => $aSection) {
             foreach ($aSection as $nKey => $aItem) {
-                $aItem['text'] = E::ModuleLang()->Get($aItem['label']);
-                if (isset($aItem['help'])) $aItem['help'] = E::ModuleLang()->Get($aItem['help']);
+                $aItem['text'] = E::ModuleLang()->Text($aItem['label']);
+                if (isset($aItem['help'])) $aItem['help'] = E::ModuleLang()->Text($aItem['help']);
                 if (isset($aItem['config'])) {
                     $aItem['value'] = Config::Get($aItem['config'], Config::LEVEL_CUSTOM);
                     $aItem['config'] = str_replace('.', '--', $aItem['config']);
@@ -516,8 +516,19 @@ class ActionAdmin extends Action {
                         $aItem['valtype'] = 'boolean';
                     }
                 }
-                if (isset($aItem['type']) && $aItem['type'] == 'password') {
-                    $aItem['valtype'] = 'string';
+                if (!empty($aItem['type'])) {
+                    if ($aItem['type'] == 'password') {
+                        $aItem['valtype'] = 'string';
+                    } elseif ($aItem['type'] == 'select' && !empty($aItem['options'])) {
+                        $aItem['options'] = F::Array_FlipIntKeys($aItem['options'], null);
+                        foreach ($aItem['options'] as $sValue => $sText) {
+                            if (is_null($sText)) {
+                                $aItem['options'][$sValue] = $sValue;
+                            } else {
+                                $aItem['options'][$sValue] = E::ModuleLang()->Text($sText);
+                            }
+                        }
+                    }
                 }
                 $aFields[$nSec][$nKey] = $aItem;
             }
@@ -607,6 +618,7 @@ class ActionAdmin extends Action {
         $sHomePage = Config::Get('router.config.homepage');
         $sHomePageSelect = Config::Get('router.config.homepage_select');
 
+        /** @var ModulePage_EntityPage[] $aPages */
         $aPages = E::ModulePage()->GetPages();
         $sHomePageUrl = '';
         if (!$sHomePage || $sHomePage == 'index') {
@@ -652,7 +664,7 @@ class ActionAdmin extends Action {
     /**
      * Site settings > Edit
      */
-    protected function _eventConfigEdit() {
+    protected function _eventConfigEdit($sMode) {
 
         $aUnits = array(
             'S' => array('name' => 'seconds'),

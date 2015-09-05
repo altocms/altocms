@@ -148,7 +148,7 @@ $config['sys'] =
         array(
             'label' => 'action.admin.set_sys_mail_smtp_secure',
             'type' => 'select',
-            'options' => array('', 'tls', 'ssl'),
+            'options' => array('' => '{{text_no}}', 'tls' => 'TLS', 'ssl' => 'SSL'),
             'config' => 'sys.mail.smtp.secure',
             'valtype' => 'string',
         ),
@@ -316,8 +316,8 @@ $config['acl'] =
         ),
     );
 
-// Проверим, стоит ли выводить настройки gzip для ресурсов,
-// если ипользуется апач, то эти настройки также не актуальны
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ gzip пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 $bApacheHasModHeaders = function_exists('apache_get_modules') && in_array('mod_headers', apache_get_modules());
 
 
