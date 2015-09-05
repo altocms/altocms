@@ -822,6 +822,65 @@ class AltoFunc_Main {
         }
         return false;
     }
+
+    /**
+     * Return character by code (unicode included)
+     *
+     * @param $iDec
+     *
+     * @return string
+     */
+    static public function Chr($iDec) {
+
+        return mb_convert_encoding('&#x' . dechex($iDec) . ';', 'UTF-8', 'HTML-ENTITIES');
+    }
+
+    /**
+     * Remove "emoji" from text
+     *
+     * @param string $sText
+     * @param string $sReplace
+     *
+     * @return mixed
+     */
+    static public function RemoveEmoji($sText, $sReplace = '') {
+
+        if ($sReplace !== '') {
+            $sC = self::Chr(0x1F600);
+        } else {
+            $sC = $sReplace;
+        }
+
+        // Match Emoticons
+        $sRegexEmoticons = '/[\x{1F601}-\x{1F64F}]/u';
+        $sResult = preg_replace($sRegexEmoticons, $sC, $sText);
+
+        // Match Miscellaneous Symbols and Pictographs
+        $sRegexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+        $sResult = preg_replace($sRegexSymbols, $sC, $sResult);
+
+        // Match Transport And Map Symbols
+        $sRegexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+        $sResult = preg_replace($sRegexTransport, $sC, $sResult);
+
+        // Match Miscellaneous Symbols
+        $sRegexMisc = '/[\x{2600}-\x{26FF}]/u';
+        $sResult = preg_replace($sRegexMisc, $sC, $sResult);
+
+        // Match Dingbats
+        $sRegexDingbats = '/[\x{2700}-\x{27BF}]/u';
+        $sResult = preg_replace($sRegexDingbats, $sC, $sResult);
+
+        if ($sC !== $sReplace) {
+            // Final replace
+            $sRegexEmoticons = '/[\x{1F600}]/u';
+            $sResult = preg_replace($sRegexEmoticons, $sReplace, $sResult);
+        }
+
+        return $sResult;
+    }
+
+
 }
 
 // EOF
