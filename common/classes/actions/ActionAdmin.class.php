@@ -889,7 +889,6 @@ class ActionAdmin extends Action {
             return $this->_EventPluginsAdd();
         } elseif ($this->GetParam(0) == 'config') {
             $this->sMenuSubItemSelect = 'config';
-            $this->PluginDelBlock('right', 'AdminInfo');
             return $this->_eventPluginsConfig();
         } else {
             $sParam = $this->GetParam(0, 'list');

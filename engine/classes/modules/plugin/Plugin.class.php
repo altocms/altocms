@@ -314,7 +314,9 @@ class ModulePlugin extends Module {
         }
         $sClassName = "Plugin{$sPluginName}";
 
-        if (class_exists($sClassName)) {
+        $sPluginClassFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
+        F::IncludeFile($sPluginClassFile);
+        if (class_exists($sClassName, false)) {
             /** @var Plugin $oPlugin */
             $oPlugin = new $sClassName;
             /** @var ModulePlugin_EntityPlugin $oPluginEntity */
@@ -463,9 +465,8 @@ class ModulePlugin extends Module {
             $bResult = $oPlugin->Activate();
         } else {
             // * Исполняемый файл плагина не найден
-            $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
+                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sPluginClassFile)),
                 E::ModuleLang()->Get('error'),
                 true
             );
