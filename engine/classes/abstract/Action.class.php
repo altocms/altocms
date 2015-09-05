@@ -106,11 +106,31 @@ abstract class Action extends LsObject {
         $this->aParams = R::GetParams();
         $this->RegisterEvent();
 
+        //Config::ResetLevel(Config::LEVEL_ACTION);
+        // Get current config level
+        $iConfigLevel = C::GetLevel();
         // load action's config if exists
-        Config::ResetLevel(Config::LEVEL_ACTION);
         if ($sFile = F::File_Exists('/config/actions/' . $sAction . '.php', Config::Get('path.root.seek'))) {
             // Дополняем текущий конфиг конфигом экшена
-            Config::LoadFromFile($sFile, false, Config::LEVEL_ACTION);
+            if ($aConfig = F::File_IncludeFile($sFile, true, true)) {
+                // Текущий уровень конфига может быть как меньше LEVEL_ACTION,
+                // так и больше. Нужно обновить все уровни
+                if ($iConfigLevel <= Config::LEVEL_ACTION) {
+                    $iMinLevel = $iConfigLevel;
+                    $iMaxLevel = Config::LEVEL_ACTION;
+                } else {
+                    $iMinLevel = Config::LEVEL_ACTION;
+                    $iMaxLevel = $iConfigLevel;
+                }
+                for ($iLevel = $iMinLevel; $iLevel <= $iMaxLevel; $iLevel++) {
+                    if ($iLevel > $iConfigLevel) {
+                        Config::ResetLevel(Config::LEVEL_ACTION);
+                    }
+                    Config::Load($aConfig, false, null, $iLevel, $sFile);
+                }
+            }
+        } elseif ($iConfigLevel < Config::LEVEL_ACTION) {
+            Config::ResetLevel(Config::LEVEL_ACTION);
         }
     }
 

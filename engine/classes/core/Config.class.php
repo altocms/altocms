@@ -276,7 +276,7 @@ class Config extends Storage {
      * Установка нового уровня конфигурации
      *
      * @param int       $nLevel
-     * @param null|bool $bSafe
+     * @param null|bool $bSafe (true - safe mode, false - nonsafe mode, null - auto mode)
      */
     public function _setLevel($nLevel = null, $bSafe = null) {
 
@@ -303,7 +303,7 @@ class Config extends Storage {
                 $this->nLevel -= 1;
             }
         } else {
-            if (!$bSafe) {
+            if ($bSafe === false) {
                 $aConfig = $this->GetConfig(null, $nLevel-1);
                 if ($aConfig) {
                     $this->SetConfig($aConfig, true, null, $nLevel);

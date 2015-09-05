@@ -302,6 +302,8 @@ class ModuleViewer extends Module {
 
         $this->SetResponseHeader('X-Powered-By', 'Alto CMS');
         $this->SetResponseHeader('Content-Type', 'text/html; charset=utf-8');
+
+        $this->_initSkin();
     }
 
     /**
@@ -604,7 +606,7 @@ class ModuleViewer extends Module {
 
         // If skin not initialized (or it was changed) then init one
         if ($this->sViewSkin != $this->GetConfigSkin()) {
-            $this->_initSkin($this->bLocal);
+            $this->_initSkin();
         } else {
             // Level could be changed after skin initialization
             Config::SetLevel(Config::LEVEL_SKIN);
