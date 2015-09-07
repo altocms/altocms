@@ -4649,12 +4649,12 @@ class ActionAdmin extends Action {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_name_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-
+        /*
         if (!F::CheckVal(F::GetRequest('field_description', null, 'post'), 'text', 2, 200)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_description_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-
+        */
         if (R::GetActionEvent() == 'fieldadd') {
             if ($oContentType == 'photoset' && (F::GetRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
