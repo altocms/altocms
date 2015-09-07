@@ -40,10 +40,10 @@
                         <div class="controls">
                             <select name="script_place" id="script_place" class="">
                                 <option value="head" {if $_aRequest.script_place=='head'}selected{/if}>
-                                    {$aLang.action.admin.script_edit_place_header|escape:'html'}
+                                    {$aLang.action.admin.script_edit_place_head|escape:'html'}
                                 </option>
                                 <option value="body" {if $_aRequest.script_place=='body'}selected{/if}>
-                                    {$aLang.action.admin.script_edit_place_top|escape:'html'}
+                                    {$aLang.action.admin.script_edit_place_body|escape:'html'}
                                 </option>
                                 <option value="end" {if $_aRequest.script_place=='end'}selected{/if}>
                                     {$aLang.action.admin.script_edit_place_end|escape:'html'}

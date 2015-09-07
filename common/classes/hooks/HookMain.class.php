@@ -164,7 +164,7 @@ class HookMain extends Hook {
             }
         }
         if ($sResult) {
-            $sResult = '{literal}' . $sResult . '{/literal}';
+            $sResult = PHP_EOL . $sResult . PHP_EOL;
         }
         return $sResult;
     }
