@@ -125,7 +125,7 @@ $(function () {
             </div>
 
             <div class="control-group" {if !$_aRequest.field_type || $_aRequest.field_type!='select'}style="display:none;"{/if} id="select_inputval">
-                <label for="field_description" class="control-label">
+                <label for="field_values" class="control-label">
                     {$aLang.action.admin.contenttypes_values}:
                 </label>
 
