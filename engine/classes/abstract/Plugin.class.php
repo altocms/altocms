@@ -402,15 +402,22 @@ abstract class Plugin extends LsObject {
      */
     static public function GetDir($xPlugin) {
 
-        $sPluginDirName = self::_pluginDirName($xPlugin);
+        $aSeekDirs = Config::Get('path.root.seek');
 
-        $aDirs = Config::Get('path.root.seek');
-        foreach($aDirs as $sDir) {
-            $sPluginDir = $sDir . '/plugins/' . $sPluginDirName . '/';
-            if (is_file($sPluginDir . 'plugin.xml')) {
-                return F::File_NormPath($sPluginDir);
-            }
+        $sPluginDirName = self::_pluginDirName($xPlugin);
+        $aPluginList = F::GetPluginsList(true, false);
+        $sManifestFile = null;
+        if (isset($aPluginList[$sPluginDirName]['dirname'])) {
+            $sManifestFile = F::File_Exists('plugins/' . $aPluginList[$sPluginDirName]['dirname'] . '/plugin.xml', $aSeekDirs);
         }
+        if (!$sManifestFile) {
+            $sManifestFile = F::File_Exists('plugins/' . $sPluginDirName . '/plugin.xml', $aSeekDirs);
+        }
+
+        if ($sManifestFile) {
+            return dirname($sManifestFile) . '/';
+        }
+
         return null;
     }
 
@@ -423,14 +430,20 @@ abstract class Plugin extends LsObject {
      */
     static public function GetDirLang($xPlugin) {
 
-        $sPluginDirName = self::_pluginDirName($xPlugin);
-
-        $aDirs = array_reverse(Config::Get('path.root.seek'));
         $aResult = array();
-        foreach($aDirs as $sDir) {
+
+        $aSeekDirs = Config::Get('path.root.seek');
+
+        $sPluginDirName = self::_pluginDirName($xPlugin);
+        $aPluginList = F::GetPluginsList(true, false);
+        $sManifestFile = null;
+        if (isset($aPluginList[$sPluginDirName]['dirname'])) {
+            $sPluginDirName = $aPluginList[$sPluginDirName]['dirname'];
+        }
+        foreach($aSeekDirs as $sDir) {
             $sPluginDir = $sDir . '/plugins/' . $sPluginDirName . '/templates/language/';
             if (is_dir($sPluginDir)) {
-                $aResult[] = $sPluginDir;
+                $aResult[] = F::File_NormPath($sPluginDir);
             }
         }
         return $aResult;
