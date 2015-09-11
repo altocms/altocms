@@ -182,7 +182,8 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getId() {
 
-        return $this->getProp('user_id');
+        $iUserId = $this->getProp('user_id');
+        return $iUserId ? intval($iUserId) : null;
     }
 
     /**

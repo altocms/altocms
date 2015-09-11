@@ -134,8 +134,7 @@
     {widget name="TagsFavouriteTopic" user=$oUserProfile}
 {/if}
 
-
-{if E::UserId() != $oUserProfile->getId()}
+{if E::IsUser() AND E::UserId() != $oUserProfile->getId()}
 <div class="panel panel-default sidebar user-panel raised widget">
 
         <div class="panel-body pab24 js-usernote" data-user-id="{$oUserProfile->getId()}">
