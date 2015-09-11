@@ -4,11 +4,6 @@
 {extends file="_profile.tpl"}
 
 {block name="layout_profile_content"}
-    {*<script>*}
-        {*$(function(){*}
-            {*ls.stream.init();*}
-        {*})*}
-    {*</script>*}
 
 <div class="panel panel-default panel-table flat">
 

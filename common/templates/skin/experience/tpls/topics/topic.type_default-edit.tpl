@@ -62,17 +62,7 @@
                         </div>
                     </div>
                 {else}
-    {*<script>*}
-        {*$(function(){*}
-            {*function resizeInput() {*}
-                {*$(this).attr('size', $(this).val().length-2);*}
-            {*}*}
 
-            {*$('.auto-input')*}
-                    {*.keyup(resizeInput)*}
-                    {*.each(resizeInput);*}
-        {*})*}
-    {*</script>*}
                     <div class="form-group has-feedback"">
                         <div class="input-group">
                             <span class="input-group-addon">{$aLang.topic_create_url}</span>

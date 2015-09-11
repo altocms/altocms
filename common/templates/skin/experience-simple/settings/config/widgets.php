@@ -66,20 +66,4 @@ $config['widgets']['UserfeedUsers'] = array(
     'on'     => 'feed/track',
 );
 
-//$config['widgets'][] = array(
-//    'name'   => 'ActivitySettings',
-//    'wgroup' => 'right',
-//    'on'     => 'stream',
-//);
-//
-//$config['widgets'][] = array(
-//    'name'   => 'ActivityFriends',
-//    'wgroup' => 'right',
-//    'on'     => 'stream',
-//);
-//
-//$config['widgets'][] = array(
-//    'name'   => 'ActivityUsers',
-//    'wgroup' => 'right',
-//    'on'     => 'stream',
-//);
+// EOF
