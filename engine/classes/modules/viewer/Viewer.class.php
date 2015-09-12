@@ -838,10 +838,9 @@ class ModuleViewer extends Module {
         $this->Assign('sSkinTheme', $sSkinTheme);
 
         $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
-        if (!$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+        if ($oSkin && (!$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<'))) {
             // Для старых скинвов загружаем объект доступа к конфигурации
             $this->Assign('oConfig', Config::getInstance());
-
         }
     }
 
