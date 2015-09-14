@@ -116,7 +116,7 @@ abstract class Hook extends LsObject {
      */
     public function GetHookName() {
 
-        E::ModuleHook()->GetHookName();
+        return E::ModuleHook()->GetHookName();
     }
 
     /**
@@ -128,7 +128,58 @@ abstract class Hook extends LsObject {
      */
     public function GetHookParams() {
 
-        E::ModuleHook()->GetHookParams();
+        return E::ModuleHook()->GetHookParams();
+    }
+
+    /**
+     * Returns the parameter of current hook handler
+     *
+     * @param $iParam
+     *
+     * @return mixed|null
+     */
+    public function GetHookParam($iParam) {
+
+        $aParams = $this->GetHookParams();
+        if (isset($aParams[$iParam])) {
+            return $aParams[$iParam];
+        }
+        return null;
+    }
+
+    /**
+     * Returns arguments of current hook handler
+     *
+     * @return array
+     *
+     * @since   1.1.9
+     */
+    public function GetHookArguments() {
+
+        return E::ModuleHook()->GetHookArguments();
+    }
+
+    /**
+     * Returns the argument of current hook handler
+     *
+     * @param $iArgument
+     *
+     * @return mixed|null
+     *
+     * @since   1.1.9
+     */
+    public function GetHookArgument($iArgument) {
+
+        $aArguments = $this->GetHookArguments();
+        if (isset($aArguments[$iArgument])) {
+            return $aArguments[$iArgument];
+        }
+        return null;
+    }
+
+    public function GetSourceResult() {
+
+        return E::ModuleHook()->GetSourceResult();
     }
 }
 

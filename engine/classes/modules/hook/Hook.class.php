@@ -103,6 +103,8 @@ class ModuleHook extends Module {
 
     protected $aCurrentHookOptions = array();
 
+    protected $aCurrentHookArguments = array();
+
     protected function _parseCallback($xCallback, $sClass = null) {
 
         $aResult = array(
@@ -389,6 +391,7 @@ class ModuleHook extends Module {
                             $sMethod = null;
                         }
 
+                        $this->aCurrentHookArguments = &$aVars;
                         if ($bArgsAsArray) {
                             if ($oObject) {
                                 $xHookResult = $oObject->$sMethod($aVars);
@@ -402,6 +405,7 @@ class ModuleHook extends Module {
                                 $xHookResult = call_user_func_array($aCallback['function'], $aVars);
                             }
                         }
+                        $this->aCurrentHookArguments = null;
 
                         if ($bTemplateHook) {
                             // * Если это шаблонный хук, то сохраняем результат
@@ -446,6 +450,34 @@ class ModuleHook extends Module {
             return $this->aCurrentHookOptions['params'];
         }
         return array();
+    }
+
+    /**
+     * Returns call arguments of current hook handler
+     *
+     * @return mixed
+     *
+     * @since   1.1.9
+     */
+    public function GetHookArguments() {
+
+        if (isset($this->aCurrentHookArguments['params']) && array_key_exists('result', $this->aCurrentHookArguments)) {
+            return $this->aCurrentHookArguments['params'];
+        }
+        return $this->aCurrentHookArguments;
+    }
+
+    /**
+     * Returns result of hook source method
+     *
+     * @return mixed
+     */
+    public function GetSourceResult() {
+
+        if (array_key_exists('result', $this->aCurrentHookArguments)) {
+            return $this->aCurrentHookArguments['result'];
+        }
+        return $this->aCurrentHookArguments;
     }
 
     /**
