@@ -594,7 +594,7 @@ class ModuleText extends Module {
      *
      * @return string
      */
-    public function CallbackCheckLinks($sTag, $aParams, $sContent, $sText) {
+    public function CallbackCheckLinks($sTag, $aParams, $sContent, $sText = null) {
 
         if (isset($this->aCheckTagLinks[$sTag])) {
             if (isset($aParams[$this->aCheckTagLinks[$sTag]['link']])) {
