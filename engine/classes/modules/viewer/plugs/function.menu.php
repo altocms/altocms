@@ -17,24 +17,24 @@ include_once __DIR__ . '/function.hook.php';
 function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
     // Меню нет - уходим
-    if (!isset($aParams['id']) || !($aMenu = E::ModuleMenu()->GetPreparedMenu($aParams['id']))) {
-        return '';
-    }
-    if (!isset($aMenu['items'])) {
+    if (empty($aParams['id']) || !($oMenu = E::ModuleMenu()->GetMenu($aParams['id']))) {
         return '';
     }
 
     /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
-    $aMenuItems = $aMenu['items'];
+    $aMenuItems = $oMenu->GetItems();
+    if (!$aMenuItems) {
+        return '';
+    }
 
     /** @var string $sMenu Запрашиваемое меню */
     $sMenu = '';
 
     // Установим класс меню, если он задан
     /** @var string $sMenuClass Класс меню */
-    $sMenuClass = isset($aParams['class']) ? 'class="' . $aParams['class'] . '"' : '';
-    if (!$sMenuClass) {
-        $sMenuClass = isset($aMenu['class']) ? 'class="' . $aMenu['class'] . '"' : '';
+    $sMenuClass = isset($aParams['class']) ? $aParams['class'] : $oMenu->GetCssClass();
+    if ($sMenuClass) {
+        $sMenuClass = 'class="' . $sMenuClass . '"';
     }
 
     // Открываем меню

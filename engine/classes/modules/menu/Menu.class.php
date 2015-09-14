@@ -14,7 +14,7 @@
  */
 class ModuleMenu extends Module {
 
-    protected $aPreparedMenu = array();
+    protected $aMenu = array();
 
     public function Init() {
 
@@ -51,54 +51,6 @@ class ModuleMenu extends Module {
         }
 
         return $data;
-    }
-
-    /**
-     * Подготавливет все меню для вывода
-     */
-    public function PrepareMenus() {
-
-        $aMenus = Config::Get('menu.data');
-        if ($aMenus && is_array($aMenus)) {
-
-            foreach($aMenus as $sMenuId => $aMenu) {
-                if (!isset($this->aPreparedMenu[$sMenuId])) {
-                    if (isset($aMenu['init']['fill'])) {
-                        $aPreparedMenu = $this->Prepare($sMenuId, $aMenu);
-                    } else {
-                        $aPreparedMenu = $aMenu;
-                    }
-                    $this->SetPreparedMenu($sMenuId, $aPreparedMenu);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param string $sMenuId
-     * @param array  $aMenu
-     */
-    public function SetPreparedMenu($sMenuId, $aMenu) {
-
-        $this->aPreparedMenu[$sMenuId] = $aMenu;
-    }
-
-    /**
-     * @param string $sMenuId
-     *
-     * @return null|array
-     */
-    public function GetPreparedMenu($sMenuId) {
-
-        if (isset($this->aPreparedMenu[$sMenuId])) {
-            return $this->aPreparedMenu[$sMenuId];
-        }
-        if ($aMenu = Config::Get('menu.data.' . $sMenuId)) {
-            $aPreparedMenu = $this->Prepare($sMenuId, $aMenu);
-            $this->SetPreparedMenu($sMenuId, $aPreparedMenu);
-            return $aPreparedMenu;
-        }
-        return null;
     }
 
     /**
@@ -218,20 +170,22 @@ class ModuleMenu extends Module {
      */
     public function GetMenu($sMenuId) {
 
-        // Настройки меню
-        //$aMenuData = Config::Get('menu.data.' . $sMenuId);
-        $aMenuData = $this->GetPreparedMenu($sMenuId);
-
-        // Из них возьмем сами сформированные меню
-        if (isset($aMenuData['items'])) {
-            return E::GetEntity('Menu_Menu', array(
-                'id'          => $sMenuId,
-                'items'       => $aMenuData['items'],
-                'description' => isset($aMenuData['description']) ? $aMenuData['description'] : '',
-            ));
+        if (!$sMenuId) {
+            return null;
+        }
+        if (isset($this->aMenu[$sMenuId])) {
+            return $this->aMenu[$sMenuId];
         }
 
-        return FALSE;
+        // Настройки меню
+        if ($aMenu = Config::Get('menu.data.' . $sMenuId)) {
+            // Такая форма вызова используется для того,
+            // чтобы можно было повесить хук на этот метод
+            $oMenu = E::ModuleMenu()->CreateMenu($sMenuId, $aMenu);
+            return $oMenu;
+        }
+
+        return null;
     }
 
     /**
@@ -264,11 +218,15 @@ class ModuleMenu extends Module {
         $aResult = array();
         if ($aMenuId) {
             foreach ($aMenuId as $sMenuId) {
-                $aResult[] = $this->GetMenu($sMenuId);
+                $aResult[$sMenuId] = $this->GetMenu($sMenuId);
             }
         }
 
         return $aResult;
+    }
+
+    public function SetConfig($sKey, $xValue) {
+
     }
 
     /**
@@ -278,49 +236,62 @@ class ModuleMenu extends Module {
      */
     public function SaveMenu($oMenu) {
 
-        // Установим объект для дальнейшего использования
-        //Config::Set("menu.data.{$oMenu->getId()}.items", $oMenu->GetItems());
-        $this->aPreparedMenu[$oMenu->getId()] = $oMenu->GetItems();
+        // Get config data of the menu
+        $aMenuConfig = $oMenu->GetConfig(true);
+        $sConfigKey = 'menu.data.' . $oMenu->getId();
 
-        // И конфиг сохраним
-        $aNewConfigData = array();
-        /** @var ModuleMenu_EntityItem $oMenuItem */
-        foreach ($oMenu->GetItems() as $sMenuId => $oMenuItem) {
-            $aNewConfigData[$sMenuId] = $oMenuItem ? $oMenuItem->getItemConfig() : "";
-        }
+        // Set in current common config
+        Config::Set($sConfigKey, null);
+        Config::Set($sConfigKey, $aMenuConfig);
 
-        Config::Set("menu.data.{$oMenu->getId()}.list", null);
-        Config::Set("menu.data.{$oMenu->getId()}.list", $aNewConfigData);
-        Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewConfigData));
+        // Save custom config
+        Config::ResetCustomConfig($sConfigKey);
+        Config::WriteCustomConfig(array($sConfigKey => $aMenuConfig));
+
+        // Clear cache of the menu
+        $this->ClearMenuCache($oMenu->getId());
     }
 
     /**
-     * Сбрасывет сохраненное меню в исходное состояние
+     * Сбрасывает сохраненное меню в исходное состояние
      *
      * @param ModuleMenu_EntityMenu| string $xMenu
      */
     public function ResetMenu($xMenu) {
 
         if (is_object($xMenu)) {
-            $sMenuId = $xMenu->getId();
+            $oMenu = $xMenu;
+            $sMenuId = $oMenu->getId();
         } else {
             $sMenuId = (string)$xMenu;
+            $oMenu = $this->GetMenu($sMenuId);
         }
         Config::ResetCustomConfig("menu.data.{$sMenuId}");
+        $this->ClearMenuCache($sMenuId);
+
+        $aMenu = Config::Get('menu.data.' . $sMenuId, Config::LEVEL_APP);
+        $aPreparedMenuData = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
+        $aPreparedMenuData['_cfg'] = $aMenu;
+        $oMenu->setProps($aPreparedMenuData);
+        $oMenu->setItems($aPreparedMenuData['items']);
     }
 
     /**
-     * Подготавливает меню для вывода, заполняя его из указанных в
-     * конфиге параметров. Синоним {@see Prepare}
+     * Создает меню, заполняя его из указанных в конфиге параметров
      *
-     * @param string $sMenuId Ид. меню, как оно указано в конфиге, например "main" для $config['view']['menu']['main']
-     * @param array $aMenu Конфигурация самого меню
+     * @param string $sMenuId ID меню, как оно указано в конфиге, например "main" для $config['view']['menu']['main']
+     * @param array  $aMenu   Конфигурация самого меню
      *
-     * @return string
+     * @return ModuleMenu_EntityMenu
      */
     public function CreateMenu($sMenuId, $aMenu) {
 
-        return $this->Prepare($sMenuId, $aMenu);
+        $aPreparedMenuData = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
+        $aPreparedMenuData['_cfg'] = $aMenu;
+        $oMenu = E::GetEntity('Menu_Menu', $aPreparedMenuData);
+        $oMenu->setProp('id', $sMenuId);
+
+        return $oMenu;
     }
 
     /**
@@ -367,7 +338,7 @@ class ModuleMenu extends Module {
 
         return E::GetEntity('Menu_Item',
             array_merge(
-                array('item_id' => $sItemId, 'item_config' => $aItemConfig),
+                array('item_id' => $sItemId, '_cfg' => $aItemConfig),
                 isset($aItemConfig['title']) ? array('item_title' => $aItemConfig['title']) : array(),
                 isset($aItemConfig['text']) ? array('item_text' => $aItemConfig['text']) : array(),
                 isset($aItemConfig['link']) ? array('item_url' => $aItemConfig['link']) : array(),
@@ -416,7 +387,7 @@ class ModuleMenu extends Module {
         foreach ($aFillSet as $sItemId) {
             if (isset($aMenu['list'][$sItemId])) {
                 /** @var ModuleMenu_EntityItem $oMenuItem */
-                $oMenuItem = $this->CreateMenuItem($sItemId, $aMenu['list'][$sItemId]);
+                $oMenuItem = E::ModuleMenu()->CreateMenuItem($sItemId, $aMenu['list'][$sItemId]);
 
                 // Это не хук, добавим флаг режима заполнения
                 if (!is_string($oMenuItem)) {
@@ -435,7 +406,6 @@ class ModuleMenu extends Module {
         }
 
         return $aItems;
-
     }
 
     /**
@@ -493,7 +463,7 @@ class ModuleMenu extends Module {
         if ($aCategories) {
             /** @var ModuleMresource_EntityMresourceCategory $oCategory */
             foreach ($aCategories as $oCategory) {
-                $aItems['menu_insert_' . $oCategory->getId()] = $this->CreateMenuItem('menu_insert_' . $oCategory->getId(), array(
+                $aItems['menu_insert_' . $oCategory->getId()] = E::ModuleMenu()->CreateMenuItem('menu_insert_' . $oCategory->getId(), array(
                     'text'    => $oCategory->getLabel() . '<span>' . $oCategory->getCount() . '</span>',
                     'link'    => '#',
                     'active'  => FALSE,
@@ -541,7 +511,7 @@ class ModuleMenu extends Module {
 
         if ($aBlogs) {
             foreach ($aBlogs as $oBlog) {
-                $aItems[$oBlog->getUrl()] = $this->CreateMenuItem($oBlog->getUrl(), array(
+                $aItems[$oBlog->getUrl()] = E::ModuleMenu()->CreateMenuItem($oBlog->getUrl(), array(
                     'title'   => $oBlog->getTitle(),
                     'link'    => $oBlog->getUrlFull(),
                     'active'  => (Config::Get('router.rewrite.blog') ? Config::Get('router.rewrite.blog') : 'blog') . '.' . $oBlog->getUrl(),
@@ -823,13 +793,12 @@ class ModuleMenu extends Module {
 
         if (FALSE === ($sData = E::ModuleCache()->GetTmp($sKeyString))) {
 
-            $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
-            $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+            $iCount = E::ModuleTopic()->GetCountTopicsCollectiveNew() + E::ModuleTopic()->GetCountTopicsPersonalNew();
 
-            if ($newClass) {
-                $sData = '<span class="' . $newClass . '"> +' . ($iCountTopicsCollectiveNew + $iCountTopicsPersonalNew) . '</span>';
+            if ($newClass && $iCount) {
+                $sData = '<span class="' . $newClass . '"> +' . $iCount . '</span>';
             } else {
-                $sData =  $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew;
+                $sData =  $iCount;
             }
 
             E::ModuleCache()->SetTmp($sData, $sKeyString);
@@ -954,11 +923,19 @@ class ModuleMenu extends Module {
 
     }
 
+    /**
+     * Clear cache for required menu
+     *
+     * @param $sMenuId
+     */
     public function ClearMenuCache($sMenuId) {
 
         E::ModuleCache()->CleanByTags(array('menu_' . $sMenuId), ',file');
     }
 
+    /**
+     * Clear cache for all menus
+     */
     public function ClearAllMenuCache() {
 
         E::ModuleCache()->CleanByTags(array('menu'), ',file');

@@ -15,7 +15,7 @@ class ModuleMenu_EntityMenu extends Entity {
     protected $_aItems = array();
 
     /**
-     * Переменная для кэширвоания описания элемента меню
+     * Переменная для кэширования описания элемента меню
      * @var null|bool
      */
     protected $_description = NULL;
@@ -58,6 +58,16 @@ class ModuleMenu_EntityMenu extends Entity {
         $this->_description = $this->getLangText($this->_description);
 
         return $this->_description;
+    }
+
+    public function getCssClass() {
+
+        return $this->getProp('class');
+    }
+
+    public function setCssClass($sCssClass) {
+
+        $this->setProp('class', $sCssClass);
     }
 
     /**
@@ -114,28 +124,22 @@ class ModuleMenu_EntityMenu extends Entity {
      *
      * @return array
      */
-    public function AddItem($xPosition, $oMenuItem) {
+    public function AddItem($oMenuItem, $xPosition = 'last') {
 
-        $xPosition = $this->_getIntPosition($xPosition);
-
-
-        if ($this->GetItemById($oMenuItem->getId())) {
-            return TRUE;
+        $xPosition = strtolower($xPosition);
+        $aItems = $this->GetItems();
+        if ($xPosition === 'first') {
+            $aResult = array($oMenuItem->getId() => $oMenuItem) + $aItems;
+        } elseif ($xPosition === 'last') {
+            $aResult = $aItems + array($oMenuItem->getId() => $oMenuItem);
+        } else {
+            $iPos = $this->_getIntPosition($xPosition);
+            $aResult = array_slice($aItems, 0, $iPos, true) +
+                array($oMenuItem->getId() => $oMenuItem) +
+                array_slice($aItems, $iPos, null, true);
         }
 
-        $aIds = array_keys($this->_aItems);
-        $aVals = array_values($this->_aItems);
-        $aResult = array();
-
-        for ($i = 0; $i < $xPosition; $i++) {
-            $aResult[$aIds[$i]] = $aVals[$i];
-        }
-        $aResult[$oMenuItem->getId()] = $oMenuItem;
-        for ($i = $xPosition; $i < count($this->_aItems); $i++) {
-            $aResult[$aIds[$i]] = $aVals[$i];
-        }
-
-        $this->_aItems = $aResult;
+        $this->SetItems($aResult);
 
         return TRUE;
     }
@@ -292,22 +296,24 @@ class ModuleMenu_EntityMenu extends Entity {
     public function GetItems() {
 
         $aAllowedItems = $this->_aItems;
-        $aAllowedData = $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
-        if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-            unset($aAllowedData[0]);
-        }
-        if (is_array($aAllowedData) && count($aAllowedData) == 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+        if ($aAllowedItems) {
+            $aAllowedData = $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
+            if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                unset($aAllowedData[0]);
+            }
+            if (is_array($aAllowedData) && count($aAllowedData) == 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                return $aAllowedItems;
+            }
+
+            foreach ($aAllowedItems as $k => $v) {
+                if (!in_array($k, $aAllowedData)) {
+                    unset($aAllowedItems[$k]);
+                }
+            }
+
             return $aAllowedItems;
         }
-
-
-        foreach ($aAllowedItems as $k => $v) {
-            if (!in_array($k, $aAllowedData)) {
-                unset($aAllowedItems[$k]);
-            }
-        }
-
-        return $aAllowedItems;
+        return array();
     }
 
     /**
@@ -318,6 +324,66 @@ class ModuleMenu_EntityMenu extends Entity {
     public function SetItems($aMenuItems) {
 
         $this->_aItems = $aMenuItems;
+    }
+
+    /**
+     * @param string $sKey
+     * @param mixed  $xValue
+     */
+    public function SetConfig($sKey, $xValue) {
+
+        if (is_array($xValue)) {
+            // Only scalar can be used as end value
+            array_walk_recursive($xValue, function(&$xV){
+                if (!is_scalar($xV)) {
+                    $xV = null;
+                }
+            });
+        }
+        if ($sKey && (is_scalar($xValue) || is_array($xValue))) {
+            $aKeys = explode('.', $sKey);
+            $aData = &$this->_aData;
+            $aCfg = &$this->_aData['_cfg'];
+            foreach ($aKeys as $sSubKey) {
+                $aData = &$aData[$sSubKey];
+                $aCfg = &$aCfg[$sSubKey];
+            }
+            $aData = $xValue;
+            $aCfg = $xValue;
+        }
+    }
+
+    /**
+     * @param bool|false $bRefreshItemList
+     *
+     * @return array
+     */
+    public function GetConfig($bRefreshItemList = false) {
+
+        $aMenuConfig = $this->_aData['_cfg'];
+
+        if ($bRefreshItemList) {
+            $aItemList = array();
+            foreach ($this->GetItems() as $sMenuId => $oMenuItem) {
+                $aItemList[$sMenuId] = $oMenuItem ? $oMenuItem->getItemConfig() : '';
+            }
+            $aMenuConfig['list'] = $aItemList;
+        }
+
+        return $aMenuConfig;
+    }
+
+    /**
+     * @param $sItemId
+     * @param $sKey
+     * @param $xValue
+     */
+    public function SetConfigItem($sItemId, $sKey, $xValue) {
+
+        $oItem = $this->GetItemById($sItemId);
+        if ($oItem) {
+            $oItem->SetConfig($sKey, $xValue);
+        }
     }
 
 }

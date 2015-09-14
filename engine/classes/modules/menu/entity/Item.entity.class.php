@@ -65,6 +65,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return int|null
      */
     public function getUrl() {
+
         $sLink = isset($this->_aData['item_url']) ? Config::Get($this->_aData['item_url']) : NULL;
         if (!$sLink) {
             return isset($this->_aData['item_url']) ? $this->_aData['item_url'] : NULL;
@@ -90,6 +91,7 @@ class ModuleMenu_EntityItem extends Entity {
     }
 
     public function checkPlugin($aPlugins) {
+
         if (is_string($aPlugins)) {
             $aPlugins = array($aPlugins);
         }
@@ -147,17 +149,18 @@ class ModuleMenu_EntityItem extends Entity {
         return TRUE;
     }
 
-    public function getLangText($sTextTemplate, $sLang = NULL) {
+    /**
+     * @param       $sTextTemplate
+     * @param array $aReplace
+     * @param null  $sLang
+     *
+     * @return mixed
+     */
+    public function getLangText($sTextTemplate, $aReplace = array(), $sLang = NULL) {
 
-        return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
-            $sTextTemplatePart = array_shift($sTextTemplatePart);
-            if (!is_null($sText = E::ModuleLang()->Get(substr($sTextTemplatePart, 2, strlen($sTextTemplatePart) - 4)))) {
-                return $sText;
-            }
-
-            return $sTextTemplatePart;
+        return preg_replace_callback('~\{\{\S*\}\}~U', function ($aMatches) use ($aReplace, $sLang) {
+            return E::ModuleLang()->Text($aMatches[0], $aReplace, true, $sLang);
         }, $sTextTemplate);
-
     }
 
     /**
@@ -185,6 +188,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return bool|mixed|null
      */
     public function getDescription(){
+
         if ($this->_description) {
             return $this->_description;
         }
@@ -221,6 +225,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return ModuleMenu_EntityItemOptions|null
      */
     public function getOptions() {
+
         $aOptions = isset($this->_aData['item_options']) ? $this->_aData['item_options'] : NULL;
         if ($this->getSubMenuId() && preg_match('~submenu_[a-f0-9]{10}~', $this->getSubMenuId())) {
             $aOptions = E::GetEntity('Menu_ItemOptions', Config::Get('menu.submenu.options'));
@@ -233,6 +238,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return int|null
      */
     public function getOn() {
+
         return isset($this->_aData['item_on']) ? $this->_aData['item_on'] : NULL;
     }
 
@@ -241,6 +247,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return int|null
      */
     public function getOff() {
+
         return isset($this->_aData['item_off']) ? $this->_aData['item_off'] : NULL;
     }
 
@@ -301,30 +308,34 @@ class ModuleMenu_EntityItem extends Entity {
      * @return mixed
      */
     public function getId() {
+
         return isset($this->_aData['item_id']) ? $this->_aData['item_id'] : NULL;
     }
 
     /**
-     * Возвращает идентификатор меню
+     * Возвращает идентификатор подменю
      * @return mixed
      */
     public function getSubMenuId() {
+
         return isset($this->_aData['item_submenu']) ? $this->_aData['item_submenu'] : NULL;
     }
 
     /**
-     * Возвращает идентификатор меню
+     * Возвращает конфигурацию элемента меню
      * @return mixed
      */
     public function getItemConfig() {
-        return isset($this->_aData['item_config']) ? $this->_aData['item_config'] : NULL;
+
+        return $this->getProp('_cfg');
     }
 
     /**
-     * Возвращает идентификатор меню
+     * Возвращает ссылку элемента меню
      * @return mixed
      */
     public function getLink() {
+
         return $this->getUrl();
     }
 
@@ -369,7 +380,7 @@ class ModuleMenu_EntityItem extends Entity {
             $aItemFlags['link_active'] = 'active';
             $aItemFlags['link_class'] = '';
         }
-*/
+        */
         $aItemFlags['link_id'] = ($this->getOptions() && ($aLinkId = $this->getOptions()->getLinkId())) ? "id='{$aLinkId}'" : '';
         $aItemFlags['link_active'] = ($this->getOptions() && ($this->getOptions()->getActiveLinkClass())) ? $this->getOptions()->getActiveLinkClass() : 'active';
         $aItemFlags['link_class'] = ($this->getOptions() && ($aLinkClass = $this->getOptions()->getLinkClass())) ? "class='{$aLinkClass} [[link_active]]'" : '';
@@ -407,6 +418,9 @@ class ModuleMenu_EntityItem extends Entity {
         return $aItemFlags;
     }
 
+    /**
+     * @return string
+     */
     public function getHtml() {
 
         // Сформируем динамические параметры
@@ -471,4 +485,33 @@ class ModuleMenu_EntityItem extends Entity {
 
     }
 
+    /**
+     * @param string $sKey
+     * @param mixed  $xValue
+     */
+    public function SetConfig($sKey, $xValue) {
+
+        if (is_array($xValue)) {
+            // Only scalar can be used as end value
+            array_walk_recursive($xValue, function(&$xV){
+                if (!is_scalar($xV)) {
+                    $xV = null;
+                }
+            });
+        }
+        if ($sKey && (is_scalar($xValue) || is_array($xValue))) {
+            $aKeys = explode('.', $sKey);
+            $aData = &$this->_aData;
+            $aCfg = &$this->_aData['_cfg'];
+            foreach ($aKeys as $sSubKey) {
+                $aData = &$aData[$sSubKey];
+                $aCfg = &$aCfg[$sSubKey];
+            }
+            $aData = $xValue;
+            $aCfg = $xValue;
+        }
+    }
+
 }
+
+// EOF

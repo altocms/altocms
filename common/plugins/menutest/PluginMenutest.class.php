@@ -31,7 +31,8 @@ class PluginMenutest extends Plugin {
      * @return bool
      */
     public function Activate() {
-        return TRUE;
+
+        return true;
     }
 
     /**
@@ -39,11 +40,12 @@ class PluginMenutest extends Plugin {
      * @return bool
      */
     public function Deactivate() {
-        $aMenuList = C::Get('menu.data.user.list');
-        unset($aMenuList['plugin_menutest_my_menu']);
-        C::WriteCustomConfig(array('menu.data.user.list' => $aMenuList));
-        C::ResetCustomConfig('menu.data.user.list.plugin_menutest_my_menu');
-        return TRUE;
+
+        $oMenu = E::ModuleMenu()->GetMenu('user');
+        $oMenu->RemoveItemById('plugin.menutest.my_menu', true);
+        E::ModuleMenu()->SaveMenu($oMenu);
+
+        return true;
     }
 
     /**
@@ -51,6 +53,9 @@ class PluginMenutest extends Plugin {
      */
     public function Init() {
 
+        return true;
     }
 
 }
+
+// EOF

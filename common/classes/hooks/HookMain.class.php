@@ -30,7 +30,7 @@ class HookMain extends Hook {
 
         $this->AddHook('module_session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
         $this->AddHook('init_action', 'InitAction', __CLASS__, PHP_INT_MAX);
-        $this->AddHook('render_init_done', 'RenderInitDone', __CLASS__, PHP_INT_MAX);
+        //$this->AddHook('render_init_done', 'RenderInitDone', __CLASS__, PHP_INT_MAX);
 
         $this->AddHook('template_form_add_content', 'insertFields', __CLASS__, -1);
 
@@ -79,10 +79,12 @@ class HookMain extends Hook {
         return null;
     }
 
+    /*
     public function RenderInitDone() {
 
         E::ModuleMenu()->PrepareMenus();
     }
+    */
 
     public function insertFields() {
 
