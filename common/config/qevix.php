@@ -34,7 +34,8 @@ return array(
             // вызов метода
             array(
                 'img',
-                array('src', 'title',
+                array('src',
+                      'title',
                       'data-rel',
                       'data-src',
                       'alt'    => '#text',
@@ -49,7 +50,7 @@ return array(
             // следующий вызов метода
             array(
                 'a',
-                array('title', 'href', 'rel' => '#text', 'name' => '#text', 'target' => array('_blank'), 'class' => array('ls-user'))
+                array('title', 'href', 'rel' => '#text', 'name' => '#text', 'target' => array('_blank'), 'class' => array('ls-user', 'topic-photoset-item'))
             ),
             // и т.д.
             array(

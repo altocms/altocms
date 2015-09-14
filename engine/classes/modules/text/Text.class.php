@@ -49,11 +49,13 @@ class ModuleText extends Module {
                 'link'        => 'src',                             // какой атрибут контролировать
                 'type'        => ModuleMresource::TYPE_IMAGE,       // тип медиа-ресурса
                 'restoreFunc' => array($this, '_restoreLocalUrl'),  // функция для восстановления URL
+                'pairedTag'   => false,                             // короткий тег
             ),
             'a'   => array(
                 'link'        => 'href',
                 'type'        => ModuleMresource::TYPE_HREF,
                 'restoreFunc' => array($this, '_restoreLocalUrl'),
+                'pairedTag'   => true,
             ),
         );
 
@@ -610,10 +612,10 @@ class ModuleText extends Module {
                     }
                     $sText .= $sKey . '="' . $sVal . '" ';
                 }
-                if (is_null($sContent)) {
-                    $sText .= '/>';
+                if (is_null($sContent) || empty($this->aCheckTagLinks[$sTag]['pairedTag'])) {
+                    $sText = trim($sText) . '>';
                 } else {
-                    $sText .= '>' . $sContent . '</' . $sTag . '>';
+                    $sText = trim($sText) . '>' . $sContent . '</' . $sTag . '>';
                 }
             }
         }
