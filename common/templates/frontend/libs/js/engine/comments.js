@@ -310,7 +310,7 @@ ls.comments = (function ($) {
             return false;
         } else {
             this.formCommentShow(replyForm, idComment, bNoFocus, mode);
-            return false;
+            return true;
         }
 
     };
