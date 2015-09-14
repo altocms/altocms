@@ -405,6 +405,7 @@ class ModuleHook extends Module {
                                 $xHookResult = call_user_func_array($aCallback['function'], $aVars);
                             }
                         }
+                        unset($this->aCurrentHookArguments);
                         $this->aCurrentHookArguments = null;
 
                         if ($bTemplateHook) {
