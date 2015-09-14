@@ -21,43 +21,31 @@
         }
     }
 
-    var fixHelper = function (e, ui) {
-        ui.children().each(function () {
-            $(this).width($(this).width());
-        });
-        return ui;
-    };
+    $(function () {
+        var container = $('.js-sortable');
+        var sortSave = function (e, ui) {
+            var notes = container.find('tr');
+            if (notes.length > 0) {
+                var order = [];
+                $.each(notes.get().reverse(), function (index, value) {
+                    order.push({'id': $(value).attr('id'), 'order': index});
+                });
 
-    var sortSave = function (e, ui) {
-        var notes = $('#sortable tbody.content tr');
-        if (notes.length > 0) {
-            var order = [];
-            $.each(notes.get().reverse(), function (index, value) {
-                order.push({'id': $(value).attr('id'), 'order': index});
-            });
-
-            ls.progressStart();
-            ls.ajax(aRouter['admin'] + 'ajaxchangeorderfields/', {'order': order}, function (response) {
-                ls.progressDone();
-                if (!response.bStateError) {
-                    ls.msg.notice(response.sMsgTitle, response.sMsg);
-                } else {
-                    ls.msg.error(response.sMsgTitle, response.sMsg);
-                }
-            });
+                ls.progressStart();
+                ls.ajax(aRouter['admin'] + 'ajaxchangeorderfields/', {'order': order}, function (response) {
+                    ls.progressDone();
+                    if (!response.bStateError) {
+                        ls.msg.notice(response.sMsgTitle, response.sMsg);
+                    } else {
+                        ls.msg.error(response.sMsgTitle, response.sMsg);
+                    }
+                });
+            }
+        };
+        if (admin && admin.sortable) {
+            admin.sortable(container, sortSave);
         }
     };
-
-    $(function () {
-        $("#sortable tbody.content").sortable({
-            helper: fixHelper
-        });
-        $("#sortable tbody.content").disableSelection();
-
-        $("#sortable tbody.content").sortable({
-            stop: sortSave
-        });
-    });
 </script>
 {/literal}
 
@@ -160,7 +148,7 @@
                     <div class="b-wbox-header-title">{$aLang.action.admin.contenttypes_fields_added}</div>
                 </div>
                 <div class="b-wbox-content">
-                    <table id="sortable" class="table table-bordered">
+                    <table class="table table-bordered">
                         <thead class="topiccck_thead">
                         <tr>
                             <th>ID</th>
@@ -171,7 +159,7 @@
                         </tr>
                         </thead>
 
-                        <tbody class="content">
+                        <tbody class="content js-sortable">
                         {foreach from=$oContentType->getFields() item=oField name=el2}
                             <tr id="{$oField->getFieldId()}" class="cursor-x">
                                 <td align="center">

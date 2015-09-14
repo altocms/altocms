@@ -326,6 +326,28 @@ var admin = admin || {};
         });
         return false;
     };
+
+    $this.sortable = function(container, sortSave){
+        container = $(container);
+        container.sortable({
+            helper: function (e, ui) {
+                ui.children().each(function () {
+                    $(this).width($(this).width());
+                });
+                return ui;
+            },
+            sort: function(event, ui) {
+                var $target = $(event.target);
+                if (!/html|body/i.test($target.offsetParent()[0].tagName)) {
+                    var top = event.pageY - $target.offsetParent().offset().top - (ui.helper.outerHeight(true) / 2);
+                    ui.helper.css({ 'top' : top + 'px' });
+                }
+            },
+            stop: sortSave
+        });
+        container.disableSelection();
+    };
+
 })(jQuery);
 
 !function ($) {
