@@ -67,12 +67,7 @@ class ModuleSkin extends Module {
             } else {
                 $sSkinsDir = Config::Get('path.skins.dir');
             }
-            if (isset($aFilter['name'])) {
-                $sPattern = $sSkinsDir . $aFilter['name'];
-            } else {
-                $sPattern = $sSkinsDir . '*';
-            }
-            $aList = glob($sPattern, GLOB_ONLYDIR);
+            $aList = glob($sSkinsDir . '*', GLOB_ONLYDIR);
             if ($aList) {
                 if (!isset($aFilter['type'])) $aFilter['type'] = '';
                 $sActiveSkin = Config::Get('view.skin');
