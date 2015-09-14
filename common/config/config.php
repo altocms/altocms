@@ -751,6 +751,7 @@ $config['config_load'] = array(
     'classes',      // Определения классов
     'assets',       // Наборы подключаемых css- и js-файлов
     'jevix',        // Настройки типографа текста Jevix
+    'qevix',        // Настройки типографа текста Qevix
     'widgets',      // Виджеты
     'menu',         // Меню
 );

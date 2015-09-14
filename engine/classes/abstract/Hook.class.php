@@ -162,17 +162,17 @@ abstract class Hook extends LsObject {
     /**
      * Returns the argument of current hook handler
      *
-     * @param $iArgument
+     * @param $xArgument
      *
      * @return mixed|null
      *
      * @since   1.1.9
      */
-    public function GetHookArgument($iArgument) {
+    public function GetHookArgument($xArgument) {
 
         $aArguments = $this->GetHookArguments();
-        if (isset($aArguments[$iArgument])) {
-            return $aArguments[$iArgument];
+        if (isset($aArguments[$xArgument])) {
+            return $aArguments[$xArgument];
         }
         return null;
     }

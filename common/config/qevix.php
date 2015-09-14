@@ -39,7 +39,7 @@ return array(
                       'data-src',
                       'alt'    => '#text',
                       'align'  => array('right', 'left', 'center', 'middle'),
-                      'width'  => '[~\d+(%|px)?~]',
+                      'width'  => '#regexp(\d+(%|px)?)',
                       'height' => '#int',
                       'hspace' => '#int',
                       'vspace' => '#int',
@@ -124,69 +124,6 @@ return array(
             array(
                 'div',
                 array('class'=> array('alto-photoset', 'alto-photoset js-topic-photoset-list', 'spoiler', 'spoiler-title', 'spoiler-slider', 'spoiler-text'), 'data-width')
-            ),
-        ),
-        // допустимые комбинации значений у параметров
-        'cfgSetTagParamCombination' => array(
-            array(
-                'param',
-                'name',
-                array(
-                    'allowScriptAccess' => array(
-                        'value' => array('sameDomain'),
-                    ),
-                    'movie' => array(
-                        'value' => array('#domain' => array(
-                            'youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com',
-                        )),
-                    ),
-                    'align' => array(
-                        'value' => array('bottom', 'middle', 'top', 'left', 'right'),
-                    ),
-                    'base' => array(
-                        'value' => true,
-                    ),
-                    'bgcolor' => array(
-                        'value' => true,
-                    ),
-                    'border' => array(
-                        'value' => true,
-                    ),
-                    'devicefont' => array(
-                        'value' => true,
-                    ),
-                    'flashVars' => array(
-                        'value' => true,
-                    ),
-                    'hspace' => array(
-                        'value' => true,
-                    ),
-                    'quality' => array(
-                        'value' => array('low', 'medium', 'high', 'autolow', 'autohigh', 'best'),
-                    ),
-                    'salign' => array(
-                        'value' => array('L', 'T', 'R', 'B', 'TL', 'TR', 'BL', 'BR'),
-                    ),
-                    'scale' => array(
-                        'value' => array('scale', 'showall', 'noborder', 'exactfit'),
-                    ),
-                    'tabindex' => array(
-                        'value' => true,
-                    ),
-                    'title' => array(
-                        'value' => true,
-                    ),
-                    'type' => array(
-                        'value' => true,
-                    ),
-                    'vspace' => array(
-                        'value' => true,
-                    ),
-                    'wmode' => array(
-                        'value' => array('window', 'opaque', 'transparent'),
-                    ),
-                ),
-                true, // Удалять тег, если нет основного значения параметра в списке комбинаций
             ),
         ),
         // Параметры тегов являющиеся обязательными
@@ -278,13 +215,6 @@ return array(
         'cfgSetAutoBrMode' => array(
             array(
                 true
-            )
-        ),
-        // Автозамена
-        'cfgSetAutoReplace' => array(
-            array(
-                array('+/-', '(c)', '(с)', '(r)', '(C)', '(С)', '(R)'),
-                array('±', '©', '©', '®', '©', '©', '®')
             )
         ),
         // Список допустимых протоколов для ссылок

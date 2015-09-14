@@ -141,6 +141,8 @@ class ModuleText extends Module {
                 $this->oTextParser->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
             }
         }
+
+        $this->oTextParser->cfgSetTagCallbackFull('ls', array($this, 'CallbackTagLs'));
     }
 
     /**
@@ -160,7 +162,7 @@ class ModuleText extends Module {
         if ($bClear) {
             $this->oTextParser->tagsRules = array();
         }
-        $aConfig = Config::Get('jevix.' . $sType);
+        $aConfig = Config::Get('qevix.' . $sType);
         if (is_array($aConfig)) {
             foreach ($aConfig as $sMethod => $aExec) {
                 foreach ($aExec as $aParams) {

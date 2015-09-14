@@ -27,7 +27,7 @@ $qevix->cfgSetTagCutWithContent(array('script', 'object', 'iframe', 'style'));
 // 7. Указывает теги, после которых не нужно добавлять дополнительный перевод строки, например, блочные теги
 $qevix->cfgSetTagBlockType(array('ol','ul','code'));
 
-// 8. Добавляет разрешенные параметры для тегов, значение по умолчанию шаблон #text. Разрешенные шаблоны #text, #int, #link
+// 8. Добавляет разрешенные параметры для тегов, значение по умолчанию шаблон #text. Разрешенные шаблоны #text, #int, #link, #regexp(...) (Например: "#regexp(\d+(%|px))")
 $qevix->cfgAllowTagParams('a', array('title', 'href' => '#link', 'rel' => '#text', 'target' => array('_blank')));
 $qevix->cfgAllowTagParams('img', array('src' => '#text', 'alt' => '#text', 'title', 'align' => array('right', 'left', 'center'), 'width' => '#int', 'height' => '#int'));
 
@@ -62,14 +62,17 @@ $qevix->cfgSetAutoBrMode(true);
 // 17. Включает или выключает режим автоматического определения ссылок
 $qevix->cfgSetAutoLinkMode(true);
 
-// 18. Устанавливает на тег callback-функцию
+// 18. Задает символ/символы перевода строки. По умполчанию "\n". Разрешено "\n" или "\r\n"
+$qevix->cfgSetEOL("\n");
+
+// 19. Устанавливает на тег callback-функцию
 $qevix->cfgSetTagBuildCallback('code', 'tag_code_build');
 
-// 19. Устанавливает на строку предварённую спецсимволом (@|#|$) callback-функцию
+// 20. Устанавливает на строку предварённую спецсимволом (@|#|$) callback-функцию
 $qevix->cfgSetSpecialCharCallback('#', 'tag_sharp_build');
 $qevix->cfgSetSpecialCharCallback('@', 'tag_at_build');
 
-// 18. Устанавливает на тег событие
+// 21. Устанавливает на тег событие
 $qevix->cfgSetTagEventCallback('code', 'tag_code_event');
 
 function tag_code_build($tag, $params, $content)
@@ -96,7 +99,7 @@ function tag_at_build($string)
 	if(!preg_match('#^[\w\_\-]{1,32}$#isu', $string)) {
 		return false;
 	}
-	
+
 	return '<a href="/user/'.$string.'/">@'.$string.'</a>';
 }
 
@@ -200,7 +203,7 @@ echo "результат: ".htmlspecialchars($result)."<br>";
 echo "предполагалось: ".htmlspecialchars('текст ftp://yandex.ru!..')."<br><br>";
 
 // #13
-$text = 'текст 
+$text = 'текст
 
 <ul>
   <li>текст</li>
@@ -217,7 +220,7 @@ echo "результат: ".htmlspecialchars($result)."<br>";
 echo "предполагалось: ".htmlspecialchars('текст <br> <br> <ul> <li>текст</li> <li>текст</li> </ul> <br> текст')."<br><br>";
 
 // #14
-$text = 'текст 
+$text = 'текст
 <li>текст</li>
 <li>текст</li>
 текст';
