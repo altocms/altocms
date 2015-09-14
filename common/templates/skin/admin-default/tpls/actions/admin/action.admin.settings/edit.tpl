@@ -117,7 +117,7 @@
         var v = $(el).text();
         $('[name=edit_comment_unit]').val(v);
         $(el).parents('.btn-group').find('.dropdown-toggle .content').text(v);
-        console.log($(el).siblings('.dropdown-toggle'));
+        //console.log($(el).siblings('.dropdown-toggle'));
     };
 </script>
 {/block}

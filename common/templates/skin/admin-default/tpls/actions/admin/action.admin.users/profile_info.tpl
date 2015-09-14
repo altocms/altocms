@@ -79,7 +79,9 @@
             //params['profile_site_name'] = $('profile_site_name').value;
             params['profile_email'] = $('#user_profile_email_view a').text();
 
+            ls.progressStart();
             ls.ajax('/admin/ajaxsetprofile/', params, function (result) {
+                ls.progressDone();
                 if (!result) {
                     ls.msg.error('Error', 'Please try again later');
                 }

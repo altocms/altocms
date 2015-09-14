@@ -2,10 +2,7 @@
 
 {block name="content-bar"}
     <script>
-
-
             var addForm = {
-
                 show: function(){
                     var form = $('#new_menu_item');
 
@@ -13,9 +10,7 @@
 
                     return false;
                 }
-
             };
-
     </script>
 
         <div class="btn-group">
@@ -126,7 +121,10 @@
                     'order': order,
                     'menu_id': "{$oMenu->getId()}"
                 };
+
+                ls.progressStart();
                 ls.ajax(aRouter['admin'] + 'ajaxchangeordermenu/', data, function (response) {
+                    ls.progressDone();
                     if (!response.bStateError) {
                         ls.msg.notice(response.sMsgTitle, response.sMsg);
                     } else {
@@ -137,12 +135,13 @@
         };
 
         $(function () {
-            $("#sortable tbody.content").sortable({
-                helper: fixHelper
-            });
+            //$("#sortable tbody.content").sortable({
+            //    helper: fixHelper
+            //});
             $("#sortable tbody.content").disableSelection();
 
             $("#sortable tbody.content").sortable({
+                helper: fixHelper,
                 stop: sortSave
             });
         });
@@ -154,7 +153,10 @@
                 'item_id': $link.data('item_id'),
                 'text': $link.prev().val()
             };
+
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxchangemenutext/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.parent().prev().find('span').text(response.text);
@@ -172,7 +174,10 @@
                 'item_id': $link.data('item_id'),
                 'text': $link.prev().val()
             };
+
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxchangemenulink/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.parent().prev().find('span').text(response.text);
@@ -189,7 +194,10 @@
                 'menu_id': "{$oMenu->getId()}",
                 'item_id': $link.data('item_id')
             };
+
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxmenuitemremove/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.parents('tr').remove();

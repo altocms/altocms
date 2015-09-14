@@ -340,7 +340,7 @@
             } else {
                 elRate.css('visibility', '');
             }
-        }
+        };
 
         $(function () {
             $('select[name^=blogtypes_acl]').each(function () {

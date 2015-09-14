@@ -25,7 +25,10 @@
                 $.each(notes.get().reverse(), function (index, value) {
                     order.push({ 'id': $(value).attr('id'), 'order': index });
                 });
+
+                ls.progressStart();
                 ls.ajax(aRouter['admin'] + 'ajaxchangeordertypes/', { 'order': order }, function (response) {
+                    ls.progressDone();
                     if (!response.bStateError) {
                         ls.msg.notice(response.sMsgTitle, response.sMsg);
                     } else {
