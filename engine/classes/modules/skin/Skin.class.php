@@ -60,6 +60,9 @@ class ModuleSkin extends Module {
      */
     public function GetSkinsList($aFilter = array()) {
 
+        if (isset($aFilter['name']) && isset($this->aSkins[$aFilter['name']])) {
+            return array($aFilter['name'] => $this->aSkins[$aFilter['name']]);
+        }
         if (is_null($this->aSkins)) {
             $aSkinList = array();
             if (isset($aFilter['dir'])) {

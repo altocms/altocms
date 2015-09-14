@@ -72,8 +72,9 @@ class ModuleSkin_EntitySkin extends Entity {
 
         $this->_xlang($oXml, 'name', $sLang);
         $this->_xlang($oXml, 'author', $sLang);
-        $this->_xlang($oXml, 'description', $sLang);
-        $oXml->homepage = E::ModuleText()->Parser((string)$oXml->homepage);
+        $this->_xlang($oXml, 'description', $sLang, true);
+        //$oXml->homepage = E::ModuleText()->Parser((string)$oXml->homepage);
+        $oXml->homepage = filter_var((string)$oXml->homepage, FILTER_SANITIZE_URL);
 
         if ($sId = (string)$oXml->id) {
             $aData['id'] = $sId;
@@ -89,14 +90,18 @@ class ModuleSkin_EntitySkin extends Entity {
      * @param string           $sProperty    Свойство, которое нужно вернуть
      * @param string           $sLang    Название языка
      */
-    protected function _xlang($oXml, $sProperty, $sLang) {
+    protected function _xlang($oXml, $sProperty, $sLang, $bParseText = false) {
 
         $sProperty = trim($sProperty);
 
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
             $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
         }
-        $oXml->$sProperty->data = E::ModuleText()->Parser(trim((string)array_shift($data)));
+        if ($bParseText) {
+            $oXml->$sProperty->data = E::ModuleText()->Parser(trim((string)array_shift($data)));
+        } else {
+            $oXml->$sProperty->data = trim((string)array_shift($data));
+        }
     }
 
     /**
