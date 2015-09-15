@@ -14,7 +14,7 @@ $(function () {
         $selects.not('.hidden-select').selecter()
     }
 
-    var $checks = $('input');
+    var $checks = $('input:not(.js-no-jq)');
 
     if ($checks.length > 0) {
         $checks.iCheck({
