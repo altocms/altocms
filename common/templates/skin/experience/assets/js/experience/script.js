@@ -91,4 +91,6 @@ $(function () {
             $('.toolbar-button:not(.toolbar-write) > a').popover('hide');
             $(this).css({top: $(this).parent().offset().top + 53});
         });
+
+    $('.topic .topic-share').slideToggle();
 });
