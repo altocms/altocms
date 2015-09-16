@@ -46,7 +46,15 @@
                 {if !$bPreview}
                     <div class="topic-share" id="topic_share_{$oTopic->getId()}">
                         {hookb run="topic_share" topic=$oTopic bTopicList=false}
-                            <div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="button" data-yashareQuickServices="vkontakte,facebook,twitter,gplus"></div>
+                            <div class="yashare-auto-init"
+                                 data-yashareTitle="{$oTopic->getTitle()|escape:'htmlall'}"
+                                 data-yashareDescription="{$oTopic->getText()|strip_tags|strip|truncate:100|escape:'htmlall'}"
+                                 data-yashareLink="{$oTopic->getUrl()}"
+                                 data-yashareL10n="{Config::Get('lang.current')}"
+                                 data-yashareTheme="counter"
+                                 data-yashareType="small"
+                                 {if $oTopic->getPreviewImageUrl()}data-yashareImage="{$oTopic->getPreviewImageUrl()}"{/if}
+                                 data-yashareQuickServices="vkontakte,facebook,twitter,odnoklassniki,moimir,lj,gplus"></div>
                         {/hookb}
                     </div>
                 {/if}
