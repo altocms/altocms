@@ -2,7 +2,6 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {$oUser=$oComment->getUser()}
-{$oVote=$oComment->getVote()}
 
 {if $sDateReadLast==''}
     {$sTargetType = $oComment->getTargetType()}

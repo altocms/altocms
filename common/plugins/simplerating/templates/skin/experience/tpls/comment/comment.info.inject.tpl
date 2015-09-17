@@ -1,4 +1,5 @@
 {if $oComment->getTargetType() != 'talk'}
+    {$oVote=$oComment->getVote()}
     {$sVoteClass = ""}
     {if $oComment->getRating() > 0}
         {$sVoteClass = " vote-count-positive"}
