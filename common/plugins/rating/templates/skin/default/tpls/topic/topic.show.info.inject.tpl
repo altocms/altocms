@@ -24,7 +24,7 @@
         {if $bVoteInfoShow}
             {if $oTopic->getRating() > 0}+{/if}{$oTopic->getRating()}
         {else}
-            <a href="#" onclick="return ls.vote.vote({$oTopic->getId()},this,0,'topic');">?</a>
+            <a href="#" onclick="return ls.vote.vote('topic',{$oTopic->getId()},0,this);">?</a>
         {/if}
     </div>
     {if C::Get('plugin.rating.topic.dislike')}
