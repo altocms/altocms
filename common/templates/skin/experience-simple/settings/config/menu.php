@@ -336,10 +336,10 @@ $config['data']['topics'] = array(
 
 
         'discussed' => array(
-//            'text'    => array(
-//                '{{blog_menu_all_discussed}}',
-//                '&nbsp;<i class="caret"></i>',
-//            ),
+            'text'    => array(
+                '{{blog_menu_all_discussed}}',
+                '&nbsp;<i class="caret"></i>',
+            ),
             'submenu' => 'discussed',
             'options' => array(
                 'class'     => 'dropdown',

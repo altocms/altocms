@@ -60,3 +60,10 @@
 .user-panel .user-nav li a span {
     background-color: #1c374c;
 }
+
+.nav > .dropdown-submenu > a:after {
+    border-bottom-color: #d0dbdf;
+}
+.dropdown-menu.dropdown-content-menu > li > a:hover {
+    color: #1c374c !important;
+}
