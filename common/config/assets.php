@@ -165,8 +165,9 @@ $config['default']['js'] = array(
 );
 
 //потенциально проблемные файлы выводим в футере
+// https://tech.yandex.ru/share/
 $config['footer']['js'] = array(
-    '//yandex.st/share/share.js',
+    '//yastatic.net/share/share.js',
 );
 
 $config['default']['css'] = array(

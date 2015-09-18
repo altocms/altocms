@@ -106,9 +106,7 @@ $(function () {
 
     $('.dropdown-toggle').on('click', function(){
         $('.toolbar-button > a').popover('hide');
-    })
-
-    $('.topic .topic-share').slideToggle();
+    });
 
     $('.modal-header button').html('&nbsp;');
 

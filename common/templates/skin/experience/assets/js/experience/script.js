@@ -61,7 +61,7 @@ $(function () {
         }).on('shown.bs.popover', function () {
             $('.popover-content .js-widget-stream-content').html($('#hidden-stream .js-widget-stream-content').html());
             $('.widget-type-stream').css('height', 'auto');
-        })
+        });
 
 
     $('.toolbar-user > a')
@@ -93,5 +93,4 @@ $(function () {
         });
 
     $('.topic .topic-share').slideToggle();
-
 });
