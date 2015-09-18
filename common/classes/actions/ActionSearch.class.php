@@ -488,7 +488,8 @@ class ActionSearch extends Action {
         if ($this->aReq['regexp']) {
             $aResult = E::ModuleSearch()->GetTopicsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
-                $this->nItemsPerPage, $this->aReq['params']
+                $this->nItemsPerPage, $this->aReq['params'],
+                C::Get('module.search.accessible')
             );
 
             $aTopics = array();
