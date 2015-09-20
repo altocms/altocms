@@ -113,7 +113,7 @@ $config['assets']['default']['js'] = array(
     '___path.skin.dir___/assets/js/jquery.formstyler.min.js',
 );
 
-$config['footer']['default']['js'] = array();
+$config['assets']['footer']['js'] = false;
 
 $config['path']['skin']['img']['dir'] = '___path.skin.dir___/assets/img/'; // папка с изображениями скина
 $config['path']['skin']['img']['url'] = '___path.skin.url___/assets/img/'; // URL с изображениями скина

@@ -215,9 +215,15 @@ label                                   { display: block }
 .nav.navbar-nav.navbar-right .icon      { font-size: 15px; position: relative; margin-right: 4px; }
 .nav.navbar-nav.navbar-right .dropdown-menu .icon
                                         { font-size: 13px }
-.btn-danger, .b-wbox-header .close, .b-wbox-header-title, .btn-primary, .nav, .menu-left li a, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
-                                        { font-family: "Cuprum"!important }
-body, div                               { font-family: "Ubuntu"!important }
+.btn-danger,
+.b-wbox-header .close,
+.b-wbox-header-title,
+.btn-primary,
+.nav,
+.menu-left li a,
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
+                                        { font-family: "Cuprum", Arial !important }
+body, div                               { font-family: "Ubuntu", Arial !important }
 div.dataTables_wrapper .ui-widget-header, .b-wbox-header, .modal-header, .table th
                                         { border-bottom: 1px solid #eee }
 .b-wbox-header .close, .b-wbox-header-title
