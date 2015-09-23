@@ -105,7 +105,7 @@
         {if $bVoteInfoShow}
             <span class="vote-total js-vote-rating {$sVoteClass}">{if $oTopic->getRating() > 0}+{/if}{$oTopic->getRating()}</span>
         {else}
-            <a href="#" class="vote-down link link-gray link-clear" onclick="return ls.vote.vote({$oTopic->getId()},this,0,'topic');">?</a>
+            <a href="#" class="vote-down link link-gray link-clear" onclick="return ls.vote.vote('topic',{$oTopic->getId()},0,this);">?</a>
         {/if}
         <a href="#" onclick="return false;" class="vote-up link link link-gray link-clear js-vote-up"><i class="fa fa-thumbs-o-up"></i></a>
 
@@ -180,7 +180,7 @@
                                     {if $oTopic->getRating() > 0}+{/if}{$oTopic->getRating()}
                                 {else}
                                     <i class=" vote-down link link-gray js-vote-rating link-clear"
-                                       onclick="return ls.vote.vote({$oTopic->getId()},this,0,'topic');">...</i>
+                                       onclick="return ls.vote.vote('topic',{$oTopic->getId()},0,this);">...</i>
                                 {/if}
                                 </span>
             <a href="#" onclick="return false;" class="{$sVoteClass} vote-up link link link-gray link-clear js-vote-up"><i class="fa fa-thumbs-o-up"></i></a>

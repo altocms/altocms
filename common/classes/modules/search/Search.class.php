@@ -25,18 +25,22 @@ class ModuleSearch extends Module {
     /**
      * Получает список топиков по регулярному выражению (поиск)
      *
-     * @param       $sRegexp
-     * @param       $iPage
-     * @param       $iPerPage
+     * @param $sRegexp
+     * @param $iPage
+     * @param $iPerPage
      * @param array $aParams
+     * @param bool $bAccessible
      *
      * @return array
      */
-    public function GetTopicsIdByRegexp($sRegexp, $iPage, $iPerPage, $aParams = array()) {
+    public function GetTopicsIdByRegexp($sRegexp, $iPage, $iPerPage, $aParams = array(), $bAccessible = false) {
 
         $s = md5(serialize($sRegexp) . serialize($aParams));
         $sCacheKey = 'search_topics_' . $s . '_' . $iPage . '_' . $iPerPage;
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            if ($bAccessible) {
+                $aParams['aFilter'] = E::ModuleTopic()->GetNamedFilter(FALSE, array('accessible' => true));
+            }
             $data = array(
                 'collection' => $this->oMapper->GetTopicsIdByRegexp($sRegexp, $iCount, $iPage, $iPerPage, $aParams),
                 'count'      => $iCount,

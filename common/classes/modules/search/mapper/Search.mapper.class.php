@@ -57,6 +57,36 @@ class ModuleSearch_MapperSearch extends Mapper {
         $aData = $this->PrepareRegExp($sRegExp);
         $aWeight = array();
 
+        // Обработка возможного фильтра. Пока параметр один - это разрешённые блоги для пользователя
+        // но на будущее условия разделены
+        if (isset($aParams['aFilter']) && is_array($aParams['aFilter']) && !empty($aParams['aFilter'])) {
+
+            // Если определён список типов/ид. разрешённых блогов
+            if (isset($aParams['aFilter']['blog_type']) && is_array($aParams['aFilter']['blog_type']) && !empty($aParams['aFilter']['blog_type'])) {
+                $sWhere = '';
+                $aBlogTypes = array();
+                $aOrClauses = array();
+                $aParams['aFilter']['blog_type'] = F::Array_FlipIntKeys($aParams['aFilter']['blog_type'], 0);
+                foreach ($aParams['aFilter']['blog_type'] as $sType => $aBlogsId) {
+                    if ($aBlogsId) {
+                        if ($sType == '*') {
+                            $aOrClauses[] = "(t.blog_id IN ('" . join("','", $aBlogsId) . "'))";
+                        } else {
+                            $aOrClauses[] = "b.blog_type='" . $sType . "' AND t.blog_id IN ('" . join("','", $aBlogsId) . "')";
+                        }
+                    } else {
+                        $aBlogTypes[] = "'" . $sType . "'";
+                    }
+                }
+                if ($aBlogTypes) {
+                    $aOrClauses[] = '(b.blog_type IN (' . join(',', $aBlogTypes) . '))';
+                }
+                if ($aOrClauses) {
+                    $sWhere .= ' AND (' . join(' OR ', $aOrClauses ) . ')';
+                }
+            }
+        }
+
         $aWeight[] = "(LOWER(t.topic_title) REGEXP " . $this->oDb->escape($aData['regexp']['phrase']) . ")*" . ($aData['rates']['phrase'] * $aData['rates']['title']);
         $aWeight[] = "(LOWER(tc.topic_text_source) REGEXP " . $this->oDb->escape($aData['regexp']['phrase']) . ")*" . ($aData['rates']['phrase']);
         foreach($aData['words'] as $sWord) {
@@ -71,8 +101,10 @@ class ModuleSearch_MapperSearch extends Mapper {
                     $sWeight AS weight
                 FROM ?_topic AS t
                     INNER JOIN ?_topic_content AS tc ON tc.topic_id=t.topic_id
+                    ". (C::Get('module.search.accessible') ? 'INNER JOIN ?_blog AS b ON b.blog_id=t.blog_id' : '')."
                 WHERE 
                     (topic_publish=1)
+                    " . $sWhere . "
                      AND topic_index_ignore=0
                      AND (
                         (LOWER(t.topic_title) REGEXP ?)

@@ -2,9 +2,8 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 {$oUser=$oComment->getUser()}
-{$oVote=$oComment->getVote()}
 
-{if $sDateReadLast==''}
+ {if $sDateReadLast==''}
     {$sTargetType = $oComment->getTargetType()}
     {if $sTargetType == 'topic'}
         {assign var="sDateReadLast" value="{$oComment->getTarget()->getDateRead()}"}

@@ -1,5 +1,4 @@
 {$oUser=$oComment->getUser()}
-{$oVote=$oComment->getVote()}
 
 {$sCommentClass = ""}
 {if $oComment->isBad()}
