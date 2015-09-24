@@ -21,6 +21,7 @@ class ModuleMresource extends Module {
     const TYPE_PHOTO = 16; // Элемент фотосета
     const TYPE_HREF  = 32;
     const TYPE_PHOTO_PRIMARY  = 64; // Обложка фотосета
+    const TYPE_OTHERS  = 1024;      // Other types
 
     /** @var  ModuleMresource_MapperMresource */
     protected $oMapper;
