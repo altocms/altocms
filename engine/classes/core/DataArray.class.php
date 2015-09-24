@@ -136,6 +136,12 @@ class DataArray extends ArrayObject {
             $xIndex = F::Array_FirstKey($aData);
             $xValue = reset($aData);
         }
+        if (is_array($xValue) && parent::offsetExists($xIndex)) {
+            $xOldValue = parent::offsetGet($xIndex);
+            if (is_array($xOldValue)) {
+                $xValue = F::Array_MergeCombo($xOldValue, $xValue);
+            }
+        }
         parent::offsetSet($xIndex, $xValue);
         $this->aQuickMap = array();
     }

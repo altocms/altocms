@@ -931,7 +931,7 @@ class ActionAdmin extends Action {
             $this->_eventPluginsDelete($aSelectedPlugins);
             R::Location('admin/site-plugins/');
         } elseif ($sAction = $this->GetPost('plugin_action')) {
-            $aPlugins = $this->GetPost('plugin_sel');
+            $aPlugins = E::ModulePlugin()->DecodeId($this->GetPost('plugin_sel'));
             if ($sAction == 'activate') {
                 $this->_eventPluginsActivate($aPlugins);
             } elseif ($sAction == 'deactivate') {
@@ -1024,6 +1024,9 @@ class ActionAdmin extends Action {
         return $this->_eventScriptsList();
     }
 
+    /**
+     * Show list of scripts
+     */
     protected function _eventScriptsList() {
 
         if ($sAction = $this->GetPost('script_action')) {
@@ -1053,6 +1056,11 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
+    /**
+     * Save scripts' settings
+     *
+     * @param string[] $aScript
+     */
     protected function _eventScriptSave($aScript = null) {
 
         if (!$aScript) {
@@ -1076,6 +1084,9 @@ class ActionAdmin extends Action {
         R::Location('admin/site-scripts');
     }
 
+    /**
+     * Add new script
+     */
     protected function _eventScriptsAdd() {
 
         if ($this->GetPost()) {
@@ -1086,6 +1097,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', 'add');
     }
 
+    /**
+     * Edit script's settings
+     */
     protected function _eventScriptsEdit() {
 
         $sScriptId = $this->GetParam(1);
@@ -1108,6 +1122,11 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', 'edit');
     }
 
+    /**
+     * Delete scripts
+     *
+     * @param string[] $aSelected
+     */
     protected function _eventScriptsDelete($aSelected) {
 
         foreach($aSelected as $sScriptId) {
@@ -1118,6 +1137,11 @@ class ActionAdmin extends Action {
         }
     }
 
+    /**
+     * Activate scripts
+     *
+     * @param string[] $aSelected
+     */
     protected function _eventScriptsActivate($aSelected) {
 
         foreach($aSelected as $sScriptId) {
@@ -1129,6 +1153,11 @@ class ActionAdmin extends Action {
         }
     }
 
+    /**
+     * Deactivate scripts
+     *
+     * @param string[] $aSelected
+     */
     protected function _eventScriptsDeactivate($aSelected) {
 
         foreach($aSelected as $sScriptId) {

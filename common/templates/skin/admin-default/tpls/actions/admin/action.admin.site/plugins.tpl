@@ -42,10 +42,10 @@
 
                     <tbody>
                     {foreach $aPluginList as $oPlugin}
-                        <tr id="plugin-{$oPlugin->GetId()}"
+                        <tr id="plugin-{$oPlugin->GetId(true)}"
                             class="{if $oPlugin->IsActive()}success{else}inactive{/if} selectable">
                             <td class="check-row">
-                                <input type="checkbox" name="plugin_sel[]" value="{$oPlugin->GetId()}"
+                                <input type="checkbox" name="plugin_sel[]" value="{$oPlugin->GetId(true)}"
                                        class="form_plugins_checkbox"/>
                             </td>
                             <td class="name">
@@ -65,9 +65,9 @@
                             <td class="author">{$oPlugin->GetAuthor()|escape:'html'}</td>
                             <td class="action">
                                 <div class="b-switch"
-                                     onclick="admin.plugin.turn('{$oPlugin->GetId()}', '{!$oPlugin->isActive()}'); return false;">
+                                     onclick="admin.plugin.turn('{$oPlugin->GetId(true)}', '{!$oPlugin->isActive()}'); return false;">
                                     <input type="checkbox" {if $oPlugin->isActive()}checked{/if}
-                                           name="b-switch-{$oPlugin->GetId()}">
+                                           name="b-switch-{$oPlugin->GetId(true)}">
                                     <label><i></i></label>
                                 </div>
                             </td>

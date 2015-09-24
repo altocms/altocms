@@ -237,7 +237,14 @@ class ModuleSecurity extends Module {
         if (!$sUniqKey) {
             $sUniqKey = $this->GenerateUniqKey();
             Config::Set('alto.uniq_key', $sUniqKey);
-            Config::WriteCustomConfig(array('alto.uniq_key' => $sUniqKey));
+
+            // +++ Old version compatibility
+            if (Config::ReadCustomConfig('alto.uniq_key')) {
+                Config::ResetCustomConfig('alto.uniq_key');
+            }
+            // ---
+
+            Config::WriteEngineConfig(array('alto.uniq_key' => $sUniqKey));
         }
         return $sUniqKey;
     }

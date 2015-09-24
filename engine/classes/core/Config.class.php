@@ -43,6 +43,7 @@ class Config extends Storage {
     const KEY_RESET   = '$reset$';
 
     const CUSTOM_CONFIG_PREFIX = 'custom.config.';
+    const ENGINE_CONFIG_PREFIX = 'engine.';
 
     const ROOT_KEY = '$root$';
 
@@ -865,6 +866,167 @@ class Config extends Storage {
     }
 
     /**
+     * Write config data to storage and cache
+     *
+     * @param string $sPrefix
+     * @param array  $aConfig
+     * @param bool   $bCacheOnly
+     * @param int    $iOrder
+     *
+     * @return  bool
+     */
+    static protected function _writeConfig($sPrefix, $aConfig, $bCacheOnly = false, $iOrder = 1) {
+
+        if ($sPrefix && substr($sPrefix, -1) != '.') {
+            $sPrefix .= '.';
+        }
+        $aData = array();
+        foreach ($aConfig as $sKey => $sVal) {
+            $aData[] = array(
+                'storage_key' => $sPrefix . $sKey,
+                'storage_val' => serialize($sVal),
+                'storage_ord' => $iOrder
+            );
+        }
+        if ($bCacheOnly || ($bResult = E::ModuleAdmin()->UpdateStorageConfig($aData))) {
+            self::_putFileCfg($aConfig);
+            return true;
+        }
+        return false;
+    }
+
+    static protected function _explodeData($aData, $sPrefix = null) {
+
+        $aResult = new DataArray();
+        if ($sPrefix) {
+            $aPrefix = array(
+                $sPrefix => strlen($sPrefix),
+            );
+        } else {
+            $aPrefix = array(
+                self::ENGINE_CONFIG_PREFIX => strlen(self::ENGINE_CONFIG_PREFIX),
+                self::CUSTOM_CONFIG_PREFIX => strlen(self::CUSTOM_CONFIG_PREFIX),
+            );
+        }
+        $aExpData = array_fill_keys(array_keys($aPrefix), array());
+
+        foreach ($aData as $aRow) {
+            foreach($aPrefix as $sPrefixKey => $iPrefixLen) {
+                if (strpos($aRow['storage_key'], $sPrefixKey) === 0) {
+                    $sKey = substr($aRow['storage_key'], $iPrefixLen);
+                    $xVal = @unserialize($aRow['storage_val']);
+                    $aExpData[$sPrefixKey][$sKey] = $xVal;
+                }
+            }
+        }
+        if ($aExpData) {
+            foreach($aExpData as $aDataValues) {
+                $aResult->Merge($aDataValues);
+            }
+        }
+        return $aResult->getArrayCopy();
+    }
+
+    /**
+     * @param string      $sPrefix
+     * @param string|null $sConfigKeyPrefix
+     * @param bool        $bCacheOnly
+     *
+     * @return array
+     */
+    static protected function _readConfig($sPrefix, $sConfigKeyPrefix = null, $bCacheOnly = false) {
+
+        if ($sPrefix && substr($sPrefix, -1) != '.') {
+            $sPrefix .= '.';
+        }
+        $aConfig = array();
+        if (self::_checkFileCfg(!$bCacheOnly)) {
+            $aConfig = self::_getFileCfg();
+        }
+        if (!$aConfig) {
+            if (!$bCacheOnly) {
+                // Перечитаем конфиг из базы
+                $sPrefix = $sPrefix . $sConfigKeyPrefix;
+                $aData = E::ModuleAdmin()->GetStorageConfig($sPrefix);
+                $aConfig = self::_explodeData($aData, $sPrefix);
+                if (isset($aConfig['plugin'])) {
+                    $aConfigPlugins = array_keys($aConfig['plugin']);
+                    $aActivePlugins = F::GetPluginsList(false, true);
+                    if (!$aActivePlugins) {
+                        unset($aConfig['plugin']);
+                    } else {
+                        foreach($aConfigPlugins as $sPlugin) {
+                            if (!in_array($sPlugin, $aActivePlugins)) {
+                                unset($aConfig['plugin'][$sPlugin]);
+                            }
+                        }
+                        if (empty($aConfig['plugin'])) {
+                            unset($aConfig['plugin']);
+                        }
+                    }
+                }
+                // Признак того, что кеш конфига синхронизирован с базой
+                $aConfig['_db_'] = time();
+                self::_putFileCfg($aConfig);
+            } else {
+                // Признак того, что кеш конфига НЕ синхронизиован с базой
+                $aConfig['_db_'] = false;
+            }
+        } elseif ($sConfigKeyPrefix) {
+            $aData = new DataArray($aConfig);
+            return $aData[$sConfigKeyPrefix];
+        }
+        return $aConfig;
+    }
+
+    /**
+     * @param string $sPrefix
+     *
+     * @return array
+     */
+    static protected function _reReadConfig($sPrefix) {
+
+        return self::_readConfig($sPrefix, null, false);
+    }
+
+    /**
+     * @param string $sPrefix
+     * @param string|null $sConfigKey
+     */
+    static protected function _resetConfig($sPrefix, $sConfigKey = null) {
+
+        if ($sPrefix && substr($sPrefix, -1) != '.') {
+            $sPrefix .= '.';
+        }
+        $sPrefix = $sPrefix . $sConfigKey;
+        // удаляем настройки конфига из базы
+        E::ModuleAdmin()->DeleteStorageConfig($sPrefix);
+        // удаляем кеш-файл
+        self::_deleteFileCfg();
+        // перестраиваем конфиг в кеш-файле
+        self::_reReadConfig($sPrefix);
+    }
+
+    /**
+     * @param string|null $sConfigKey
+     * @param bool        $bCacheOnly
+     *
+     * @return array
+     */
+    static public function ReadStorageConfig($sConfigKey = null, $bCacheOnly = false) {
+
+        return self::_readConfig('', $sConfigKey, $bCacheOnly);
+    }
+
+    /**
+     *
+     */
+    static public function ReReadStorageConfig() {
+
+        return self::_readConfig('', null, false);
+    }
+
+    /**
      * Записывает кастомную конфигурацию
      *
      * @param array $aConfig
@@ -874,55 +1036,18 @@ class Config extends Storage {
      */
     static public function WriteCustomConfig($aConfig, $bCacheOnly = false) {
 
-        $aData = array();
-        foreach ($aConfig as $sKey => $sVal) {
-            $aData[] = array(
-                'storage_key' => self::CUSTOM_CONFIG_PREFIX . $sKey,
-                'storage_val' => serialize($sVal),
-            );
-        }
-        if ($bCacheOnly || ($bResult = E::ModuleAdmin()->UpdateCustomConfig($aData))) {
-            self::_putCustomCfg($aConfig);
-            return true;
-        }
-        return false;
+        return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX, $aConfig, $bCacheOnly);
     }
 
     /**
-     * @param string|null $sKeyPrefix
+     * @param string|null $sConfigKey
      * @param bool        $bCacheOnly
      *
      * @return array
      */
-    static public function ReadCustomConfig($sKeyPrefix = null, $bCacheOnly = false) {
+    static public function ReadCustomConfig($sConfigKey = null, $bCacheOnly = false) {
 
-        $aConfig = array();
-        if (self::_checkCustomCfg(!$bCacheOnly)) {
-            $aConfig = self::_getCustomCfg();
-        }
-        if (!$aConfig) {
-            if (!$bCacheOnly) {
-                // Перечитаем конфиг из базы
-                $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
-                $aData = E::ModuleAdmin()->GetCustomConfig($sPrefix);
-                if ($aData) {
-                    $nPrefixLen = strlen($sPrefix);
-                    $aConfig = array();
-                    foreach ($aData as $aRow) {
-                        $sKey = substr($aRow['storage_key'], $nPrefixLen);
-                        $xVal = @unserialize($aRow['storage_val']);
-                        $aConfig[$sKey] = $xVal;
-                    }
-                }
-                // Признак того, что кеш конфига синхронизирован с базой
-                $aConfig['_db_'] = time();
-                self::_putCustomCfg($aConfig);
-            } else {
-                // Признак того, что кеш конфига НЕ синхронизиован с базой
-                $aConfig['_db_'] = false;
-            }
-        }
-        return $aConfig;
+        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey, $bCacheOnly);
     }
 
     /**
@@ -930,30 +1055,95 @@ class Config extends Storage {
      */
     static public function ReReadCustomConfig() {
 
-        self::ReadCustomConfig(null, false);
+        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX, null, false);
     }
 
     /**
-     * @param string|null $sKeyPrefix
+     * @param string|null $sConfigKey
      */
-    static public function ResetCustomConfig($sKeyPrefix = null) {
+    static public function ResetCustomConfig($sConfigKey = null) {
 
-        $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
-        // удаляем настройки конфига из базы
-        E::ModuleAdmin()->DelCustomConfig($sPrefix);
-        // удаляем кеш-файл
-        self::_deleteCustomCfg();
-        // перестраиваем конфиг в кеш-файле
-        self::ReReadCustomConfig();
+        self::_resetConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey);
+    }
+
+    /**
+     * Write plugin's configuration
+     *
+     * @param string $sPluginId
+     * @param array  $aConfig
+     * @param bool   $bCacheOnly
+     *
+     * @return  bool
+     */
+    static public function WritePluginConfig($sPluginId, $aConfig, $bCacheOnly = false) {
+
+        return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX . 'plugin.' . $sPluginId . '.', $aConfig, $bCacheOnly);
+    }
+
+    /**
+     * Read plugin's config
+     *
+     * @param string      $sPluginId
+     * @param string|null $sConfigKey
+     * @param bool        $bCacheOnly
+     *
+     * @return array
+     */
+    static public function ReadPluginConfig($sPluginId, $sConfigKey = null, $bCacheOnly = false) {
+
+        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX . 'plugin.' . $sPluginId . '.', $sConfigKey, $bCacheOnly);
+    }
+
+    /**
+     * Reset plugin's config
+     *
+     * @param string      $sPluginId
+     * @param string|null $sConfigKey
+     */
+    static public function ResetPluginConfig($sPluginId, $sConfigKey = null) {
+
+        self::_resetConfig(self::CUSTOM_CONFIG_PREFIX . 'plugin.' . $sPluginId . '.', $sConfigKey);
+    }
+
+    /**
+     * @param array  $aConfig
+     * @param bool   $bCacheOnly
+     *
+     * @return  bool
+     */
+    static public function WriteEngineConfig($aConfig, $bCacheOnly = false) {
+
+        return self::_writeConfig(self::ENGINE_CONFIG_PREFIX, $aConfig, $bCacheOnly);
+    }
+
+    /**
+     * @param string|null $sConfigKey
+     * @param bool        $bCacheOnly
+     *
+     * @return array
+     */
+    static public function ReadEngineConfig($sConfigKey = null, $bCacheOnly = false) {
+
+        return self::_readConfig(self::ENGINE_CONFIG_PREFIX, $sConfigKey, $bCacheOnly);
+    }
+
+    /**
+     * Reset plugin's config
+     *
+     * @param string|null $sConfigKey
+     */
+    static public function ResetEngineConfig($sConfigKey = null) {
+
+        self::_resetConfig(self::ENGINE_CONFIG_PREFIX, $sConfigKey);
     }
 
     /**
      * Invalidate cache of custom configuration
      */
-    static public function InvalidateCustomConfig() {
+    static public function InvalidateCachedConfig() {
 
         // удаляем кеш-файл
-        self::_deleteCustomCfg();
+        self::_deleteFileCfg();
     }
 
     /**
@@ -964,7 +1154,7 @@ class Config extends Storage {
      *
      * @return  string
      */
-    static protected function _checkCustomCfg($bCheckOnly = false) {
+    static protected function _checkFileCfg($bCheckOnly = false) {
 
         $sFile = self::Get('sys.cache.dir') . 'data/custom.cfg';
         if ($bCheckOnly) {
@@ -977,9 +1167,9 @@ class Config extends Storage {
      * Удаляет кеш-файл кастомной конфигуации
      *
      */
-    static protected function _deleteCustomCfg() {
+    static protected function _deleteFileCfg() {
 
-        $sFile = self::_checkCustomCfg(true);
+        $sFile = self::_checkFileCfg(true);
         if ($sFile) {
             F::File_Delete($sFile);
         }
@@ -991,38 +1181,47 @@ class Config extends Storage {
      * @param $aConfig
      * @param $bReset
      */
-    static protected function _putCustomCfg($aConfig, $bReset = false) {
+    static protected function _putFileCfg($aConfig, $bReset = false) {
 
-        if (is_array($aConfig) && ($sFile = self::_checkCustomCfg())) {
-            $aConfig['_timestamp_'] = time();
+        if (is_array($aConfig) && ($sFile = self::_checkFileCfg())) {
             if (!$bReset) {
                 // Объединяем текущую конфигурацию с сохраняемой
-                $aOldConfig = self::_getCustomCfg();
+                $aOldConfig = self::_getFileCfg();
                 if ($aOldConfig) {
-                    $aConfig = F::Array_Merge($aOldConfig, $aConfig);
+                    $aData = new DataArray($aOldConfig);
+                    foreach($aConfig as $sKey => $xVal) {
+                        $aData[$sKey] = $xVal;
+                    }
+                    $aConfig = $aData->getArrayCopy();
                 }
             }
-            F::File_PutContents($sFile, F::Serialize($aConfig));
+            $aConfig['_timestamp_'] = time();
+            $aConfig['_alto_hash_'] = self::_getHash();
+            F::File_PutContents($sFile, F::Serialize($aConfig), LOCK_EX);
         }
     }
 
     /**
      * Читает из файлового кеша кастомную конфигурацию
      *
-     * @param string $sKeyPrefix
-     *
      * @return  array
      */
-    static protected function _getCustomCfg($sKeyPrefix = null) {
+    static protected function _getFileCfg() {
 
-        if (($sFile = self::_checkCustomCfg()) && ($sData = F::File_GetContents($sFile))) {
+        if (($sFile = self::_checkFileCfg()) && ($sData = F::File_GetContents($sFile))) {
             $aConfig = F::Unserialize($sData);
             if (is_array($aConfig)) {
-                return $aConfig;
+                if (isset($aConfig['_alto_hash_']) && $aConfig['_alto_hash_'] == self::_getHash()) {
+                    return $aConfig;
+                }
             }
         }
-        $aConfig = array();
-        return $aConfig;
+        return array();
+    }
+
+    static protected function _getHash() {
+
+        return md5(ALTO_VERSION . serialize(F::GetPluginsList(false, true)));
     }
 
 }

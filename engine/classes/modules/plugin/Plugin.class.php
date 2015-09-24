@@ -41,6 +41,12 @@ class ModulePlugin extends Module {
     /** @var  array List of active plugins from PLUGINS.DAT */
     protected $aActivePlugins;
 
+    protected $aEncodeIdChars = array(
+        '.' => '-__-',
+        '/' => '-_--',
+        '\\' => '--_-',
+    );
+
     /**
      * Список engine-rewrite`ов (модули, экшены, сущности, шаблоны)
      * Определяет типы объектов, которые может переопределить/унаследовать плагин
@@ -307,11 +313,11 @@ class ModulePlugin extends Module {
             return false;
         }
 
-        $sPluginName = F::StrCamelize($sPluginId);
         $sPluginDir = $aPlugins[$sPluginId]->getDirname();
         if (!$sPluginDir) {
             $sPluginDir = $sPluginId;
         }
+        $sPluginName = F::StrCamelize($sPluginId);
         $sClassName = "Plugin{$sPluginName}";
 
         $sPluginClassFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
@@ -463,6 +469,10 @@ class ModulePlugin extends Module {
                 }
             }
             $bResult = $oPlugin->Activate();
+            if ($bResult && ($sVersion = $oPlugin->GetVersion())) {
+                $oPlugin->WriteStorageVersion($sVersion);
+                $oPlugin->WriteStorageDate();
+            }
         } else {
             // * Исполняемый файл плагина не найден
             E::ModuleMessage()->AddError(
@@ -522,11 +532,12 @@ class ModulePlugin extends Module {
     /**
      * Деактивация
      *
-     * @param   string  $sPluginId  - код плагина
+     * @param   string  $sPluginId
+     * @param   bool    $bRemove
      *
      * @return  null|bool
      */
-    public function Deactivate($sPluginId) {
+    public function Deactivate($sPluginId, $bRemove = false) {
 
         // получаем список активированных плагинов
         $aPlugins = $this->GetPluginsList(true);
@@ -550,6 +561,7 @@ class ModulePlugin extends Module {
              * TODO: Проверять зависимые плагины перед деактивацией
              */
             $bResult = $oPlugin->Deactivate();
+            $oPlugin->Remove();
         } else {
             // Исполняемый файл плагина не найден
             $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
@@ -1032,6 +1044,46 @@ class ModulePlugin extends Module {
             }
         }
         return false;
+    }
+
+    /**
+     * Encode plugin id
+     *
+     * @param $xPluginId
+     *
+     * @return array|mixed
+     */
+    public function EncodeId($xPluginId) {
+
+        if (is_array($xPluginId)) {
+            $aResult = array();
+            foreach($xPluginId as $iIdx => $sPluginId) {
+                $aResult = $this->EncodeId($sPluginId);
+            }
+            return $aResult;
+        } else {
+            return str_replace(array_keys($this->aEncodeIdChars), array_values($this->aEncodeIdChars), $xPluginId);
+        }
+    }
+
+    /**
+     * Decode plugin id
+     *
+     * @param $xPluginId
+     *
+     * @return array|mixed
+     */
+    public function DecodeId($xPluginId) {
+
+        if (is_array($xPluginId)) {
+            $aResult = array();
+            foreach($xPluginId as $xKey => $sPluginId) {
+                $aResult[$xKey] = $this->DecodeId($sPluginId);
+            }
+            return $aResult;
+        } else {
+            return str_replace(array_values($this->aEncodeIdChars), array_keys($this->aEncodeIdChars), $xPluginId);
+        }
     }
 
     /**

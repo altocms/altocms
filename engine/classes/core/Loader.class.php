@@ -80,9 +80,11 @@ class Loader {
 
         // Подгружаем конфиг из файлового кеша, если он есть
         Config::ResetLevel(Config::LEVEL_CUSTOM);
-        $aConfig = Config::ReadCustomConfig(null, true);
+
+        // Load from cache, because database could not be used here
+        $aConfig = Config::ReadStorageConfig(null, true);
         if ($aConfig) {
-            Config::Load($aConfig, false, null, null, 'custom');
+            Config::Load($aConfig, false, null, null, 'storage');
         }
 
         // Задаем локаль по умолчанию

@@ -11,7 +11,6 @@
 /**
  * Class ModulePlugin_EntityPlugin
  *
- * @method string GetId()
  * @method bool GetIsActive()
  *
  * @method SetNum()
@@ -22,7 +21,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     protected $oXml = null;
 
     /**
-     * Constractor of entity
+     * Constructor of entity
      *
      * @param bool $aParams
      */
@@ -154,6 +153,21 @@ class ModulePlugin_EntityPlugin extends Entity {
             }
             $this->setProp($sName, $sResult);
         }
+        return $sResult;
+    }
+
+    /**
+     * @param bool $bEncode
+     *
+     * @return mixed|null
+     */
+    public function GetId($bEncode = false) {
+
+        $sResult = $this->getProp('id');
+        if ($bEncode) {
+            $sResult = E::ModulePlugin()->EncodeId($sResult);
+        }
+
         return $sResult;
     }
 

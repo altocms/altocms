@@ -51,7 +51,10 @@ class HookMain extends Hook {
     public function SessionInitAfter() {
 
         if (!Config::Get('_db_')) {
-            Config::ReReadCustomConfig();
+            $aConfig = Config::ReReadStorageConfig();
+            if ($aConfig) {
+                Config::Load($aConfig, false, null, null, 'storage');
+            }
         }
     }
 
