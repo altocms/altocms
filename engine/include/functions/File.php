@@ -572,11 +572,16 @@ class AltoFunc_File {
             return null;
         } elseif (strlen($sPath) > 1 && $sPath[0] == '/' && $sPath[1] != '/') {
             return $sPath;
+        } elseif (strpos($sPath, ':') === false && strpos($sPath, '//') === false) {
+            return $sPath;
         }
         if ($bCheckAliases) {
-            return static::LocalPath($sPath, static::RootUrlAliases(), $bSaveParams);
+            $sResult = static::LocalPathUrl($sPath, static::RootUrlAliases(), $bSaveParams);
+        } else {
+            $sResult = static::LocalPathUrl($sPath, static::RootUrl(), $bSaveParams);
         }
-        return static::LocalPath($sPath, static::RootUrl(), $bSaveParams);
+
+        return $sResult;
     }
 
     /**
