@@ -717,19 +717,19 @@ class ModuleBlog extends Module {
     /**
      * Получает отношения юзера к блогам (подписан на блог или нет)
      *
-     * @param int      $iUserId          ID пользователя
-     * @param int|null $iRole            Роль пользователя в блоге
-     * @param bool     $bReturnIdOnly    Возвращать только ID блогов или полные объекты
+     * @param int       $iUserId          ID пользователя
+     * @param int|int[] $xRole            Роль пользователя в блоге
+     * @param bool      $bReturnIdOnly    Возвращать только ID блогов или полные объекты
      *
      * @return int[]|ModuleBlog_EntityBlogUser[]
      */
-    public function GetBlogUsersByUserId($iUserId, $iRole = null, $bReturnIdOnly = false) {
+    public function GetBlogUsersByUserId($iUserId, $xRole = null, $bReturnIdOnly = false) {
 
         $aFilter = array(
             'user_id' => $iUserId
         );
-        if ($iRole !== null) {
-            $aFilter['user_role'] = $iRole;
+        if ($xRole !== null) {
+            $aFilter['user_role'] = $xRole;
         }
         $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter);
         if (false === ($aBlogUserRels = E::ModuleCache()->Get($sCacheKey))) {
@@ -1152,7 +1152,7 @@ class ModuleBlog extends Module {
                     // админа и модератора блога не проверяем
                     if ($oBlogUser->IsBlogAdministrator() || $oBlogUser->IsBlogModerator()) {
                         $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                    } elseif ($oBlogUser->getUserRole() !== self::BLOG_USER_ROLE_NOTMEMBER) {
+                    } elseif (($oBlogUser->getUserRole() !== self::BLOG_USER_ROLE_NOTMEMBER) && ($oBlogUser->getUserRole() > self::BLOG_USER_ROLE_GUEST)) {
                         $bAllow = false;
                         if ($oBlogType) {
                             if ($sAllow == 'write') {
