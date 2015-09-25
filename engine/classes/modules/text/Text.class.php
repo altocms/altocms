@@ -73,13 +73,17 @@ class ModuleText extends Module {
         F::IncludeFile($sFileName);
 
         $this->oTextParser = new $sClassName();
-        $this->oTextParser->loadConfig();
+        $this->_loadTextParserConfig();
         foreach($aCheckTagLinks as $sTag => $aParams) {
             $this->oTextParser->tagBuilder($sTag, array($this, 'CallbackCheckLinks'));
         }
         $this->oTextParser->tagBuilder('ls', array($this, 'CallbackTagLs'));
 
         return;
+    }
+
+    protected function _loadTextParserConfig($sType = 'default', $bClear = true) {
+        $this->oTextParser->loadConfig($sType, $bClear);
     }
 
     /**
