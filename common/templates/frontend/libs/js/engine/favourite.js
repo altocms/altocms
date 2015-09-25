@@ -70,11 +70,16 @@ ls.favourite = (function ($) {
     };
 
     this.showEditTags = function (idTarget, type, obj) {
-        var form = $('#favourite-form-tags');
-        $('#favourite-form-tags-target-type').val(type);
-        $('#favourite-form-tags-target-id').val(idTarget);
-        var text = '';
-        var tags = $('.js-favourite-tags-' + $('#favourite-form-tags-target-type').val() + '-' + $('#favourite-form-tags-target-id').val());
+        // selector #favourite-form-tags for old skin compatibility
+        var form = $('#modal-favourite_tags');
+        if (!form.length) {
+            form = $('#favourite-form-tags');
+        }
+        var targetType = $('#favourite-form-tags-target-type').val(type),
+            targetId = $('#favourite-form-tags-target-id').val(idTarget),
+            tags = $('.js-favourite-tags-' + targetType.val() + '-' + targetId.val()),
+            text = '';
+
         tags.find('.js-favourite-tag-user a').each(function (k, tag) {
             if (text) {
                 text = text + ', ' + $(tag).text();
@@ -90,7 +95,12 @@ ls.favourite = (function ($) {
     };
 
     this.hideEditTags = function () {
-        $('#favourite-form-tags').modal('hide');
+        var form = $('#modal-favourite_tags');
+        if (!form.length) {
+            form = $('#favourite-form-tags');
+        }
+        form.modal('hide');
+
         return false;
     };
 
