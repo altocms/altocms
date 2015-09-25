@@ -110,10 +110,6 @@
         $('<span>: ' + fileName + '</span>').insertAfter(input);
     });
 
-    // Скролл
-    $(window)._scrollable();
-
-
     // Тул-бар топиков
     ls.toolbar.topic.init();
     // Кнопка "UP"

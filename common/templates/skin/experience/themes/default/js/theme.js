@@ -165,10 +165,6 @@ $(function () {
         $(this).find('.js-focus-in:visible').first().focus();
     });
 
-    // Скролл
-    $(window)._scrollable();
-
-
     // Тул-бар топиков
     ls.toolbar.topic.init();
     // Кнопка "UP"
