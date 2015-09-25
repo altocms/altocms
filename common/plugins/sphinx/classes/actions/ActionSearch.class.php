@@ -113,7 +113,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
                  * Т.к. текст в сниппетах небольшой, то можно прогнать через парсер
                  */
                 $oTopic->setTextShort(
-                    E::ModuleText()->JevixParser(
+                    E::ModuleText()->TextParser(
                         E::ModuleSphinx()->GetSnippet(
                             $oTopic->getText(),
                             'topics',
@@ -164,7 +164,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
              */
             foreach ($aComments AS $oComment) {
                 $oComment->setText(
-                    E::ModuleText()->JevixParser(
+                    E::ModuleText()->TextParser(
                         E::ModuleSphinx()->GetSnippet(
                             htmlspecialchars($oComment->getText()),
                             'comments',

@@ -6,12 +6,9 @@
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
- * Based on
- *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
- *   Site: www.livestreet.ru
- *   E-mail: rus.engine@gmail.com
- *----------------------------------------------------------------------------
  */
+
+F::IncludeFile('./parser/ITextParser.php');
 
 /**
  * Модуль обработки текста на основе типографа Jevix/Qevix
@@ -29,7 +26,7 @@ class ModuleText extends Module {
     /**
      * Объект типографа
      *
-     * @var Jevix|Qevix
+     * @var ITextParser
      */
     protected $oTextParser;
 
@@ -70,141 +67,19 @@ class ModuleText extends Module {
     protected function _createTextParser($aCheckTagLinks) {
 
         $sParser = C::Get('module.text.parser');
-        if ($sParser && strtolower($sParser) == 'qevix') {
-            $this->oTextParser = new Qevix();
-            $this->_loadTextParserConfig('qevix');
 
-            foreach($aCheckTagLinks as $sTag => $aParams) {
-                $this->oTextParser->cfgSetTagBuildCallback($sTag, array($this, 'CallbackCheckLinks'));
-            }
-        } else {
-            $this->oTextParser = new Jevix();
-            $this->_loadTextParserConfig();
+        $sClassName = 'TextParser' . $sParser;
+        $sFileName = './parser/' . $sClassName . '.class.php';
+        F::IncludeFile($sFileName);
 
-            foreach($aCheckTagLinks as $sTag => $aParams) {
-                $this->oTextParser->cfgSetTagCallbackFull($sTag, array($this, 'CallbackCheckLinks'));
-            }
+        $this->oTextParser = new $sClassName();
+        $this->oTextParser->loadConfig();
+        foreach($aCheckTagLinks as $sTag => $aParams) {
+            $this->oTextParser->tagBuilder($sTag, array($this, 'CallbackCheckLinks'));
         }
-    }
+        $this->oTextParser->tagBuilder('ls', array($this, 'CallbackTagLs'));
 
-    /**
-     * @param string $sParser
-     */
-    protected function _loadTextParserConfig($sParser = null) {
-
-        if ($sParser == 'qevix') {
-            $this->LoadQevixConfig();
-        } else {
-            $this->LoadJevixConfig();
-        }
-    }
-
-    /**
-     * Конфигурирует типограф
-     *
-     * @deprecated
-     */
-    protected function JevixConfig() {
-        // загружаем конфиг
-        $this->LoadJevixConfig();
-    }
-
-    /**
-     * Загружает конфиг Jevix'а
-     *
-     * @param string $sType     Тип конфига
-     * @param bool   $bClear    Очищать предыдущий конфиг или нет
-     */
-    public function LoadJevixConfig($sType = 'default', $bClear = true) {
-
-        if ($bClear) {
-            $this->oTextParser->tagsRules = array();
-        }
-        $aConfig = Config::Get('jevix.' . $sType);
-        if (is_array($aConfig)) {
-            foreach ($aConfig as $sMethod => $aExec) {
-                foreach ($aExec as $aParams) {
-                    if (in_array(
-                        strtolower($sMethod),
-                        array_map('strtolower', array('cfgSetTagCallbackFull', 'cfgSetTagCallback'))
-                    )
-                    ) {
-                        if (isset($aParams[1][0]) && $aParams[1][0] == '_this_') {
-                            $aParams[1][0] = $this;
-                        }
-                    }
-                    call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
-                }
-            }
-
-            // * Хардкодим некоторые параметры
-            unset($this->oTextParser->entities1['&']); // разрешаем в параметрах символ &
-            if (Config::Get('view.noindex') && isset($this->oTextParser->tagsRules['a'])) {
-                $this->oTextParser->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
-            }
-        }
-
-        $this->oTextParser->cfgSetTagCallbackFull('ls', array($this, 'CallbackTagLs'));
-    }
-
-    /**
-     * Загружает конфиг Qevix'а
-     *
-     * @param string $sType     Тип конфига
-     * @param bool   $bClear    Очищать предыдущий конфиг или нет
-     */
-    public function LoadQevixConfig($sType = 'default', $bClear = true) {
-
-        // Временный костыль по методам, отсутствующим в Qevix
-        $aExcludeConfig = array(
-            'cfgSetAutoReplace',
-            'cfgSetTagParamCombination',
-        );
-
-        if ($bClear) {
-            $this->oTextParser->tagsRules = array();
-        }
-        $aConfig = Config::Get('qevix.' . $sType);
-        if (is_array($aConfig)) {
-            foreach ($aConfig as $sMethod => $aExec) {
-                foreach ($aExec as $aParams) {
-                    if (!in_array($sMethod, $aExcludeConfig)) {
-                        call_user_func_array(array($this->oTextParser, $sMethod), $aParams);
-                    }
-                }
-            }
-
-            // * Хардкодим некоторые параметры
-            unset($this->oTextParser->entities1['&']); // разрешаем в параметрах символ &
-            if (Config::Get('view.noindex') && isset($this->oTextParser->tagsRules['a'])) {
-                $this->oTextParser->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
-            }
-        }
-
-        $this->oTextParser->cfgSetTagBuildCallback('ls', array($this, 'CallbackTagLs'));
-        if (C::Get('module.text.char.@')) {
-            $this->oTextParser->cfgSetSpecialCharCallback('@', array($this, 'CallbackTagAt'));
-        }
-    }
-
-    /**
-     * Возвращает объект Jevix
-     *
-     * @return Jevix
-     */
-    public function GetJevix() {
-
-        return $this->oTextParser;
-    }
-
-    /**
-     * Парсинг текста с помощью Jevix
-     *
-     * @deprecated
-     */
-    public function JevixParser($sText, &$aError = null) {
-
-        return $this->TextParser($sText, $aError);
+        return;
     }
 
     /**
@@ -217,10 +92,6 @@ class ModuleText extends Module {
      */
     public function TextParser($sText, &$aError = null) {
 
-        // Если конфиг пустой, то загружаем его
-        if (!count($this->oTextParser->tagsRules)) {
-            $this->LoadJevixConfig();
-        }
         $sResult = $this->oTextParser->parse($sText, $aError);
         return $sResult;
     }
@@ -262,7 +133,7 @@ class ModuleText extends Module {
          */
         $sText = preg_replace(
             '/<video>http(?:s|):\/\/(?:www\.|m.|)youtube\.com\/watch\?v=([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
-            '<iframe width="' . $iWidth . '" height="' . $iHeight . '" src="//www.youtube.com/embed/$1" ' . $sIframeAttr . '></iframe>',
+            '<iframe src="//www.youtube.com/embed/$1" width="' . $iWidth . '" height="' . $iHeight . '" ' . $sIframeAttr . '></iframe>',
             $sText
         );
         /**
@@ -270,7 +141,7 @@ class ModuleText extends Module {
          */
         $sText = preg_replace(
             '/<video>http(?:s|):\/\/(?:www\.|m.|)youtu\.be\/([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
-            '<iframe width="' . $iWidth . '" height="' . $iHeight . '" src="//www.youtube.com/embed/$1" ' . $sIframeAttr . '></iframe>',
+            '<iframe src="//www.youtube.com/embed/$1" width="' . $iWidth . '" height="' . $iHeight . '" ' . $sIframeAttr . '></iframe>',
             $sText
         );
         /**
@@ -606,6 +477,9 @@ class ModuleText extends Module {
                     'link' => $sLink,
                 );
                 $sText = '<' . $sTag . ' ';
+                if (F::File_LocalUrl($aParams[$sLinkAttr]) && isset($aParams['rel']) && $aParams['rel'] == 'nofollow') {
+                    unset($aParams['rel']);
+                }
                 foreach ($aParams as $sKey => $sVal) {
                     if ($sKey == $sLinkAttr && $this->aCheckTagLinks[$sTag]['restoreFunc']) {
                         $sVal = call_user_func($this->aCheckTagLinks[$sTag]['restoreFunc'], $sLink);

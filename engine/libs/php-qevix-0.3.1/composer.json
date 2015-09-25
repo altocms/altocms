@@ -2,7 +2,7 @@
 	"name": "qevix/qevix",
 	"description": "Automatic filter HTML/XHTML",
 	"keywords": ["qevix", "html", "xhtml"],
-	"homepage": "https://github.com/AlexanderGrom/Qevix",
+	"homepage": "https://github.com/AlexanderGrom/php-qevix",
 	"type": "library",
 	"license": "MIT",
 	"require": {

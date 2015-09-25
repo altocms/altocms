@@ -50,7 +50,15 @@ return array(
             // следующий вызов метода
             array(
                 'a',
-                array('title', 'href', 'rel' => '#text', 'name' => '#text', 'target' => array('_blank'), 'class' => array('ls-user', 'topic-photoset-item'))
+                array('title',
+                      'href',
+                      'rel' => '#text',
+                      'name' => '#text',
+                      'target' => array('_blank'),
+                      'class' => array('ls-user', 'topic-photoset-item'),
+                      'data-alto-role' => '#text',
+                      'data-api' => '#text',
+                )
             ),
             // и т.д.
             array(
@@ -217,6 +225,11 @@ return array(
             array(
                 true
             )
+        ),
+        // Автозамена
+        'cfgSetAutoReplace' => array(
+            array('+/-', '(c)', '(с)', '(C)', '(С)', '(r)', '(R)'),
+            array('±', '©', '©', '©', '©', '®', '®'),
         ),
         // Список допустимых протоколов для ссылок
         'cfgSetLinkProtocolAllow' => array(
