@@ -57,14 +57,14 @@ class ModuleText extends Module {
         );
 
         // * Create a typographer and load its configuration
-        $this->_createTextParser($this->aCheckTagLinks);
-
+        $this->_createTextParser();
+        $this->_loadTextParserConfig();
     }
 
     /**
      * Create a typographer and load its configuration
      */
-    protected function _createTextParser($aCheckTagLinks) {
+    protected function _createTextParser() {
 
         $sParser = C::Get('module.text.parser');
 
@@ -73,17 +73,21 @@ class ModuleText extends Module {
         F::IncludeFile($sFileName);
 
         $this->oTextParser = new $sClassName();
-        $this->_loadTextParserConfig();
-        foreach($aCheckTagLinks as $sTag => $aParams) {
+    }
+
+    /**
+     * Load config for text parser
+     *
+     * @param string $sType
+     * @param bool   $bClear
+     */
+    protected function _loadTextParserConfig($sType = 'default', $bClear = true) {
+
+        $this->oTextParser->loadConfig($sType, $bClear);
+        foreach($this->aCheckTagLinks as $sTag => $aParams) {
             $this->oTextParser->tagBuilder($sTag, array($this, 'CallbackCheckLinks'));
         }
         $this->oTextParser->tagBuilder('ls', array($this, 'CallbackTagLs'));
-
-        return;
-    }
-
-    protected function _loadTextParserConfig($sType = 'default', $bClear = true) {
-        $this->oTextParser->loadConfig($sType, $bClear);
     }
 
     /**
