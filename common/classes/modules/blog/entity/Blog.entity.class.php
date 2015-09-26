@@ -406,10 +406,12 @@ class ModuleBlog_EntityBlog extends Entity {
         $bResult = $this->getProp('_user_is_subscriber');
         if (is_null($bResult)) {
             $iRole = $this->getCurrentUserRole();
-            if ($iRole) {
-                $bResult = $iRole & (ModuleBlog::BLOG_USER_ROLE_MEMBER | ModuleBlog::BLOG_USER_ROLE_MODERATOR | ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR | ModuleBlog::BLOG_USER_ROLE_OWNER);
+            if ($iRole && $iRole > ModuleBlog::BLOG_USER_ROLE_GUEST) {
+                $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_SUBSCRIBER;
             }
+            $this->setProp('_user_is_subscriber', $bResult);
         }
+
         return $bResult;
     }
 
@@ -423,10 +425,12 @@ class ModuleBlog_EntityBlog extends Entity {
         $bResult = $this->getProp('_user_is_administrator');
         if (is_null($bResult)) {
             $iRole = $this->getCurrentUserRole();
-            if ($iRole) {
+            if ($iRole && $iRole > ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR;
             }
+            $this->setProp('_user_is_administrator', $bResult);
         }
+
         return $bResult;
     }
 
@@ -440,10 +444,12 @@ class ModuleBlog_EntityBlog extends Entity {
         $bResult = $this->getProp('_user_is_moderator');
         if (is_null($bResult)) {
             $iRole = $this->getCurrentUserRole();
-            if ($iRole) {
+            if ($iRole && $iRole > ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_MODERATOR;
             }
+            $this->setProp('_user_is_moderator', $bResult);
         }
+
         return $bResult;
     }
 

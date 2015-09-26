@@ -459,7 +459,11 @@ class ActionBlog extends Action {
             }
             foreach ($aUserRank as $sUserId => $sRank) {
                 $sRank = (string)$sRank;
-                if (!($oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $sUserId))) {
+                $iUserId = intval($sUserId);
+                if (!$iUserId) {
+                    continue;
+                }
+                if (!($oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $iUserId))) {
                     E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                     break;
                 }

@@ -20,25 +20,25 @@
  * @since   1.0
  */
 class WidgetUserfeedBlogs extends Widget {
-    /**
-     * Запуск обработки
-     */
+
     public function Exec() {
-        /**
-         * Пользователь авторизован?
-         */
+
+        // For authorized users only
         if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             $aUserSubscribes = E::ModuleUserfeed()->GetUserSubscribes($oUserCurrent->getId());
-            /**
-             * Получаем список ID блогов, в которых состоит пользователь
-             */
+
+            // Get ID list of blogs to which you subscribe
             $aBlogsId = E::ModuleBlog()->GetBlogUsersByUserId(
-                $oUserCurrent->getId(), array(ModuleBlog::BLOG_USER_ROLE_USER, ModuleBlog::BLOG_USER_ROLE_MODERATOR,
-                                              ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR), true
+                $oUserCurrent->getId(),
+                array(
+                    ModuleBlog::BLOG_USER_ROLE_USER,
+                    ModuleBlog::BLOG_USER_ROLE_MODERATOR,
+                    ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
+                ),
+                true
             );
-            /**
-             * Получаем список ID блогов, которые создал пользователь
-             */
+
+            // Get ID list of blogs where the user is the owner
             $aBlogsOwnerId = E::ModuleBlog()->GetBlogsByOwnerId($oUserCurrent->getId(), true);
             $aBlogsId = array_merge($aBlogsId, $aBlogsOwnerId);
 
