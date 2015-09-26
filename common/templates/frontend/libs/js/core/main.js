@@ -576,6 +576,8 @@ ls = (function ($) {
             error: function (msg) {
                 ls.debug("ajax error: ");
                 ls.debug.apply(this, arguments);
+                ls.msg.error(null, 'System error #1002'); // may be json parser error
+                ls.progressDone(true);
             }.bind(this),
             complete: function (msg) {
                 ls.debug("ajax complete: ");

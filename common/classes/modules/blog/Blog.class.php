@@ -29,8 +29,10 @@ class ModuleBlog extends Module {
     const BLOG_USER_ROLE_OWNER = 8;
     const BLOG_USER_ROLE_NOTMEMBER = 16;
     const BLOG_USER_ROLE_BAN_FOR_COMMENT = 32;
+    const BLOG_USER_ROLE_AUTHOR = 64;
 
-    const BLOG_USER_ROLE_SUBSCRIBER = 15; // BLOG_USER_ROLE_MEMBER | BLOG_USER_ROLE_MODERATOR | BLOG_USER_ROLE_ADMINISTRATOR | BLOG_USER_ROLE_OWNER
+    // BLOG_USER_ROLE_MEMBER | BLOG_USER_ROLE_MODERATOR | BLOG_USER_ROLE_ADMINISTRATOR | BLOG_USER_ROLE_OWNER | BLOG_USER_ROLE_AUTHOR
+    const BLOG_USER_ROLE_SUBSCRIBER = 79;
 
     // LS-compatible //
     const BLOG_USER_ROLE_USER = 1;
@@ -52,6 +54,8 @@ class ModuleBlog extends Module {
 
     //  Забаненный в блоге пользователь
     const BLOG_USER_ROLE_BAN = -4;
+
+    //  User sent request for subscribe to blog
     const BLOG_USER_ROLE_WISHES = -6;
 
     const BLOG_SORT_TITLE = 1;
@@ -76,6 +80,7 @@ class ModuleBlog extends Module {
     protected $aAdditionalData = array('vote', 'owner' => array(), 'relation_user', 'media');
 
     protected $aBlogsFilter = array('exclude_type' => 'personal');
+
 
     /**
      * Инициализация
@@ -138,6 +143,42 @@ class ModuleBlog extends Module {
         } elseif ($nMode == self::BLOG_SORT_TITLE) {
             uasort($aBlogList, array($this, '_compareByTitle'));
         }
+    }
+
+    public function GetBlogUserRoleTextKeys() {
+
+        $aResult = array(
+            self::BLOG_USER_ROLE_MEMBER          => 'blog_user_role_member',
+            self::BLOG_USER_ROLE_MODERATOR       => 'blog_user_role_moderator',
+            self::BLOG_USER_ROLE_ADMINISTRATOR   => 'blog_user_role_administrator',
+            self::BLOG_USER_ROLE_OWNER           => 'blog_user_role_owner',
+            self::BLOG_USER_ROLE_NOTMEMBER       => 'blog_user_role_notmember',
+            self::BLOG_USER_ROLE_BAN_FOR_COMMENT => 'blog_user_role_banned_for_comment',
+            self::BLOG_USER_ROLE_AUTHOR          => 'blog_user_role_author',
+            self::BLOG_USER_ROLE_INVITE          => 'blog_user_role_invite',
+            self::BLOG_USER_ROLE_REJECT          => 'blog_user_role_reject',
+            self::BLOG_USER_ROLE_BAN             => 'blog_user_role_banned',
+            self::BLOG_USER_ROLE_WISHES          => 'blog_user_role_request',
+        );
+
+        return $aResult;
+    }
+
+    /**
+     * @param int $iRole
+     *
+     * @return string
+     */
+    public function GetBlogUserRoleName($iRole) {
+
+        $aLangKeys = $this->GetBlogUserRoleTextKeys();
+        if (!empty($aLangKeys[$iRole])) {
+            $sResult = E::ModuleLang()->Get($aLangKeys[$iRole]);
+        } else {
+            $sResult = E::ModuleLang()->Get('blog_user_role_other');
+        }
+
+        return $sResult;
     }
 
     /**
@@ -580,6 +621,26 @@ class ModuleBlog extends Module {
     }
 
     /**
+     * Обновляет отношения пользователя с блогом
+     *
+     * @param ModuleBlog_EntityBlogUser $oBlogUser    Объект отновшения
+     *
+     * @return bool
+     */
+    public function UpdateRelationBlogUser(ModuleBlog_EntityBlogUser $oBlogUser) {
+
+        $bResult = $this->oMapper->UpdateRelationBlogUser($oBlogUser);
+        if ($bResult) {
+            E::ModuleCache()->CleanByTags(
+                array("blog_relation_change_{$oBlogUser->getUserId()}",
+                      "blog_relation_change_blog_{$oBlogUser->getBlogId()}")
+            );
+            E::ModuleCache()->Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
+            return $bResult;
+        }
+    }
+
+    /**
      * Удалет отношение юзера к блогу, по сути отключает от блога
      *
      * @param ModuleBlog_EntityBlogUser $oBlogUser    Объект связи(отношения) блога с пользователем
@@ -664,10 +725,10 @@ class ModuleBlog extends Module {
      * Получает список пользователей блога.
      * Если роль не указана, то считаем что поиск производиться по положительным значениям (статусом выше GUEST).
      *
-     * @param int       $iBlogId  ID блога
-     * @param int|array $xRole    Роль пользователей в блоге
-     * @param int       $iPage    Номер текущей страницы
-     * @param int       $iPerPage Количество элементов на одну страницу
+     * @param int            $iBlogId  ID блога
+     * @param int|array|bool $xRole    Роль пользователей в блоге (null == subscriber only; true === all roles)
+     * @param int            $iPage    Номер текущей страницы
+     * @param int            $iPerPage Количество элементов на одну страницу
      *
      * @return array
      */
@@ -676,8 +737,13 @@ class ModuleBlog extends Module {
         $aFilter = array(
             'blog_id' => $iBlogId,
         );
-        if ($xRole !== null) {
+        if ($xRole === true) {
+            $aFilter['user_all_role'] = true;
+        } elseif (is_int($xRole) || is_array($xRole)) {
             $aFilter['user_role'] = $xRole;
+        }
+        if (is_null($iPage)) {
+            $iPerPage = null;
         }
         $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter) . '_' . $iPage . '_' . $iPerPage;
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
@@ -691,6 +757,7 @@ class ModuleBlog extends Module {
         // * Достаем дополнительные данные, для этого формируем список юзеров и делаем мульти-запрос
         if ($data['collection']) {
             $aUserId = array();
+            /** @var ModuleBlog_EntityBlogUser $oBlogUser */
             foreach ($data['collection'] as $oBlogUser) {
                 $aUserId[] = $oBlogUser->getUserId();
             }
@@ -881,26 +948,6 @@ class ModuleBlog extends Module {
             return $aBlogUsers;
         }
         return $data;
-    }
-
-    /**
-     * Обновляет отношения пользователя с блогом
-     *
-     * @param ModuleBlog_EntityBlogUser $oBlogUser    Объект отновшения
-     *
-     * @return bool
-     */
-    public function UpdateRelationBlogUser(ModuleBlog_EntityBlogUser $oBlogUser) {
-
-        $bResult = $this->oMapper->UpdateRelationBlogUser($oBlogUser);
-        if ($bResult) {
-            E::ModuleCache()->CleanByTags(
-                array("blog_relation_change_{$oBlogUser->getUserId()}",
-                      "blog_relation_change_blog_{$oBlogUser->getBlogId()}")
-            );
-            E::ModuleCache()->Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
-            return $bResult;
-        }
     }
 
     /**

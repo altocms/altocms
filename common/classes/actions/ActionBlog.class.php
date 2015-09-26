@@ -128,12 +128,6 @@ class ActionBlog extends Action {
         //  Достаём текущего пользователя
         $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
 
-        //  Подсчитываем новые топики
-        //$this->iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
-        //$this->iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
-        //$this->iCountTopicsBlogNew = $this->iCountTopicsCollectiveNew;
-        //$this->iCountTopicsNew = $this->iCountTopicsCollectiveNew + $this->iCountTopicsPersonalNew;
-
         //  Загружаем в шаблон JS текстовки
         E::ModuleLang()->AddLangJs(
             array(
@@ -510,13 +504,13 @@ class ActionBlog extends Action {
         $aResult = E::ModuleBlog()->GetBlogUsersByBlogId(
             $oBlog->getId(),
             array(
-                 ModuleBlog::BLOG_USER_ROLE_BAN,
-                 ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT,
-                 ModuleBlog::BLOG_USER_ROLE_USER,
-                 ModuleBlog::BLOG_USER_ROLE_MODERATOR,
-                 ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
-            ), $iPage, Config::Get('module.blog.users_per_page')
-        );
+                ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR,
+                ModuleBlog::BLOG_USER_ROLE_MODERATOR,
+                ModuleBlog::BLOG_USER_ROLE_MEMBER,
+                ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT,
+                ModuleBlog::BLOG_USER_ROLE_BAN,
+            ),
+            $iPage, Config::Get('module.blog.users_per_page'));
         $aBlogUsers = $aResult['collection'];
 
         //  Формируем постраничность
@@ -1620,22 +1614,10 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        /**
-         * TODO: Это полный АХТУНГ - исправить!
-         * Получаем список пользователей блога (любого статуса)
-         */
-        $aBlogUsersResult = E::ModuleBlog()->GetBlogUsersByBlogId(
-            $oBlog->getId(),
-            array(
-                 ModuleBlog::BLOG_USER_ROLE_BAN,
-                 ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT,
-                 ModuleBlog::BLOG_USER_ROLE_REJECT,
-                 ModuleBlog::BLOG_USER_ROLE_INVITE,
-                 ModuleBlog::BLOG_USER_ROLE_USER,
-                 ModuleBlog::BLOG_USER_ROLE_MODERATOR,
-                 ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
-            ), null // пока костылем
-        );
+
+        // * Получаем список пользователей блога (любого статуса)
+        $aBlogUsersResult = E::ModuleBlog()->GetBlogUsersByBlogId($oBlog->getId(), true, null);
+        /** @var ModuleBlog_EntityBlogUser[] $aBlogUsers */
         $aBlogUsers = $aBlogUsersResult['collection'];
         $aUsers = explode(',', $sUsers);
 
@@ -1681,7 +1663,37 @@ class ActionBlog extends Action {
                     $aResult[] = array(
                         'bStateError'   => false,
                         'sMsgTitle'     => E::ModuleLang()->Get('attention'),
-                        'sMsg'          => E::ModuleLang()->Get('blog_user_invite_add_ok', array('login' => htmlspecialchars($sUser))),
+                        'sMsg'          => E::ModuleLang()->Get(
+                            'blog_user_invite_add_ok',
+                            array('login' => htmlspecialchars($sUser))
+                        ),
+                        'sUserLogin'    => htmlspecialchars($sUser),
+                        'sUserWebPath'  => $oUser->getProfileUrl(),
+                        'sUserAvatar48' => $oUser->getAvatarUrl(48),
+                    );
+                    $this->SendBlogInvite($oBlog, $oUser);
+                } else {
+                    $aResult[] = array(
+                        'bStateError' => true,
+                        'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                        'sMsg'        => E::ModuleLang()->Get('system_error'),
+                        'sUserLogin'  => htmlspecialchars($sUser)
+                    );
+                }
+            } elseif ($aBlogUsers[$oUser->getId()]->getUserRole() == ModuleBlog::BLOG_USER_ROLE_NOTMEMBER || $aBlogUsers[$oUser->getId()]->getUserRole() == ModuleBlog::BLOG_USER_ROLE_WISHES) {
+                // * Change status of user to INVITED
+                /** @var ModuleBlog_EntityBlogUser $oBlogUser */
+                $oBlogUser = $aBlogUsers[$oUser->getId()];
+                $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_INVITE);
+
+                if (E::ModuleBlog()->UpdateRelationBlogUser($oBlogUser)) {
+                    $aResult[] = array(
+                        'bStateError'   => false,
+                        'sMsgTitle'     => E::ModuleLang()->Get('attention'),
+                        'sMsg'          => E::ModuleLang()->Get(
+                            'blog_user_invite_add_ok',
+                            array('login' => htmlspecialchars($sUser))
+                        ),
                         'sUserLogin'    => htmlspecialchars($sUser),
                         'sUserWebPath'  => $oUser->getProfileUrl(),
                         'sUserAvatar48' => $oUser->getAvatarUrl(48),
@@ -2237,6 +2249,7 @@ class ActionBlog extends Action {
         $oBlogType = $oBlog->getBlogType();
 
         // Current status of user in the blog
+        /** @var ModuleBlog_EntityBlogUser $oBlogUser */
         $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
 
         if (!$oBlogUser || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && (!$oBlogType || $oBlogType->IsPrivate()))) {
@@ -2287,21 +2300,32 @@ class ActionBlog extends Action {
                 if ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_REQUEST)) {
 
                     // Подписка уже была запрошена, но результатов пока нет
-                    /** @var ModuleBlog_EntityBlogUser $oBlogUser */
-                    /** @var ModuleBlog_EntityBlog $oBlog */
                     if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_WISHES) {
                         E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('blog_join_request_already'), E::ModuleLang()->Get('attention'));
                         E::ModuleViewer()->AssignAjax('bState', true);
                         return;
                     }
 
-                    // Подписки ещё не было - оформим ее
-                    /** @var ModuleBlog_EntityBlogUser $oBlogUserNew */
-                    $oBlogUserNew = E::GetEntity('Blog_BlogUser');
-                    $oBlogUserNew->setBlogId($oBlog->getId());
-                    $oBlogUserNew->setUserId($this->oUserCurrent->getId());
-                    $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_WISHES);
-                    $bResult = E::ModuleBlog()->AddRelationBlogUser($oBlogUserNew);
+                    if ($oBlogUser) {
+                        if (!in_array($oBlogUser->getUserRole(), array(ModuleBlog::BLOG_USER_ROLE_REJECT, ModuleBlog::BLOG_USER_ROLE_WISHES))) {
+                            $sMessage = E::ModuleLang()->Get('blog_user_status_is') . ' "' . E::ModuleBlog()->GetBlogUserRoleName($oBlogUser->getUserRole()) . '"';
+                            E::ModuleMessage()->AddNoticeSingle($sMessage, E::ModuleLang()->Get('attention'));
+                            E::ModuleViewer()->AssignAjax('bState', true);
+                            return;
+                        } else {
+                            $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_WISHES);
+                            $bResult = E::ModuleBlog()->UpdateRelationBlogUser($oBlogUser);
+                        }
+                    } else {
+                        // Подписки ещё не было - оформим ее
+                        /** @var ModuleBlog_EntityBlogUser $oBlogUserNew */
+                        $oBlogUserNew = E::GetEntity('Blog_BlogUser');
+                        $oBlogUserNew->setBlogId($oBlog->getId());
+                        $oBlogUserNew->setUserId($this->oUserCurrent->getId());
+                        $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_WISHES);
+                        $bResult = E::ModuleBlog()->AddRelationBlogUser($oBlogUserNew);
+                    }
+
                     if ($bResult) {
                         // Отправим сообщение модераторам и администраторам блога о том, что
                         // этот пользоватлеь захотел присоединиться к нашему блогу

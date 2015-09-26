@@ -30,6 +30,12 @@
  * @method SetAclWrite($xParam)
  * @method SetAclRead($xParam)
  * @method SetAclComment($xParam)
+ *
+ * @method GetMinRateAdd()
+ * @method GetMinRateList()
+ * @method GetMinRateWrite()
+ * @method GetMinRateRead()
+ * @method GetMinRateComment()
  */
 class ModuleBlog_EntityBlogType extends Entity {
 

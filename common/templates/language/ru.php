@@ -120,6 +120,23 @@ return array(
     'blog_user_request_accept'                  => 'Пользователь стал читателем блога',
     'blog_user_request_no_accept'               => 'Просьба пользователя отклонена',
     'notify_subject_blog_request_new'           => 'Запрос на подписку на блог',
+    'blog_user_status_is'                       => 'Статус пользователя в этом блоге:',
+
+    /***
+     * Статусы подписки
+     */
+    'blog_user_role_member'                       => 'подписчик',
+    'blog_user_role_author'                       => 'автор',
+    'blog_user_role_moderator'                    => 'модератор',
+    'blog_user_role_administrator'                => 'администратор',
+    'blog_user_role_owner'                        => 'собственник',
+    'blog_user_role_invite'                       => 'приглашен подписаться',
+    'blog_user_role_reject'                       => 'отказался от подписки',
+    'blog_user_role_request'                      => 'запросил подписку',
+    'blog_user_role_notmember'                    => 'отказано в подписке',
+    'blog_user_role_banned'                       => 'забанен',
+    'blog_user_role_banned_for_comment'           => 'забанен для комментариев',
+    'blog_user_role_other'                        => 'прочее',
 
     /***
      * Меню блогов

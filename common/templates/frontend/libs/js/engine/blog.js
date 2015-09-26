@@ -11,15 +11,15 @@ ls.blog = (function ($) {
      * Дефолтные опции
      */
     var defaults = {
-        // Роутеры
-        routers: {
-
-        },
-
         // Селекторы
         selectors: {
-            addBlogSelectType: '.js-blog-add-type'
+            addBlogSelectType: '.js-blog-add-type',
+            addUserList: '#blog_admin_user_add'
         }
+    };
+
+    this.options = {
+
     };
 
     /**
@@ -28,7 +28,6 @@ ls.blog = (function ($) {
      * @param  {Object} options Опции
      */
     this.init = function (options) {
-        var self = this;
 
         this.options = $.extend({}, defaults, options);
 
@@ -39,7 +38,7 @@ ls.blog = (function ($) {
     };
 
     /**
-     * Вступить или покинуть блог
+     * Subscribe to blog/Unsubscribe from blog
      */
     this.toggleJoin = function (button, idBlog) {
         var url = ls.routerUrl('blog') + 'ajaxblogjoin/',
@@ -56,16 +55,13 @@ ls.blog = (function ($) {
             } else {
                 ls.msg.notice(null, result.sMsg);
 
-                var text = result.bState
-                        ? ls.lang.get('blog_leave')
-                        : ls.lang.get('blog_join')
-                    ;
+                var text = result.bState ? ls.lang.get('blog_leave') : ls.lang.get('blog_join');
 
                 button.empty().text(text);
                 button.toggleClass('active');
 
                 $('#blog_user_count_' + idBlog).text(result.iCountUser);
-                ls.hook.run('ls_blog_toggle_join_after', [idBlog, result], button);
+                //ls.hook.run('ls_blog_toggle_join_after', [idBlog, result], button);
             }
         });
     };
@@ -74,12 +70,14 @@ ls.blog = (function ($) {
      * Отправляет приглашение вступить в блог
      */
     this.addInvite = function (idBlog) {
-        var sUsers = $('#blog_admin_user_add').val();
-        if (!sUsers) return false;
-        $('#blog_admin_user_add').val('');
+        var addUserList = $(this.options.selectors.addUserList),
+            users = addUserList.val(),
+            params = {users: users, idBlog: idBlog},
+            url = ls.routerUrl('blog') + 'ajaxaddbloginvite/';
 
-        var url = ls.routerUrl('blog') + 'ajaxaddbloginvite/';
-        var params = {users: sUsers, idBlog: idBlog};
+        if (!users) {
+            return false;
+        }
 
         ls.progressStart();
         ls.ajax(url, params, function (result) {
@@ -89,16 +87,24 @@ ls.blog = (function ($) {
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
+                addUserList.val('');
                 $.each(result.aUsers, function (index, item) {
-                    if ($('#invited_list').length == 0) {
-                        $('#invited_list_block').append($('<ul class="list" id="invited_list"></ul>'));
+                    if (item.bStateError) {
+                        ls.msg.error(item.sMsgTitle ? item.sMsgTitle : 'Error', item.sMsg);
+                    } else {
+                        if (item.sMsg) {
+                            ls.msg.notice(item.sMsgTitle ? item.sMsgTitle : null, item.sMsg);
+                        }
+                        if ($('#invited_list').length == 0) {
+                            $('#invited_list_block').append($('<ul class="list" id="invited_list"></ul>'));
+                        }
+                        var listItem = $('<li><a href="' + item.sUserWebPath + '" class="user">' + item.sUserLogin + '</a></li>');
+                        $('#invited_list').append(listItem);
+                        $('#blog-invite-empty').hide();
                     }
-                    var listItem = $('<li><a href="' + item.sUserWebPath + '" class="user">' + item.sUserLogin + '</a></li>');
-                    $('#invited_list').append(listItem);
-                    $('#blog-invite-empty').hide();
-                    ls.hook.run('ls_blog_add_invite_user_after', [idBlog, item], listItem);
+                    //ls.hook.run('ls_blog_add_invite_user_after', [idBlog, item], listItem);
                 });
-                ls.hook.run('ls_blog_add_invite_after', [idBlog, sUsers, result]);
+                //ls.hook.run('ls_blog_add_invite_after', [idBlog, sUsers, result]);
             }
         });
 
@@ -109,17 +115,19 @@ ls.blog = (function ($) {
      * Повторно отправляет приглашение
      */
     this.repeatInvite = function (idUser, idBlog) {
-        var url = ls.routerUrl('blog') + 'ajaxrebloginvite/';
-        var params = {idUser: idUser, idBlog: idBlog};
+        var url = ls.routerUrl('blog') + 'ajaxrebloginvite/',
+            params = {idUser: idUser, idBlog: idBlog};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
-                ls.hook.run('ls_blog_repeat_invite_after', [idUser, idBlog, result]);
+                //ls.hook.run('ls_blog_repeat_invite_after', [idUser, idBlog, result]);
             }
         });
 
@@ -130,10 +138,12 @@ ls.blog = (function ($) {
      * Удаляет приглашение в блог
      */
     this.removeInvite = function (idUser, idBlog) {
-        var url = ls.routerUrl('blog') + 'ajaxremovebloginvite/';
-        var params = {idUser: idUser, idBlog: idBlog};
+        var url = ls.routerUrl('blog') + 'ajaxremovebloginvite/',
+            params = {idUser: idUser, idBlog: idBlog};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
@@ -142,7 +152,7 @@ ls.blog = (function ($) {
                 $('#blog-invite-remove-item-' + idBlog + '-' + idUser).remove();
                 ls.msg.notice(null, result.sMsg);
                 if ($('#invited_list li').length == 0) $('#blog-invite-empty').show();
-                ls.hook.run('ls_blog_remove_invite_after', [idUser, idBlog, result]);
+                //ls.hook.run('ls_blog_remove_invite_after', [idUser, idBlog, result]);
             }
         });
 
@@ -153,9 +163,9 @@ ls.blog = (function ($) {
      * Отображение информации о блоге
      */
     this.loadInfo = function (idBlog) {
-        var url = ls.routerUrl('blog') + 'ajaxbloginfo/';
-        var params = {idBlog: idBlog};
-        var block = $('#widget_blog_info');
+        var url = ls.routerUrl('blog') + 'ajaxbloginfo/',
+            params = {idBlog: idBlog},
+            block = $('#widget_blog_info');
 
         block.empty().addClass('loading');
 
@@ -166,7 +176,7 @@ ls.blog = (function ($) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 block.removeClass('loading').html(result.sText);
-                ls.hook.run('ls_blog_load_info_after', [idBlog, result], block);
+                //ls.hook.run('ls_blog_load_info_after', [idBlog, result], block);
             }
         });
     };
@@ -197,7 +207,7 @@ ls.blog = (function ($) {
             } else {
                 $('#blogs-list-original').hide();
                 $('#blogs-list-search').html(result.sText).show();
-                ls.hook.run('ls_blog_search_blogs_after', [form, result]);
+                //ls.hook.run('ls_blog_search_blogs_after', [form, result]);
             }
         });
     };
@@ -206,8 +216,9 @@ ls.blog = (function ($) {
      * Показать подробную информацию о блоге
      */
     this.toggleInfo = function () {
-        $('#blog-more-content').slideToggle();
         var more = $('#blog-more');
+
+        $('#blog-more-content').slideToggle();
         more.toggleClass('expanded');
 
         if (more.hasClass('expanded')) {
@@ -243,7 +254,7 @@ ls.blog = (function ($) {
                     $blogs.prop('disabled', false);
                     $button.prop('disabled', false);
 
-                    ls.hook.run('ls_blog_load_blogs_by_category_after', [id, result]);
+                    //ls.hook.run('ls_blog_load_blogs_by_category_after', [id, result]);
                 }
             });
         } else {
@@ -261,6 +272,10 @@ ls.blog = (function ($) {
             window.location.href = $sel.data('url');
         }
     };
+
+    $(function() {
+        ls.blog.init();
+    });
 
     return this;
 }).call(ls.blog || {}, jQuery);

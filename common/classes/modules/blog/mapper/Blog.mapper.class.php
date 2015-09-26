@@ -248,34 +248,49 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogUsers($aFilter, &$iCount = null, $iCurrPage = null, $iPerPage = null) {
 
-        $sWhere = ' 1=1 ';
-        if (isset($aFilter['blog_id'])) {
-            $sWhere .= " AND bu.blog_id =  " . (int)$aFilter['blog_id'];
-        }
-        if (isset($aFilter['user_id'])) {
-            $sWhere .= " AND bu.user_id =  " . (int)$aFilter['user_id'];
-        }
-        if (isset($aFilter['user_role'])) {
-            if (!is_array($aFilter['user_role'])) {
-                $aFilter['user_role'] = array($aFilter['user_role']);
-            }
-            $sWhere .= " AND bu.user_role IN ('" . join("', '", $aFilter['user_role']) . "')";
-        } else {
-            $sWhere .= " AND bu.user_role>" . ModuleBlog::BLOG_USER_ROLE_GUEST;
+        if (!empty($aFilter['user_all_role']) && !empty($aFilter['user_role'])) {
+            unset($aFilter['user_role']);
         }
 
         $sql = "SELECT
                     bu.*
                 FROM 
                     ?_blog_user as bu
-                WHERE 
-                " . $sWhere . " ";
+                WHERE
+                  1=1
+                  {AND bu.blog_id=?d}
+                  {AND bu.blog_id IN (?a)}
+                  {AND bu.user_id=?d}
+                  {AND bu.user_id IN(?a)}
+                  {AND bu.user_role=?d}
+                  {AND bu.user_role IN(?a)}
+                  {AND bu.user_role>?d}
+                ";
 
-        if (is_null($iCurrPage)) {
-            $aRows = $this->oDb->select($sql);
+        if ((func_num_args() == 1) || is_null($iPerPage)) {
+            $aRows = $this->oDb->select($sql,
+                (!empty($aFilter['blog_id']) && is_numeric($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_numeric($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_numeric($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_array($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (empty($aFilter['user_all_role']) && !isset($aFilter['user_role'])) ? ModuleBlog::BLOG_USER_ROLE_GUEST : DBSIMPLE_SKIP
+            );
         } else {
-            $sql .= " LIMIT ?d, ?d ";
-            $aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage);
+            if (!$iCurrPage) {
+                $iCurrPage = 1;
+            }
+            $sql .= " LIMIT " . (($iCurrPage - 1) * $iPerPage) . ", " . intval($iPerPage);
+            $aRows = $this->oDb->selectPage($iCount, $sql,
+                (!empty($aFilter['blog_id']) && is_numeric($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_numeric($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_numeric($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_array($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (empty($aFilter['user_all_role']) && !isset($aFilter['user_role'])) ? ModuleBlog::BLOG_USER_ROLE_GUEST : DBSIMPLE_SKIP
+            );
         }
 
         $aBlogUsers = array();

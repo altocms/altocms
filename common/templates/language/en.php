@@ -113,6 +113,23 @@ return array(
     'blog_user_request_accept' => 'The user started to read this blog',
     'blog_user_request_no_accept' => 'User\'s request declined',
     'notify_subject_blog_request_new' => 'Request to join the blog',
+    'blog_user_status_is' => 'User status in this blog is',
+
+    /***
+     * Subscription statuses
+     */
+    'blog_user_role_member'                       => 'member',
+    'blog_user_role_author'                       => 'author',
+    'blog_user_role_moderator'                    => 'moderator',
+    'blog_user_role_administrator'                => 'administrator',
+    'blog_user_role_owner'                        => 'owner',
+    'blog_user_role_invite'                       => 'invited to subscribe',
+    'blog_user_role_reject'                       => 'rejected subscription',
+    'blog_user_role_request'                      => 'requested subscription',
+    'blog_user_role_notmember'                    => 'denied to subscription',
+    'blog_user_role_banned'                       => 'banned',
+    'blog_user_role_banned_for_comment'           => 'banned for comment',
+    'blog_user_role_other'                        => 'other',
 
     /***
      * Blog menu
