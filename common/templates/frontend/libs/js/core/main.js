@@ -12,6 +12,10 @@
  *----------------------------------------------------------------------------
  */
 ;
+"use strict";
+
+var ls = ls || {};
+
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (context) {
         var fn = this;
@@ -27,6 +31,9 @@ if (!Function.prototype.bind) {
             return fn.apply(context, arguments);
         };
     };
+    ls.nativeBind = false;
+} else {
+    ls.nativeBind = true;
 }
 
 String.prototype.tr = function (a, p) {
@@ -70,13 +77,18 @@ String.prototype.tr = function (a, p) {
     }
 })( jQuery );
 
-var ls = (function ($) {
+ls = (function ($) {
     /**
      * Log info
      */
     this.log = function () {
-        if (window.console && window.console.log) {
+        // Modern browsers
+        if (typeof console != 'undefined' && typeof console.log == 'function') {
             Function.prototype.bind.call(console.log, console).apply(console, arguments);
+        } else
+        // IE8
+        if (!ls.nativeBind && typeof console != 'undefined' && typeof console.log == 'object') {
+            Function.prototype.call.call(console.log, console, Array.prototype.slice.call(arguments));
         } else {
             //alert(msg);
         }
