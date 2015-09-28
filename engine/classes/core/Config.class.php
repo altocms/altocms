@@ -105,6 +105,7 @@ class Config extends Storage {
     protected function _clearQuickMap() {
 
         $this->aQuickMap = array();
+        self::_restoreKeyExtensions();
     }
 
     /**
@@ -455,44 +456,55 @@ class Config extends Storage {
 
         // Config section inherits of other (use $extends$ key)
         if (!$sKeyMap || !empty(self::$aKeyExtends[$sKeyMap])) {
+
             $xConfigData = $this->GetConfig($sRootKey, $nLevel, $sKey);
             if (is_array($xConfigData) && !empty($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
-                $xConfigData = $this->_extendsConfig($xConfigData, $sRootKey, $nLevel);
+                $xConfigData = $this->_extendsConfig($sKey, $xConfigData, $sRootKey, $nLevel);
             }
             if (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false) {
                 $xConfigData = $this->_resolveKeyLink($xConfigData, $sRootKey, $nLevel);
             }
             if ($sKeyMap) {
+                // SET QUICK MAP AND CLEAR KEY EXTENDS
                 $this->aQuickMap[$sKeyMap] = $xConfigData;
-                if (isset(self::$aKeyExtends[$sKeyMap])) {
-                    unset(self::$aKeyExtends[$sKeyMap]);
-                }
+                //if (isset(self::$aKeyExtends[$sKeyMap])) {
+                //    unset(self::$aKeyExtends[$sKeyMap]);
+                //}
+                self::_clearKeyExtension($sKeyMap);
             }
 
             return $xConfigData;
         }
 
-        // May be parent section inherits of other so we need to resolve it
-        if (!isset($this->aQuickMap[$sKeyMap]) && !array_key_exists($sKeyMap,$this->aQuickMap) && self::$aKeyExtends) {
-            $xConfigData = $this->_checkExtendsForParent($sKeyMap, $nLevel);
-            if (!is_null($xConfigData)) {
-                return $xConfigData;
-            }
-        }
-
-        // If parent section was inserted in quick map we can quickly find subsection in it
-        if (!isset($this->aQuickMap[$sKeyMap]) && !array_key_exists($sKeyMap,$this->aQuickMap) && $this->aQuickMap) {
-            $xConfigData = $this->_checkQuickMapForParent($sKeyMap, $nLevel);
-            if (!is_null($xConfigData)) {
-                return $xConfigData;
-            }
-        }
-
         if (!isset($this->aQuickMap[$sKeyMap]) && !array_key_exists($sKeyMap,$this->aQuickMap)) {
+
+            // if key has '.' then it has a parent key
+            $sParentKey = strstr($sKey, '.', true);
+
+            if ($sParentKey) {
+                // If parent section was inserted in quick map we can quickly find subsection in it
+                if ($this->aQuickMap) {
+                    $xConfigData = $this->_checkQuickMapForParent($sKeyMap, $nLevel);
+                    if (!is_null($xConfigData)) {
+                        $this->aQuickMap[$sKeyMap] = $xConfigData;
+                        return $xConfigData;
+                    }
+                }
+
+                // May be parent section inherits of other so we need to resolve it
+                if (self::$aKeyExtends) {
+                    $xConfigData = $this->_checkExtendsForParent($sKeyMap, $nLevel);
+                    if (!is_null($xConfigData)) {
+                        $this->aQuickMap[$sKeyMap] = $xConfigData;
+                        return $xConfigData;
+                    }
+                }
+            }
+
             $xConfigData = $this->GetConfig($sRootKey, $nLevel, $sKey);
             if (!empty($xConfigData)) {
                 if (is_array($xConfigData)) {
-                    $xConfigData = $this->_keyReplace($xConfigData, $sRootKey, $nLevel);
+                    $xConfigData = $this->_keyReplace($sKey, $xConfigData, $sRootKey, $nLevel);
                 } elseif (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false) {
                     $xConfigData = $this->_resolveKeyLink($xConfigData, $sRootKey, $nLevel);
                 }
@@ -585,19 +597,20 @@ class Config extends Storage {
         if (is_null($nLevel)) {
             $nLevel = static::getInstance()->GetLevel();
         }
-        return static::getInstance()->_keyReplace($xConfigData, $sRoot, $nLevel);
+        return static::getInstance()->_keyReplace(null, $xConfigData, $sRoot, $nLevel);
     }
 
     /**
      * Replace all placeholders and extend config sections from parent data
      *
+     * @param string       $sKeyPath
      * @param array|string $xConfigData
      * @param string       $sRoot
      * @param int          $nLevel
      *
      * @return array|mixed
      */
-    public function _keyReplace($xConfigData, $sRoot = null, $nLevel) {
+    public function _keyReplace($sKeyPath, $xConfigData, $sRoot = null, $nLevel) {
 
         $xResult = $xConfigData;
 
@@ -606,7 +619,7 @@ class Config extends Storage {
             $xResult = array();
             // e.g.: '$extends$' => '___module.uploader.images.default___',
             if (is_array($xConfigData) && !empty($xConfigData[self::KEY_EXTENDS]) && is_string($xConfigData[self::KEY_EXTENDS])) {
-                $xConfigData = $this->_extendsConfig($xConfigData, $sRoot, $nLevel);
+                $xConfigData = $this->_extendsConfig($sKeyPath, $xConfigData, $sRoot, $nLevel);
             }
             foreach ($xConfigData as $sKey => $xData) {
                 if (is_string($sKey) && !is_numeric($sKey) && strpos($sKey, self::KEY_LINK_STR) !== false) {
@@ -619,7 +632,7 @@ class Config extends Storage {
                 }
                 // Changes placeholders for array or string only
                 if (is_array($xData)) {
-                    $xResult[$sNewKey] = $this->_keyReplace($xData, $sRoot, $nLevel);
+                    $xResult[$sNewKey] = $this->_keyReplace($sKeyPath ? ($sKeyPath . '.' . $sNewKey) : $sNewKey, $xData, $sRoot, $nLevel);
                 } elseif (is_string($xData) && strpos($xData, self::KEY_LINK_STR) !== false) {
                     $xResult[$sNewKey] = $this->_resolveKeyLink($xData, $sRoot, $nLevel);
                 } else {
@@ -636,28 +649,42 @@ class Config extends Storage {
     }
 
     /**
+     * @param string $sKeyPath
      * @param array  $xConfigData
      * @param string $sRoot
      * @param int    $nLevel
      *
      * @return array
      */
-    protected function _extendsConfig($xConfigData, $sRoot = null, $nLevel) {
+    protected function _extendsConfig($sKeyPath, $xConfigData, $sRoot = null, $nLevel) {
 
         if (isset($xConfigData[self::KEY_EXTENDS])) {
-            $sLinkKey = $this->_storageKey($sRoot, '*') . '.' . $xConfigData[self::KEY_EXTENDS];
-            if (isset($this->aQuickMap[$sLinkKey])) {
-                $aParentData = $this->aQuickMap[$sLinkKey];
-            } else {
-                $aParentData = $this->_keyReplace($xConfigData[self::KEY_EXTENDS], $sRoot, $nLevel);
-                $this->aQuickMap[$sLinkKey] = $aParentData;
+            $aParentData = array();
+            if (is_string($xConfigData[self::KEY_EXTENDS])) {
+                $sLinkKey = $this->_storageKey($sRoot, '*') . '.' . $xConfigData[self::KEY_EXTENDS];
+                if (isset($this->aQuickMap[$sLinkKey])) {
+                    $aParentData = $this->aQuickMap[$sLinkKey];
+                } elseif (!$sKeyPath || (strpos($xConfigData[self::KEY_EXTENDS], $sKeyPath) === false)) {
+                    // ^^^ Prevents self linking
+                    $aParentData = $this->_keyReplace($sKeyPath, $xConfigData[self::KEY_EXTENDS], $sRoot, $nLevel);
+                    $this->aQuickMap[$sLinkKey] = $aParentData;
+                }
             }
             unset($xConfigData[self::KEY_EXTENDS]);
-            if (!empty($xConfigData[self::KEY_RESET])) {
-                $xConfigData = F::Array_Merge($aParentData, $xConfigData);
-            } else {
-                $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
+            if (!empty($aParentData) && is_array($aParentData)) {
+                if (!empty($xConfigData[self::KEY_RESET])) {
+                    $xConfigData = F::Array_Merge($aParentData, $xConfigData);
+                } else {
+                    $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
+                }
             }
+            $sKeyMap = $this->_storageKey($sRoot, '*') . '.' . $sKeyPath;
+            // SET QUICK MAP AND CLEAR KEY EXTENDS
+            $this->aQuickMap[$sKeyMap] = $xConfigData;
+            //if (isset(self::$aKeyExtends[$sKeyMap])) {
+            //    unset(self::$aKeyExtends[$sKeyMap]);
+            //}
+            self::_clearKeyExtension($sKeyMap);
         }
 
         return $xConfigData;
@@ -687,6 +714,23 @@ class Config extends Storage {
             }
         }
         return $xResult;
+    }
+
+    protected function _clearKeyExtension($sKeyMap) {
+
+        if (isset(self::$aKeyExtends[$sKeyMap])) {
+            self::$aClearedKeyExtensions[$sKeyMap] = self::$aKeyExtends[$sKeyMap];
+            unset(self::$aKeyExtends[$sKeyMap]);
+        }
+    }
+
+    protected function _restoreKeyExtensions() {
+
+        foreach(self::$aClearedKeyExtensions as $sKey => $sVal) {
+            if (empty(self::$aKeyExtends)) {
+                self::$aKeyExtends[$sKey] = $sVal;
+            }
+        }
     }
 
     /**
@@ -746,15 +790,11 @@ class Config extends Storage {
 
             // Check for KEY_ROOT in config data
             if (isset($xValue[self::KEY_ROOT]) && is_array($xValue[self::KEY_ROOT])) {
-                $aRoot = $xValue[self::KEY_ROOT];
-                unset($xValue[self::KEY_ROOT]);
-                foreach ($aRoot as $sRootKey => $xVal) {
-                    if (static::isExist($sRootKey)) {
-                        static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot, null, true), $xVal), $sRoot, $nLevel, $sSource);
-                    } else {
-                        static::Set($sRootKey, $xVal, $sRoot, $nLevel, $sSource);
-                    }
+                $aRootConfig = $xValue[self::KEY_ROOT];
+                foreach ($aRootConfig as $sRootConfigKey => $xRootConfigVal) {
+                    static::Set($sRootConfigKey, $xRootConfigVal, $sRoot, $nLevel, $sSource);
                 }
+                unset($aConfigData[$sKey][self::KEY_ROOT]);
             }
 
             /** @var Config $oConfig */
@@ -777,6 +817,7 @@ class Config extends Storage {
 
     static protected $bKeyReplace = false;
     static protected $aKeyExtends = array();
+    static protected $aClearedKeyExtensions = array();
 
     static public function _checkForReplacement(&$xItem, $xKey) {
 
@@ -825,7 +866,7 @@ class Config extends Storage {
                     unset($aConfig[self::KEY_REPLACE]);
                     $aResult = array_fill_keys($aConfig[self::KEY_REPLACE], null);
                 } else {
-                    unset($aConfig[self::KEY_REPLACE]);
+                    //unset($aConfig[self::KEY_REPLACE]);
                     $aResult = true;
                 }
                 //return $aResult;
