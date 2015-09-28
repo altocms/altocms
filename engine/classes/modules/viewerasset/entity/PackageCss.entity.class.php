@@ -57,6 +57,11 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return false;
     }
 
+    /**
+     * @param string $sContents
+     *
+     * @return mixed|string
+     */
     public function Compress($sContents) {
 
         /*
@@ -104,6 +109,9 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return parent::CheckDestination($sDestination);
     }
 
+    /**
+     * @return bool
+     */
     public function PreProcess() {
 
         if ($this->aFiles) {
@@ -112,6 +120,11 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return parent::PreProcess();
     }
 
+    /**
+     * @param array $aLink
+     *
+     * @return string
+     */
     public function BuildLink($aLink) {
 
         if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
@@ -123,6 +136,9 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
     }
 
+    /**
+     * @return bool
+     */
     public function Process() {
 
         $bResult = true;
@@ -152,6 +168,12 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return $bResult;
     }
 
+    /**
+     * @param string $sFile
+     * @param string $sDestination
+     *
+     * @return null|string
+     */
     public function PrepareFile($sFile, $sDestination) {
 
         $sContents = F::File_GetContents($sFile);
@@ -165,6 +187,12 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return null;
     }
 
+    /**
+     * @param string $sContents
+     * @param string $sSource
+     *
+     * @return mixed|string
+     */
     public function PrepareContents($sContents, $sSource) {
 
         if ($sContents) {
@@ -180,6 +208,12 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return $sContents;
     }
 
+    /**
+     * @param $sContent
+     * @param $sSourceDir
+     *
+     * @return mixed
+     */
     protected function _convertUrlsInCss($sContent, $sSourceDir) {
 
         // Есть ли в файле URLs

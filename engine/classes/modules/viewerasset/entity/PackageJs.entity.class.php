@@ -16,6 +16,9 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
     protected $sOutType = 'js';
 
+    /**
+     * Init package
+     */
     public function Init() {
 
         $this->aHtmlLinkParams = array(
@@ -28,6 +31,11 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         );
     }
 
+    /**
+     * Init compressor/minifier
+     *
+     * @return bool
+     */
     protected function InitCompressor() {
 
         if (Config::Get('compress.js.use')) {
@@ -38,6 +46,14 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         return false;
     }
 
+    /**
+     * Compress/Minification
+     *
+     * @param string $sContents
+     *
+     * @return bool|mixed|string
+     * @throws Exception
+     */
     public function Compress($sContents) {
 
         if (strpos($sContents, $this->sMarker)) {
@@ -60,6 +76,14 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         return $sContents;
     }
 
+    /**
+     * Prepare js-file
+     *
+     * @param string $sFile
+     * @param string $sDestination
+     *
+     * @return null|string
+     */
     public function PrepareFile($sFile, $sDestination) {
 
         $sContents = F::File_GetContents($sFile);
@@ -70,8 +94,14 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
             }
         }
         F::SysWarning('Can not prepare asset file "' . $sFile . '"');
+        return null;
     }
 
+    /**
+     * Preprocess stage
+     *
+     * @return bool
+     */
     public function PreProcess() {
 
         if ($this->aFiles) {
@@ -93,6 +123,11 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         return parent::CheckDestination($sDestination);
     }
 
+    /**
+     * @param array $aLink
+     *
+     * @return string
+     */
     public function BuildLink($aLink) {
 
         if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
@@ -104,7 +139,9 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
     }
 
-
+    /**
+     * @return bool
+     */
     public function Process() {
 
         $bResult = true;

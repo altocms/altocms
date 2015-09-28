@@ -25,6 +25,9 @@ class ModuleViewerAsset extends Module {
             'css',
         );
 
+    /**
+     * @var ModuleViewerAsset_EntityPackage[]
+     */
     protected $aAssets = array();
 
     protected $aFiles = array();

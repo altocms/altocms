@@ -623,7 +623,7 @@ class Config extends Storage {
             }
             foreach ($xConfigData as $sKey => $xData) {
                 if (is_string($sKey) && !is_numeric($sKey) && strpos($sKey, self::KEY_LINK_STR) !== false) {
-                    $sNewKey = $this->_keyReplace($sKey, $sRoot, $nLevel);
+                    $sNewKey = $this->_keyReplace(null, $sKey, $sRoot, $nLevel);
                     if (!is_scalar($sNewKey)) {
                         $sNewKey = $sKey;
                     }
