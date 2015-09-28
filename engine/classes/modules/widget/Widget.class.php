@@ -56,13 +56,15 @@ class ModuleWidget extends Module {
      */
     protected function _getWidgetData($sWidgetId, $aWidgetData, $aWidgets) {
 
+        if (!empty($aWidgetData[Config::KEY_REPLACE])) {
+            unset($aWidgetData[Config::KEY_EXTENDS]);
+            return $aWidgetData;
+        }
+
         $xExtends = false;
         if (!empty($aWidgetData[Config::KEY_EXTENDS])) {
             $xExtends = $aWidgetData[Config::KEY_EXTENDS];
             unset($aWidgetData[Config::KEY_EXTENDS]);
-        } elseif (($iKey = array_search(Config::KEY_EXTENDS, $aWidgetData)) !== false) {
-            $xExtends = true;
-            unset($aWidgetData[$iKey]);
         }
         if ($xExtends) {
             if (($xExtends === true) && $sWidgetId && isset($aWidgets[$sWidgetId])) {
@@ -88,7 +90,7 @@ class ModuleWidget extends Module {
         $aPlugins = F::GetPluginsList();
         if ($aPlugins) {
             foreach($aPlugins as $sPlugin) {
-                if ($aPluginWidgets = Config::Get('plugin.' . $sPlugin . '.widgets')) {
+                if ($aPluginWidgets = Config::Get('plugin.' . $sPlugin . '.widgets', null, null, true)) {
                     foreach ($aPluginWidgets as $xKey => $aWidgetData) {
                         // ID виджета может задаваться либо ключом элемента массива, либо параметром 'id'
                         if (isset($aWidgetData['id'])) {
@@ -98,7 +100,12 @@ class ModuleWidget extends Module {
                         } else {
                             $sWidgetId = null;
                         }
-                        $aWidgetData = $this->_getWidgetData($sWidgetId, $aWidgetData, $aWidgets);
+                        if (!empty($aWidgetData['plugin']) && $aWidgetData['plugin'] === true) {
+                            $aWidgetData['plugin'] = $sPlugin;
+                        }
+                        if (!empty($aWidgets[$sWidgetId])) {
+                            $aWidgetData = $this->_getWidgetData($sWidgetId, $aWidgetData, $aWidgets);
+                        }
                         if ($sWidgetId) {
                             $aWidgets[$sWidgetId] = $aWidgetData;
                         } else {
@@ -180,8 +187,8 @@ class ModuleWidget extends Module {
             $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
             $sClass = 'Widget' . $sName;
         } else {
-            $aPathSeek = F::GetPluginsDir();
-            $sFile = $sPlugin . '/classes/widgets/Widget' . $sName . '.class.php';
+            $aPathSeek = array(Plugin::GetPath($sPlugin));
+            $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
             $sClass = 'Plugin' . ucfirst($sPlugin) . '_Widget' . $sName;
         }
         if (F::File_Exists($sFile, $aPathSeek)) {

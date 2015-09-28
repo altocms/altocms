@@ -11,13 +11,14 @@
 /**
  * Class ModuleWidget_EntityWidget
  *
- * @method setPriority()
- * @method setName()
- * @method setType()
- * @method setTemplate()
- * @method setOrder()
+ * @method setPriority($xPriority)
+ * @method setName($sName)
+ * @method setType($sType)
+ * @method setTemplate($sTemplate)
+ * @method setOrder($iOrder)
  *
  * @method getCondition()
+ * @method GetTemplate()
  */
 class ModuleWidget_EntityWidget extends Entity {
 
