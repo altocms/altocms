@@ -87,7 +87,7 @@ class Application extends LsObject {
                 die('URL /' . $sUrl . '/ doesn\'t work on your site. Alto CMS v.' . ALTO_VERSION . ' not installed yet');
             }
             // Try to redirect to .../install/
-            F::HttpLocation('install/', true);
+            F::HttpLocation('install/');
             exit;
         }
     }
