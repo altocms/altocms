@@ -3,7 +3,7 @@
 
 {if $aPaging AND $aPaging.iCountPage>1}
     <div class="paginator">
-        <ul>
+        <ul class="js-pagination">
             {if $aPaging.iCurrentPage>1}
                 <li class="first">
                     <a href="{$aPaging.sBaseUrl}/{$aPaging.sGetParams}"
@@ -18,7 +18,7 @@
 
             {if $aPaging.iPrevPage}
                 <li class="prev"><a href="{$aPaging.sBaseUrl}/page{$aPaging.iPrevPage}/{$aPaging.sGetParams}"
-                                    class=""
+                                    class="js-paging-prev-page"
                                     title="{$aLang.paging_previos}"><i class="fa fa-chevron-left"></i></a></li>
             {else}
                 <li class="disabled prev"><span><i class="fa fa-chevron-left"></i></span></li>
@@ -35,7 +35,7 @@
             {/foreach}
 
             {if $aPaging.iNextPage}
-                <li class="next"><a  class=" js-paging-next-page"
+                <li class="next"><a  class="js-paging-next-page"
                                      href="{$aPaging.sBaseUrl}/page{$aPaging.iNextPage}/{$aPaging.sGetParams}"
                                      title="{$aLang.paging_next}"><i class="fa fa-chevron-right"></i></a></li>
             {else}
