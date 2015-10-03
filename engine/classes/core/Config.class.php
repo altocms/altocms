@@ -1021,13 +1021,11 @@ class Config extends Storage {
     }
 
     /**
-     * @param string $sPrefix
-     *
      * @return array
      */
-    static protected function _reReadConfig($sPrefix) {
+    static protected function _reReadConfig() {
 
-        return self::_readConfig($sPrefix, null, false);
+        self::_readConfig(null, null, false);
     }
 
     /**
@@ -1045,7 +1043,7 @@ class Config extends Storage {
         // удаляем кеш-файл
         self::_deleteFileCfg();
         // перестраиваем конфиг в кеш-файле
-        self::_reReadConfig($sPrefix);
+        self::_reReadConfig();
     }
 
     /**
