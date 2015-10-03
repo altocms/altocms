@@ -11,16 +11,17 @@
 /**
  * Class ModuleMresource_EntityMresource
  *
- * @method setUserId(int)
- * @method setTargetId(int)
- * @method setLink(string)
- * @method setHashFile(string)
- * @method setHashUrl(string)
- * @method setPathFile(string)
- * @method setPathUrl(string)
- * @method setType(int)
- * @method setStorage(string)
+ * @method setUserId(int $iParam)
+ * @method setTargetId(int $iParam)
+ * @method setLink(string $sParam)
+ * @method setHashFile(string $sParam)
+ * @method setHashUrl(string $sParam)
+ * @method setPathFile(string $sParam)
+ * @method setPathUrl(string $sParam)
+ * @method setType(string $sParam)
+ * @method setStorage(string $sParam)
  *
+ * @method int getMresourceId()
  * @method int getUserId()
  * @method int getTargetId()
  * @method string getLink()

@@ -11,6 +11,7 @@
 /**
  * Объект типа контента
  *
+ * @method setContentId($iParam)
  * @method setContentTitle($xParam)
  * @method setContentTitleDecl($xParam)
  * @method setContentUrl($xParam)

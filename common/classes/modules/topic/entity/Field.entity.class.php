@@ -11,8 +11,9 @@
 /**
  * Class ModuleTopic_EntityField
  *
+ * @method setFieldId($iParam)
  * @method setFieldType($xParam)
- * @method setContentId($xParam)
+ * @method setContentId($iParam)
  * @method setFieldName($xParam)
  * @method setFieldDescription($xParam)
  * @method setFieldRequired($xParam)

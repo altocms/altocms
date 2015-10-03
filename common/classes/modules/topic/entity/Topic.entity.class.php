@@ -20,7 +20,12 @@
  * @method int getTopicIndexIgnore()
  * @method int getFavourite()
  * @method string GetTopicUrl()
+ * @method string GetTopicType()
  *
+ * @method setFavourite($oParam)
+ * @method setTopicIndexIgnore($bParam)
+ * @method setPhotosetMainPhoto($oParam)
+
  * @package modules.topic
  * @since   1.0
  */
@@ -844,6 +849,7 @@ class ModuleTopic_EntityTopic extends Entity {
         $aTextLinks = $this->GetTextLinks();
         if ($aTextLinks) {
             foreach($aTextLinks as $aLink) {
+                /** @var ModuleMresource_EntityMresourceRel $oMresource */
                 $oMresource = E::GetEntity('Mresource_MresourceRel');
                 $oMresource->setUrl(E::ModuleMresource()->NormalizeUrl($aLink['link']));
                 $oMresource->setType($aLink['type']);

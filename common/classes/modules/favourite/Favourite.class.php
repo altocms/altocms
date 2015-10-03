@@ -58,7 +58,7 @@ class ModuleFavourite extends Module {
      * @param  string $sTargetType    Тип владельца
      * @param  int    $iUserId        ID пользователя
      *
-     * @return array
+     * @return ModuleFavourite_EntityFavourite[]
      */
     public function GetFavouritesByArray($aTargetsId, $sTargetType, $iUserId) {
 

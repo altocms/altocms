@@ -994,7 +994,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @param array $aTopicId    Список ID топиков
      * @param int   $iUserId     ID пользователя
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicQuestionVote[]
      */
     public function GetTopicsQuestionVoteByArray($aTopicId, $iUserId) {
 
@@ -1147,7 +1147,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aPhotosId    Список ID фото
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicPhoto[]
      */
     public function GetTopicPhotosByArrayId($aPhotosId) {
 
@@ -1715,7 +1715,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aContentId    Список ID типов контента
      *
-     * @return array
+     * @return ModuleTopic_EntityField[]
+     *
      * @TODO рефакторинг + solid
      */
     public function GetFieldsByArrayId($aContentId) {
@@ -1867,7 +1868,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aTargetId    Список ID топиков
      *
-     * @return array
+     * @return ModuleTopic_EntityContentValues[]
+     *
      * @TODO рефакторинг + solid
      */
     public function GetTopicValuesByArrayId($aTargetId) {

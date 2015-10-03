@@ -8,6 +8,13 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleTopic_EntityTopicFile
+ *
+ * @method string getFileUrl()
+ * @method int getFileSize()
+ *
+ */
 class ModuleTopic_EntityTopicFile extends Entity {
 
     public function getSizeFormat() {

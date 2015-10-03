@@ -11,8 +11,11 @@
 /**
  * Class ModuleMresource_EntityMresourceRel
  *
+ * @method setType($xParam)
+ * @method setUserId($iUserId)
+ *
  * @method int GetMresourceId()
- * @methos string getTargetType()
+ * @method string getTargetType()
  *
  */
 class ModuleMresource_EntityMresourceRel extends ModuleMresource_EntityMresource {
