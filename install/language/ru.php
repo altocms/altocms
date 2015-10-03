@@ -76,6 +76,7 @@ return array(
 
     'db_params'                        => 'Настройка базы данных',
     'db_params_host'                   => 'Имя сервера БД',
+    'db_params_host_notice'            => 'Если не знаете, то оставьте, как есть',
     'db_params_port'                   => 'Порт сервера БД',
     'db_params_port_notice'            => 'В большинстве случаев правильным решение будет оставить 3306',
     'db_params_name'                   => 'Название базы данных',
@@ -86,6 +87,7 @@ return array(
     'db_params_convert_to_11'          => 'Конвертировать базу Alto CMS 1.0.x в Alto CMS 1.1',
     'db_params_convert_from_alto_097'  => 'Конвертировать базу Alto CMS 0.9.7 в Alto CMS 1.0',
     'db_params_user'                   => 'Имя пользователя',
+    'db_params_user_notice'            => 'Имя и пароль пользователя для доступа к базе данных узнайте у своего хостера',
     'db_params_password'               => 'Пароль',
     'db_params_prefix'                 => 'Префикс таблиц',
     'db_params_prefix_notice'          => 'Указанный префикс будет приставлен к названию всех таблиц',

@@ -80,14 +80,20 @@ class Application extends LsObject {
             if (isset($_SERVER['REDIRECT_URL'])) {
                 $sUrl = trim($_SERVER['REDIRECT_URL'], '/');
             } else {
-                $sUrl = '';
+                $sUrl = F::UrlBase();
+                if ($sPath = F::ParseUrl(null, 'path')) {
+                    $sUrl .= $sPath;
+                } else {
+                    $sUrl .= '/';
+                }
+                $sUrl .= 'install';
             }
-            if ($sUrl && $sUrl != 'install' && substr($sUrl, -7) == 'install') {
+            if ($sUrl && $sUrl != 'install' && substr($sUrl, -8) != '/install') {
                 // Cyclic redirection to .../install/
-                die('URL /' . $sUrl . '/ doesn\'t work on your site. Alto CMS v.' . ALTO_VERSION . ' not installed yet');
+                die('URL ' . $sUrl . '/ doesn\'t work on your site. Alto CMS v.' . ALTO_VERSION . ' not installed yet');
             }
             // Try to redirect to .../install/
-            F::HttpLocation('install/');
+            F::HttpLocation($sUrl, true);
             exit;
         }
     }
