@@ -11,16 +11,16 @@
 /**
  * Class ModuleImg_EntityImage
  *
- * @method SetImage()
- * @method SetWidth()
- * @method SetHeight()
- * @method SetMime()
- * @method SetInfo()
- * @method SetFilename()
+ * @method SetImage($oParam)
+ * @method SetWidth($iParam)
+ * @method SetHeight($iParam)
+ * @method SetMime($sParam)
+ * @method SetInfo($aParam)
+ * @method SetFilename($sPaam)
  *
- * @method GetImage()
- * @method GetFilename()
- * @method GetDriver()
+ * @method object GetImage()
+ * @method string GetFilename()
+ * @method string GetDriver()
  */
 class ModuleImg_EntityImage extends Entity {
 
@@ -453,7 +453,7 @@ class ModuleImg_EntityImage extends Entity {
             $nDY = $iHeight - $this->GetHeight();
             if ($nDX || $nDY) {
                 if (E::ModuleImg()->GetDriver() != 'GD' && $this->IsMultiframe()) {
-                    $this->_canvasSizeMultiframe($iWidth, $iHeight, $nDX, $nDY, $xBgColor, $nOpacity);
+                    $this->_canvasSizeMultiframe($iWidth, $iHeight, $nDX, $nDY);
                 } else {
                     $this->_canvasSizeOrdinary($iWidth, $iHeight, $nDX, $nDY, $xBgColor, $nOpacity);
                 }
@@ -498,7 +498,8 @@ class ModuleImg_EntityImage extends Entity {
 
         $aOptions = F::Array_Merge($this->GetOptions(), $aOptions);
         if ($oImage = $this->GetImage()) {
-            $sFormat = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat($sFile));
+            F::File_CheckDir(dirname($sFile));
+            $sFormat = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat());
             if ($sFormat == 'jpeg') {
                 $nQuality = (isset($aOptions['quality']) ? $aOptions['quality'] : 100);
                 $oImage->save($sFile, $sFormat, $nQuality);
