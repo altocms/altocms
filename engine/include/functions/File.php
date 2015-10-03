@@ -156,12 +156,12 @@ class AltoFunc_File {
      * Нормализует путь к файлу, приводя все слеши (прямой и обратный) к одному виду,
      * по умолчанию - к прямому слешу
      *
-     * @param string|array $sPath
+     * @param string|string[] $xPath
      * @param string|null  $sSeparator
      *
-     * @return string
+     * @return string|string[]
      */
-    static public function NormPath($sPath, $sSeparator = '/') {
+    static public function NormPath($xPath, $sSeparator = '/') {
 
         if (!$sSeparator) {
             $sSeparator = DIRECTORY_SEPARATOR;
@@ -173,36 +173,36 @@ class AltoFunc_File {
             $sAltSeparator = '/';
         }
 
-        if (is_array($sPath)) {
+        if (is_array($xPath)) {
             $aResult = array();
-            foreach ($sPath as $sKey => $s) {
+            foreach ($xPath as $sKey => $s) {
                 $aResult[$sKey] = static::NormPath($s, $sSeparator);
             }
             return $aResult;
         }
 
         $sPrefix = '';
-        if (substr($sPath, 0, 2) == '//') {
+        if (substr($xPath, 0, 2) == '//') {
             // path like '//site.com/...'
             $sPrefix = '//';
-            $sPath = substr($sPath, 2);
-        } elseif (($nPos = strpos($sPath, '://')) && $nPos) {
+            $xPath = substr($xPath, 2);
+        } elseif (($nPos = strpos($xPath, '://')) && $nPos) {
             // path like 'http://site.com/...'
-            $sPrefix = substr($sPath, 0, $nPos + 3);
-            $sPath = substr($sPath, $nPos + 3);
-        } elseif (($nPos = strpos($sPath, ':\\')) && $nPos == 1) {
+            $sPrefix = substr($xPath, 0, $nPos + 3);
+            $xPath = substr($xPath, $nPos + 3);
+        } elseif (($nPos = strpos($xPath, ':\\')) && $nPos == 1) {
             // path like 'C:\folder\...'
-            $sPrefix = substr($sPath, 0, 2) . $sSeparator;
-            $sPath = substr($sPath, 3);
+            $sPrefix = substr($xPath, 0, 2) . $sSeparator;
+            $xPath = substr($xPath, 3);
         }
-        if (strpos($sPath, $sAltSeparator) !== false) {
-            $sPath = str_replace($sAltSeparator, $sSeparator, $sPath);
+        if (strpos($xPath, $sAltSeparator) !== false) {
+            $xPath = str_replace($sAltSeparator, $sSeparator, $xPath);
         }
 
-        while (strpos($sPath, $sSeparator . $sSeparator)) {
-            $sPath = str_replace($sSeparator . $sSeparator, $sSeparator, $sPath);
+        while (strpos($xPath, $sSeparator . $sSeparator)) {
+            $xPath = str_replace($sSeparator . $sSeparator, $sSeparator, $xPath);
         }
-        $sResult = $sPrefix . $sPath;
+        $sResult = $sPrefix . $xPath;
         if (DIRECTORY_SEPARATOR == '\\' && strlen($sResult) > 2) {
             // First symbol in Windows is a disk
             if ($sResult[1] == ':' && $sResult[0] >= 'a' && $sResult[0] <= 'z') {
@@ -342,6 +342,7 @@ class AltoFunc_File {
                 }
             }
         }
+        return $aDirs;
     }
 
     /**
@@ -1106,7 +1107,7 @@ class AltoFunc_File {
      */
     static public function Uniqname($sDir, $sExtension, $nLength = 8) {
 
-        $sFileName = F::RandomStr($nLength) . ($sExtension ? ('.' . trim($sExtension, '.')) : '');
+        $sFileName = dechex(time()) . '-' . F::RandomStr($nLength) . ($sExtension ? ('.' . trim($sExtension, '.')) : '');
         while(static::Exists($sDir . '/' . $sFileName)) {
             $sFileName = static::Uniqname($sDir, $sExtension, $nLength);
         }
@@ -1215,7 +1216,6 @@ class AltoFunc_File {
             return self::$aMimeFiles[$sFile];
         }
 
-        $sMimeType = '';
         if (function_exists('finfo_fopen')) {
             $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
         } else {
