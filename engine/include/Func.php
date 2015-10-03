@@ -1092,22 +1092,24 @@ class Func {
             }
         }
         if ($iComponent != -1) {
-            if ($iComponent == PHP_URL_SCHEME) {
+            if ($iComponent === PHP_URL_SCHEME) {
                 $xResult = $xResult['scheme'];
-            } elseif($iComponent == PHP_URL_HOST) {
+            } elseif($iComponent === PHP_URL_HOST) {
                 $xResult = $xResult['host'];
-            } elseif($iComponent == PHP_URL_PORT) {
+            } elseif($iComponent === PHP_URL_PORT) {
                 $xResult = $xResult['port'];
-            } elseif($iComponent == PHP_URL_USER) {
+            } elseif($iComponent === PHP_URL_USER) {
                 $xResult = $xResult['user'];
-            } elseif($iComponent == PHP_URL_PASS) {
+            } elseif($iComponent === PHP_URL_PASS) {
                 $xResult = $xResult['pass'];
-            } elseif($iComponent == PHP_URL_PATH) {
+            } elseif($iComponent === PHP_URL_PATH) {
                 $xResult = $xResult['path'];
-            } elseif($iComponent == PHP_URL_QUERY) {
+            } elseif($iComponent === PHP_URL_QUERY) {
                 $xResult = $xResult['query'];
-            } elseif($iComponent == PHP_URL_FRAGMENT) {
+            } elseif($iComponent === PHP_URL_FRAGMENT) {
                 $xResult = $xResult['fragment'];
+            } if(isset($xResult[$iComponent])) {
+                $xResult = $xResult[$iComponent];
             } else {
                 $xResult = false;
             }
