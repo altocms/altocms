@@ -13,7 +13,7 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeFile(Config::Get('path.dir.libs') . '/DklabCache/config.php');
+F::IncludeFile(C::Get('path.dir.libs') . '/DklabCache/config.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Cache/Backend/MemcachedMultiload.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Cache/Backend/TagEmuWrapper.php');
@@ -165,17 +165,17 @@ class ModuleCache extends Module {
      */
     public function Init() {
 
-        $this->bUseCache = Config::Get('sys.cache.use');
-        $this->sCacheType = Config::Get('sys.cache.type');
-        $this->sCachePrefix = Config::Get('sys.cache.prefix');
+        $this->bUseCache = C::Get('sys.cache.use');
+        $this->sCacheType = C::Get('sys.cache.type');
+        $this->sCachePrefix = $this->GetCachePrefix();
 
-        $aCacheTypes = (array)Config::Get('sys.cache.backends');
+        $aCacheTypes = (array)C::Get('sys.cache.backends');
 
         // Доступные механизмы кеширования
         $this->aCacheTypesAvailable = array_map('strtolower', array_keys($aCacheTypes));
 
         // Механизмы принудительного кеширования
-        $this->aCacheTypesForce = (array)Config::Get('sys.cache.force');
+        $this->aCacheTypesForce = (array)C::Get('sys.cache.force');
 
         if ($this->aCacheTypesForce === true) {
             // Разрешены все
@@ -222,6 +222,14 @@ class ModuleCache extends Module {
     }
 
     /**
+     * @return string
+     */
+    public function GetCachePrefix() {
+
+        return E::ModuleSecurity()->GetUniqKey() . '-' . C::Get('sys.cache.prefix');
+    }
+
+    /**
      * Проверка режима кеширования
      *
      * @param   string|null $sCacheType
@@ -245,7 +253,8 @@ class ModuleCache extends Module {
      *
      * @param string $sCacheType
      *
-     * @return string
+     * @return string|null
+     *
      * @throws Exception
      */
     protected function _backendInit($sCacheType) {
@@ -262,7 +271,7 @@ class ModuleCache extends Module {
                     // Unknown cache type
                     throw new Exception('Wrong type of caching: ' . $this->sCacheType);
                 } else {
-                    $aCacheTypes = (array)Config::Get('sys.cache.backends');
+                    $aCacheTypes = (array)C::Get('sys.cache.backends');
                     $sClass = 'CacheBackend' . $aCacheTypes[$sCacheType];
                     $sFile = './backend/' . $sClass . '.class.php';
                     if (!F::IncludeFile($sFile)) {
@@ -287,6 +296,7 @@ class ModuleCache extends Module {
                 return $sCacheType;
             }
         }
+        return null;
     }
 
     /**
@@ -324,7 +334,7 @@ class ModuleCache extends Module {
             $sCacheType = $this->sCacheType;
         }
         if ($this->_backendInit($sCacheType) && ($sCacheType != 'tmp')) {
-            return intval(Config::Get('sys.cache.concurrent_delay'));
+            return intval(C::Get('sys.cache.concurrent_delay'));
         }
         return 0;
     }

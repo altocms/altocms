@@ -29,7 +29,7 @@ class CacheBackendMemcached extends Dklab_Cache_Backend_TagEmuWrapper implements
             return false;
         }
 
-        $aConfigMem = Config::Get('memcache');
+        $aConfigMem = C::Get('memcache');
 
         $oCache = new Dklab_Cache_Backend_MemcachedMultiload($aConfigMem);
         return new self(new Dklab_Cache_Backend_Profiler($oCache, $sFuncStats));
