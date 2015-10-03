@@ -12,6 +12,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
 
 class Loader {
 
+    static $bConfigLoaded = false;
+
     /**
      * @param array $aConfig
      */
@@ -104,6 +106,8 @@ class Loader {
         Config::Set('i18n', UserLocale::getLocale());
 
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
+
+        self::$bConfigLoaded = true;
     }
 
     /**
@@ -342,6 +346,17 @@ class Loader {
         return $xResult;
     }
 
+    static $_aConfigClasses;
+
+    static protected function _getConfigClasses($sKey) {
+
+        if (!empty(self::$_aConfigClasses)) {
+            return self::$_aConfigClasses[$sKey];
+        } else {
+            return Config::Get($sKey);
+        }
+    }
+
     /**
      * Автозагрузка классов
      *
@@ -351,7 +366,12 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
+        if (self::$bConfigLoaded && empty(self::$_aConfigClasses)) {
+            $xData = Config::Get('classes');
+            self::$_aConfigClasses = new DataArray(array('classes' => $xData));
+        }
+
+        if ($sParentClass = self::_getConfigClasses('classes.alias.' . $sClassName)) {
             return self::_classAlias($sParentClass, $sClassName);
         }
         if (self::_autoloadDefinedClass($sClassName)) {
@@ -383,7 +403,7 @@ class Loader {
      */
     static protected function _autoloadDefinedClass($sClassName) {
 
-        if ($sFile = Config::Get('classes.class.' . $sClassName)) {
+        if ($sFile = self::_getConfigClasses('classes.class.' . $sClassName)) {
             // defined file name for the class
             if (is_array($sFile)) {
                 $sFile = isset($sFile['file']) ? $sFile['file'] : null;
@@ -394,7 +414,7 @@ class Loader {
         }
         // May be Namespace_Package or Namespace\Package
         if (strpos($sClassName, '\\') || strpos($sClassName, '_')) {
-            $aPrefixes = Config::Get('classes.prefix');
+            $aPrefixes = self::_getConfigClasses('classes.prefix');
             foreach ($aPrefixes as $sPrefix => $aOptions) {
                 if (strpos($sClassName, $sPrefix) === 0) {
                     // defined prefix for vendor/library
@@ -474,7 +494,7 @@ class Loader {
 
         // An associative array where the key is a namespace prefix and the value
         // is an array of base directories for classes in that namespace.
-        $aVendorNamespaces = Config::Get('classes.namespace');
+        $aVendorNamespaces = self::_getConfigClasses('classes.namespace');
         if (!strpos($sClassName, '\\') || !$aVendorNamespaces) {
             return false;
 
