@@ -413,7 +413,12 @@ class ModuleUploader extends Module {
                     if ($bOriginalName) {
                         $sTmpFile = F::File_GetUploadDir() . $aFile['name'];
                     } else {
-                        $sTmpFile = basename(F::File_UploadUniqname(pathinfo($aFile['name'], PATHINFO_EXTENSION)));
+                        if (E::UserId()) {
+                            $sExtension = dechex(E::UserId()) . '.' . pathinfo($aFile['name'], PATHINFO_EXTENSION);
+                        } else {
+                            $sExtension = pathinfo($aFile['name'], PATHINFO_EXTENSION);
+                        }
+                        $sTmpFile = strtolower(basename(F::File_UploadUniqname($sExtension)));
                     }
                     // Copy uploaded file in our temp folder
                     if ($sTmpFile = F::File_MoveUploadedFile($aFile['tmp_name'], $sTmpFile)) {
@@ -497,7 +502,7 @@ class ModuleUploader extends Module {
                 return false;
             }
         }
-        if ($this->_checkUploadedFile($sTmpFile, $sTarget)) {
+        if (!empty($sTmpFile) && $this->_checkUploadedFile($sTmpFile, $sTarget)) {
             if ($sDir) {
                 return $this->MoveTmpFile($sTmpFile, $sDir);
             } else {
@@ -718,6 +723,7 @@ class ModuleUploader extends Module {
                 if (!$oStoredItem->GetUuid()) {
                     $oStoredItem->SetUuid($sDriverName);
                 }
+                /** @var ModuleMresource_EntityMresource $oMresource */
                 $oMresource = E::GetEntity('Mresource', $oStoredItem);
                 if ($bAddMresource) {
                     E::ModuleMresource()->Add($oMresource);
