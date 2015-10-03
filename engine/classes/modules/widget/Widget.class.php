@@ -61,16 +61,29 @@ class ModuleWidget extends Module {
             return $aWidgetData;
         }
 
-        $xExtends = false;
+        $xExtends = true;
+        $bReset = false;
         if (!empty($aWidgetData[Config::KEY_EXTENDS])) {
             $xExtends = $aWidgetData[Config::KEY_EXTENDS];
             unset($aWidgetData[Config::KEY_EXTENDS]);
         }
+        if (!empty($aWidgetData[Config::KEY_RESET])) {
+            $bReset = $aWidgetData[Config::KEY_RESET];
+            unset($aWidgetData[Config::KEY_RESET]);
+        }
         if ($xExtends) {
             if (($xExtends === true) && $sWidgetId && isset($aWidgets[$sWidgetId])) {
-                $aWidgetData = F::Array_MergeCombo($aWidgets[$sWidgetId], $aWidgetData);
+                if ($bReset) {
+                    $aWidgetData = F::Array_Merge($aWidgets[$sWidgetId], $aWidgetData);
+                } else {
+                    $aWidgetData = F::Array_MergeCombo($aWidgets[$sWidgetId], $aWidgetData);
+                }
             } elseif(is_string($xExtends)) {
-                $aWidgetData = F::Array_MergeCombo(Config::Get($xExtends), $aWidgetData);
+                if ($bReset) {
+                    $aWidgetData = F::Array_Merge(Config::Get($xExtends), $aWidgetData);
+                } else {
+                    $aWidgetData = F::Array_MergeCombo(Config::Get($xExtends), $aWidgetData);
+                }
             }
         }
         return $aWidgetData;
