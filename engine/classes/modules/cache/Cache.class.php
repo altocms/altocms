@@ -226,7 +226,11 @@ class ModuleCache extends Module {
      */
     public function GetCachePrefix() {
 
-        return E::ModuleSecurity()->GetUniqKey() . '-' . C::Get('sys.cache.prefix');
+        $sUniqKey = C::Get('alto.uniq_key');
+        if (!$sUniqKey) {
+            $sUniqKey = E::ModuleSecurity()->GenerateUniqKey();
+        }
+        return md5(C::Get('sys.cache.prefix') . '_' . $sUniqKey);
     }
 
     /**
