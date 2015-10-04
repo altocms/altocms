@@ -2519,7 +2519,7 @@ class ModuleTopic extends Module {
     protected function _saveTopicImage($sImageFile, $oUser, $sType, $aOptions = array()) {
 
         $sExtension = F::File_GetExtension($sImageFile, true);
-        $aConfig = E::ModuleUploader()->GetConfig($sImageFile, $sType);
+        $aConfig = E::ModuleUploader()->GetConfig($sImageFile, 'images.' . $sType);
         if ($aOptions) {
             $aConfig['transform'] = F::Array_Merge($aConfig['transform'], $aOptions);
         }

@@ -12,21 +12,22 @@ class ModuleUploader extends Module {
 
     const COOKIE_TARGET_TMP         = 'uploader_target_tmp';
 
-    const ERR_NOT_POST_UPLOADED     = 10001;
-    const ERR_NOT_FILE_VARIABLE     = 10002;
-    const ERR_MAKE_UPLOAD_DIR       = 10003;
-    const ERR_MOVE_UPLOAD_FILE      = 10004;
-    const ERR_COPY_UPLOAD_FILE      = 10005;
-    const ERR_REMOTE_FILE_OPEN      = 10011;
-    const ERR_REMOTE_FILE_MAXSIZE   = 10012;
-    const ERR_REMOTE_FILE_READ      = 10013;
-    const ERR_REMOTE_FILE_WRITE     = 10014;
-    const ERR_NOT_ALLOWED_EXTENSION = 10051;
-    const ERR_FILE_TOO_LARGE        = 10052;
-    const ERR_IMG_NO_INFO           = 10061;
-    const ERR_IMG_LARGE_WIDTH       = 10062;
-    const ERR_IMG_LARGE_HEIGHT      = 10063;
-    const ERR_TRANSFORM_IMAGE       = 10101;
+    const ERR_NOT_POST_UPLOADED         = 10001;
+    const ERR_NOT_FILE_VARIABLE         = 10002;
+    const ERR_MAKE_UPLOAD_DIR           = 10003;
+    const ERR_MOVE_UPLOAD_FILE          = 10004;
+    const ERR_COPY_UPLOAD_FILE          = 10005;
+    const ERR_REMOTE_FILE_OPEN          = 10011;
+    const ERR_REMOTE_FILE_MAXSIZE       = 10012;
+    const ERR_REMOTE_FILE_READ          = 10013;
+    const ERR_REMOTE_FILE_WRITE         = 10014;
+    const ERR_NOT_ALLOWED_EXTENSION     = 10051;
+    const ERR_FILE_TOO_LARGE            = 10052;
+    const ERR_IMG_NO_INFO               = 10061;
+    const ERR_IMG_LARGE_WIDTH           = 10062;
+    const ERR_IMG_LARGE_HEIGHT          = 10063;
+    const ERR_IMG_NOT_ALLOWED_FORMAT    = 10081;
+    const ERR_TRANSFORM_IMAGE           = 10101;
 
     protected $aUploadErrors
         = array(
@@ -52,6 +53,7 @@ class ModuleUploader extends Module {
             self::ERR_IMG_NO_INFO           => 'Cannot get info about image (may be file is corrupted)',
             self::ERR_IMG_LARGE_WIDTH       => 'Width of image is too large',
             self::ERR_IMG_LARGE_HEIGHT      => 'Height of image is too large',
+            self::ERR_IMG_NOT_ALLOWED_FORMAT => 'Not allowed image format',
             self::ERR_TRANSFORM_IMAGE       => 'Error during transform image',
         );
 
@@ -198,7 +200,7 @@ class ModuleUploader extends Module {
      *
      * @return bool
      */
-    protected function _checkUploadedImage($sFile, $sConfigKey = 'default') {
+    protected function _checkUploadedImage($sFile, $sConfigKey = 'images.default') {
 
         $aInfo = @getimagesize($sFile);
         if (!$aInfo) {
@@ -207,9 +209,12 @@ class ModuleUploader extends Module {
         }
         // Gets local config
         if (!$sConfigKey) {
-            $sConfigKey = 'default';
+            $sConfigKey = 'images.default';
+        } elseif (!strpos($sConfigKey, '.')) {
+            $sConfigKey = 'images.' . $sConfigKey;
         }
-        $aConfig = $this->aModConfig['images.' . $sConfigKey];
+
+        $aConfig = $this->aModConfig[$sConfigKey];
         if ($aConfig['max_width'] && F::MemSize2Int($aConfig['max_width']) < $aInfo[0]) {
             $this->nLastError = self::ERR_IMG_LARGE_WIDTH;
             return false;
@@ -229,6 +234,9 @@ class ModuleUploader extends Module {
      */
     protected function _checkUploadedFile($sFile, $sConfigKey = 'default') {
 
+        if (!$sConfigKey) {
+            $sConfigKey = 'default';
+        }
         $sExtension = $this->_extensionMime($sFile);
         $aConfig = $this->GetConfig($sFile, $sConfigKey);
         if (!$aConfig) {
@@ -245,12 +253,22 @@ class ModuleUploader extends Module {
             $this->nLastError = self::ERR_FILE_TOO_LARGE;
             return false;
         }
+
         // Check images
-        if (!empty($aConfig['image_extensions']) && in_array($sExtension, (array)$aConfig['image_extensions'])) {
-            if (!$this->_checkUploadedImage($sFile, $sConfigKey)) {
-                return false;
+        if ($sConfigKey == 'default') {
+            if (!empty($aConfig['image_extensions']) && in_array($sExtension, (array)$aConfig['image_extensions'])) {
+                return $this->_checkUploadedImage($sFile, $sConfigKey);
+            }
+        } else {
+            if (!empty($aConfig['image_extensions']) && strpos($sConfigKey, 'images.') === 0) {
+                if (!in_array($sExtension, (array)$aConfig['image_extensions'])) {
+                    $this->nLastError = self::ERR_IMG_NOT_ALLOWED_FORMAT;
+                    return false;
+                }
+                return $this->_checkUploadedImage($sFile, $sConfigKey);
             }
         }
+
         return true;
     }
 
@@ -279,11 +297,14 @@ class ModuleUploader extends Module {
      */
     public function GetConfig($sFile, $sConfigKey = 'default') {
 
+        if (!$sConfigKey) {
+            $sConfigKey = 'default';
+        }
         $sExtension = $this->_extensionMime($sFile);
         if (!$sExtension) {
             $sExtension = '*';
         }
-        $sTmpConfigKey = '_' . $sExtension . '_' . $sConfigKey;
+        $sTmpConfigKey = '-' . str_replace('.', '-', $sConfigKey) . '-' . $sExtension;
         $aConfig = $this->aModConfig[$sTmpConfigKey];
 
         if (is_null($aConfig)) {
@@ -291,7 +312,20 @@ class ModuleUploader extends Module {
             $aImageExtensions = array();
 
             // Gets local config
-            if ($sConfigKey && $sConfigKey != 'default') {
+            if ($sConfigKey) {
+                if (isset($this->aModConfig[$sConfigKey])) {
+                    $aConfig = $this->aModConfig[$sConfigKey];
+                    $aImageExtensions = (array)$aConfig['image_extensions'];
+                } elseif (strpos($sConfigKey, '.')) {
+                    if (strpos($sConfigKey, 'images.') === 0) {
+                        $aConfig = $this->aModConfig['images.default'];
+                        $aImageExtensions = (array)$aConfig['image_extensions'];
+                    } else {
+                        $sConfigKey = 'default';
+                    }
+                }
+            }
+            if (!$aConfig && $sConfigKey != 'default') {
                 // Checks key 'images.<type>' and valid image extension
                 if ($aConfig = $this->aModConfig['images.' . $sConfigKey]) {
                     if ($sExtension != '*') {
@@ -759,7 +793,7 @@ class ModuleUploader extends Module {
         }
 
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
-        $aConfig = $this->GetConfig($sFile, $sTarget);
+        $aConfig = $this->GetConfig($sFile, 'images.' . $sTarget);
 
         // Check whether to save the original
         if (isset($aConfig['original']['save']) && $aConfig['original']['save']) {

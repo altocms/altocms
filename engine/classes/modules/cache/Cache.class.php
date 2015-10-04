@@ -230,7 +230,7 @@ class ModuleCache extends Module {
         if (!$sUniqKey) {
             $sUniqKey = E::ModuleSecurity()->GenerateUniqKey();
         }
-        return md5(C::Get('sys.cache.prefix') . '_' . $sUniqKey);
+        return C::Get('sys.cache.prefix') . '_' . F::Crc32($sUniqKey, true);
     }
 
     /**

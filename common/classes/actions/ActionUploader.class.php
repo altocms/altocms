@@ -285,7 +285,7 @@ class ActionUploader extends Action {
         $sError = '';
 
         // Загружаем временный файл
-        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile, $sTarget);
+        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile, 'images.' . $sTarget);
 
         // Вызовем хук перед началом загрузки картинки
         E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget, 'sTargetId' => $sTargetId));
