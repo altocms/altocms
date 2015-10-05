@@ -75,7 +75,7 @@ class DataArray extends ArrayObject {
     public function offsetExists($xIndex) {
 
         if (!is_string($xIndex) || !strpos($xIndex, $this->sDelimiter)) {
-            return parent::offsetGet($xIndex);
+            return parent::offsetExists($xIndex);
         } else {
             $aPath = explode($this->sDelimiter, $xIndex);
             $xItem = null;
