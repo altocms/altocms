@@ -140,7 +140,14 @@ class ModuleImg extends Module {
      */
     public function GetOptions($sFileExtension = '*', $sPreset = null, $aOptions = array()) {
 
-        $aConfigOptions = E::ModuleUploader()->GetConfig($sFileExtension, 'images.' . $sPreset);
+        if (is_array($sPreset) && empty($aOptions)) {
+            $aOptions = $sPreset;
+            $sPreset = null;
+        }
+        if (!$sPreset && $sPreset !== 'default') {
+            $sPreset = 'images.' . $sPreset;
+        }
+        $aConfigOptions = E::ModuleUploader()->GetConfig($sFileExtension, $sPreset);
         if ($aConfigOptions && $aOptions) {
             /** @var DataArray $aParams */
             $aOptions = F::Array_Merge($aConfigOptions, $aOptions);
