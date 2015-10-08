@@ -72,7 +72,8 @@ class ModuleImg extends Module {
                 }
             } elseif ($this->aDrivers[$sDriver] == 'Gmagick') {
                 if (class_exists('Gmagick')) {
-                    $aInfo = Gmagick::getVersion();
+                    $img = new \Gmagick();
+                    $aInfo = $img->getVersion();
                     $sVersion = $aInfo['versionString'];
                     if (preg_match('/\w+\s\d+\.[\d\.\-]+/', $sVersion, $aMatches)) {
                         $sVersion = $aMatches[0];
