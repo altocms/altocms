@@ -499,6 +499,21 @@ abstract class Plugin extends LsObject {
     }
 
     /**
+     * Make standard class name from plugin id
+     *
+     * @param string $sPluginId
+     *
+     * @return string
+     */
+    static public function GetPluginClass($sPluginId) {
+
+        if ($sPluginId) {
+            return 'Plugin' . F::StrCamelize($sPluginId);
+        }
+        return null;
+    }
+
+    /**
      * Returns decamelized name of plugin
      *
      * @param object|string $xPlugin

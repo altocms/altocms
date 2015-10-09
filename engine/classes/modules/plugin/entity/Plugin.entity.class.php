@@ -13,11 +13,12 @@
  *
  * @method bool GetIsActive()
  *
- * @method SetNum()
- * @method SetIsActive()
+ * @method SetNum($iParam)
+ * @method SetIsActive($bParam)
  */
 class ModulePlugin_EntityPlugin extends Entity {
 
+    /** @var SimpleXMLElement */
     protected $oXml = null;
 
     /**
@@ -172,6 +173,14 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     /**
+     * @return string|null
+     */
+    public function GetManifestFile() {
+
+        return $this->getProp('manifest');
+    }
+
+    /**
      * @return string
      */
     public function GetName() {
@@ -200,7 +209,20 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function GetPluginClass() {
 
-        return 'Plugin' . ucfirst($this->GetCode());
+        return Plugin::GetPluginClass($this->GetId());
+    }
+
+    /**
+     * @return null|string
+     */
+    public function GetPluginClassFile() {
+
+        $sManifest = $this->GetManifestFile();
+        $sClassName = $this->GetPluginClass();
+        if ($sManifest && $sClassName) {
+            return dirname($sManifest) . '/' . $sClassName . '.class.php';
+        }
+        return null;
     }
 
     /**

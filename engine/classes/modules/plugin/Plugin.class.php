@@ -290,6 +290,45 @@ class ModulePlugin extends Module {
     }
 
     /**
+     * @param string $sPluginId
+     * @param bool   $bActive
+     *
+     * @return ModulePlugin_EntityPlugin|null
+     */
+    protected function _getPluginManifestById($sPluginId, $bActive) {
+
+        $aPlugins = $this->GetPluginsList($bActive);
+        if (!isset($aPlugins[$sPluginId])) {
+            return null;
+        }
+        return $aPlugins[$sPluginId];
+    }
+
+    /**
+     * @param string $sPluginId
+     * @param bool   $bActive
+     *
+     * @return Plugin|null
+     */
+    protected function _getPluginById($sPluginId, $bActive) {
+
+        $oPlugin = null;
+        $oPluginManifest = $this->_getPluginManifestById($sPluginId, $bActive);
+
+        $sClassName = $oPluginManifest->GetPluginClass();
+        $sPluginClassFile = $oPluginManifest->GetPluginClassFile();
+        if ($sClassName && $sPluginClassFile) {
+            F::IncludeFile($sPluginClassFile);
+            if (class_exists($sClassName, false)) {
+                /** @var Plugin $oPlugin */
+                $oPlugin = new $sClassName;
+            }
+        }
+
+        return $oPlugin;
+    }
+
+    /**
      * Активация плагина
      *
      * @param   string  $sPluginId  - код плагина
@@ -307,24 +346,9 @@ class ModulePlugin extends Module {
             '!=' => 'ne', '<>' => 'ne', 'ne' => 'ne'
         );
 
-        // получаем список неактивированных плагинов
-        $aPlugins = $this->GetPluginsList(false);
-        if (!isset($aPlugins[$sPluginId])) {
-            return false;
-        }
-
-        $sPluginDir = $aPlugins[$sPluginId]->getDirname();
-        if (!$sPluginDir) {
-            $sPluginDir = $sPluginId;
-        }
-        $sPluginName = F::StrCamelize($sPluginId);
-        $sClassName = "Plugin{$sPluginName}";
-
-        $sPluginClassFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
-        F::IncludeFile($sPluginClassFile);
-        if (class_exists($sClassName, false)) {
-            /** @var Plugin $oPlugin */
-            $oPlugin = new $sClassName;
+        /** @var Plugin $oPlugin */
+        $oPlugin = $this->_getPluginById($sPluginId, false);
+        if ($oPlugin) {
             /** @var ModulePlugin_EntityPlugin $oPluginEntity */
             $oPluginEntity = $oPlugin->GetPluginEntity();
 
@@ -475,6 +499,7 @@ class ModulePlugin extends Module {
             }
         } else {
             // * Исполняемый файл плагина не найден
+            $sPluginClassFile = Plugin::GetPluginClass($sPluginId) . '.class.php';
             E::ModuleMessage()->AddError(
                 E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sPluginClassFile)),
                 E::ModuleLang()->Get('error'),
@@ -539,34 +564,22 @@ class ModulePlugin extends Module {
      */
     public function Deactivate($sPluginId, $bRemove = false) {
 
-        // получаем список активированных плагинов
-        $aPlugins = $this->GetPluginsList(true);
-        if (!isset($aPlugins[$sPluginId])) {
-            return null;
-        }
+        // get activated plugin by ID
+        $oPlugin = $this->_getPluginById($sPluginId, true);
 
-        $sPluginName = F::StrCamelize($sPluginId);
-        $sPluginDir = $aPlugins[$sPluginId]->getDirname();
-        if (!$sPluginDir) {
-            $sPluginDir = $sPluginId;
-        }
-        $sClassName = "Plugin{$sPluginName}";
-
-        if (class_exists($sClassName)) {
-
-            /** @var Plugin $oPlugin */
-            $oPlugin = new $sClassName;
-
+        if ($oPlugin) {
             /**
              * TODO: Проверять зависимые плагины перед деактивацией
              */
             $bResult = $oPlugin->Deactivate();
-            $oPlugin->Remove();
+            if ($bRemove) {
+                $oPlugin->Remove();
+            }
         } else {
             // Исполняемый файл плагина не найден
-            $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
+            $sPluginClassFile = Plugin::GetPluginClass($sPluginId) . '.class.php';
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
+                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sPluginClassFile)),
                 E::ModuleLang()->Get('error'),
                 true
             );
@@ -681,6 +694,10 @@ class ModulePlugin extends Module {
             // * Если плагин активен, деактивируем его
             if (in_array($sPluginId, $aActivePlugins)) {
                 $this->Deactivate($sPluginId);
+            }
+            $oPlugin = $this->_getPluginById($sPluginId, false);
+            if ($oPlugin) {
+                $oPlugin->Remove();
             }
 
             // * Удаляем директорию с плагином
