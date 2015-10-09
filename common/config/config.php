@@ -253,6 +253,15 @@ $config['sys']['ip']['default']         = '127.0.0.1';
 $config['sys']['include']['check_file'] = false; // Проверка подключаемых файлов на "UTF-8 without BOM"
 
 /**
+ * Настройка memcache
+ */
+$config['memcache']['servers'][0]['host'] = '127.0.0.1';
+$config['memcache']['servers'][0]['port'] = '11211';
+$config['memcache']['servers'][0]['persistent'] = true;
+$config['memcache']['compression'] = true;
+
+
+/**
  * Общие настройки
  */
 $config['general']['close']['mode']     = false; // использовать закрытый режим работы сайта, сайт будет доступен только авторизованным пользователям
@@ -457,6 +466,7 @@ $config['module']['user']['friend_on_profile']    = 15;         // Ограни�
 $config['module']['user']['friend_notice']['delete'] = false;   // Отправить talk-сообщение в случае удаления пользователя из друзей
 $config['module']['user']['friend_notice']['accept'] = false;   // Отправить talk-сообщение в случае одобрения заявки на добавление в друзья
 $config['module']['user']['friend_notice']['reject'] = false;   // Отправить talk-сообщение в случае отклонения заявки на добавление в друзья
+$config['module']['user']['avatar_size'] = array(100,64,48,24,0); // ** Old templates compatibility
 
 $config['module']['user']['login']['min_size'] = 3;             // Минимальное количество символов в логине
 $config['module']['user']['login']['max_size'] = 30;            // Максимальное количество символов в логине
@@ -605,14 +615,6 @@ $config['db']['table']['user']                  = '___db.table.prefix___user';
 */
 
 $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
-
-/**
- * Настройка memcache
- */
-$config['memcache']['servers'][0]['host'] = '127.0.0.1';
-$config['memcache']['servers'][0]['port'] = '11211';
-$config['memcache']['servers'][0]['persistent'] = true;
-$config['memcache']['compression'] = true;
 
 /**
  * Настройки роутинга
