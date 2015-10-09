@@ -573,7 +573,7 @@ return array(
     'all_plugins' => 'All plugins',
     'active_plugins' => 'Active plugins',
     'inactive_plugins' => 'Inactive plugins',
-    'plugin_file_not_found' => 'The file\'s plugin <b>%%file%%</b> isn\'t found',
+    'plugin_file_not_found' => 'The file of plugin <b>%%file%%</b> isn\'t found',
     'plugin_havenot_getversion_method' => 'A demanded plugin <b>%%plugin%%</b> doesn\'t return version number (isn\'t present <b>GetVersion()</b> method)',
     'plugin_activation_reqversion_error_eq' => 'The activated plugin is necessary for plugin\'s work <b>%%for plugin%%</b>  of the version <b>%%version%%</b>',
     'plugin_activation_reqversion_error_ge' => 'The activated plugin is necessary for plugin\'s work <b>%%for plugin%%</b>  to the version not lower than <b>%%version%%</b>',

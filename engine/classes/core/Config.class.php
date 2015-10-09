@@ -47,6 +47,8 @@ class Config extends Storage {
 
     const ROOT_KEY = '$root$';
 
+    const ALTO_UNIQUE_KEY = 'engine.alto.uniq_key';
+
     static protected $aElapsedTime = array();
 
     /**
@@ -929,8 +931,10 @@ class Config extends Storage {
                 'storage_ord' => $iOrder
             );
         }
-        if ($bCacheOnly || ($bResult = E::ModuleAdmin()->UpdateStorageConfig($aData))) {
-            self::_putFileCfg($aConfig);
+        if (E::ModuleAdmin()->UpdateStorageConfig($aData)) {
+            //self::_putFileCfg($aConfig);
+            self::_deleteFileCfg();
+            self::_reReadConfig();
             return true;
         }
         return false;
@@ -945,7 +949,7 @@ class Config extends Storage {
             );
         } else {
             $aPrefix = array(
-                self::ENGINE_CONFIG_PREFIX => strlen(self::ENGINE_CONFIG_PREFIX),
+                self::ENGINE_CONFIG_PREFIX => 0,
                 self::CUSTOM_CONFIG_PREFIX => strlen(self::CUSTOM_CONFIG_PREFIX),
             );
         }
@@ -954,7 +958,11 @@ class Config extends Storage {
         foreach ($aData as $aRow) {
             foreach($aPrefix as $sPrefixKey => $iPrefixLen) {
                 if (strpos($aRow['storage_key'], $sPrefixKey) === 0) {
-                    $sKey = substr($aRow['storage_key'], $iPrefixLen);
+                    if ($iPrefixLen) {
+                        $sKey = substr($aRow['storage_key'], $iPrefixLen);
+                    } else {
+                        $sKey = $aRow['storage_key'];
+                    }
                     $xVal = @unserialize($aRow['storage_val']);
                     $aExpData[$sPrefixKey][$sKey] = $xVal;
                 }
@@ -985,7 +993,7 @@ class Config extends Storage {
             $aConfig = self::_getFileCfg();
         }
         if (!$aConfig) {
-            if (!$bCacheOnly) {
+            if (!$bCacheOnly && class_exists('E', false)) {
                 // Перечитаем конфиг из базы
                 $sPrefix = $sPrefix . $sConfigKeyPrefix;
                 $aData = E::ModuleAdmin()->GetStorageConfig($sPrefix);
@@ -996,14 +1004,52 @@ class Config extends Storage {
                     if (!$aActivePlugins) {
                         unset($aConfig['plugin']);
                     } else {
+                        $bRootConfig = false;
                         foreach($aConfigPlugins as $sPlugin) {
                             if (!in_array($sPlugin, $aActivePlugins)) {
                                 unset($aConfig['plugin'][$sPlugin]);
+                            } else {
+                                if (isset($aConfig['plugin'][$sPlugin][self::KEY_ROOT])) {
+                                    $bRootConfig = true;
+                                }
                             }
                         }
                         if (empty($aConfig['plugin'])) {
                             unset($aConfig['plugin']);
                         }
+                        // Need to prepare config data
+                        if ($bRootConfig) {
+                            $aConfigResult = array();
+                            foreach($aConfig as $sKey => $xVal) {
+                                if ($sKey == 'plugin') {
+                                    // sort plugin config by order of active pligin list
+                                    foreach($aActivePlugins as $sPluginId) {
+                                        if (isset($aConfig['plugin'][$sPluginId])) {
+                                            $aPluginConfig = $aConfig['plugin'][$sPluginId];
+                                            if (isset($aPluginConfig[self::KEY_ROOT])) {
+                                                if (is_array($aPluginConfig[self::KEY_ROOT]) && $aPluginConfig[self::KEY_ROOT]) {
+                                                    foreach($aPluginConfig[self::KEY_ROOT] as $sRootKey => $xRootVal) {
+                                                        if (isset($aConfigResult[$sRootKey])) {
+                                                            $aConfigResult[$sRootKey] = F::Array_MergeCombo($aConfigResult[$sRootKey], $xRootVal);
+                                                        } else {
+                                                            $aConfigResult[$sRootKey] = $xRootVal;
+                                                        }
+                                                    }
+                                                }
+                                                unset($aPluginConfig[self::KEY_ROOT]);
+                                            }
+                                            if (!empty($aPluginConfig)) {
+                                                $aConfigResult['plugin'][$sPluginId] = $aPluginConfig;
+                                            }
+                                        }
+                                    }
+
+                                } else {
+                                    $aConfigResult[$sKey] = $xVal;
+                                }
+                            }
+                            $aConfig = $aConfigResult;
+                        } // $bRootConfig
                     }
                 }
                 // Признак того, что кеш конфига синхронизирован с базой
@@ -1015,6 +1061,9 @@ class Config extends Storage {
             }
         } elseif ($sConfigKeyPrefix) {
             $aData = new DataArray($aConfig);
+            if ($sPrefix == self::ENGINE_CONFIG_PREFIX) {
+                $sConfigKeyPrefix = $sPrefix . $sConfigKeyPrefix;
+            }
             return $aData[$sConfigKeyPrefix];
         }
         return $aConfig;
@@ -1116,7 +1165,16 @@ class Config extends Storage {
      */
     static public function WritePluginConfig($sPluginId, $aConfig, $bCacheOnly = false) {
 
-        return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX . 'plugin.' . $sPluginId . '.', $aConfig, $bCacheOnly);
+        if (!is_array($aConfig) || empty($aConfig)) {
+            $aSaveConfig = array('plugin.' . $sPluginId => $aConfig);
+        } else {
+            $aSaveConfig = array();
+            foreach($aConfig as $sKey => $xVal) {
+                $aSaveConfig['plugin.' . $sPluginId . '.' . $sKey] = $xVal;
+            }
+        }
+        return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX, $aSaveConfig, $bCacheOnly);
+        //return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX, array('plugin.' . $sPluginId => $aConfig), $bCacheOnly);
     }
 
     /**
@@ -1130,7 +1188,12 @@ class Config extends Storage {
      */
     static public function ReadPluginConfig($sPluginId, $sConfigKey = null, $bCacheOnly = false) {
 
-        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX . 'plugin.' . $sPluginId . '.', $sConfigKey, $bCacheOnly);
+        if ($sConfigKey) {
+            $sConfigKey = 'plugin.' . $sPluginId . '.' . $sConfigKey;
+        } else {
+            $sConfigKey = 'plugin.' . $sPluginId;
+        }
+        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey, $bCacheOnly);
     }
 
     /**
@@ -1141,7 +1204,12 @@ class Config extends Storage {
      */
     static public function ResetPluginConfig($sPluginId, $sConfigKey = null) {
 
-        self::_resetConfig(self::CUSTOM_CONFIG_PREFIX . 'plugin.' . $sPluginId . '.', $sConfigKey);
+        if ($sConfigKey) {
+            $sConfigKey = 'plugin.' . $sPluginId . '.' . $sConfigKey;
+        } else {
+            $sConfigKey = 'plugin.' . $sPluginId;
+        }
+        self::_resetConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey);
     }
 
     /**
@@ -1152,7 +1220,19 @@ class Config extends Storage {
      */
     static public function WriteEngineConfig($aConfig, $bCacheOnly = false) {
 
-        return self::_writeConfig(self::ENGINE_CONFIG_PREFIX, $aConfig, $bCacheOnly);
+        if (!empty($aConfig) && is_array($aConfig)) {
+            $aSaveConfig = array();
+            foreach($aConfig as $sKey => $xVal) {
+                if (is_string($sKey) && !is_numeric($sKey)) {
+                    if (strpos($sKey, self::ENGINE_CONFIG_PREFIX) === 0) {
+                        $sKey = substr($sKey, strlen(self::ENGINE_CONFIG_PREFIX));
+                    }
+                    $aSaveConfig[$sKey] = $xVal;
+                }
+            }
+            return self::_writeConfig(self::ENGINE_CONFIG_PREFIX, $aSaveConfig, $bCacheOnly);
+        }
+        return false;
     }
 
     /**
