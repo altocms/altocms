@@ -107,6 +107,9 @@ class DataArray extends ArrayObject {
      */
     public function offsetGet($xIndex) {
 
+        if (is_string($xIndex)) {
+            $xIndex = trim($xIndex, $this->sDelimiter);
+        }
         if (isset($this->aQuickMap[$xIndex])) {
             $xResult = $this->aQuickMap[$xIndex];
         } else {
@@ -153,6 +156,7 @@ class DataArray extends ArrayObject {
     public function offsetSet($xIndex, $xValue) {
 
         if (is_string($xIndex) && strpos($xIndex, $this->sDelimiter)) {
+            $xIndex = trim($xIndex, $this->sDelimiter);
             $aPath = explode($this->sDelimiter, $xIndex);
             $aData = array();
             $xItem = null;
