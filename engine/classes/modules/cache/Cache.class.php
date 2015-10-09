@@ -226,7 +226,7 @@ class ModuleCache extends Module {
      */
     public function GetCachePrefix() {
 
-        $sUniqKey = C::Get('alto.uniq_key');
+        $sUniqKey = C::Get(C::ALTO_UNIQUE_KEY);
         if (!$sUniqKey) {
             $sUniqKey = E::ModuleSecurity()->GenerateUniqKey();
         }
