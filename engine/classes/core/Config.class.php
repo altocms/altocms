@@ -1174,16 +1174,21 @@ class Config extends Storage {
      */
     static public function WritePluginConfig($sPluginId, $aConfig, $bCacheOnly = false) {
 
+        if (strpos($sPluginId, 'plugin.') === 0) {
+            $sPluginKey = $sPluginId;
+        } else {
+            $sPluginKey = 'plugin.' . $sPluginId;
+        }
+
         if (!is_array($aConfig) || empty($aConfig)) {
-            $aSaveConfig = array('plugin.' . $sPluginId => $aConfig);
+            $aSaveConfig = array($sPluginKey => $aConfig);
         } else {
             $aSaveConfig = array();
             foreach($aConfig as $sKey => $xVal) {
-                $aSaveConfig['plugin.' . $sPluginId . '.' . $sKey] = $xVal;
+                $aSaveConfig[$sPluginKey . '.' . $sKey] = $xVal;
             }
         }
         return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX, $aSaveConfig, $bCacheOnly);
-        //return self::_writeConfig(self::CUSTOM_CONFIG_PREFIX, array('plugin.' . $sPluginId => $aConfig), $bCacheOnly);
     }
 
     /**
@@ -1197,10 +1202,16 @@ class Config extends Storage {
      */
     static public function ReadPluginConfig($sPluginId, $sConfigKey = null, $bCacheOnly = false) {
 
-        if ($sConfigKey) {
-            $sConfigKey = 'plugin.' . $sPluginId . '.' . $sConfigKey;
+        if (strpos($sPluginId, 'plugin.') === 0) {
+            $sPluginKey = $sPluginId;
         } else {
-            $sConfigKey = 'plugin.' . $sPluginId;
+            $sPluginKey = 'plugin.' . $sPluginId;
+        }
+
+        if ($sConfigKey) {
+            $sConfigKey = $sPluginKey . '.' . $sConfigKey;
+        } else {
+            $sConfigKey = $sPluginKey;
         }
         return self::_readConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey, $bCacheOnly, true);
     }
@@ -1213,10 +1224,16 @@ class Config extends Storage {
      */
     static public function ResetPluginConfig($sPluginId, $sConfigKey = null) {
 
-        if ($sConfigKey) {
-            $sConfigKey = 'plugin.' . $sPluginId . '.' . $sConfigKey;
+        if (strpos($sPluginId, 'plugin.') === 0) {
+            $sPluginKey = $sPluginId;
         } else {
-            $sConfigKey = 'plugin.' . $sPluginId;
+            $sPluginKey = 'plugin.' . $sPluginId;
+        }
+
+        if ($sConfigKey) {
+            $sConfigKey = $sPluginKey . '.' . $sConfigKey;
+        } else {
+            $sConfigKey = $sPluginKey;
         }
         self::_resetConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey);
     }
