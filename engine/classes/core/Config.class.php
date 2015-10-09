@@ -942,6 +942,11 @@ class Config extends Storage {
 
     static protected function _explodeData($aData, $sPrefix = null) {
 
+        if (sizeof($aData) == 1 && isset($aData[$sPrefix]) && $aData[$sPrefix]['storage_key'] == $sPrefix) {
+            // single value
+            $xVal = @unserialize($aData[$sPrefix]['storage_val']);
+            return $xVal;
+        }
         $aResult = new DataArray();
         if ($sPrefix) {
             $aPrefix = array(
@@ -959,7 +964,7 @@ class Config extends Storage {
             foreach($aPrefix as $sPrefixKey => $iPrefixLen) {
                 if (strpos($aRow['storage_key'], $sPrefixKey) === 0) {
                     if ($iPrefixLen) {
-                        $sKey = substr($aRow['storage_key'], $iPrefixLen);
+                        $sKey = substr($aRow['storage_key'], $iPrefixLen + 1);
                     } else {
                         $sKey = $aRow['storage_key'];
                     }
@@ -980,16 +985,17 @@ class Config extends Storage {
      * @param string      $sPrefix
      * @param string|null $sConfigKeyPrefix
      * @param bool        $bCacheOnly
+     * @param bool        $bRaw
      *
      * @return array
      */
-    static protected function _readConfig($sPrefix, $sConfigKeyPrefix = null, $bCacheOnly = false) {
+    static protected function _readConfig($sPrefix, $sConfigKeyPrefix = null, $bCacheOnly = false, $bRaw = false) {
 
         if ($sPrefix && substr($sPrefix, -1) != '.') {
             $sPrefix .= '.';
         }
         $aConfig = array();
-        if (self::_checkFileCfg(!$bCacheOnly)) {
+        if (!$bRaw && self::_checkFileCfg(!$bCacheOnly)) {
             $aConfig = self::_getFileCfg();
         }
         if (!$aConfig) {
@@ -998,6 +1004,9 @@ class Config extends Storage {
                 $sPrefix = $sPrefix . $sConfigKeyPrefix;
                 $aData = E::ModuleAdmin()->GetStorageConfig($sPrefix);
                 $aConfig = self::_explodeData($aData, $sPrefix);
+                if ($bRaw) {
+                    return $aConfig;
+                }
                 if (isset($aConfig['plugin'])) {
                     $aConfigPlugins = array_keys($aConfig['plugin']);
                     $aActivePlugins = F::GetPluginsList(false, true);
@@ -1193,7 +1202,7 @@ class Config extends Storage {
         } else {
             $sConfigKey = 'plugin.' . $sPluginId;
         }
-        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey, $bCacheOnly);
+        return self::_readConfig(self::CUSTOM_CONFIG_PREFIX, $sConfigKey, $bCacheOnly, true);
     }
 
     /**
