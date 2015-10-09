@@ -964,7 +964,7 @@ class Config extends Storage {
             foreach($aPrefix as $sPrefixKey => $iPrefixLen) {
                 if (strpos($aRow['storage_key'], $sPrefixKey) === 0) {
                     if ($iPrefixLen) {
-                        $sKey = substr($aRow['storage_key'], $iPrefixLen + 1);
+                        $sKey = trim(substr($aRow['storage_key'], $iPrefixLen), '.');
                     } else {
                         $sKey = $aRow['storage_key'];
                     }
