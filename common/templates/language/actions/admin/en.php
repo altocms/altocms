@@ -424,9 +424,24 @@ return array(
     'set_links_topics_mode_id' => 'Article ID (numerical)',
     'set_links_topics_mode_day_name' => 'Day and name',
     'set_links_topics_mode_month_name' => 'Month and name',
-    'set_links_topics_mode_custom' => 'Any',
+    'set_links_topics_mode_custom' => 'Other',
     'set_links_topics_mode_help_title' => 'Admissible parameters',
-    'set_links_topics_mode_help_text' => '%year% — year of publication %month% — month %day% — day %hour% — hour %minute% — minutes %second% — seconds %login% — topic author login %blog_url% — blog url (for personal blogs it will be replaced with author\'s login) %topic_id% — publication id %topic_url% — relative URL publications (usually — transliteration of its heading) For compatibility with Wordpress parameters are supported: %post_id% — analog of %topic_id% %postname% — analog of %topic_url% IMPORTANT: existence of the termination of .html isn\'t obligatory, but is recommended since it\'ll allow to avoid possible problems and conflicts with addresses of site\'s other pages',
+    'set_links_topics_mode_help_text' => '%year% — year of publication
+    %month% — month
+    %day% — day
+    %hour% — hour
+    %minute% — minutes
+    %second% — seconds
+    %login% — topic author login
+    %blog_url% — blog url (for personal blogs it will be replaced with author\'s login)
+    %topic_id% — publication id
+    %topic_url% — relative URL publications (usually — transliteration of its heading)
+
+    For compatibility with Wordpress parameters are supported:
+    %post_id% — analog of %topic_id%
+    %postname% — analog of %topic_url%
+
+    IMPORTANT: existence of the extension of .html isn\'t obligatory, but is recommended since it\'ll allow to avoid possible problems and conflicts with addresses of site\'s other pages',
     'set_links_generate' => 'Generation of links',
     'set_links_generate_text' => 'You can execute generation of links for all articles. It can be necessary if you passed to Alto CMS from any other control system of the site. You also can execute this operation for each article separately, entering a mode of article\'s editing.',
     'set_links_generate_button' => 'Execute generation of links for articles',

@@ -699,12 +699,16 @@ class AltoFunc_Main {
 
         $sText = mb_strtolower($sText, 'UTF-8');
         if ($xLang !== false) {
-            $aChars = UserLocale::getLocale($xLang, 'translit');
-            if ($aChars) {
-                $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
+            $aLangCharsTranslit = UserLocale::getLocale($xLang, 'translit');
+            if ($aLangCharsTranslit) {
+                $sText = str_replace(array_keys($aLangCharsTranslit), array_values($aLangCharsTranslit), $sText);
             }
-            $sText = preg_replace('/[\-]{2,}/u', '-', $sText);
         }
+        $aConfigCharsTranslit = F::_getConfig('module.text.translit');
+        if ($aConfigCharsTranslit) {
+            $sText = str_replace(array_keys($aConfigCharsTranslit), array_values($aConfigCharsTranslit), $sText);
+        }
+        $sText = preg_replace('/[\-]{2,}/u', '-', $sText);
         $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
         // В некоторых случаях может возвращаться пустая строка
         if (!$sResult) {
