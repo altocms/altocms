@@ -84,10 +84,7 @@ class Loader {
         Config::ResetLevel(Config::LEVEL_CUSTOM);
 
         // Load from cache, because database could not be used here
-        $aConfig = Config::ReadStorageConfig(null, true);
-        if ($aConfig) {
-            Config::Load($aConfig, false, null, null, 'storage');
-        }
+        self::_loadStorageConfig();
 
         // Задаем локаль по умолчанию
         F::IncludeLib('UserLocale/UserLocale.class.php');
@@ -234,6 +231,17 @@ class Loader {
             if (F::File_Exists($sFile)) {
                 self::_loadSectionFile($sFile, $sName, $nConfigLevel);
             }
+        }
+    }
+
+    /**
+     * Load saved config from file cache, because database could not be used here
+     */
+    protected static function _loadStorageConfig() {
+
+        $aConfig = Config::ReadStorageConfig(null, true);
+        if ($aConfig) {
+            Config::Load($aConfig, false, null, null, 'storage');
         }
     }
 
