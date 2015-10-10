@@ -287,6 +287,8 @@ class ModuleSession extends Module {
      * @param   int|string|null $xPeriod - period in seconds or in string like 'P<..>'
      * @param   bool            $bHttpOnly
      * @param   bool            $bSecure
+     *
+     * @return bool
      */
     public function SetCookie($sName, $sValue, $xPeriod = null, $bHttpOnly = true, $bSecure = false) {
 
@@ -295,7 +297,17 @@ class ModuleSession extends Module {
         } else {
             $nTime = 0;
         }
-        setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
+        $bResult = setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
+        if (DEBUG) {
+            if (!$bResult) {
+                if (headers_sent($sFilename, $iLine)) {
+                    F::SysWarning('Cannot set cookie "' . $sName . '" - header was sent in file ' . $sFilename . '(' . $iLine . ')');
+                } else {
+                    F::SysWarning('Cannot set cookie "' . $sName . '"');
+                }
+            }
+        }
+        return $bResult;
     }
 
     /**
