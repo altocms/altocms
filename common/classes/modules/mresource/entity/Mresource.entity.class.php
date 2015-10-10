@@ -91,7 +91,8 @@ class ModuleMresource_EntityMresource extends Entity {
      */
     public function IsImage() {
 
-        return $this->IsType(ModuleMresource::TYPE_IMAGE);
+        return $this->IsType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO | ModuleMresource::TYPE_PHOTO_PRIMARY);
+        //return $this->IsType(ModuleMresource::TYPE_IMAGE);
     }
 
     /**
