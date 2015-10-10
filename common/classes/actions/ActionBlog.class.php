@@ -64,6 +64,13 @@ class ActionBlog extends Action {
     protected $oCurrentBlog = null;
 
     /**
+     * Current topic
+     *
+     * @var ModuleTopic_EntityTopic
+     */
+    protected $oCurrentTopic = null;
+
+    /**
      * Число новых топиков в коллективных блогах
      *
      * @var int
@@ -382,12 +389,13 @@ class ActionBlog extends Action {
             $_REQUEST['blog_limit_rating_topic'] = $oBlog->getLimitRatingTopic();
             $_REQUEST['blog_id'] = $oBlog->getId();
         }
+        return true;
     }
 
     /**
      * Обновление блога
      *
-     * @param $oBlog
+     * @param ModuleBlog_EntityBlog $oBlog
      *
      * @return bool
      */
@@ -415,8 +423,9 @@ class ActionBlog extends Action {
     }
 
     /**
-     * Управление пользователями блога
+     * Management of blog's users
      *
+     * @return string|null
      */
     protected function EventAdminBlog() {
 
@@ -545,6 +554,7 @@ class ActionBlog extends Action {
                 E::ModuleViewer()->AddWidget('right', 'actions/ActionBlog/invited.tpl');
             }
         }
+        return null;
     }
 
     /**
@@ -689,21 +699,28 @@ class ActionBlog extends Action {
         $this->SetTemplateAction('index');
     }
 
+    /**
+     * Show topic by URL
+     *
+     * @return string|null
+     */
     protected function EventShowTopicByUrl() {
 
         $sTopicUrl = $this->GetEventMatch(1);
 
         // Проверяем есть ли такой топик
-        if (!($nTopicId = E::ModuleTopic()->GetTopicIdByUrl($sTopicUrl))) {
+        $this->oCurrentTopic = E::ModuleTopic()->GetTopicByUrl($sTopicUrl);
+        if (!$this->oCurrentTopic) {
             return parent::EventNotFound();
         }
 
-        return R::Action('blog/' . $nTopicId . '.html');
+        return $this->EventShowTopic();
     }
 
     /**
-     * Показ топика
+     * Show topic
      *
+     * @return string|null
      */
     protected function EventShowTopic() {
 
@@ -711,26 +728,39 @@ class ActionBlog extends Action {
 
         $sBlogUrl = '';
         $sTopicUrlMask = R::GetTopicUrlMask();
-        if ($this->GetParamEventMatch(0, 1)) {
 
-            // из коллективного блога
-            $sBlogUrl = $this->sCurrentEvent;
-            $iTopicId = $this->GetParamEventMatch(0, 1);
+        if ($this->oCurrentTopic) {
+            $this->oCurrentBlog = $this->oCurrentTopic->getBlog();
+            if ($this->oCurrentBlog) {
+                $sBlogUrl = $this->oCurrentBlog->getUrl();
+            }
             $this->sMenuItemSelect = 'blog';
         } else {
-            // из персонального блога
-            $iTopicId = $this->GetEventMatch(1);
-            $this->sMenuItemSelect = 'log';
-        }
-        $this->sMenuSubItemSelect = '';
+            if ($this->GetParamEventMatch(0, 1)) {
 
-        // * Проверяем есть ли такой топик
-        if (!($oTopic = E::ModuleTopic()->GetTopicById($iTopicId))) {
+                // из коллективного блога
+                $sBlogUrl = $this->sCurrentEvent;
+                $iTopicId = $this->GetParamEventMatch(0, 1);
+                $this->sMenuItemSelect = 'blog';
+            } else {
+                // из персонального блога
+                $iTopicId = $this->GetEventMatch(1);
+                $this->sMenuItemSelect = 'log';
+            }
+            // * Проверяем есть ли такой топик
+            if (!$iTopicId || !($this->oCurrentTopic = E::ModuleTopic()->GetTopicById($iTopicId))) {
+                return parent::EventNotFound();
+            }
+        }
+        if (!$this->oCurrentTopic->getBlog()) {
+            // Этого быть не должно, но если вдруг, то надо отработать
             return parent::EventNotFound();
         }
 
+        $this->sMenuSubItemSelect = '';
+
         // Trusted user is admin or owner of topic
-        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator() || ($this->oUserCurrent->getId() == $oTopic->getUserId()))) {
+        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator() || ($this->oUserCurrent->getId() == $this->oCurrentTopic->getUserId()))) {
             $bTrustedUser = true;
         } else {
             $bTrustedUser = false;
@@ -738,12 +768,12 @@ class ActionBlog extends Action {
 
         if (!$bTrustedUser) {
             // Topic with future date
-            if ($oTopic->getDate() > date('Y-m-d H:i:s')) {
+            if ($this->oCurrentTopic->getDate() > date('Y-m-d H:i:s')) {
                 return parent::EventNotFound();
             }
 
             // * Проверяем права на просмотр топика-черновика
-            if (!$oTopic->getPublish()) {
+            if (!$this->oCurrentTopic->getPublish()) {
                 if (!Config::Get('module.topic.draft_link')) {
                     return parent::EventNotFound();
                 } else {
@@ -752,7 +782,7 @@ class ActionBlog extends Action {
                     if ($sDraftCode = F::GetRequestStr('draft', null, 'get')) {
                         if (strpos($sDraftCode, ':')) {
                             list($nUser, $sHash) = explode(':', $sDraftCode);
-                            if ($oTopic->GetUserId() == $nUser && $oTopic->getTextHash() == $sHash) {
+                            if ($this->oCurrentTopic->GetUserId() == $nUser && $this->oCurrentTopic->getTextHash() == $sHash) {
                                 $bOk = true;
                             }
                         }
@@ -764,38 +794,21 @@ class ActionBlog extends Action {
             }
         }
 
-        if (!$oTopic->getBlog()) {
-            // Этого быть не должно, но если вдруг, то надо отработать
-            return parent::EventNotFound();
-        }
-
         // Если номер топика правильный, но URL блога неверный, то корректируем его и перенаправляем на нужный адрес
-        if ($sBlogUrl != '' && $oTopic->getBlog()->getUrl() != $sBlogUrl) {
-            R::Location($oTopic->getUrl());
-        }
-
-        // Если запросили не персональный топик с маской, в которой указано название блога,
-        // то перенаправляем на страницу для вывода коллективного топика
-        if ($sTopicUrlMask && $sBlogUrl != '' && $oTopic->getBlog()->getType() != 'personal') {
-            R::Location($oTopic->getUrl());
-        }
-
-        // Если запросили не персональный топик без маски и не указаным названием блога,
-        // то перенаправляем на страницу для вывода коллективного топика
-        if (!$sTopicUrlMask && $sBlogUrl == '' && $oTopic->getBlog()->getType() != 'personal') {
-            R::Location($oTopic->getUrl());
+        if ($sBlogUrl != '' && $this->oCurrentTopic->getBlog()->getUrl() != $sBlogUrl) {
+            R::Location($this->oCurrentTopic->getUrl());
         }
 
         // Если запросили топик с определенной маской, не указаным названием блога,
         // но ссылка на топик и ЧПУ url разные, то перенаправляем на страницу для вывода коллективного топика
         if ($sTopicUrlMask && $sBlogUrl == '' 
-            && $oTopic->getUrl() != R::GetPathWebCurrent() . (substr($oTopic->getUrl(), -1) == '/' ? '/' : '')
+            && $this->oCurrentTopic->getUrl() != R::GetPathWebCurrent() . (substr($this->oCurrentTopic->getUrl(), -1) == '/' ? '/' : '')
         ) {
-            R::Location($oTopic->getUrl());
+            R::Location($this->oCurrentTopic->getUrl());
         }
 
         // Checks rights to show content from the blog
-        if (!$oTopic->getBlog()->CanReadBy($this->oUserCurrent)) {
+        if (!$this->oCurrentTopic->getBlog()->CanReadBy($this->oUserCurrent)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('acl_cannot_show_content'), E::ModuleLang()->Get('not_access'));
             return R::Action('error');
         }
@@ -811,7 +824,7 @@ class ActionBlog extends Action {
             && Config::Get('module.comment.nested_per_page')
         ) {
             $iPageDef = ceil(
-                E::ModuleComment()->GetCountCommentsRootByTargetId($oTopic->getId(), 'topic') / Config::Get('module.comment.nested_per_page')
+                E::ModuleComment()->GetCountCommentsRootByTargetId($this->oCurrentTopic->getId(), 'topic') / Config::Get('module.comment.nested_per_page')
             );
         } else {
             $iPageDef = 1;
@@ -821,7 +834,7 @@ class ActionBlog extends Action {
             $iPage = $iPageDef;
         }
 
-        $aReturn = E::ModuleComment()->GetCommentsByTargetId($oTopic, 'topic', $iPage, Config::Get('module.comment.nested_per_page'));
+        $aReturn = E::ModuleComment()->GetCommentsByTargetId($this->oCurrentTopic, 'topic', $iPage, Config::Get('module.comment.nested_per_page'));
         $iMaxIdComment = $aReturn['iMaxIdComment'];
         /** @var ModuleComment_EntityComment[] $aComments */
         $aComments = $aReturn['comments'];
@@ -848,30 +861,30 @@ class ActionBlog extends Action {
 //      issue 253 {@link https://github.com/altocms/altocms/issues/253}
 //      Запрещаем оставлять комментарии к топику-черновику
 //      if ($this->oUserCurrent) {
-        if ($this->oUserCurrent && (int)$oTopic->getPublish()) {
-            $bAllowToComment = E::ModuleBlog()->GetBlogsAllowTo('comment', $this->oUserCurrent, $oTopic->getBlog()->GetId(), true);
+        if ($this->oUserCurrent && (int)$this->oCurrentTopic->getPublish()) {
+            $bAllowToComment = E::ModuleBlog()->GetBlogsAllowTo('comment', $this->oUserCurrent, $this->oCurrentTopic->getBlog()->GetId(), true);
         } else {
             $bAllowToComment = false;
         }
 
         // Отмечаем прочтение топика
         if ($this->oUserCurrent) {
-            $oTopicRead = E::ModuleTopic()->GetTopicRead($oTopic->getId(), $this->oUserCurrent->getid());
+            $oTopicRead = E::ModuleTopic()->GetTopicRead($this->oCurrentTopic->getId(), $this->oUserCurrent->getid());
             if (!$oTopicRead) {
                 /** @var ModuleTopic_EntityTopicRead $oTopicRead */
                 $oTopicRead = E::GetEntity('Topic_TopicRead');
-                $oTopicRead->setTopicId($oTopic->getId());
+                $oTopicRead->setTopicId($this->oCurrentTopic->getId());
                 $oTopicRead->setUserId($this->oUserCurrent->getId());
-                $oTopicRead->setCommentCountLast($oTopic->getCountComment());
+                $oTopicRead->setCommentCountLast($this->oCurrentTopic->getCountComment());
                 $oTopicRead->setCommentIdLast($iMaxIdComment);
                 $oTopicRead->setDateRead(F::Now());
                 E::ModuleTopic()->AddTopicRead($oTopicRead);
             } else {
-                if (($oTopicRead->getCommentCountLast() != $oTopic->getCountComment())
+                if (($oTopicRead->getCommentCountLast() != $this->oCurrentTopic->getCountComment())
                     || ($oTopicRead->getCommentIdLast() != $iMaxIdComment)
                     || (!is_null($sLastCommentDate) && $oTopicRead->getDateRead() <= $sLastCommentDate)
                 ) {
-                    $oTopicRead->setCommentCountLast($oTopic->getCountComment());
+                    $oTopicRead->setCommentCountLast($this->oCurrentTopic->getCountComment());
                     $oTopicRead->setCommentIdLast($iMaxIdComment);
                     $oTopicRead->setDateRead(F::Now());
                     E::ModuleTopic()->UpdateTopicRead($oTopicRead);
@@ -880,32 +893,32 @@ class ActionBlog extends Action {
         }
 
         // Выставляем SEO данные
-        $sTextSeo = strip_tags($oTopic->getText());
+        $sTextSeo = strip_tags($this->oCurrentTopic->getText());
         E::ModuleViewer()->SetHtmlDescription(F::CutText($sTextSeo, Config::Get('view.html.description_max_words')));
-        E::ModuleViewer()->SetHtmlKeywords($oTopic->getTags());
-        E::ModuleViewer()->SetHtmlCanonical($oTopic->getUrl());
+        E::ModuleViewer()->SetHtmlKeywords($this->oCurrentTopic->getTags());
+        E::ModuleViewer()->SetHtmlCanonical($this->oCurrentTopic->getUrl());
 
         // Вызов хуков
-        E::ModuleHook()->Run('topic_show', array('oTopic' => $oTopic));
+        E::ModuleHook()->Run('topic_show', array('oTopic' => $this->oCurrentTopic));
 
         // Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('oTopic', $oTopic);
+        E::ModuleViewer()->Assign('oTopic', $this->oCurrentTopic);
         E::ModuleViewer()->Assign('aComments', $aComments);
         E::ModuleViewer()->Assign('iMaxIdComment', $iMaxIdComment);
         E::ModuleViewer()->Assign('bAllowToComment', $bAllowToComment);
 
         // Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle($oTopic->getBlog()->getTitle());
-        E::ModuleViewer()->AddHtmlTitle($oTopic->getTitle());
+        E::ModuleViewer()->AddHtmlTitle($this->oCurrentTopic->getBlog()->getTitle());
+        E::ModuleViewer()->AddHtmlTitle($this->oCurrentTopic->getTitle());
         E::ModuleViewer()->SetHtmlRssAlternate(
-            R::GetPath('rss') . 'comments/' . $oTopic->getId() . '/', $oTopic->getTitle()
+            R::GetPath('rss') . 'comments/' . $this->oCurrentTopic->getId() . '/', $this->oCurrentTopic->getTitle()
         );
 
         // Устанавливаем шаблон вывода
         $this->SetTemplateAction('topic');
 
         // Additional tags for <head>
-        $aHeadTags = $this->_getHeadTags($oTopic);
+        $aHeadTags = $this->_getHeadTags($this->oCurrentTopic);
         if ($aHeadTags) {
             E::ModuleViewer()->SetHtmlHeadTags($aHeadTags);
         }
@@ -1035,6 +1048,8 @@ class ActionBlog extends Action {
 
         //  Устанавливаем шаблон вывода
         $this->SetTemplateAction('users');
+
+        return true;
     }
 
     /**
@@ -1176,6 +1191,8 @@ class ActionBlog extends Action {
         );
         //  Устанавливаем шаблон вывода
         $this->SetTemplateAction('blog');
+
+        return true;
     }
 
     /**
