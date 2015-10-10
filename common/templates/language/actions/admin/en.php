@@ -683,7 +683,7 @@ return array(
     'cache_clean' => 'Reset cach',
     'cache_clean_notice' => 'Establish if you want to dump cach',
     'reset_config_data' => 'Reset of configuration\'s changed parameters',
-    'reset_config_data_notice' => 'All parameters which you changed through Adminpanel, will be dumped in initial value, i.e. that are set in configuration files',
+    'reset_config_data_notice' => 'All parameters which you changed through Adminpanel, will be reset in initial value, i.e. that are set in configuration files',
     'action_for_admin_only' => 'This action is available only for administrators',
     'cannot_clear_dir' => 'It\'s impossible to  clear the folder %%dir%%. It is recommended to make this manually',
     'comments_tree_title' => 'Evolution of comment tree',
