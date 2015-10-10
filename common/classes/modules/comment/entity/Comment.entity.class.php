@@ -16,6 +16,8 @@
 /**
  * Объект сущности комментариев
  *
+ * @method string getCommentDateEdit()
+ *
  * @package modules.comment
  * @since   1.0
  */

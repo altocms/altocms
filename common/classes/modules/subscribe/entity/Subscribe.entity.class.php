@@ -16,6 +16,26 @@
 /**
  * Объект сущности подписки
  *
+ * @method setId($iParam);
+ * @method setTargetType($sParam);
+ * @method setTargetId($iParam);
+ * @method setMail($sParam);
+ * @method setDateAdd($sParam);
+ * @method setKey($sParam);
+ * @method setIp($sParam);
+ * @method setStatus($iParam);
+ * @method setUserId($iParam);
+ *
+ * @method int getId();
+ * @method string getTargetType();
+ * @method int getTargetId();
+ * @method string getMail();
+ * @method string getDateAdd();
+ * @method string getKey();
+ * @method string getIp();
+ * @method int getStatus();
+ * @method int getUserId();
+ *
  * @package modules.subscribe
  * @since 1.0
  */

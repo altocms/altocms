@@ -16,6 +16,8 @@
 /**
  * Сущность блога
  *
+ * @method setOldType($sParam)
+ *
  * @package modules.blog
  * @since   1.0
  */

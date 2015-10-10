@@ -16,7 +16,6 @@
 /**
  * Class ModuleTopic_EntityTopic Entity of topic/article
  *
- *
  * @method int getTopicIndexIgnore()
  * @method int getFavourite()
  * @method string GetTopicUrl()
@@ -25,6 +24,7 @@
  * @method setFavourite($oParam)
  * @method setTopicIndexIgnore($bParam)
  * @method setPhotosetMainPhoto($oParam)
+ * @method setTopicUrl($sParam)
 
  * @package modules.topic
  * @since   1.0

@@ -179,6 +179,7 @@ class ModuleSubscribe extends Module {
             return false;
         }
         if (!($oSubscribe = E::ModuleSubscribe()->GetSubscribeByTargetAndMail($sTargetType, $sTargetId, $sMail))) {
+            /** @var ModuleSubscribe_EntitySubscribe $oSubscribe */
             $oSubscribe = E::GetEntity('Subscribe');
             $oSubscribe->setTargetType($sTargetType);
             $oSubscribe->setTargetId($sTargetId);
@@ -229,6 +230,7 @@ class ModuleSubscribe extends Module {
             return false;
         }
         if (!($oTrack = E::ModuleSubscribe()->GetTrackByTargetAndUser($sTargetType, $sTargetId, $sUserId))) {
+            /** @var ModuleSubscribe_EntityTrack $oTrack */
             $oTrack = E::GetEntity('ModuleSubscribe_EntityTrack');
             $oTrack->setTargetType($sTargetType);
             $oTrack->setTargetId($sTargetId);
@@ -388,6 +390,7 @@ class ModuleSubscribe extends Module {
         );
         while ($aSubscribes['collection']) {
             $iPage++;
+            /** @var ModuleSubscribe_EntitySubscribe $oSubscribe */
             foreach ($aSubscribes['collection'] as $oSubscribe) {
                 $aParams['sSubscribeKey'] = $oSubscribe->getKey();
                 E::ModuleNotify()->Send(

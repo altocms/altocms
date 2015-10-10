@@ -492,9 +492,9 @@ class ModuleTalk extends Module {
     /**
      * Удаляет юзера из разговора
      *
-     * @param array $aTalkId    Список ID сообщений
-     * @param int   $nUserId    ID пользователя
-     * @param int   $iActive    Статус связи
+     * @param array|int $aTalkId Список ID сообщений
+     * @param int       $nUserId ID пользователя
+     * @param int       $iActive Статус связи
      *
      * @return bool
      */

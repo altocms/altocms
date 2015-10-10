@@ -1270,12 +1270,12 @@ class ActionBlog extends Action {
         $iMax = Config::Val('module.comment.max_length', 0);
         if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {
             if ($iMax) {
-                $this->Message_AddErrorSingle(
-                    $this->Lang_Get('topic_comment_text_len', array('min' => $iMin, 'max' => $iMax)), $this->Lang_Get('error')
+                E::ModuleMessage()->AddErrorSingle(
+                    E::ModuleLang()->Get('topic_comment_text_len', array('min' => $iMin, 'max' => $iMax)), E::ModuleLang()->Get('error')
                 );
             } else {
-                $this->Message_AddErrorSingle(
-                    $this->Lang_Get('topic_comment_text_min', array('min' => $iMin)), $this->Lang_Get('error')
+                E::ModuleMessage()->AddErrorSingle(
+                    E::ModuleLang()->Get('topic_comment_text_min', array('min' => $iMin)), E::ModuleLang()->Get('error')
                 );
             }
             return;
@@ -1555,22 +1555,22 @@ class ActionBlog extends Action {
         $iMax = Config::Val('module.comment.max_length', 0);
         if (!F::CheckVal($sNewText, 'text', $iMin, $iMax)) {
             if ($iMax) {
-                $this->Message_AddErrorSingle(
-                    $this->Lang_Get('topic_comment_text_len', array('min' => $iMin, 'max' => $iMax)), $this->Lang_Get('error')
+                E::ModuleMessage()->AddErrorSingle(
+                    E::ModuleLang()->Get('topic_comment_text_len', array('min' => $iMin, 'max' => $iMax)), E::ModuleLang()->Get('error')
                 );
             } else {
-                $this->Message_AddErrorSingle(
-                    $this->Lang_Get('topic_comment_text_min', array('min' => $iMin)), $this->Lang_Get('error')
+                E::ModuleMessage()->AddErrorSingle(
+                    E::ModuleLang()->Get('topic_comment_text_min', array('min' => $iMin)), E::ModuleLang()->Get('error')
                 );
             }
             return;
         }
 
         // * Получаем комментарий
-        $nCommentId = intval($this->GetPost('comment_id'));
+        $iCommentId = intval($this->GetPost('comment_id'));
 
         /** var ModuleComment_EntityComment $oComment */
-        if (!$nCommentId || !($oComment = E::ModuleComment()->GetCommentById($nCommentId))) {
+        if (!$iCommentId || !($oComment = E::ModuleComment()->GetCommentById($iCommentId))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
@@ -1588,7 +1588,7 @@ class ActionBlog extends Action {
         // Если все нормально, то обновляем текст
         $oComment->setText($sNewText);
         if (E::ModuleComment()->UpdateComment($oComment)) {
-            $oComment = E::ModuleComment()->GetCommentById($nCommentId);
+            $oComment = E::ModuleComment()->GetCommentById($iCommentId);
             E::ModuleViewer()->AssignAjax('nCommentId', $oComment->getId());
             E::ModuleViewer()->AssignAjax('sText', $oComment->getText());
             E::ModuleViewer()->AssignAjax('sDateEdit', $oComment->getCommentDateEdit());
@@ -2356,6 +2356,7 @@ class ActionBlog extends Action {
                         if ($aBlogUsersResult) {
                             /** @var ModuleUser_EntityUser[] $aBlogModerators */
                             $aBlogModerators = array();
+                            /** @var ModuleBlog_EntityBlogUser $oCurrentBlogUser */
                             foreach ($aBlogUsersResult['collection'] as $oCurrentBlogUser) {
                                 $aBlogModerators[] = $oCurrentBlogUser->getUser();
                             }

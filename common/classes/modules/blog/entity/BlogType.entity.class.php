@@ -16,26 +16,27 @@
 /**
  * Class ModuleBlog_EntityBlogType
  *
- * @method SetAllowAdd($xParam)
- * @method SetMinRateAdd($xParam)
- * @method SetMaxNum($xParam)
- * @method SetAllowList($xParam)
- * @method SetIndexIgnore($xParam)
- * @method SetMembership($xParam)
- * @method SetMinRateWrite($xParam)
- * @method SetMinRateRead($xParam)
- * @method SetMinRateComment($xParam)
- * @method SetActive($xParam)
- * @method SetContentType($xParam)
- * @method SetAclWrite($xParam)
- * @method SetAclRead($xParam)
- * @method SetAclComment($xParam)
+ * @method setAllowAdd($xParam)
+ * @method setMinRateAdd($xParam)
+ * @method setMaxNum($xParam)
+ * @method setAllowList($xParam)
+ * @method setIndexIgnore($xParam)
+ * @method setMembership($xParam)
+ * @method setMinRateWrite($xParam)
+ * @method setMinRateRead($xParam)
+ * @method setMinRateComment($xParam)
+ * @method setActive($xParam)
+ * @method setContentType($xParam)
+ * @method setAclWrite($xParam)
+ * @method setAclRead($xParam)
+ * @method setAclComment($xParam)
  *
- * @method GetMinRateAdd()
- * @method GetMinRateList()
- * @method GetMinRateWrite()
- * @method GetMinRateRead()
- * @method GetMinRateComment()
+ * @method float getMinRateAdd()
+ * @method float getMinRateList()
+ * @method float getMinRateWrite()
+ * @method float getMinRateRead()
+ * @method float getMinRateComment()
+ * @method string getTypeName()
  */
 class ModuleBlog_EntityBlogType extends Entity {
 
@@ -185,10 +186,15 @@ class ModuleBlog_EntityBlogType extends Entity {
         return (bool)$this->getProp('allow_add');
     }
 
+    /**
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
     public function AllowAddByUser($oUser) {
 
         if ($this->IsAllowAdd()) {
-            $oUser->getRating() > $this->GetMinRating();
+            return $oUser->getRating() > $this->getMinRateAdd();
         }
         return false;
     }
