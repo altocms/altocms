@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*---------------------------------------------------------------------------
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
@@ -47,8 +47,8 @@ return array(
     'menu_tools' => 'Tools',
     'menu_tools_reset' => 'Data reset',
     'menu_tools_commentstree' => 'Comments tree',
-    'menu_tools_recalcfavourites' => 'Favourites counters',
-    'menu_tools_recalcvotes' => 'Vote counters',
+    'menu_tools_recalcfavourites' => 'Counters of favourites',
+    'menu_tools_recalcvotes' => 'Counters of votes',
     'menu_tools_recalctopics' => 'Quantity of articles in blogs',
     'menu_tools_recalcblograting' => 'Recalculation of blogs\' rating',
     'menu_tools_checkdb' => 'DB Control',
@@ -671,18 +671,18 @@ return array(
     /***
      * TOOLS
      */
-    'reset_title' => 'Dumping of data',
-    'menu_reset_cache' => 'Cach dumping',
-    'menu_reset_config' => 'Configuration dumping',
+    'reset_title' => 'Data reset',
+    'menu_reset_cache' => 'Cach reset',
+    'menu_reset_config' => 'Configuration reset',
     'cache_clear_data' => 'Cleaning cach data',
-    'cache_clear_data_notice' => 'Dumping of data cach-storage',
+    'cache_clear_data_notice' => 'Reset of data cach-storage',
     'cache_clear_assets' => 'Cleaning js- and css-files cach',
-    'cache_clear_assets_notice' => 'Dumping of js-kesh-storage and css-files',
+    'cache_clear_assets_notice' => 'Reset of js-kesh-storage and css-files',
     'cache_clear_smarty' => 'Cleaning Smarty cach',
-    'cache_clear_smarty_notice' => 'Dumping of the compiled Smarty files cach-storage',
-    'cache_clean' => 'Dumping cach',
+    'cache_clear_smarty_notice' => 'Reset of the compiled Smarty files cach-storage',
+    'cache_clean' => 'Reset cach',
     'cache_clean_notice' => 'Establish if you want to dump cach',
-    'reset_config_data' => 'Dumping of configuration\'s changed parameters',
+    'reset_config_data' => 'Reset of configuration\'s changed parameters',
     'reset_config_data_notice' => 'All parameters which you changed through Adminpanel, will be dumped in initial value, i.e. that are set in configuration files',
     'action_for_admin_only' => 'This action is available only for administrators',
     'cannot_clear_dir' => 'It\'s impossible to  clear the folder %%dir%%. It is recommended to make this manually',
@@ -690,12 +690,12 @@ return array(
     'comments_tree_message' => 'The tree of comments will be reconstructed. Attention! Operation can take a long time!',
     'comments_tree_disabled' => 'This action is inaccessible',
     'comments_tree_restored' => 'The tree of comments is reconstructed',
-    'recalcfavourites_title' => 'Recalculation of elite counters',
-    'recalcfavourites_message' => 'Counters of the chosen articles and comments for all users will be counted.<br><br> Attention! Operation can take a long time!',
-    'favourites_recalculated' => 'Counters of the elite are counted',
+    'recalcfavourites_title' => 'Recalculation of counters of favourites',
+    'recalcfavourites_message' => 'Counters of the favourite articles and comments for all users will be recalculated.<br><br> Attention! Operation can take a long time!',
+    'favourites_recalculated' => 'Counters of favourites are recalculated',
     'recalcvotes_title' => 'Recalculation of vote counters',
-    'recalcvotes_message' => 'The vote counters will be counted.<br><br>Attention! Operation can take a long time!',
-    'votes_recalculated' => 'Vote counters are counted',
+    'recalcvotes_message' => 'The counters of votes will be recalculated.<br><br>Attention! Operation can take a long time!',
+    'votes_recalculated' => 'Counters of votes are recalculated',
     'recalctopics_title' => 'Recalculation the number of blog articles',
     'recalctopics_message' => 'The number of articles in all blogs will be counted. <br><br> Attention! Operation can take a long time!',
     'topics_recalculated' => 'The number of articles is counted',
