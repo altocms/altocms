@@ -15,7 +15,7 @@
                         var uploaded = $('.js-alto-topic-uploader').altoMultiUploader('getUploaded');
                         $.each(uploaded, function(key, url) {
                             console.log(url);
-                            var $param = $('#aim-params');
+                            var $param = $('#aim-params'),
                                 align = $param.find('[name=align]').val(),
                                 title = $param.find('[name=title]').val(),
                                 size = parseInt($param.find('[name=img_width]').val(), 10);
@@ -69,7 +69,7 @@
 <div class="add-photo">
     <div class="img-container">
         <div>
-            {* ÁËÎÊ ÇÀÃÐÓÇÊÈ ÈÇÎÁÐÀÆÅÍÈß *}
+            {* ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ *}
 
             <div class="js-alto-topic-uploader js-topic-photoset"
                  data-target-id="{$sTargetId}"
@@ -82,7 +82,7 @@
 
 
 
-                {* Ôîðìà çàãðóçêè èçîáðàæåíèé *}
+                {* ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ *}
                 <div class="js-alto-topic-uploader-form clearfix">
 
                         <div class="js-alto-multi-uploader-list list-unstyled row"></div>

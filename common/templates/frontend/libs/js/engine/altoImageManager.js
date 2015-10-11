@@ -220,7 +220,7 @@
         },
 
         /**
-         * Получает ид. топика, страница которого открытаъ
+         * Получает ид. топика, страница которого открыта
          *
          * @returns {*}
          */
@@ -305,7 +305,11 @@
                         if ($.type(error) == 'function') {
                             error.call($this, result);
                         } else {
-                            ls.msg.error(null, 'System error #1001');
+                            if (result && result.sMsg) {
+                                ls.msg.error(result.sMsgTitle ? result.sMsgTitle : '', result.sMsg);
+                            } else {
+                                ls.msg.error(null, 'System error #1001');
+                            }
                         }
                     } else {
                         if ($.type(success) == 'function') {
@@ -631,9 +635,7 @@
                         ls.insertToEditor(result.sText);
                         this.$element.modal('hide');
                     };
-                    var error = function () {
-
-                    };
+                    var error = null;
                     var data = {
                         type: 'submit',
                         form: $this.$pageUploadLink.find('form')
