@@ -23,12 +23,24 @@
  * @since   1.0
  */
 abstract class Action extends LsObject {
+
+    const MATCH_TYPE_STR = 0;
+    const MATCH_TYPE_REG = 1;
+
     /**
      * Список зарегистрированных евентов
      *
      * @var array
      */
     protected $aRegisterEvent = array();
+
+    /**
+     * Index of selected event for execution
+     *
+     * @var int
+     */
+    protected $iRegisterEventIndex;
+
     /**
      * Список параметров из URL
      * <pre>/action/event/param0/param1/../paramN/</pre>
@@ -36,18 +48,21 @@ abstract class Action extends LsObject {
      * @var array
      */
     protected $aParams = array();
+
     /**
      * Список совпадений по регулярному выражению для евента
      *
      * @var array
      */
     protected $aParamsEventMatch = array('event' => array(), 'params' => array());
+
     /**
      * Объект ядра
      *
      * @var Engine|null
      */
     protected $oEngine = null;
+
     /**
      * Шаблон экшена
      * @see SetTemplate
@@ -56,6 +71,7 @@ abstract class Action extends LsObject {
      * @var string|null
      */
     protected $sActionTemplate = null;
+
     /**
      * Дефолтный евент
      * @see SetDefaultEvent
@@ -63,12 +79,14 @@ abstract class Action extends LsObject {
      * @var string|null
      */
     protected $sDefaultEvent = 'index';
+
     /**
      * Текущий евент
      *
      * @var string|null
      */
     protected $sCurrentEvent = null;
+
     /**
      * Имя текущий евента
      * Позволяет именовать экшены на основе регулярных выражений
@@ -76,6 +94,7 @@ abstract class Action extends LsObject {
      * @var string|null
      */
     protected $sCurrentEventName = null;
+
     /**
      * Текущий экшен
      *
@@ -135,6 +154,88 @@ abstract class Action extends LsObject {
     }
 
     /**
+     * Add event handler
+     *
+     * @param array $aArgs
+     * @param int   $iType
+     *
+     * @throws Exception
+     */
+    protected function _addEventHandler($aArgs, $iType) {
+
+        $iCountArgs = sizeof($aArgs);
+        if ($iCountArgs < 2) {
+            throw new Exception('Incorrect number of arguments when adding events');
+        }
+        $aEvent = array();
+        /**
+         * Последний параметр может быть массивом - содержать имя метода и имя евента(именованный евент)
+         * Если указан только метод, то имя будет равным названию метода
+         */
+        $aNames = (array)$aArgs[--$iCountArgs];
+        $aEvent['method'] = $aNames[0];
+        if (isset($aNames[1])) {
+            $aEvent['name'] = $aNames[1];
+        } else {
+            $aEvent['name'] = $aEvent['method'];
+        }
+        if (!$this->_eventExists($aEvent['method'])) {
+            throw new Exception('Method of the event not found: ' . $aEvent['method']);
+        }
+        $aEvent['type'] = $iType;
+        $aEvent['uri_event'] = $aArgs[0];
+        $aEvent['uri_params'] = array();
+        for ($i = 1; $i < $iCountArgs; $i++) {
+            $aEvent['uri_params'][] = $aArgs[$i];
+        }
+        $this->aRegisterEvent[] = $aEvent;
+    }
+
+    /**
+     * Return event handler
+     *
+     * @return array|bool
+     */
+    protected function _getEventHandler() {
+
+        foreach ($this->aRegisterEvent as $iEventKey => $aEvent) {
+            $bFound = false;
+            if ($aEvent['type'] == self::MATCH_TYPE_STR && $aEvent['uri_event'] == $this->sCurrentEvent) {
+                $this->aParamsEventMatch['key'] = $iEventKey;
+                $this->aParamsEventMatch['event'] = array($this->sCurrentEvent, $this->sCurrentEvent);
+                $this->aParamsEventMatch['params'] = array();
+                $bFound = true;
+                foreach ($aEvent['uri_params'] as $iKey => $sUriParam) {
+                    $sParam = $this->GetParam($iKey, '');
+                    if ($sUriParam == $sParam) {
+                        $this->aParamsEventMatch['params'][$iKey] = array($sParam, $sParam);
+                    } else {
+                        $bFound = false;
+                        break;
+                    }
+                }
+            } elseif (preg_match($aEvent['uri_event'], $this->sCurrentEvent, $aMatch)) {
+                $this->aParamsEventMatch['key'] = $iEventKey;
+                $this->aParamsEventMatch['event'] = $aMatch;
+                $this->aParamsEventMatch['params'] = array();
+                $bFound = true;
+                foreach ($aEvent['uri_params'] as $iKey => $sUriParam) {
+                    if (preg_match($sUriParam, $this->GetParam($iKey, ''), $aMatch)) {
+                        $this->aParamsEventMatch['params'][$iKey] = $aMatch;
+                    } else {
+                        $bFound = false;
+                        break;
+                    }
+                }
+            }
+            if ($bFound) {
+                return $aEvent;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Добавляет евент в экшен
      * По сути является оберткой для AddEventPreg(), оставлен для простоты и совместимости с прошлыми версиями ядра
      *
@@ -145,7 +246,7 @@ abstract class Action extends LsObject {
      */
     protected function AddEvent($sEventName, $sEventFunction) {
 
-        $this->AddEventPreg('/^' . preg_quote($sEventName) . '$/i', $sEventFunction);
+        $this->_addEventHandler(func_get_args(), self::MATCH_TYPE_STR);
     }
 
     /**
@@ -154,33 +255,14 @@ abstract class Action extends LsObject {
      */
     protected function AddEventPreg() {
 
-        $iCountArgs = func_num_args();
-        if ($iCountArgs < 2) {
-            throw new Exception('Incorrect number of arguments when adding events');
-        }
-        $aEvent = array();
-        /**
-         * Последний параметр может быть массивом - содержать имя метода и имя евента(именованный евент)
-         * Если указан только метод, то имя будет равным названию метода
-         */
-        $aNames = (array)func_get_arg($iCountArgs - 1);
-        $aEvent['method'] = $aNames[0];
-        if (isset($aNames[1])) {
-            $aEvent['name'] = $aNames[1];
-        } else {
-            $aEvent['name'] = $aEvent['method'];
-        }
-        if (!$this->_eventExists($aEvent['method'])) {
-            throw new Exception('Method of the event not found: ' . $aEvent['method']);
-        }
-        $aEvent['preg'] = func_get_arg(0);
-        $aEvent['params_preg'] = array();
-        for ($i = 1; $i < $iCountArgs - 1; $i++) {
-            $aEvent['params_preg'][] = func_get_arg($i);
-        }
-        $this->aRegisterEvent[] = $aEvent;
+        $this->_addEventHandler(func_get_args(), self::MATCH_TYPE_REG);
     }
 
+    /**
+     * @param string $sEvent
+     *
+     * @return bool
+     */
     protected function _eventExists($sEvent) {
 
         return method_exists($this, $sEvent);
@@ -188,7 +270,7 @@ abstract class Action extends LsObject {
 
     /**
      * Запускает евент на выполнение
-     * Если текущий евент не определен то  запускается тот которые определен по умолчанию(default event)
+     * Если текущий евент не определен то  запускается тот которые определен по умолчанию (default event)
      *
      * @return mixed
      */
@@ -202,29 +284,20 @@ abstract class Action extends LsObject {
             $this->sCurrentEvent = $this->GetDefaultEvent();
             R::SetActionEvent($this->sCurrentEvent);
         }
-        foreach ($this->aRegisterEvent as $aEvent) {
-            if (preg_match($aEvent['preg'], $this->sCurrentEvent, $aMatch)) {
-                $this->aParamsEventMatch['event'] = $aMatch;
-                $this->aParamsEventMatch['params'] = array();
-                foreach ($aEvent['params_preg'] as $iKey => $sParamPreg) {
-                    if (preg_match($sParamPreg, $this->GetParam($iKey, ''), $aMatch)) {
-                        $this->aParamsEventMatch['params'][$iKey] = $aMatch;
-                    } else {
-                        continue 2;
-                    }
-                }
-                $this->sCurrentEventName = $aEvent['name'];
-                $sMethod = $aEvent['method'];
-                $sHook = 'action_event_' . strtolower($this->sCurrentAction);
+        $aEvent = $this->_getEventHandler();
+        if ($aEvent !== false) {
+            $this->sCurrentEventName = $aEvent['name'];
+            $sMethod = $aEvent['method'];
+            $sHook = 'action_event_' . strtolower($this->sCurrentAction);
 
-                E::ModuleHook()->Run($sHook . '_before', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
-                //$result = call_user_func_array(array($this, $aEvent['method']), array());
-                $xResult = $this->$sMethod();
-                E::ModuleHook()->Run($sHook . '_after', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+            E::ModuleHook()->Run($sHook . '_before', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+            //$result = call_user_func_array(array($this, $aEvent['method']), array());
+            $xResult = $this->$sMethod();
+            E::ModuleHook()->Run($sHook . '_after', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
 
-                return $xResult;
-            }
+            return $xResult;
         }
+
         return $this->EventNotFound();
     }
 
@@ -431,7 +504,7 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * Получить каталог с шаблонами экшена(совпадает с именем класса)
+     * Получить каталог с шаблонами экшена (совпадает с именем класса)
      * @see Router::GetActionClass
      *
      * @return string
