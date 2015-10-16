@@ -214,7 +214,7 @@ abstract class Action extends LsObject {
                         break;
                     }
                 }
-            } elseif (preg_match($aEvent['uri_event'], $this->sCurrentEvent, $aMatch)) {
+            } elseif ($aEvent['type'] == self::MATCH_TYPE_REG && preg_match($aEvent['uri_event'], $this->sCurrentEvent, $aMatch)) {
                 $this->aParamsEventMatch['key'] = $iEventKey;
                 $this->aParamsEventMatch['event'] = $aMatch;
                 $this->aParamsEventMatch['params'] = array();

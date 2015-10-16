@@ -263,7 +263,7 @@
                     }
                 )
                     .fail(function() {
-                        $this._loadError(response);
+                        $this._loadError();
                     })
             }
 

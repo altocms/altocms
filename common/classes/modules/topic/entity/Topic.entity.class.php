@@ -1219,15 +1219,24 @@ class ModuleTopic_EntityTopic extends Entity {
             return NULL;
         }
 
-        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
-            'target_type' => 'photoset',
-            'target_id'   => $this->getId(),
-            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
-        ), 1, 1);
+        $sPropKey = '_photoset_main_photo_id';
+        $iMainPhotoId = $this->getProp($sPropKey);
+        if (is_null($iMainPhotoId)) {
+            $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
+                'target_type' => 'photoset',
+                'target_id'   => $this->getId(),
+                'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
+            ), 1, 1);
 
-        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
-            /** @var ModuleMresource_EntityMresource $oMresource */
-            return $oMresource->getMresourceId();
+            if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
+                /** @var ModuleMresource_EntityMresource $oMresource */
+                $iMainPhotoId = $oMresource->getMresourceId();
+                $this->setProp($sPropKey, $iMainPhotoId);
+                return $iMainPhotoId;
+            }
+            $this->setProp($sPropKey, false);
+        } elseif ($iMainPhotoId) {
+            return $iMainPhotoId;
         }
 
         return $this->getExtraValue('main_photo_id');
