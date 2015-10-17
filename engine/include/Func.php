@@ -1161,6 +1161,41 @@ class Func {
     }
 
     /**
+     * Return request method
+     *
+     * @return string
+     */
+    static public function GetRequestMethod() {
+
+        return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null;
+    }
+
+    /**
+     * Return all request headers
+     *
+     * @return array
+     */
+    static public function GetRequestHeaders() {
+
+        return getallheaders();
+    }
+
+    static protected $_sRequestBody;
+
+    /**
+     * Return raw data from the request body
+     *
+     * @return string
+     */
+    static public function GetRequestBody() {
+
+        if (is_null(self::$_sRequestBody)) {
+            self::$_sRequestBody = file_get_contents('php://input');
+        }
+        return self::$_sRequestBody;
+    }
+
+    /**
      * Получает или устанавливает код ответа HTTP
      *
      * @param int|null $nResponseCode
