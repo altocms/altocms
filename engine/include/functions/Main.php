@@ -353,6 +353,7 @@ class AltoFunc_Main {
                     return true;
                 }
                 break;
+            case 'email':
             case 'mail':
                 return filter_var($sValue, FILTER_VALIDATE_EMAIL) !== false;
                 break;
