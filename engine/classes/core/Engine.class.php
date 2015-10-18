@@ -274,6 +274,10 @@ class Engine extends LsObject {
         $this->nTimeInit = microtime(true);
     }
 
+    public function __destruct() {
+
+    }
+
     /**
      * Ограничиваем объект только одним экземпляром.
      * Функционал синглтона.
@@ -1015,7 +1019,7 @@ class Engine extends LsObject {
      * @static
      *
      * @param LsObject|string $oObject Объект или имя класса
-     * @param int             $iFlag   Маска по которой нужно вернуть рузультат. Доступные маски определены в константах CI_*
+     * @param int             $iBitmask   Маска по которой нужно вернуть рузультат. Доступные маски определены в константах CI_*
      *                                 Например, получить информацию о плагине и модуле:
      *                                 <pre>
      *                                 Engine::GetClassInfo($oObject,Engine::CI_PLUGIN | Engine::CI_MODULE);
@@ -1024,40 +1028,98 @@ class Engine extends LsObject {
      *
      * @return array|string|null
      */
-    public static function GetClassInfo($oObject, $iFlag = self::CI_DEFAULT, $bSingle = false) {
+    public static function GetClassInfo($oObject, $iBitmask = self::CI_DEFAULT, $bSingle = false) {
 
         $aResult = array();
         $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
         $aInfo = (!empty(self::$aClassesInfo[$sClassName]) ? self::$aClassesInfo[$sClassName] : array());
 
+        $iTime = microtime(true);
         // The first call because it sets other parts in self::$aClassesInfo
-        if ($iFlag & self::CI_CLASSPATH) {
+        if ($iBitmask & self::CI_CLASSPATH) {
             if (!isset($aInfo[self::CI_CLASSPATH])) {
                 $aInfo[self::CI_CLASSPATH] = static::GetClassPath($sClassName);
                 self::$aClassesInfo[$sClassName][self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
             }
             $aResult[self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
         }
-        if ($iFlag & self::CI_PLUGIN) {
+        // Flag of finalization
+        $bBreak = false;
+        if ($iBitmask & self::CI_PLUGIN) {
             if (!isset($aInfo[self::CI_PLUGIN])) {
                 $aInfo[self::CI_PLUGIN] = preg_match('/^Plugin([^_]+)/', $sClassName, $aMatches)
                     ? $aMatches[1]
                     : false;
                 self::$aClassesInfo[$sClassName][self::CI_PLUGIN] = $aInfo[self::CI_PLUGIN];
+                // It's plugin class only
+                if ($aInfo[self::CI_PLUGIN] && $aMatches[0] == $sClassName) {
+                    $bBreak = true;
+                }
             }
             $aResult[self::CI_PLUGIN] = $aInfo[self::CI_PLUGIN];
         }
-        if ($iFlag & self::CI_ACTION) {
-            if (!isset($aInfo[self::CI_ACTION])) {
+
+        if ($iBitmask & self::CI_ACTION) {
+            if ($bBreak) {
+                $aInfo[self::CI_ACTION] = false;
+            } elseif (!isset($aInfo[self::CI_ACTION])) {
                 $aInfo[self::CI_ACTION] = preg_match('/^(?:Plugin[^_]+_|)Action([^_]+)/', $sClassName, $aMatches)
                     ? $aMatches[1]
                     : false;
                 self::$aClassesInfo[$sClassName][self::CI_ACTION] = $aInfo[self::CI_ACTION];
+                // it's an Action
+                $bBreak = !empty($aInfo[self::CI_ACTION]);
             }
             $aResult[self::CI_ACTION] = $aInfo[self::CI_ACTION];
         }
-        if ($iFlag & self::CI_MODULE) {
-            if (!isset($aInfo[self::CI_MODULE])) {
+
+        if ($iBitmask & self::CI_HOOK) {
+            if ($bBreak) {
+                $aInfo[self::CI_HOOK] = false;
+            } elseif (!isset($aInfo[self::CI_HOOK])) {
+                $aInfo[self::CI_HOOK] = preg_match('/^(?:Plugin[^_]+_|)Hook([^_]+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_HOOK] = $aInfo[self::CI_HOOK];
+                // it's a Hook
+                $bBreak = !empty($aInfo[self::CI_HOOK]);
+            }
+            $aResult[self::CI_HOOK] = $aInfo[self::CI_HOOK];
+        }
+
+        // ** LS-compatibility
+        if ($iBitmask & self::CI_BLOCK) {
+            if ($bBreak) {
+                $aInfo[self::CI_BLOCK] = false;
+            } elseif (!isset($aInfo[self::CI_BLOCK])) {
+                $aInfo[self::CI_BLOCK] = preg_match('/^(?:Plugin[^_]+_|)Block([^_]+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_BLOCK] = $aInfo[self::CI_BLOCK];
+                // it's a Block
+                $bBreak = !empty($aInfo[self::CI_BLOCK]);
+            }
+            $aResult[self::CI_BLOCK] = $aInfo[self::CI_BLOCK];
+        }
+
+        if ($iBitmask & self::CI_WIDGET) {
+            if ($bBreak) {
+                $aInfo[self::CI_WIDGET] = false;
+            } elseif (!isset($aInfo[self::CI_WIDGET])) {
+                $aInfo[self::CI_WIDGET] = preg_match('/^(?:Plugin[^_]+_|)Widget([^_]+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_WIDGET] = $aInfo[self::CI_WIDGET];
+                // it's a Widget
+                $bBreak = !empty($aInfo[self::CI_WIDGET]);
+            }
+            $aResult[self::CI_WIDGET] = $aInfo[self::CI_WIDGET];
+        }
+
+        if ($iBitmask & self::CI_MODULE) {
+            if ($bBreak) {
+                $aInfo[self::CI_MODULE] = false;
+            } elseif (!isset($aInfo[self::CI_MODULE])) {
                 $aInfo[self::CI_MODULE] = preg_match('/^(?:Plugin[^_]+_|)Module(?:ORM|)([^_]+)/', $sClassName, $aMatches)
                     ? $aMatches[1]
                     : false;
@@ -1065,8 +1127,11 @@ class Engine extends LsObject {
             }
             $aResult[self::CI_MODULE] = $aInfo[self::CI_MODULE];
         }
-        if ($iFlag & self::CI_ENTITY) {
-            if (!isset($aInfo[self::CI_ENTITY])) {
+
+        if ($iBitmask & self::CI_ENTITY) {
+            if ($bBreak) {
+                $aInfo[self::CI_ENTITY] = false;
+            } elseif (!isset($aInfo[self::CI_ENTITY])) {
                 $aInfo[self::CI_ENTITY] = preg_match('/_Entity(?:ORM|)([^_]+)/', $sClassName, $aMatches)
                     ? $aMatches[1]
                     : false;
@@ -1074,8 +1139,11 @@ class Engine extends LsObject {
             }
             $aResult[self::CI_ENTITY] = $aInfo[self::CI_ENTITY];
         }
-        if ($iFlag & self::CI_MAPPER) {
-            if (!isset($aInfo[self::CI_MAPPER])) {
+
+        if ($iBitmask & self::CI_MAPPER) {
+            if ($bBreak) {
+                $aInfo[self::CI_MAPPER] = false;
+            } elseif (!isset($aInfo[self::CI_MAPPER])) {
                 $aInfo[self::CI_MAPPER] = preg_match('/_Mapper(?:ORM|)([^_]+)/', $sClassName, $aMatches)
                     ? $aMatches[1]
                     : false;
@@ -1083,34 +1151,8 @@ class Engine extends LsObject {
             }
             $aResult[self::CI_MAPPER] = $aInfo[self::CI_MAPPER];
         }
-        if ($iFlag & self::CI_HOOK) {
-            if (!isset($aInfo[self::CI_HOOK])) {
-                $aInfo[self::CI_HOOK] = preg_match('/^(?:Plugin[^_]+_|)Hook([^_]+)$/', $sClassName, $aMatches)
-                    ? $aMatches[1]
-                    : false;
-                self::$aClassesInfo[$sClassName][self::CI_HOOK] = $aInfo[self::CI_HOOK];
-            }
-            $aResult[self::CI_HOOK] = $aInfo[self::CI_HOOK];
-        }
-        if ($iFlag & self::CI_BLOCK) {
-            if (!isset($aInfo[self::CI_BLOCK])) {
-                $aInfo[self::CI_BLOCK] = preg_match('/^(?:Plugin[^_]+_|)Block([^_]+)$/', $sClassName, $aMatches)
-                    ? $aMatches[1]
-                    : false;
-                self::$aClassesInfo[$sClassName][self::CI_BLOCK] = $aInfo[self::CI_BLOCK];
-            }
-            $aResult[self::CI_BLOCK] = $aInfo[self::CI_BLOCK];
-        }
-        if ($iFlag & self::CI_WIDGET) {
-            if (!isset($aInfo[self::CI_WIDGET])) {
-                $aInfo[self::CI_WIDGET] = preg_match('/^(?:Plugin[^_]+_|)Widget([^_]+)$/', $sClassName, $aMatches)
-                    ? $aMatches[1]
-                    : false;
-                self::$aClassesInfo[$sClassName][self::CI_WIDGET] = $aInfo[self::CI_WIDGET];
-            }
-            $aResult[self::CI_WIDGET] = $aInfo[self::CI_WIDGET];
-        }
-        if ($iFlag & self::CI_METHOD) {
+
+        if ($iBitmask & self::CI_METHOD) {
             if (!isset($aInfo[self::CI_METHOD])) {
                 $sModuleName = isset($aInfo[self::CI_MODULE])
                     ? $aInfo[self::CI_MODULE]
@@ -1122,7 +1164,7 @@ class Engine extends LsObject {
             }
             $aResult[self::CI_METHOD] = $aInfo[self::CI_METHOD];
         }
-        if ($iFlag & self::CI_PPREFIX) {
+        if ($iBitmask & self::CI_PPREFIX) {
             if (!isset($aInfo[self::CI_PPREFIX])) {
                 $sPluginName = isset($aInfo[self::CI_PLUGIN])
                     ? $aInfo[self::CI_PLUGIN]
@@ -1134,7 +1176,7 @@ class Engine extends LsObject {
             }
             $aResult[self::CI_PPREFIX] = $aInfo[self::CI_PPREFIX];
         }
-        if ($iFlag & self::CI_INHERIT) {
+        if ($iBitmask & self::CI_INHERIT) {
             if (!isset($aInfo[self::CI_INHERIT])) {
                 $aInfo[self::CI_INHERIT] = preg_match('/_Inherits?_(\w+)$/', $sClassName, $aMatches)
                     ? $aMatches[1]
@@ -1143,7 +1185,7 @@ class Engine extends LsObject {
             }
             $aResult[self::CI_INHERIT] = $aInfo[self::CI_INHERIT];
         }
-        if ($iFlag & self::CI_INHERITS) {
+        if ($iBitmask & self::CI_INHERITS) {
             if (!isset($aInfo[self::CI_INHERITS])) {
                 $sInherit = isset($aInfo[self::CI_INHERIT])
                     ? $aInfo[self::CI_INHERIT]
@@ -1156,8 +1198,11 @@ class Engine extends LsObject {
             $aResult[self::CI_INHERITS] = $aInfo[self::CI_INHERITS];
         }
 
+        self::$aClassesInfo[$sClassName]['calls'][] = array('flag' => $iBitmask, 'time' => round(microtime(true) - $iTime, 6));
+
         return $bSingle ? end($aResult) : $aResult;
     }
+
 
     /**
      * Возвращает информацию о пути до файла класса.
