@@ -1005,16 +1005,16 @@ class ModuleViewer extends Module {
         $this->AssignAjax('sMsg', $sMsg);
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
-            $this->SetResponseHeader('Content-type', 'application/json');
+            $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
             $sOutput = F::jsonEncode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
-            $this->SetResponseHeader('Content-type', 'application/json');
+            $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
 
             // * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
             $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
-            $this->SetResponseHeader('Content-type', 'application/json');
+            $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
             $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
 
@@ -1165,11 +1165,11 @@ class ModuleViewer extends Module {
      * Загружаем переменную в ajax ответ
      *
      * @param string $sName    Имя переменной в шаблоне
-     * @param mixed $value    Значение переменной
+     * @param mixed $xValue    Значение переменной
      */
-    public function AssignAjax($sName, $value) {
+    public function AssignAjax($sName, $xValue) {
 
-        $this->aVarsAjax[$sName] = $value;
+        $this->aVarsAjax[$sName] = $xValue;
     }
 
     /**
@@ -1209,6 +1209,29 @@ class ModuleViewer extends Module {
         } else {
             $xResult = $this->aVarsTemplate;
         }
+        return $xResult;
+    }
+
+    /**
+     * @param null      $sVarName
+     * @param bool|true $bJsonEncode
+     *
+     * @return mixed
+     */
+    public function getAjaxVars($sVarName = null, $bJsonEncode = true) {
+
+        $xResult = $this->aVarsAjax;
+        if (is_string($sVarName)) {
+            if (isset($xResult[$sVarName])) {
+                $xResult = $xResult[$sVarName];
+            } else {
+                $xResult = null;
+            }
+        }
+        if ($bJsonEncode) {
+            $xResult = F::jsonEncode($xResult);
+        }
+
         return $xResult;
     }
 
