@@ -139,6 +139,13 @@ class Router extends LsObject {
     static protected $sUserUrlMask = null;
 
     /**
+     * Call ModuleViewer()->Display() when shutdown
+     *
+     * @var bool
+     */
+    static protected $bAutoDisplay = true;
+
+    /**
      * Делает возможным только один экземпляр этого класса
      *
      * @return Router
@@ -198,7 +205,9 @@ class Router extends LsObject {
 
         $this->AssignVars();
         $this->oEngine->Shutdown();
-        E::ModuleViewer()->Display($this->oAction->GetTemplate());
+        if (self::$bAutoDisplay) {
+            E::ModuleViewer()->Display($this->oAction->GetTemplate());
+        }
         if ($bExit) {
             exit();
         }
@@ -611,11 +620,7 @@ class Router extends LsObject {
                     $this->ExecAction();
                 }
             } else {
-                if (!F::AjaxRequest()) {
-                    static::$sAction = $this->aConfigRoute['config']['action_not_found'];
-                    static::$sActionEvent = '404';
-                    $this->ExecAction();
-                }
+                $this->oAction->AccessDenied();
             }
         }
         // Hook after action
@@ -714,6 +719,16 @@ class Router extends LsObject {
             $sActionClass = Loader::SeekActionClass($sAction, $sEvent);
         }
         return $sActionClass;
+    }
+
+    /**
+     * Set AutoDisplay value
+     *
+     * @param bool $bValue
+     */
+    static public function SetAutoDisplay($bValue) {
+
+        self::$bAutoDisplay = (bool)$bValue;
     }
 
     /**
