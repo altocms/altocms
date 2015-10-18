@@ -23,7 +23,7 @@
         {$sCommentClass = "$sCommentClass comment-new"}
     {/if}
 {/if}
-<div id="comment_id_{$oComment->getId()}"  data-level="{$oComment->getLevel() + 1}"  class="comment comment-level comment-level-{$oComment->getLevel() + 1} {$sCommentClass}">
+<div id="comment_id_{$oComment->getId()}"  data-level="{$cmtlevel + 1}"  class="comment comment-level comment-level-{$cmtlevel + 1} {$sCommentClass}">
     <div class="panel panel-default comment">
         <div class="panel-body">
         {if !$oComment->getDelete() OR $bOneComment OR E::IsAdmin() OR $oComment->isDeletable()}
