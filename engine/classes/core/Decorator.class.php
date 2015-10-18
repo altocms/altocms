@@ -30,6 +30,11 @@ class Decorator extends LsObject {
 
     protected $aRegisteredHooks = array();
 
+    protected $aStats = array();
+
+    /**
+     * @param $oComponent
+     */
     public function __construct($oComponent) {
 
         $this->oComponent = $oComponent;
@@ -71,7 +76,7 @@ class Decorator extends LsObject {
      * Calls method of decorated object
      *
      * @param string $sMethod
-     * @param array $aArgs
+     * @param array  $aArgs
      *
      * @return mixed
      */
@@ -154,13 +159,23 @@ class Decorator extends LsObject {
 
     /**
      * @param string $sMethod
-     * @param array $aArgs
+     * @param array  $aArgs
      *
      * @return mixed
      */
     public function __call($sMethod, $aArgs) {
 
-        return $this->CallMethod($sMethod, $aArgs);
+        $iTime = microtime(true);
+
+        $xResult = $this->CallMethod($sMethod, $aArgs);
+
+        $this->aStats['calls'][] = array(
+            'time' => round(microtime(true) - $iTime, 6),
+            'method' => $sMethod,
+            'args' => $aArgs,
+        );
+
+        return $xResult;
     }
 
     /**
