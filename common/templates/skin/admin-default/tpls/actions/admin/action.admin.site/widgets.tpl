@@ -105,10 +105,12 @@
                 action = 'activate';
             }
             $('tr[id^=widget-] .check-row [type=checkbox]').prop("checked", false);
-            $('tr[id^=widget-' + widgetId + '] .check-row [type=checkbox]').prop("checked", true);
+            $('tr[id^=widget-' + escapeId(widgetId) + '] .check-row [type=checkbox]').prop("checked", true);
             $('#form_widgets_list input[name=widget_action]').val(action);
             $('#form_widgets_list').submit();
         };
-
+        function escapeId( myid ) {
+            return myid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
+        }
     </script>
 {/block}

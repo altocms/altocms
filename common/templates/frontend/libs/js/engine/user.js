@@ -212,10 +212,10 @@ ls.user = (function ($) {
         button = $(button);
         if (button.hasClass('followed')) {
             ls.stream.unsubscribe(iUserId);
-            button.toggleClass('followed').text(ls.lang.get('profile_user_follow'));
+            button.toggleClass('followed').text(ls.lang.get('profile_user_follow')).prepend('<i class="fa fa-star-o"></i>&nbsp;');
         } else {
             ls.stream.subscribe(iUserId);
-            button.toggleClass('followed').text(ls.lang.get('profile_user_unfollow'));
+            button.toggleClass('followed').text(ls.lang.get('profile_user_unfollow')).prepend('<i class="fa fa-star-o"></i>&nbsp;');
         }
         return false;
     };

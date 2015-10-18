@@ -157,7 +157,7 @@
                 </script>
                 <a href="#"
                    onclick="ls.user.followToggle(this, {$oUserProfile->getId()}); return false;"
-                   class="link link-light-gray link-clear link-lead"><i class="fa fa-star-o"></i>
+                   class="link link-light-gray link-clear link-lead {if $oUserProfile->isFollow()}followed{/if}"><i class="fa fa-star-o"></i>
                     {if $oUserProfile->isFollow()}{$aLang.profile_user_unfollow}{else}{$aLang.profile_user_follow}{/if}
                 </a>
             </li>
