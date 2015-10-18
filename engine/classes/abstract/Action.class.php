@@ -233,9 +233,9 @@ abstract class Action extends LsObject {
 
         $sType = strtoupper($sType);
         if (in_array($sType, array('HEADERS', 'GET', 'POST', 'BODY', 'FILES'))) {
-            if (is_null($sName)) {
+            if (is_null($sName) && isset($this->aRequestData[$sType])) {
                 return $this->aRequestData[$sType];
-            } elseif (isset($this->aRequestData[$sType][strtolower($sName)])) {
+            } elseif (!is_null($sName) && isset($this->aRequestData[$sType][strtolower($sName)])) {
                 return $this->aRequestData[$sType][strtolower($sName)];
             } else {
                 return null;
