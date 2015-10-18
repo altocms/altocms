@@ -30,7 +30,7 @@
                     </script>
                     <a href="#"
                        onclick="ls.user.followToggle(this, {$oUser->getId()}); return false;"
-                       class="link link-light-gray link-clear link-lead"><i class="fa fa-star-o"></i>
+                       class="link link-light-gray link-clear link-lead {if $oUser->isFollow()}followed{/if}"><i class="fa fa-star-o"></i>
                         {if $oUser->isFollow()}{E::ModuleLang()->Get('profile_user_unfollow')}{else}{E::ModuleLang()->Get('profile_user_follow')}{/if}
                     </a>
                 </li>
