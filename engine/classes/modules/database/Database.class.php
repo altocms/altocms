@@ -48,6 +48,8 @@ class ModuleDatabase extends Module {
 
     protected $sLogFile;
 
+    protected $aSqlErrors = array();
+
     protected $aInitSql
         = array(
             "set character_set_client='%%charset%%', character_set_results='%%charset%%', collation_connection='utf8_bin' ",
@@ -253,6 +255,8 @@ class ModuleDatabase extends Module {
         $sMsg = "SQL Error: $sMessage\n---\n";
         $sMsg .= print_r($aInfo, true);
 
+        $this->aSqlErrors[] = $sMsg;
+
         // * Если нужно логировать SQL ошибки то пишем их в лог
         if (Config::Get('sys.logs.sql_error')) {
             E::ModuleLogger()->Dump(Config::Get('sys.logs.sql_error_file'), $sMsg, 'ERROR');
@@ -273,14 +277,31 @@ class ModuleDatabase extends Module {
         }
     }
 
+    /**
+     * @return string
+     */
     public function GetLastQuery() {
 
         return self::$sLastQuery;
     }
 
+    /**
+     * @return string
+     */
     public function GetLastResult() {
 
         return self::$sLastResult;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function GetLastError() {
+
+        if (!empty($this->aSqlErrors)) {
+            return end($this->aSqlErrors);
+        }
+        return null;
     }
 
     /**
@@ -319,21 +340,21 @@ class ModuleDatabase extends Module {
 
         // * Массивы запросов и пустой контейнер для сбора ошибок
         $aErrors = array();
-        $aQuery = explode(';', $sFileQuery);
+        $aQuery = preg_split('/;\\r\\n?/', $sFileQuery);
 
         // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
 
-            // * Заменяем движок базы данных, если таковой указан в запросе
-            if (Config::Get('db.tables.engine') != 'InnoDB') {
-                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
-            }
-
             if ($sQuery != '') {
+                // * Заменяем движок базы данных, если таковой указан в запросе
+                if (Config::Get('db.tables.engine') != 'InnoDB') {
+                    $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
+                }
+
                 $bResult = $this->GetConnect($aConfig)->query($sQuery);
                 if ($bResult === false) {
-                    $aErrors[] = mysql_error();
+                    $aErrors[] = $this->GetLastError();
                 }
             }
         }
