@@ -34,6 +34,8 @@ class ModuleText extends Module {
 
     protected $aCheckTagLinks = array();
 
+    protected $aSpecialParsers = array();
+
     /**
      * Инициализация модуля
      *
@@ -59,6 +61,12 @@ class ModuleText extends Module {
         // * Create a typographer and load its configuration
         $this->_createTextParser();
         $this->_loadTextParserConfig();
+
+        $this->AddSpecialParser('flash', array($this, 'FlashParamParser'));
+        $this->AddSpecialParser('snippet', array($this, 'SnippetParser'));
+        $this->AddSpecialParser('text', array($this, 'TextParser'));
+        $this->AddSpecialParser('video', array($this, 'VideoParser'));
+        $this->AddSpecialParser('code', array($this, 'CodeSourceParser'));
     }
 
     /**
@@ -88,6 +96,59 @@ class ModuleText extends Module {
             $this->oTextParser->tagBuilder($sTag, array($this, 'CallbackCheckLinks'));
         }
         $this->oTextParser->tagBuilder('ls', array($this, 'CallbackTagLs'));
+    }
+
+    /**
+     * Add new special parser
+     *
+     * @param string   $sName
+     * @param callback $aCallback
+     */
+    public function AddSpecialParser($sName, $aCallback) {
+
+        $this->AppendSpecialParser($sName, $aCallback);
+    }
+
+    /**
+     * Prepend new special parser into begin of array
+     *
+     * @param string   $sName
+     * @param callback $aCallback
+     */
+    public function PrependSpecialParser($sName, $aCallback) {
+
+        $this->aSpecialParsers = array($sName => $aCallback) + $this->aSpecialParsers;
+    }
+
+    /**
+     * Append new special parser to end of array
+     *
+     * @param string   $sName
+     * @param callback $aCallback
+     */
+    public function AppendSpecialParser($sName, $aCallback) {
+
+        $this->aSpecialParsers = $this->aSpecialParsers + array($sName => $aCallback);
+    }
+
+    /**
+     * Return array of current special parsers
+     *
+     * @return array
+     */
+    public function GetSpecialParsers() {
+
+        return $this->aSpecialParsers;
+    }
+
+    /**
+     * Set new array of special parser
+     *
+     * @param array $aSpecialParsers
+     */
+    public function SetSpecialParsers($aSpecialParsers) {
+
+        $this->aSpecialParsers = $aSpecialParsers;
     }
 
     /**
@@ -298,17 +359,11 @@ class ModuleText extends Module {
         }
         $this->aLinks = array();
 
-        $sResult = $this->FlashParamParser($sText);
-        $sResult = $this->SnippetParser($sResult);
-        $sResult = $this->TextParser($sResult);
-        $sResult = $this->VideoParser($sResult);
+        foreach($this->aSpecialParsers as $sName => $aCallback) {
+            $sText = call_user_func($aCallback, $sText);
+        }
 
-        // Clear links on local resources
-        //$sResult = E::ModuleMresource()->NormalizeUrl($sResult, '/', '/');
-        //$sResult = E::ModuleMresource()->NormalizeUrl($sResult, '/', '');
-
-        $sResult = $this->CodeSourceParser($sResult);
-        return $sResult;
+        return $sText;
     }
 
     /**
@@ -319,7 +374,7 @@ class ModuleText extends Module {
      *
      * @return string
      */
-    protected function FlashParamParser($sText) {
+    public function FlashParamParser($sText) {
 
         if (preg_match_all(
             "@(<\s*param\s*name\s*=\s*(?:\"|').*(?:\"|')\s*value\s*=\s*(?:\"|').*(?:\"|'))\s*/?\s*>(?!</param>)@Ui",
