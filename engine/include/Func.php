@@ -785,25 +785,30 @@ class Func {
      * Проверяет плагины на соответствие маске разрешённых url и,
      * если нужно исключает из списка активных
      *
-     * @param $aPlugins
+     * @param array $aPlugins
+     *
      * @return array
      */
     static protected function ExcludeByEnabledMask($aPlugins) {
 
-        $aResult = array();
-        $sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
-        foreach ($aPlugins as $sPluginName => $aPluginData) {
-            $sXmlText = F::File_GetContents($aPluginData['manifest']);
-            if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
-                $sReq = preg_replace('/\/+/', '/', $sRequestUri);
-                $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
-                $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
-                if (preg_match($aMatches[1], $sReq)) {
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $aResult = array();
+            $sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
+            foreach ($aPlugins as $sPluginName => $aPluginData) {
+                $sXmlText = F::File_GetContents($aPluginData['manifest']);
+                if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
+                    $sReq = preg_replace('/\/+/', '/', $sRequestUri);
+                    $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
+                    $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
+                    if (preg_match($aMatches[1], $sReq)) {
+                        $aResult[$sPluginName] = $aPluginData;
+                    }
+                } else {
                     $aResult[$sPluginName] = $aPluginData;
                 }
-            } else {
-                $aResult[$sPluginName] = $aPluginData;
             }
+        } else {
+            $aResult = $aPlugins;
         }
 
         return $aResult;
