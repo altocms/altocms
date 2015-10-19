@@ -340,7 +340,7 @@ class ModuleDatabase extends Module {
 
         // * Массивы запросов и пустой контейнер для сбора ошибок
         $aErrors = array();
-        $aQuery = preg_split('/;\\r\\n?/', $sFileQuery);
+        $aQuery = preg_split('/;\\r?\\n/', $sFileQuery);
 
         // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
