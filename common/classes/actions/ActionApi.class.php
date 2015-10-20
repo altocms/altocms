@@ -41,54 +41,6 @@ class ActionApi extends Action {
     protected $bIsAjax = NULL;
 
     /**
-     * Массив параметров PUT-запроса
-     * @var array
-     */
-    protected $_PUT = array();
-
-    /**
-     * Метод считывает PUT параметры и заполняет ими свойство $this->_PUT
-     * Работает только для этого вида запроса.
-     */
-    private function _LoadPutRequest() {
-        if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'PUT')) {
-            $sPutData = file_get_contents('php://input');
-            $aExplodedData = explode('&', $sPutData);
-            foreach ($aExplodedData as $aPair) {
-                $item = explode('=', $aPair);
-                if (count($item) == 2) {
-                    $this->_PUT[urldecode($item[0])] = urldecode($item[1]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Получение параметров запроса с учётом типа запроса PUT
-     *
-     * @param string $sParamName Имя параметра
-     * @param mixed $xDefaultValue Дефолтное значение
-     * @param [PUT|GET|POST] $sRequestMethod Метод запроса
-     *
-     * @return bool|mixed
-     */
-    private function _GetRequest($sParamName, $xDefaultValue, $sRequestMethod = NULL) {
-
-        if (!$sRequestMethod) {
-            return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : NULL;
-        }
-
-        $sRequestMethod = mb_strtoupper($sRequestMethod);
-
-        if ($sRequestMethod == 'PUT') {
-            return isset($this->_PUT[$sParamName]) ? $this->_PUT[$sParamName] : $xDefaultValue;
-        }
-
-        return getRequest($sParamName, $xDefaultValue, $sRequestMethod);
-
-    }
-
-    /**
      * Проверяет метод запроса на соответствие
      *
      * @param string $sRequestMethod
@@ -102,8 +54,7 @@ class ActionApi extends Action {
             return FALSE;
         }
 
-        return isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == $sRequestMethod) ? TRUE : FALSE;
-
+        return $this->_getRequestMethod() == $sRequestMethod;
     }
 
     /**
@@ -112,10 +63,10 @@ class ActionApi extends Action {
      * @param $aError
      * @return string
      */
-    private function _Error($aError) {
-        E::ModuleApi()->SetLastError($aError);
+    protected function _Error($aError) {
 
-        return R::Action('api', 'error');
+        E::ModuleApi()->SetLastError($aError);
+        $this->EventError();
     }
 
     /**
@@ -128,14 +79,7 @@ class ActionApi extends Action {
          */
         $this->SetTemplate('api/answer.tpl');
 
-        /**
-         * Возможно это PUT-запрос, получим его данные
-         */
-        $this->_LoadPutRequest();
-
-
         return TRUE;
-
     }
 
     /**
@@ -143,9 +87,9 @@ class ActionApi extends Action {
      * @return string
      */
     protected function EventNotFound() {
-        E::ModuleApi()->SetLastError(E::ModuleApi()->ERROR_CODE_0002);
 
-        return R::Action('api', 'error');
+        E::ModuleApi()->SetLastError(E::ModuleApi()->ERROR_CODE_9002);
+        $this->EventError();
     }
 
     /**
@@ -155,11 +99,15 @@ class ActionApi extends Action {
 
         // Запретим прямой доступ
         if (!($aError = E::ModuleApi()->GetLastError())) {
-            $aError = E::ModuleApi()->ERROR_CODE_0002;
+            $aError = E::ModuleApi()->ERROR_CODE_9002;
         }
 
-        // Установим код ошики - Bad Request
-        F::HttpResponseCode(400);
+        if ($aError['code'] == '0004') {
+            F::HttpResponseCode(403);
+        } else {
+            // Установим код ошибки - Bad Request
+            F::HttpResponseCode(400);
+        }
 
         // Отправим ошибку пользователю
         if ($this->bIsAjax) {
@@ -182,26 +130,22 @@ class ActionApi extends Action {
      */
     public function Access($sEvent) {
 
-        /**
-         * Возможно это ajax-запрос, тогда нужно проверить разрешены ли
-         * вообще такие запросы к нашему API
-         */
+        // Возможно это ajax-запрос, тогда нужно проверить разрешены ли
+        // вообще такие запросы к нашему API
         if (F::AjaxRequest()) {
             if (C::Get('module.api.ajax')) {
                 $this->bIsAjax = TRUE;
                 E::ModuleViewer()->SetResponseAjax('json');
             } else {
-                return $this->_Error(E::ModuleApi()->ERROR_CODE_0014);
+                return $this->_Error(E::ModuleApi()->ERROR_CODE_9014);
             }
         } else {
-            /**
-             * Проверим, разрешённые типы запросов к АПИ
-             */
+            // Проверим, разрешённые типы запросов к АПИ
             foreach (array(
-                         'post'   => E::ModuleApi()->ERROR_CODE_0010,
-                         'get'    => E::ModuleApi()->ERROR_CODE_0011,
-                         'put'    => E::ModuleApi()->ERROR_CODE_0012,
-                         'delete' => E::ModuleApi()->ERROR_CODE_0013
+                         'post'   => E::ModuleApi()->ERROR_CODE_9010,
+                         'get'    => E::ModuleApi()->ERROR_CODE_9011,
+                         'put'    => E::ModuleApi()->ERROR_CODE_9012,
+                         'delete' => E::ModuleApi()->ERROR_CODE_9013
                      ) as $sRequestMethod => $aErrorDescription) {
                 if ($this->_CheckRequestMethod($sRequestMethod) && !C::Get("module.api.{$sRequestMethod}")) {
                     return $this->_Error($aErrorDescription);
@@ -210,33 +154,30 @@ class ActionApi extends Action {
         }
 
         return TRUE;
+    }
 
+    /**
+     * @param null $sEvent
+     *
+     * @return string
+     */
+    public function AccessDenied($sEvent = null) {
+
+        return $this->_Error(E::ModuleApi()->ERROR_CODE_9004);
     }
 
     /**
      * Получает все параметры указанного метода запроса вместе с требуемым действием
      *
-     * @param $aData
+     * @param array  $aData
      * @param string $sRequestMethod Метод запроса
+     *
      * @return array
      */
     protected function _GetParams($aData, $sRequestMethod) {
 
         $sRequestMethod = strtoupper($sRequestMethod);
-
-        switch ($sRequestMethod) {
-            case 'GET':
-                $aParams = $_GET;
-                break;
-            case 'POST':
-                $aParams = $_POST;
-                break;
-            case 'PUT':
-                $aParams = $this->_PUT;
-                break;
-            default:
-                $aParams = array();
-        }
+        $aParams = $this->_getRequestData($sRequestMethod);
 
         foreach ($aParams as $k => $v) {
             if (strtoupper($aParams[$k]) == 'TRUE') $aParams[$k] = TRUE;
@@ -244,7 +185,6 @@ class ActionApi extends Action {
         }
 
         return array_merge($aData, array('params' => $aParams));
-
     }
 
     /**
@@ -263,9 +203,7 @@ class ActionApi extends Action {
 
         // И экшен ошибки
         $this->AddEventPreg('/^error/i', 'EventError');
-
     }
-
 
 
     /******************************************************************************************************
@@ -287,11 +225,7 @@ class ActionApi extends Action {
         }
 
         return TRUE;
-
     }
-
-
-
 
 
     /******************************************************************************************************
@@ -314,11 +248,7 @@ class ActionApi extends Action {
         }
 
         return TRUE;
-
     }
-
-
-
 
 
     /******************************************************************************************************
@@ -341,11 +271,7 @@ class ActionApi extends Action {
         }
 
         return TRUE;
-
     }
-
-
-
 
 
     /******************************************************************************************************
@@ -366,11 +292,11 @@ class ActionApi extends Action {
 
         // Если результата нет, выведем ошибку плохого ресурса
         if (!E::ModuleApi()->MethodExists($sApiMethod)) {
-            return E::ModuleApi()->ERROR_CODE_0001;
+            return E::ModuleApi()->ERROR_CODE_9001;
         }
         // Или отсутствие ресурса
         if (!($aResult = E::ModuleApi()->$sApiMethod($aData))) {
-            return E::ModuleApi()->ERROR_CODE_0003;
+            return E::ModuleApi()->ERROR_CODE_9003;
         }
 
         // Определим формат данных
@@ -401,7 +327,6 @@ class ActionApi extends Action {
         }
 
         return FALSE;
-
     }
 
     /**
@@ -428,7 +353,8 @@ class ActionApi extends Action {
         }
 
         return $sHtml;
-
     }
 
 }
+
+// EOF

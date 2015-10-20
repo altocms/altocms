@@ -22,18 +22,20 @@
 class ModuleApi extends Module {
 
     // Неизвестные ошибки
-    public $ERROR_CODE_0001 = array('code' => '0001', 'description' => 'Unknown error');
-    public $ERROR_CODE_0002 = array('code' => '0002', 'description' => 'Unknown resource');
+    public $ERROR_CODE_9001 = array('code' => '9001', 'description' => 'Unknown error');
+    public $ERROR_CODE_9002 = array('code' => '9002', 'description' => 'Unknown resource');
 
     // Ошибка отсутствия ресурса
-    public $ERROR_CODE_0003 = array('code' => '0003', 'description' => 'Resource is not found');
+    public $ERROR_CODE_9003 = array('code' => '9003', 'description' => 'Resource is not found');
+    public $ERROR_CODE_9004 = array('code' => '9004', 'description' => 'Access denied');
+    public $ERROR_CODE_9005 = array('code' => '9005', 'description' => 'Wrong parameters');
 
     // Ошибки типа запроса
-    public $ERROR_CODE_0010 = array('code' => '0010', 'description' => 'Request method POST is not allowed');
-    public $ERROR_CODE_0011 = array('code' => '0011', 'description' => 'Request method GET is not allowed');
-    public $ERROR_CODE_0012 = array('code' => '0012', 'description' => 'Request method PUT is not allowed');
-    public $ERROR_CODE_0013 = array('code' => '0013', 'description' => 'Request method DELETE is not allowed');
-    public $ERROR_CODE_0014 = array('code' => '0014', 'description' => 'Ajax request is not allowed');
+    public $ERROR_CODE_9010 = array('code' => '9010', 'description' => 'Request method POST is not allowed');
+    public $ERROR_CODE_9011 = array('code' => '9011', 'description' => 'Request method GET is not allowed');
+    public $ERROR_CODE_9012 = array('code' => '9012', 'description' => 'Request method PUT is not allowed');
+    public $ERROR_CODE_9013 = array('code' => '9013', 'description' => 'Request method DELETE is not allowed');
+    public $ERROR_CODE_9014 = array('code' => '9014', 'description' => 'Ajax request is not allowed');
 
     /**
      * Инициализация модуля
@@ -48,6 +50,7 @@ class ModuleApi extends Module {
      * @param $aError
      */
     public function SetLastError($aError) {
+
         E::ModuleCache()->SetTmp($aError, 'MODULE_API_LAST_ERROR');
     }
 
@@ -55,6 +58,7 @@ class ModuleApi extends Module {
      * Получение последней ошибки
      */
     public function GetLastError() {
+
         return E::ModuleCache()->GetTmp('MODULE_API_LAST_ERROR');
     }
 
@@ -66,6 +70,7 @@ class ModuleApi extends Module {
      * @return array
      */
     private function _PrepareResult($aData, $aJsonData) {
+
         return array(
             'data' => $aData,
             'json' => $aJsonData
@@ -98,7 +103,7 @@ class ModuleApi extends Module {
             'skill'     => $oUser->getSkill(),
             'rating'    => $oUser->getRating(),
             'is_friend' => $oUser->getUserIsFriend(),
-            'profile'   => $oUser->getUserWebPath(),
+            'profile'   => $oUser->getProfileUrl(),
             'country'   => $oUser->getProfileCountry(),
             'city'      => $oUser->getProfileCity(),
             'region'    => $oUser->getProfileRegion(),
