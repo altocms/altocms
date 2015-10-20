@@ -169,6 +169,11 @@ abstract class Action extends LsObject {
         }
     }
 
+    /**
+     * @param string $sType
+     * @param string $sKey
+     * @param mixed  $xValue
+     */
     protected function _setRequestData($sType, $sKey, $xValue = null) {
 
         if (is_array($sKey) && is_null($xValue)) {
@@ -179,13 +184,38 @@ abstract class Action extends LsObject {
             $this->aRequestData[$sType][strtolower($sKey)] = $xValue;
         }
     }
+
+    /**
+     * @param string $sBodyData
+     *
+     * @return array
+     */
+    protected function _prepareRequestBody($sBodyData) {
+
+        $aResult = array();
+        if ($sBodyData) {
+            if ($this->_getRequestData('HEADER', 'Content-Type') == 'application/json') {
+                $aResult = json_decode($sBodyData, true);
+            } else {
+                $aExplodedData = explode('&', $sBodyData);
+                foreach ($aExplodedData as $aPair) {
+                    $item = explode('=', $aPair);
+                    if (count($item) == 2) {
+                        $aResult[urldecode($item[0])] = urldecode($item[1]);
+                    }
+                }
+            }
+        }
+        return $aResult;
+    }
+
     /**
      * Preparation of request data
      */
     protected function _prepareRequestData() {
 
         $this->sRequestMethod = strtoupper(F::GetRequestMethod());
-        $this->_setRequestData('HEADERS', F::GetRequestHeaders());
+        $this->_setRequestData('HEADER', F::GetRequestHeaders());
 
         if (isset($_GET) && is_array($_GET)) {
             $this->_setRequestData('GET', $_GET);
@@ -200,13 +230,9 @@ abstract class Action extends LsObject {
         }
 
         $sBodyData = F::GetRequestBody();
-        if ($sBodyData) {
-            $aExplodedData = explode('&', $sBodyData);
-            foreach ($aExplodedData as $aPair) {
-                $item = explode('=', $aPair);
-                if (count($item) == 2) {
-                    $this->_setRequestData('BODY', urldecode($item[0]), urldecode($item[1]));
-                }
+        if ($sBodyData && $aExplodedData = $this->_prepareRequestBody($sBodyData)) {
+            foreach ($aExplodedData as $sKey => $xVal) {
+                $this->_setRequestData('BODY', $sKey, $xVal);
             }
         }
     }
@@ -232,7 +258,7 @@ abstract class Action extends LsObject {
     protected function _getRequestData($sType, $sName = null) {
 
         $sType = strtoupper($sType);
-        if (in_array($sType, array('HEADERS', 'GET', 'POST', 'BODY', 'FILES'))) {
+        if (in_array($sType, array('HEADER', 'GET', 'POST', 'BODY', 'FILES'))) {
             if (is_null($sName) && isset($this->aRequestData[$sType])) {
                 return $this->aRequestData[$sType];
             } elseif (!is_null($sName) && isset($this->aRequestData[$sType][strtolower($sName)])) {

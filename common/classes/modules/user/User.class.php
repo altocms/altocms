@@ -44,6 +44,20 @@ class ModuleUser extends Module {
     const USER_ROLE_ADMINISTRATOR = 2;
     const USER_ROLE_MODERATOR = 4;
 
+    const USER_AUTH_RESULT_OK           = 0;
+
+    const USER_AUTH_ERROR               = 1;
+    const USER_AUTH_ERR_LOGIN           = 2;
+    const USER_AUTH_ERR_MAIL            = 3;
+    const USER_AUTH_ERR_ID              = 4;
+    const USER_AUTH_ERR_SESSION         = 5;
+    const USER_AUTH_ERR_PASSWORD        = 9;
+
+    const USER_AUTH_ERR_NOT_ACTIVATED   = 11;
+    const USER_AUTH_ERR_IP_BANNED       = 12;
+    const USER_AUTH_ERR_BANNED_DATE     = 13;
+    const USER_AUTH_ERR_BANNED_UNLIM    = 14;
+
     /**
      * Объект маппера
      *
@@ -70,11 +84,11 @@ class ModuleUser extends Module {
      *
      * @var array
      */
-    protected $aUserFieldTypes
-        = array(
-            'social', 'contact'
-        );
+    protected $aUserFieldTypes = array('social', 'contact');
 
+    /**
+     * @var array
+     */
     protected $aAdditionalData = array('vote', 'session', 'friend', 'geo_target', 'note');
 
     /**
@@ -645,6 +659,71 @@ class ModuleUser extends Module {
             return $oUser;
         }
         return null;
+    }
+
+    /**
+     * @param      $aUserAuthData
+     *
+     * @return bool|ModuleUser_EntityUser|null
+     */
+    public function GetUserAuthorization($aUserAuthData) {
+
+        $oUser = null;
+        $iError = null;
+        if (!empty($aUserAuthData['login'])) {
+            $oUser = $this->GetUserByLogin($aUserAuthData['login']);
+            if (!$oUser) {
+                $iError = self::USER_AUTH_ERR_LOGIN;
+            }
+        }
+        if (!$oUser && !empty($aUserAuthData['email'])) {
+            if (F::CheckVal($aUserAuthData['email'], 'email')) {
+                $oUser = $this->GetUserByMail($aUserAuthData['email']);
+                if (!$oUser) {
+                    $iError = self::USER_AUTH_ERR_MAIL;
+                }
+            }
+        }
+        if (!$oUser && !empty($aUserAuthData['id'])) {
+            if (F::CheckVal(!empty($aUserAuthData['id']), 'id')) {
+                $oUser = $this->GetUserById($aUserAuthData['id']);
+                if (!$oUser) {
+                    $iError = self::USER_AUTH_ERR_ID;
+                }
+            }
+        }
+        if (!$oUser && !empty($aUserAuthData['session'])) {
+            $oUser = $this->GetUserBySessionKey($aUserAuthData['session']);
+            if (!$oUser) {
+                $iError = self::USER_AUTH_ERR_SESSION;
+            }
+        }
+        if ($oUser && !empty($aUserAuthData['password'])) {
+            if (!$this->CheckPassword($oUser, $aUserAuthData['password'])) {
+                $iError = self::USER_AUTH_ERR_PASSWORD;
+            }
+        }
+        if ($oUser) {
+            $iError = self::USER_AUTH_RESULT_OK;
+            if (!$oUser->getActivate()) {
+                $iError = self::USER_AUTH_ERR_NOT_ACTIVATED;
+            }
+            // Не забанен ли юзер
+            if ($oUser->IsBanned()) {
+                if ($oUser->IsBannedByIp()) {
+                    $iError = self::USER_AUTH_ERR_IP_BANNED;
+                } elseif ($oUser->GetBanLine()) {
+                    $iError = self::USER_AUTH_ERR_BANNED_DATE;
+                } else {
+                    $iError = self::USER_AUTH_ERR_BANNED_UNLIM;
+                }
+            }
+        } elseif(!$iError) {
+            $iError = self::USER_AUTH_ERROR;
+        }
+        $aUserAuthData['error'] = $iError;
+
+        return $oUser;
     }
 
     /**

@@ -1647,15 +1647,33 @@ class ModuleUser_MapperUser extends Mapper {
         if (isset($aFilter['ip']) && $aFilter['ip']) {
             $aFilter['ip_register'] = F::IpRange($aFilter['ip']);
         }
-        $aOrderAllow = array('user_id', 'user_login', 'user_date_register', 'user_rating', 'user_skill',
-                             'user_profile_name');
+        if (isset($aFilter['session.session_exit'])) {
+            $bJoinSession = true;
+        } else {
+            $bJoinSession = false;
+        }
+
+        $aOrderAllow = array(
+            'user_id',
+            'user_login',
+            'user_date_register',
+            'user_rating',
+            'user_skill',
+            'user_profile_name',
+            'session.session_date_last',
+        );
         $sOrder = '';
         if (is_array($aOrder) && $aOrder) {
-            foreach ($aOrder as $key => $value) {
-                if (!in_array($key, $aOrderAllow)) {
-                    unset($aOrder[$key]);
-                } elseif (in_array($value, array('asc', 'desc'))) {
-                    $sOrder .= " {$key} {$value},";
+            foreach ($aOrder as $sKey => $sValue) {
+                $sValue = strtoupper($sValue);
+                if (!in_array($sKey, $aOrderAllow)) {
+                    unset($aOrder[$sKey]);
+                } elseif ($sValue == 'ASC' || $sValue == 'DESC') {
+                    if (strpos($sKey, 'session.') === 0) {
+                        $bJoinSession = true;
+                        $sKey = str_replace('session.', 's.', $sKey);
+                    }
+                    $sOrder .= " {$sKey} {$sValue},";
                 }
             }
             $sOrder = trim($sOrder, ',');
@@ -1669,7 +1687,7 @@ class ModuleUser_MapperUser extends Mapper {
 					u.user_id
 				FROM
 					?_user AS u
-				    -- LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
+				    { LEFT JOIN ?_session AS s ON s.session_key=u.user_last_session AND 1=?}
 				WHERE
 					1 = 1
 					{ AND u.user_id = ?d }
@@ -1688,12 +1706,15 @@ class ModuleUser_MapperUser extends Mapper {
 					{ AND user_role & ?d}
 					{ AND user_role & ~ ?d}
 					{ AND user_role & ?d}
+					{ AND s.session_exit IS NULL AND 1=? }
+					{ AND s.session_exit IS NOT NULL AND 1=? }
 				ORDER by {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
+            $bJoinSession ? 1 : DBSIMPLE_SKIP,
             isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['email']) ? $aFilter['email'] : DBSIMPLE_SKIP,
             isset($aFilter['password']) ? $aFilter['password'] : DBSIMPLE_SKIP,
@@ -1711,6 +1732,8 @@ class ModuleUser_MapperUser extends Mapper {
             (isset($aFilter['moderator']) && $aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
             (isset($aFilter['moderator']) && !$aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
             (isset($aFilter['role']) && $aFilter['role']) ? $aFilter['role'] : DBSIMPLE_SKIP,
+            (isset($aFilter['session.session_exit']) && !$aFilter['session.session_exit']) ? 1 : DBSIMPLE_SKIP,
+            (isset($aFilter['session.session_exit']) && $aFilter['session.session_exit']) ? 1 : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
