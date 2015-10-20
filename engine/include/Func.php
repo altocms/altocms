@@ -1446,6 +1446,18 @@ if (!function_exists('mb_preg_match_all')) {
 
 }
 
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+        $aHeaders = array();
+        foreach ($_SERVER as $sName => $sValue) {
+            if (substr($sName, 0, 5) == 'HTTP_') {
+                $aHeaders[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($sName, 5)))))] = $sValue;
+            }
+        }
+        return $aHeaders;
+    }
+}
+
 //class_alias('Func', 'F');
 class F extends Func { }
 
