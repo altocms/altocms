@@ -939,8 +939,6 @@ class AltoFunc_File {
         return $sFile;
     }
 
-    static $bCheckUtf8;
-
     /**
      * Подключение файла
      *
@@ -960,16 +958,11 @@ class AltoFunc_File {
         try {
             self::$_time = microtime(true);
             if (F::IsDebug()) {
-                if (is_null(self::$bCheckUtf8) && class_exists('Config', false)) {
-                    self::$bCheckUtf8 = Config::Get('sys.include.check_file');
-                }
-                if (self::$bCheckUtf8) {
-                    $sBom = file_get_contents($sFile, true, null, 0, 5);
-                    if (!$sBom) {
-                        F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
-                    } elseif ($sBom != '<?php') {
-                        F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
-                    }
+                $sBom = file_get_contents($sFile, true, null, 0, 5);
+                if (!$sBom) {
+                    F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
+                } elseif ($sBom != '<?php') {
+                    F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
                 }
             }
             if ($bOnce) {
