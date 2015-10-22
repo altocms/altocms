@@ -766,6 +766,7 @@ return array(
     'checkdb_blogs_comments_online' => 'Удаленные блоги с онлайн-комментариями',
     'checkdb_clear_unlinked_blogs' => 'Удалить связи',
 
+    'checkdb_topics_comments' => 'Удаленные статьи с неудаленными комментариями',
     'checkdb_topics_comments_online' => 'Удаленные статьи с онлайн-комментариями',
     'checkdb_clear_unlinked_comments' => 'Удалить несвязанные комментарии',
 

@@ -472,6 +472,41 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     /**
+     * @return array
+     */
+    public function GetUnlinkedTopicsForComments() {
+
+        $sql = "
+            SELECT *
+            FROM ?_comment AS c
+            LEFT JOIN ?_topic AS t ON (c.target_type =  'topic' AND c.target_id = t.topic_id)
+            WHERE c.target_type='topic' AND t.topic_id IS NULL
+            ";
+        $aRows = $this->oDb->query($sql);
+        $aResult = array();
+        if ($aRows)
+            foreach ($aRows as $aRow) {
+                $aResult[$aRow['target_id']][] = $aRow;
+            }
+        return $aResult;
+    }
+
+    /**
+     * @param array $aTopicsId
+     *
+     * @return mixed
+     */
+    public function DelUnlinkedTopicsForComments($aTopicsId) {
+
+        $sql = "
+            DELETE FROM ?_comment
+            WHERE target_type='topic' AND target_id IN (?a)
+        ";
+        $aResult = $this->oDb->query($sql, $aTopicsId);
+        return $aResult;
+    }
+
+    /**
      * Устанавливает новую роль пользователя
      *
      * @param $oUser

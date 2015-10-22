@@ -319,6 +319,26 @@ class ModuleAdmin extends Module {
     }
 
     /**
+     * @return array
+     */
+    public function GetUnlinkedTopicsForComments() {
+
+        return $this->oMapper->GetUnlinkedTopicsForComments();
+    }
+
+    /**
+     * @param array $aTopicIds
+     *
+     * @return mixed
+     */
+    public function DelUnlinkedTopicsForComments($aTopicIds) {
+
+        $bResult = $this->oMapper->DelUnlinkedTopicsForComments($aTopicIds);
+        E::ModuleCache()->Clean();
+        return $bResult;
+    }
+
+    /**
      * @param int $nUserId
      *
      * @return bool

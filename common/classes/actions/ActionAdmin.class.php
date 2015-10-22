@@ -2998,13 +2998,21 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('tools/checkdb_topics');
         $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_topics_co') {
-            $aCommentsOnlineBlogs = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
-            if ($aCommentsOnlineBlogs) {
-                E::ModuleAdmin()->DelUnlinkedTopicsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
+            $aTopics = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
+            if ($aTopics) {
+                E::ModuleAdmin()->DelUnlinkedTopicsForCommentsOnline(array_keys($aTopics));
+            }
+            $aTopics = E::ModuleAdmin()->GetUnlinkedTopicsForComments();
+            if ($aTopics) {
+                E::ModuleAdmin()->DelUnlinkedTopicsForComments(array_keys($aTopics));
             }
         }
+
         $aCommentsOnlineTopics = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
         E::ModuleViewer()->Assign('aCommentsOnlineTopics', $aCommentsOnlineTopics);
+
+        $aCommentsTopics = E::ModuleAdmin()->GetUnlinkedTopicsForComments();
+        E::ModuleViewer()->Assign('aCommentsTopics', $aCommentsTopics);
     }
 
     /**********************************************************************************/
