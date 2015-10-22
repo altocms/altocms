@@ -2640,13 +2640,21 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('tools/checkdb_topics');
         $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_topics_co') {
-            $aCommentsOnlineBlogs = $this->Admin_GetUnlinkedTopicsForCommentsOnline();
-            if ($aCommentsOnlineBlogs) {
-                $this->Admin_DelUnlinkedTopicsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
+            $aTopics = $this->Admin_GetUnlinkedTopicsForCommentsOnline();
+            if ($aTopics) {
+                $this->Admin_DelUnlinkedTopicsForCommentsOnline(array_keys($aTopics));
+            }
+            $aTopics = $this->Admin_GetUnlinkedTopicsForComments();
+            if ($aTopics) {
+                $this->Admin_DelUnlinkedTopicsForComments(array_keys($aTopics));
             }
         }
+
         $aCommentsOnlineTopics = $this->Admin_GetUnlinkedTopicsForCommentsOnline();
         $this->Viewer_Assign('aCommentsOnlineTopics', $aCommentsOnlineTopics);
+
+        $aCommentsTopics = $this->Admin_GetUnlinkedTopicsForComments();
+        $this->Viewer_Assign('aCommentsTopics', $aCommentsTopics);
     }
 
     /**********************************************************************************/

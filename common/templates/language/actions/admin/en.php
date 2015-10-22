@@ -665,6 +665,7 @@ return array (
     'checkdb_blogs_comments_online' => 'Remote blogs with online comments',
     'checkdb_clear_unlinked_blogs' => 'Remove communications',
 
+    'checkdb_topics_comments' => 'Removed articles with unremoved comments',
     'checkdb_topics_comments_online' => 'Remote articles with online comments',
     'checkdb_clear_unlinked_comments' => 'Remove unlinked comments',
 
