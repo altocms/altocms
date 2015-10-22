@@ -297,7 +297,7 @@ class ModuleMenu_EntityMenu extends Entity {
 
         $aAllowedItems = $this->_aItems;
         if ($aAllowedItems) {
-            $aAllowedData = $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
+            $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
             if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
                 unset($aAllowedData[0]);
             }
