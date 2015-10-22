@@ -544,6 +544,9 @@ class ModuleViewer extends Module {
         // (обычно это 'classes', 'assets', 'jevix', 'widgets', 'menu')
         $aConfigNames = array('config') + F::Str2Array(Config::Get('config_load'));
 
+        // Config section that are loaded for the current skin
+        $aSkinConfigNames = array();
+
         // Load configs from paths
         foreach ($aConfigNames as $sConfigName) {
             foreach ($aSkinConfigPaths as $sPath) {
@@ -556,6 +559,25 @@ class ModuleViewer extends Module {
                     // загружаем конфиг, что позволяет сразу использовать значения
                     // в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
                     Config::Load($aSubConfig, false, null, null, $sFile);
+                    if ($sConfigName != 'config' && !isset($aSkinConfigNames[$sConfigName])) {
+                        $aSkinConfigNames[$sConfigName] = $sFile;
+                    }
+                }
+            }
+        }
+
+        Config::ResetLevel(Config::LEVEL_SKIN_CUSTOM);
+        $aStorageConfig = Config::ReadStorageConfig(null, true);
+
+        // Reload sections changed by user
+        if ($aSkinConfigNames) {
+            foreach(array_keys($aSkinConfigNames) as $sConfigName) {
+                if (isset($aStorageConfig[$sConfigName])) {
+                    if (empty($aConfig)) {
+                        $aConfig[$sConfigName] = $aStorageConfig[$sConfigName];
+                    } else {
+                        $aConfig = F::Array_MergeCombo($aConfig, array($sConfigName => $aStorageConfig[$sConfigName]));
+                    }
                 }
             }
         }
@@ -609,7 +631,7 @@ class ModuleViewer extends Module {
             $this->_initSkin();
         } else {
             // Level could be changed after skin initialization
-            Config::SetLevel(Config::LEVEL_SKIN);
+            Config::SetLevel(Config::LEVEL_SKIN_CUSTOM);
         }
 
         // init templator if not yet
