@@ -178,7 +178,7 @@
                                 title="{$aLang.blog_menu_admin}"
                                 class="small link link-lead link-dark link-clear">
                                  {*{$aLang.blog_menu_admin}*}
-                                 <i class="fa fa-cog"></i>
+                                 <i class="fa fa-users"></i>
                              </a>
                          {/if}
                          {if $oBlog->CanEditedBy(E::User())}
