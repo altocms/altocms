@@ -1,0 +1,42 @@
+.popover {
+    border-radius: 0;
+    max-width: none;
+}
+.popover-header {
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+    /* Градиент */
+    font-size: 18px !important;
+    text-align: center !important;
+    margin-bottom: 6px !important;
+    margin-top: 0;
+}
+.alto-popover-content {
+    width: 300px;
+    height: 140px;
+    min-height: 40px;
+}
+
+.alto-popover-content .loader {
+    width: 100%;
+    height: 100%;
+    min-height: 40px;
+    background: url(../images/loader.gif) center no-repeat;
+}
+
+.popover-user-info-container {
+    height: 120px;
+}
+.popover-user-info-avatar {
+    float: left;
+}
+.popover-user-info-content {
+    margin-left: 50%;
+}
+.popover-user-info-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+}
