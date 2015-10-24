@@ -74,7 +74,7 @@
         </div>
         <div class="topic-footer">
             <ul>
-                <li class="topic-user js-popover-{$oUser->getId()}">
+                <li class="topic-user js-popover-user-{$oUser->getId()}">
                     <img src="{$oUser->getAvatarUrl('mini')}" alt="{$oUser->getDisplayName()}"/>
                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}

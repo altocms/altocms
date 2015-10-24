@@ -5,6 +5,7 @@
     <script>
         $(function(){
             $('.js-title-comment').tooltip();
+            $.altoPopoverReset('.js-widget-stream-content');
         })
     </script>
     {foreach $aComments as $oComment}
@@ -17,8 +18,10 @@
              data-container="body"
              data-original-title="{$oComment->getText()|strip_tags|trim|truncate:100:'...'|escape:'html'}">
             <ul>
-                <li class="user-block">
-                    <img src="{$oUser->getAvatarUrl(20)}" alt="{$oUser->getDisplayName()}"/>
+                <li data-alto-role="popover"
+                    data-api="user/{$oUser->getId()}/info"
+                    class="user-block">
+                    <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}" class="user-avatar"/>
                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}
                     </a>

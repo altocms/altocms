@@ -302,11 +302,11 @@ C::Set('menu.data.topics.discussed.text', array(
 ));
 $config['data']['topics'] = array(
     'list' => array(
-        'homepage'  => array(
-            'options' => array(
-                'class' => '',
-            )
-        ),
+        //'homepage'  => array(
+        //    'options' => array(
+        //        'class' => '',
+        //    )
+        //),
         'good'                 => array(
             'active'  => array('topic_kind' => array('index')),
         ),

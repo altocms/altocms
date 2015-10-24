@@ -1,0 +1,1 @@
+<div>{$oBlog->getTitle()}</div>

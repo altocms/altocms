@@ -58,12 +58,16 @@ $config['view']['header']['logo']['name'] = Config::Get('view.name');
 
 $config['module']['user']['profile_photo_size'] = '222x';
 
-C::Set('module.uploader.images.profile_avatar.size', array(
-    'large'  => '100x100crop', // Шапка профиля блога/пользователя
+$config['module']['uploader']['images']['profile_photo']['size'] = array(
+    'popover'  => '120x120crop',
+);
+
+$config['module']['uploader']['images']['profile_avatar']['size'] = array(
+    'large'  => '112x112crop', // Шапка профиля блога/пользователя
     'big'    => '64x64crop',   // Список пользователей list_avatar
     'medium' => '50x50crop',
     'small'  => '24x24crop',
     'mini'   => '16x16crop',
-));
+);
 
 return $config;

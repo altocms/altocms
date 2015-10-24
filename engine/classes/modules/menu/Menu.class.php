@@ -182,6 +182,7 @@ class ModuleMenu extends Module {
             // Такая форма вызова используется для того,
             // чтобы можно было повесить хук на этот метод
             $oMenu = E::ModuleMenu()->CreateMenu($sMenuId, $aMenu);
+
             return $oMenu;
         }
 
@@ -199,6 +200,24 @@ class ModuleMenu extends Module {
         $aMenuId = array_keys(Config::Get('menu.data'));
 
         return $this->GetMenusByArrayId($aMenuId);
+    }
+
+    /**
+     * Return list of editable menu
+     *
+     * @return ModuleMenu_EntityMenu[]
+     */
+    public function GetEditableMenus() {
+
+        $aResult = array();
+        $aEditableMenus = C::Get('menu.editable');
+        if ($aEditableMenus) {
+            foreach($aEditableMenus as $sMenuId) {
+                $aResult[$sMenuId] = $this->GetMenu($sMenuId);
+            }
+        }
+
+        return $aResult;
     }
 
     /**
@@ -279,15 +298,26 @@ class ModuleMenu extends Module {
     /**
      * Создает меню, заполняя его из указанных в конфиге параметров
      *
-     * @param string $sMenuId ID меню, как оно указано в конфиге, например "main" для $config['view']['menu']['main']
-     * @param array  $aMenu   Конфигурация самого меню
+     * @param string $sMenuId   ID меню, как оно указано в конфиге, например "main" для $config['view']['menu']['main']
+     * @param array  $aMenuData Конфигурация самого меню
      *
      * @return ModuleMenu_EntityMenu
      */
-    public function CreateMenu($sMenuId, $aMenu) {
+    public function CreateMenu($sMenuId, $aMenuData = null) {
 
-        $aPreparedMenuData = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
-        $aPreparedMenuData['_cfg'] = $aMenu;
+        if (is_null($aMenuData)) {
+            $aMenuData = array(
+                'init'        => array(
+                    'fill' => array(
+                        'list' => array('*'),
+                    ),
+                ),
+                'list'        => array(),
+            );
+        }
+
+        $aPreparedMenuData = E::ModuleMenu()->Prepare($sMenuId, $aMenuData);
+        $aPreparedMenuData['_cfg'] = $aMenuData;
         $oMenu = E::GetEntity('Menu_Menu', $aPreparedMenuData);
         $oMenu->setProp('id', $sMenuId);
 

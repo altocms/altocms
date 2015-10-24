@@ -26,8 +26,8 @@ class ModuleMenu_EntityMenu extends Entity {
     }
 
     /**
-     * @param      $sTextTemplate
-     * @param null $sLang
+     * @param string $sTextTemplate
+     * @param null   $sLang
      *
      * @return mixed
      */
@@ -101,8 +101,6 @@ class ModuleMenu_EntityMenu extends Entity {
             array_values($aMenuPosition),
             $xPosition)
         );
-
-
     }
 
     /**
@@ -113,6 +111,35 @@ class ModuleMenu_EntityMenu extends Entity {
     public function getLength() {
 
         return count($this->_aItems);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEditable() {
+
+        $aInitData = $this->getProp('init');
+
+        return !empty($aInitData['editable']);
+    }
+
+    /**
+     * Return fill list settings, if allow any item (mark as '*') then return empty array
+     *
+     * @return array
+     */
+    public function getFillList() {
+
+        $aInitData = $this->getProp('init');
+        if (!empty($aInitData['fill']['list'])) {
+            if (is_array($aInitData['fill']['list']) && in_array('*', $aInitData['fill']['list'])) {
+                return array();
+            } elseif ($aInitData['fill']['list'] === '*') {
+                return array();
+            }
+            return $aInitData['fill']['list'];
+        }
+        return array();
     }
 
     /**
@@ -140,6 +167,13 @@ class ModuleMenu_EntityMenu extends Entity {
         }
 
         $this->SetItems($aResult);
+
+        $aAllowedData = $this->getFillList();
+        if (!empty($aAllowedData)) {
+            // Добавим имя в список разрешенных
+            $aNewItems = array_merge($aAllowedData, array($oMenuItem->getItemId()));
+            $this->SetConfig('init.fill.list', $aNewItems);
+        }
 
         return TRUE;
     }
@@ -183,7 +217,6 @@ class ModuleMenu_EntityMenu extends Entity {
         }
 
         $this->_aItems = $aResult;
-
     }
 
     /**
@@ -297,17 +330,12 @@ class ModuleMenu_EntityMenu extends Entity {
 
         $aAllowedItems = $this->_aItems;
         if ($aAllowedItems) {
-            $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
-            if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                unset($aAllowedData[0]);
-            }
-            if (is_array($aAllowedData) && count($aAllowedData) == 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                return $aAllowedItems;
-            }
-
-            foreach ($aAllowedItems as $k => $v) {
-                if (!in_array($k, $aAllowedData)) {
-                    unset($aAllowedItems[$k]);
+            $aAllowedData = $this->getFillList();
+            if (!empty($aAllowedData)) {
+                foreach ($aAllowedItems as $sItemId => $oItem) {
+                    if (!in_array($sItemId, $aAllowedData)) {
+                        unset($aAllowedItems[$sItemId]);
+                    }
                 }
             }
 
@@ -374,9 +402,9 @@ class ModuleMenu_EntityMenu extends Entity {
     }
 
     /**
-     * @param $sItemId
-     * @param $sKey
-     * @param $xValue
+     * @param string $sItemId
+     * @param string $sKey
+     * @param string $xValue
      */
     public function SetConfigItem($sItemId, $sKey, $xValue) {
 

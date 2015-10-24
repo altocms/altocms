@@ -32,7 +32,7 @@
                 <div class="panel-header">{$aLang.settings_profile_section_base}</div>
 
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
 
                         {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
                         <div class              ="js-alto-uploader tac settings-avatar-change"
@@ -80,7 +80,7 @@
                     </div>
 
 
-                    <div class="col-md-20">
+                    <div class="col-md-19">
                         <div class="form-group">
 
                             <div class="form-group">

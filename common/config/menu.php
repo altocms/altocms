@@ -20,6 +20,9 @@ $config['allowed'] = array(
     'footer_info',  // Третья колонка, информация
 );
 
+// Editable top menus
+$config['editable'] = array('main', 'user', 'topics', 'login', 'footer_site_menu', 'footer_info');
+
 // Настройки подменю, созданных в админке
 $config['submenu'] = array(
     'class' => '',

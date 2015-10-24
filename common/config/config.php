@@ -439,7 +439,6 @@ $config['module']['image']['libs'] = 'Gmagick,Imagick,GD'; // 'GD', 'Imagick' or
 // Модуль Menu
 $config['module']['menu']['default_length'] = 20;
 $config['module']['menu']['blog_logo_size'] = '24x24crop';
-$config['module']['menu']['admin'] = array( 'main', 'user', 'topics', 'login', 'image_insert','footer_site_menu', 'footer_info');
 
 /*
  * Настройка ЧПУ топика
