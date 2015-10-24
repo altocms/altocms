@@ -152,7 +152,11 @@
             var $this = this, popover = $this.$element.data('bs.popover');
 
             if (popover && popover.tip().is(':visible')) {
-                $this.$element.popover('hide');
+                if ($this.options.cache === false) {
+                    $this.$element.popover('destroy');
+                } else {
+                    $this.$element.popover('hide');
+                }
             }
         },
 
@@ -266,8 +270,6 @@
                         $this._loadError();
                     })
             }
-
-
             return $this;
         },
 
@@ -481,6 +483,23 @@
      */
     $.fn.altoPopover.collection = null;
 
+    /**
+     * Селектор для определения поповера
+     *
+     * @type {string}
+     */
+    $.fn.altoPopover.selector = '[class|="js-popover"],[class*=" js-popover-"],[data-alto-popover-api],[data-alto-role="popover"]';
+
+    /**
+     * Вспомогательная функция для задания поповеров внутри конкретного контейнера (напр., после подгрузки через ajax)
+     * @param container
+     */
+    $.altoPopoverReset = function(container) {
+        $(container).find($.fn.altoPopover.selector).each(function() {
+            $(this).altoPopover(false);
+        });
+    }
+
 }(window.jQuery, window.ls));
 
 
@@ -492,7 +511,7 @@ jQuery(function ($) {
 
     $.altoPopoverCollection = function() {
         if ($.fn.altoPopover.collection === null) {
-            $.fn.altoPopover.collection = $('[class|="js-popover"],[class*=" js-popover-"],[data-alto-popover-api],[data-alto-role="popover"]');
+            $.fn.altoPopover.collection = $($.fn.altoPopover.selector);
         }
         return $.fn.altoPopover.collection;
     };
@@ -509,10 +528,14 @@ jQuery(function ($) {
             found,
             api;
 
+        if ($(this).parent('.js-popover').length) {
+            // Prevent popover in popover
+            return;
+        }
         // <element class="js-popover-..." >
         if (!$(this).data('alto-popover-api') && (!role || (role && role != 'popover'))) {
             $.each(classes, function(key, val){
-                if (val && (found = val.match(/^js-popover-(\w+)-(\d+)/))) {
+                if (val && (found = val.match(/^js-popover-(\w+)-(\d+)$/))) {
                     options = false;
                     switch (found[1]) {
                         case 'user':
@@ -524,13 +547,14 @@ jQuery(function ($) {
                             element.altoPopover(options);
                             return;
                         default:
+                            options = { altoRole: 'popover', api: found[1] + '/' + found[2] + '/' };
+                            element.altoPopover(options);
+                            return;
                         // nothing
                     }
                 }
             });
-        }
-
-        if (api = element.data('alto-popover-api')) {
+        } else if (api = element.data('alto-popover-api')) {
             // <element data-alto-popover-api="..." >
             options = { altoRole: 'popover', api: element.data('alto-popover-api') };
             element.altoPopover(options);
