@@ -747,6 +747,9 @@ class ModuleUser_EntityUser extends Entity {
                     $xSize = self::DEFAULT_PHOTO_SIZE;
                 }
             }
+            if ($sRealSize = C::Get('module.uploader.images.profile_photo.size.' . $xSize)) {
+                $xSize = $sRealSize;
+            }
 
             $sUrl = $this->_getProfileImageUrl('profile_photo', $xSize);
             if (!$sUrl) {
