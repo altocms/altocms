@@ -237,7 +237,14 @@ class Decorator extends LsObject {
         if (!$bHookEnable || $sClassName == 'ModulePlugin' || $sClassName == 'ModuleHook') {
             return $oComponent;
         }
-        $oComponentDecorator = new static($oComponent);
+        if (DEBUG) {
+            $sDecoratorClassName = 'Decorator' . $sClassName;
+            $sDecoratorClassCode = 'class ' . $sDecoratorClassName . ' extends Decorator { }';
+            eval($sDecoratorClassCode);
+            $oComponentDecorator = new $sDecoratorClassName($oComponent);
+        } else {
+            $oComponentDecorator = new static($oComponent);
+        }
         $aClassInfo = E::GetClassInfo($oComponent, Engine::CI_ACTION | Engine::CI_MODULE);
         if ($aClassInfo[Engine::CI_ACTION]) {
             $oComponentDecorator->setType('action');

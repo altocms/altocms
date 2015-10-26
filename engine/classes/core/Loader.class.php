@@ -567,6 +567,20 @@ class Loader {
     }
 
     /**
+     * Creates an alias for a class
+     *
+     * @param string $sOriginal
+     * @param string $sAlias
+     * @param bool   $bAutoload
+     *
+     * @return bool
+     */
+    static public function ClassAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
+
+        return self::_classAlias($sOriginal, $sAlias, $bAutoload);
+    }
+
+    /**
      * Returns of class aliases
      *
      * @return array
