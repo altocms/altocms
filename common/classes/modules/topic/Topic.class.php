@@ -1385,6 +1385,7 @@ class ModuleTopic extends Module {
                 $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
                 $aFilter['topic_new'] = $sDate;
                 break;
+            case 'all': // Filter for ALL topics
             case 'new_all': // Filter for ALL new topics
                 // Nothing others
                 break;
@@ -1504,7 +1505,7 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsNewAll($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $aFilter = $this->GetNamedFilter('new_all', array('accessible' => $bAddAccessible));
+        $aFilter = $this->GetNamedFilter('all', array('accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1579,8 +1580,9 @@ class ModuleTopic extends Module {
             case 'new':
                 $aFilter = $this->GetNamedFilter('new', array('personal' => true, 'period' => $sPeriod));
                 break;
+            case 'all':
             case 'newall':
-                $aFilter = $this->GetNamedFilter('new_all', array('personal' => true, 'period' => $sPeriod));
+                $aFilter = $this->GetNamedFilter('all', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'discussed':
                 $aFilter = $this->GetNamedFilter('discussed', array('personal' => true, 'period' => $sPeriod));
@@ -1697,8 +1699,9 @@ class ModuleTopic extends Module {
             case 'new':
                 $aFilter = $this->GetNamedFilter('new', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
+            case 'all':
             case 'newall':
-                $aFilter = $this->GetNamedFilter('new_all', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
+                $aFilter = $this->GetNamedFilter('all', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'discussed':
                 $aFilter = $this->GetNamedFilter('discussed', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
@@ -1776,8 +1779,9 @@ class ModuleTopic extends Module {
             case 'new':
                 $aFilter = $this->GetNamedFilter('new', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
+            case 'all':
             case 'newall':
-                $aFilter = $this->GetNamedFilter('new_all', array('blog_id' => $iBlogId, 'period' => $sPeriod));
+                $aFilter = $this->GetNamedFilter('all', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'discussed':
                 $aFilter = $this->GetNamedFilter('discussed', array('blog_id' => $iBlogId, 'period' => $sPeriod));

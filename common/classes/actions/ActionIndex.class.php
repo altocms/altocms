@@ -77,6 +77,7 @@ class ActionIndex extends Action {
     protected function RegisterEvent() {
         $this->AddEventPreg('/^(page([1-9]\d{0,5}))?$/i', 'EventIndex');
         $this->AddEventPreg('/^new$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventNew');
+        $this->AddEventPreg('/^all$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventAll');
         $this->AddEventPreg('/^newall$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventNewAll');
         $this->AddEventPreg('/^discussed/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventDiscussed');
         if (C::Get('rating.enabled')) {
@@ -216,7 +217,8 @@ class ActionIndex extends Action {
      * Вывод новых топиков
      */
     protected function EventNew() {
-        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'new/', Config::Get('view.name'));
+
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'index/new/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -256,7 +258,16 @@ class ActionIndex extends Action {
      * Вывод ВСЕХ новых топиков
      */
     protected function EventNewAll() {
-        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'new/', Config::Get('view.name'));
+
+        $this->EventAll();
+    }
+
+    /**
+     * Вывод ВСЕХ топиков
+     */
+    protected function EventAll() {
+
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'index/all/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -299,6 +310,7 @@ class ActionIndex extends Action {
      *
      */
     protected function EventIndex() {
+
         E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'index/', Config::Get('view.name'));
         /**
          * Меню

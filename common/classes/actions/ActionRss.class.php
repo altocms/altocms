@@ -36,9 +36,12 @@ class ActionRss extends Action {
     protected function RegisterEvent() {
 
         $this->AddEventPreg('/^index$/', '/^newall$/', 'RssTopics');
+        $this->AddEventPreg('/^index$/', '/^new$/', 'RssTopics');
+        $this->AddEventPreg('/^index$/', '/^all$/', 'RssTopics');
         $this->AddEvent('index', 'RssTopics');
         $this->AddEvent('wall', 'RssWall');
         $this->AddEvent('allcomments', 'RssComments');
+        $this->AddEventPreg('/^comments$/', '/^\d+$/', 'RssCommentsByTopic');
         $this->AddEvent('tag', 'RssTopics');
         $this->AddEvent('blog', 'RssBlog');
         $this->AddEvent('personal_blog', 'RssPersonalBlog');
@@ -94,6 +97,20 @@ class ActionRss extends Action {
         array_shift($aParams);
         E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssComments'));
         return R::Action('comments', $sEvent, $aParams);
+    }
+
+    /**
+     * Event RssCommentsByTopic
+     *
+     * @return string
+     */
+    protected function RssCommentsByTopic() {
+
+        $sEvent = $this->GetParam(0);
+        $aParams = $this->GetParams();
+        array_shift($aParams);
+        E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssComments'));
+        return R::Action('blog', $sEvent . '.html', $aParams);
     }
 
     /**

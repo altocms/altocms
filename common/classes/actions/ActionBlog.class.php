@@ -800,9 +800,11 @@ class ActionBlog extends Action {
         }
 
         // Если запросили топик с определенной маской, не указаным названием блога,
-        // но ссылка на топик и ЧПУ url разные, то перенаправляем на страницу для вывода коллективного топика
+        // но ссылка на топик и ЧПУ url разные, и это не запрос RSS
+        // то перенаправляем на страницу для вывода топика (во избежание дублирования контента по разным URL)
         if ($sTopicUrlMask && $sBlogUrl == '' 
             && $this->oCurrentTopic->getUrl() != R::GetPathWebCurrent() . (substr($this->oCurrentTopic->getUrl(), -1) == '/' ? '/' : '')
+            && substr(R::RealUrl(true), 0, 4) !== 'rss/'
         ) {
             R::Location($this->oCurrentTopic->getUrl());
         }
