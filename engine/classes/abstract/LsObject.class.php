@@ -75,8 +75,14 @@ abstract class LsObject {
         // LS compatibility
         if ($sName === 'oEngine') {
             $this->oEngine = E::getInstance();
+            return $this->oEngine;
         }
-        return $this->oEngine;
+
+        $trace = debug_backtrace();
+        $sError = 'Undefined property via __get(): ' . $sName . ' in ' . $trace[0]['file'] . ' on line ' . $trace[0]['line'];
+        F::SysWarning($sError);
+
+        return null;
     }
 }
 
