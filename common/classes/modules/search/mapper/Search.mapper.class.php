@@ -56,18 +56,18 @@ class ModuleSearch_MapperSearch extends Mapper {
 
         $aData = $this->PrepareRegExp($sRegExp);
         $aWeight = array();
+        $sWhere = '';
 
         // Обработка возможного фильтра. Пока параметр один - это разрешённые блоги для пользователя
         // но на будущее условия разделены
-        if (isset($aParams['aFilter']) && is_array($aParams['aFilter']) && !empty($aParams['aFilter'])) {
+        if (!empty($aParams['filter']) && is_array($aParams['filter'])) {
 
             // Если определён список типов/ид. разрешённых блогов
-            if (isset($aParams['aFilter']['blog_type']) && is_array($aParams['aFilter']['blog_type']) && !empty($aParams['aFilter']['blog_type'])) {
-                $sWhere = '';
+            if (!empty($aParams['filter']['blog_type']) && is_array($aParams['filter']['blog_type'])) {
                 $aBlogTypes = array();
                 $aOrClauses = array();
-                $aParams['aFilter']['blog_type'] = F::Array_FlipIntKeys($aParams['aFilter']['blog_type'], 0);
-                foreach ($aParams['aFilter']['blog_type'] as $sType => $aBlogsId) {
+                $aParams['filter']['blog_type'] = F::Array_FlipIntKeys($aParams['filter']['blog_type'], 0);
+                foreach ($aParams['filter']['blog_type'] as $sType => $aBlogsId) {
                     if ($aBlogsId) {
                         if ($sType == '*') {
                             $aOrClauses[] = "(t.blog_id IN ('" . join("','", $aBlogsId) . "'))";

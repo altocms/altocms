@@ -39,7 +39,7 @@ class ModuleSearch extends Module {
         $sCacheKey = 'search_topics_' . $s . '_' . $iPage . '_' . $iPerPage;
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             if ($bAccessible) {
-                $aParams['aFilter'] = E::ModuleTopic()->GetNamedFilter(FALSE, array('accessible' => true));
+                $aParams['filter'] = E::ModuleTopic()->GetNamedFilter(FALSE, array('accessible' => true));
             }
             $data = array(
                 'collection' => $this->oMapper->GetTopicsIdByRegexp($sRegexp, $iCount, $iPage, $iPerPage, $aParams),
