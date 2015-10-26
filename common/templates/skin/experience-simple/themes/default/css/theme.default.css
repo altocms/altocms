@@ -3154,7 +3154,7 @@ div.pp_experience .pp_loaderIcon {
   width: 99.7%;
   height: 50%;
   border: 0;
-  padding: 8px 0 0 136px;
+  padding: 8px 0 0 130px;
   margin: 0;
 }
 .topic-info .user-info-default-container > div.user-info-default-top,
@@ -3252,8 +3252,9 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rating,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top .user-info-default-rating,
 .alto-popover .user-info-default-container > div.user-info-default-top .user-info-default-rating {
+  display: block;
   float: right;
-  margin-right: 16px;
+  margin-right: 10px;
 }
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rating span.positive,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top .user-info-default-rating span.positive,
@@ -3269,7 +3270,7 @@ div.pp_experience .pp_loaderIcon {
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom,
 .alto-popover .user-info-default-container > div.user-info-default-bottom {
   background-color: #e6ebee;
-  padding: 8px 0 0 136px;
+  padding: 8px 0 0 130px;
 }
 .topic-info .user-info-default-container > div.user-info-default-bottom ul,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom ul,
