@@ -489,15 +489,14 @@ class ModuleTalk_MapperTalk extends Mapper {
 					tui.talk_user_active = ?d
 					{ AND tui.user_id = ?d }
 					{ AND tui.talk_id IN (?a) }
-					{ AND ( tu.comment_count_new > ?d OR tu.date_last IS NULL ) }
-					{ AND ( tu.user_id = ?d ) }
+					{ AND ( tui.comment_count_new > ?d OR tui.date_last IS NULL ) }
 					{ AND t.talk_date <= ? }
 					{ AND t.talk_date >= ? }
 					{ AND t.talk_title LIKE ? }
 					{ AND t.talk_text LIKE ? }
 					{ AND u.user_login = ? }
 					{ AND u.user_login IN (?a) }
-					{ AND t.user_id = ? }
+					{ AND t.user_id = ?d }
 				ORDER BY t.talk_date_last desc, t.talk_date desc
 				LIMIT ?d, ?d
 					";
@@ -510,7 +509,6 @@ class ModuleTalk_MapperTalk extends Mapper {
             (!empty($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP),
             ((isset($aFilter['id']) && count($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP),
             (!empty($aFilter['only_new']) ? 0 : DBSIMPLE_SKIP),
-            (!empty($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP),
             (!empty($aFilter['date_max']) ? $aFilter['date_max'] : DBSIMPLE_SKIP),
             (!empty($aFilter['date_min']) ? $aFilter['date_min'] : DBSIMPLE_SKIP),
             (!empty($aFilter['keyword']) ? $aFilter['keyword'] : DBSIMPLE_SKIP),
