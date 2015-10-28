@@ -54,7 +54,7 @@ class ModuleMresource extends Module {
     /**
      * Создание хеш-списка ресурсов, где индексом является хеш
      *
-     * @param $aMresources
+     * @param ModuleMresource_EntityMresource[] $aMresources
      *
      * @return array
      */
@@ -63,6 +63,7 @@ class ModuleMresource extends Module {
         if ($this->IsHashList($aMresources)) {
             return $aMresources;
         }
+        /** @var ModuleMresource_EntityMresource[] $aHashList */
         $aHashList = array();
         foreach ($aMresources as $oMresource) {
             $sHash = $oMresource->GetHashUrl();
@@ -153,9 +154,9 @@ class ModuleMresource extends Module {
     /**
      * Add relations between mresources and target
      *
-     * @param array|ModuleMresource_EntityMresource $aMresources
-     * @param string                                $sTargetType
-     * @param int                                   $iTargetId
+     * @param ModuleMresource_EntityMresource[] $aMresources
+     * @param string                            $sTargetType
+     * @param int                               $iTargetId
      *
      * @return bool
      */
@@ -613,8 +614,6 @@ class ModuleMresource extends Module {
      * @param string $sTargetText
      *
      * @return bool
-     *
-     * @internal param ModuleComment_EntityComment $oTarget
      */
     public function CheckTargetTextForImages($sTargetType, $sTargetId, $sTargetText) {
 

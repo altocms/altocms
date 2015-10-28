@@ -11,8 +11,12 @@
 /**
  * Class ModuleMresource_EntityMresource
  *
+ * @method setMresourceId(int $iParam)
  * @method setUserId(int $iParam)
  * @method setTargetId(int $iParam)
+ * @method setTargetType(string $sParam)
+ * @method setTargetsCount(int $iParam)
+ * @method setUser(object $oParam)
  * @method setLink(string $sParam)
  * @method setHashFile(string $sParam)
  * @method setHashUrl(string $sParam)
@@ -20,9 +24,13 @@
  * @method setPathUrl(string $sParam)
  * @method setType(string $sParam)
  * @method setStorage(string $sParam)
+ * @method setIncount(int $iParam)
  *
  * @method int getMresourceId()
  * @method int getUserId()
+ * @method string getTargetType()
+ * @method int getTargetsCount()
+ * @method object getUser()
  * @method int getTargetId()
  * @method string getLink()
  * @method string getHashFile()
@@ -31,6 +39,7 @@
  * @method string getPathUrl()
  * @method int getType()
  * @method string getStorage()
+ * @method int getIncount()
  */
 class ModuleMresource_EntityMresource extends Entity {
 
