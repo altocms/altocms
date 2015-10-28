@@ -27,13 +27,10 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
         trigger_error('Parameter "name" does not define in {widget ...} function', E_USER_WARNING);
         return null;
     }
+
     $sWidgetName = $aParams['name'];
-    $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
-    foreach ($aParams as $sKey=>$xValue) {
-        if ($sKey != 'name' && $sKey != 'params') {
-            $aWidgetParams[$sKey] = $xValue;
-        }
-    }
+    $sPlugin = (!empty($aParams['plugin']) ? $aParams['plugin'] : '');
+    $aWidgetParams = (isset($aParams['params']) ? array_merge($aParams['params'], $aParams): $aParams);
 
     $sWidget = ucfirst(basename($sWidgetName));
     $sTemplate = '';
@@ -47,11 +44,6 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
 
     // Если делегатов нет, то определаем класс виджета
     if ($sDelegatedClass == $sWidget) {
-        if (isset($aParams['params']) && isset($aParams['params']['plugin'])) {
-            $sPlugin = $aParams['params']['plugin'];
-        } else {
-            $sPlugin = '';
-        }
         // Проверяем наличие класса виджета штатными средствами
         $sWidgetClass = E::ModuleWidget()->FileClassExists($sWidget, $sPlugin, true);
         if ($sWidgetClass) {
@@ -64,7 +56,7 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                     $sTemplate = $sFound;
                 } else {
                     // * LS-compatible * //
-                    $sLsTemplate = Plugin::GetTemplateDir($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
+                    $sLsTemplate = Plugin::GetTemplateDir($sPlugin) . '/blocks/block.' . $sWidgetName . '.tpl';
                     if (F::File_Exists($sLsTemplate)) {
                         $sTemplate = $sLsTemplate;
                     }
@@ -85,7 +77,7 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
             // Класс не найден
             if ($sPlugin) {
                 // Если класс виджета не найден, то пытаемся по старинке задать класс "LS-блока"
-                $sWidgetClass = 'Plugin' . ucfirst($aParams['params']['plugin']) . '_Block' . $sWidget;
+                $sWidgetClass = 'Plugin' . ucfirst($sPlugin) . '_Block' . $sWidget;
             } else {
                 // Если класс виджета не найден, то пытаемся по старинке задать класс "LS-блока"
                 $sWidgetClass = 'Block' . $sWidget;

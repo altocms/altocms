@@ -56,6 +56,16 @@ abstract class Widget extends LsObject {
     }
 
     /**
+     * Return widget params
+     *
+     * @return array
+     */
+    protected function GetParams() {
+
+        return $this->aParams;
+    }
+
+    /**
      * Метод запуска обработки блока.
      * Его необходимо определять в конкретном блоге.
      *

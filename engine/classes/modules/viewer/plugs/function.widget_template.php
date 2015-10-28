@@ -28,21 +28,18 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
         return null;
     }
     $sWidgetName = $aParams['name'];
-    $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
+    $sWidgetTemplate = (!empty($aParams['template']) ? $aParams['template'] : $sWidgetName);
+    $aWidgetParams = (isset($aParams['params']) ? array_merge($aParams['params'], $aParams): $aParams);
 
     // Проверяем делигирование
-    $sTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetName);
+    $sTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
 
     if ($sTemplate) {
         if ($aWidgetParams) {
-            foreach ($aWidgetParams as $sKey => $sVal) {
-                $oSmartyTemplate->smarty->assign($sKey, $sVal);
-            }
-            if (!isset($aWidgetParams['params'])) {
-                /* LS-compatible */
-                $oSmartyTemplate->smarty->assign('params', $aWidgetParams);
-            }
+            $oSmartyTemplate->smarty->assign($aWidgetParams);
             $oSmartyTemplate->smarty->assign('aWidgetParams', $aWidgetParams);
+            /* LS-compatible */
+            $oSmartyTemplate->smarty->assign('params', $aWidgetParams);
         }
         $sResult = $oSmartyTemplate->smarty->fetch($sTemplate);
     } else {
