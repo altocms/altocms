@@ -721,7 +721,7 @@ abstract class Action extends LsObject {
         }
         if (self::$bPost) {
             if ($sName) {
-                return array_key_exists($sName, $aPostData);
+                return array_key_exists(strtolower($sName), $aPostData);
             } else {
                 return is_array($aPostData);
             }
@@ -742,7 +742,8 @@ abstract class Action extends LsObject {
         if ($this->IsPost($sName)) {
             $aPostData = $this->_getRequestData('POST');
             if ($sName) {
-                return isset($aPostData[(string)$sName]) ? $aPostData[(string)$sName] : $sDefault;
+                $sName = strtolower($sName);
+                return isset($aPostData[$sName]) ? $aPostData[$sName] : $sDefault;
             } else {
                 return $aPostData;
             }
