@@ -636,6 +636,10 @@ class ModuleComment extends Module {
                 $oComment->getText()
             );
 
+            // * Сохраняем дату последнего коммента для юзера
+            E::User()->setDateCommentLast(F::Now());
+            E::ModuleUser()->Update(E::User());
+
             // чистим зависимые кеши
             E::ModuleCache()->CleanByTags(
                 array("comment_new", "comment_new_{$oComment->getTargetType()}",
