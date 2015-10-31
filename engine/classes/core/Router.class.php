@@ -243,8 +243,13 @@ class Router extends LsObject {
 
         static::$aRequestURI = $aRequestUrl = $this->RewriteRequest($aRequestUrl);
 
-        static::$sAction = array_shift($aRequestUrl);
-        static::$sActionEvent = array_shift($aRequestUrl);
+        if (!empty($aRequestUrl)) {
+            static::$sAction = array_shift($aRequestUrl);
+            static::$sActionEvent = array_shift($aRequestUrl);
+        } else {
+            static::$sAction = null;
+            static::$sActionEvent = null;
+        }
         static::$aParams = $aRequestUrl;
 
         // Только для мультиязычных сайтов
