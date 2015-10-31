@@ -1,4 +1,4 @@
-/* THEME experience Light */
+/* THEME experience DEFAULT */
 /* COMMON */
 body {
   background: #eaeaea;
@@ -41,6 +41,11 @@ a:visited,
 }
 .nav.context-menu > li.active > a {
   color: #fff;
+  background-color: #00afd1;
+}
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
   background-color: #00afd1;
 }
 .nav-pills.context-menu > li.bordered {
@@ -177,4 +182,3 @@ a:visited,
   text-decoration: none;
   color: #00afd1;
 }
-/*# sourceMappingURL=style.css.map */

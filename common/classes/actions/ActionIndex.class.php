@@ -58,6 +58,15 @@ class ActionIndex extends Action {
     protected $iCountTopicsPersonalNew = 0;
 
     /**
+     * Named filter for topic list
+     *
+     * @var string
+     */
+    protected $sTopicFilter = '';
+
+    protected $sTopicFilterPeriod;
+
+    /**
      * Инициализация
      *
      */
@@ -95,14 +104,14 @@ class ActionIndex extends Action {
      * Вывод рейтинговых топиков
      */
     protected function EventTop() {
-        $sPeriod = 1; // по дефолту 1 день
+        $this->sTopicFilterPeriod = 1; // по дефолту 1 день
         if (in_array(F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
-            $sPeriod = F::GetRequestStr('period');
+            $this->sTopicFilterPeriod = F::GetRequestStr('period');
         }
         /**
          * Меню
          */
-        $this->sMenuSubItemSelect = 'top';
+        $this->sTopicFilter = $this->sMenuSubItemSelect = 'top';
         /**
          * Передан ли номер страницы
          */
@@ -114,15 +123,15 @@ class ActionIndex extends Action {
          * Получаем список топиков
          */
         $aResult = E::ModuleTopic()->GetTopicsTop(
-            $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+            $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
         );
         /**
          * Если нет топиков за 1 день, то показываем за неделю (7)
          */
         if (!$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
-            $sPeriod = 7;
+            $this->sTopicFilterPeriod = 7;
             $aResult = E::ModuleTopic()->GetTopicsTop(
-                $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+                $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
             );
         }
         $aTopics = $aResult['collection'];
@@ -135,7 +144,7 @@ class ActionIndex extends Action {
          */
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('index') . 'top', array('period' => $sPeriod)
+            R::GetPath('index') . 'top', array('period' => $this->sTopicFilterPeriod)
         );
 
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_all_top') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
@@ -144,7 +153,7 @@ class ActionIndex extends Action {
          */
         E::ModuleViewer()->Assign('aTopics', $aTopics);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('sPeriodSelectCurrent', $sPeriod);
+        E::ModuleViewer()->Assign('sPeriodSelectCurrent', $this->sTopicFilterPeriod);
         E::ModuleViewer()->Assign('sPeriodSelectRoot', R::GetPath('index') . 'top/');
         /**
          * Устанавливаем шаблон вывода
@@ -156,14 +165,14 @@ class ActionIndex extends Action {
      * Вывод обсуждаемых топиков
      */
     protected function EventDiscussed() {
-        $sPeriod = 1; // по дефолту 1 день
+        $this->sTopicFilterPeriod = 1; // по дефолту 1 день
         if (in_array(F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
-            $sPeriod = F::GetRequestStr('period');
+            $this->sTopicFilterPeriod = F::GetRequestStr('period');
         }
         /**
          * Меню
          */
-        $this->sMenuSubItemSelect = 'discussed';
+        $this->sTopicFilter = $this->sMenuSubItemSelect = 'discussed';
         /**
          * Передан ли номер страницы
          */
@@ -175,15 +184,15 @@ class ActionIndex extends Action {
          * Получаем список топиков
          */
         $aResult = E::ModuleTopic()->GetTopicsDiscussed(
-            $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+            $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
         );
         /**
          * Если нет топиков за 1 день, то показываем за неделю (7)
          */
         if (!$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
-            $sPeriod = 7;
+            $this->sTopicFilterPeriod = 7;
             $aResult = E::ModuleTopic()->GetTopicsDiscussed(
-                $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+                $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
             );
         }
         $aTopics = $aResult['collection'];
@@ -196,7 +205,7 @@ class ActionIndex extends Action {
          */
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('index') . 'discussed', array('period' => $sPeriod)
+            R::GetPath('index') . 'discussed', array('period' => $this->sTopicFilterPeriod)
         );
 
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_collective_discussed') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
@@ -205,7 +214,7 @@ class ActionIndex extends Action {
          */
         E::ModuleViewer()->Assign('aTopics', $aTopics);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('sPeriodSelectCurrent', $sPeriod);
+        E::ModuleViewer()->Assign('sPeriodSelectCurrent', $this->sTopicFilterPeriod);
         E::ModuleViewer()->Assign('sPeriodSelectRoot', R::GetPath('index') . 'discussed/');
         /**
          * Устанавливаем шаблон вывода
@@ -222,7 +231,7 @@ class ActionIndex extends Action {
         /**
          * Меню
          */
-        $this->sMenuSubItemSelect = 'new';
+        $this->sTopicFilter = $this->sMenuSubItemSelect = 'new';
         /**
          * Передан ли номер страницы
          */
@@ -271,7 +280,7 @@ class ActionIndex extends Action {
         /**
          * Меню
          */
-        $this->sMenuSubItemSelect = 'new';
+        $this->sTopicFilter = $this->sMenuSubItemSelect = 'new';
         /**
          * Передан ли номер страницы
          */
@@ -315,7 +324,7 @@ class ActionIndex extends Action {
         /**
          * Меню
          */
-        $this->sMenuSubItemSelect = 'good';
+        $this->sTopicFilter = $this->sMenuSubItemSelect = 'good';
         /**
          * Передан ли номер страницы
          */
@@ -361,6 +370,8 @@ class ActionIndex extends Action {
         E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
         E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
         E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->Assign('sTopicFilter', $this->sTopicFilter);
+        E::ModuleViewer()->Assign('sTopicFilterPeriod', $this->sTopicFilterPeriod);
         E::ModuleViewer()->Assign('iCountTopicsNew', $this->iCountTopicsNew);
         E::ModuleViewer()->Assign('iCountTopicsCollectiveNew', $this->iCountTopicsCollectiveNew);
         E::ModuleViewer()->Assign('iCountTopicsPersonalNew', $this->iCountTopicsPersonalNew);

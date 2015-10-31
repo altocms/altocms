@@ -12,3 +12,6 @@
 .logo-name {
 
 }
+.alto-user-role-guest .role-guest-hide {
+    display: none;
+}

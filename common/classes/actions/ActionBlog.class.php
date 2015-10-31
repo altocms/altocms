@@ -99,6 +99,15 @@ class ActionBlog extends Action {
     protected $iCountTopicsNew = 0;
 
     /**
+     * Named filter for topic list
+     *
+     * @var string
+     */
+    protected $sTopicFilter = '';
+
+    protected $sTopicFilterPeriod;
+
+    /**
      * Список URL с котрыми запрещено создавать блог
      *
      * @var array
@@ -628,11 +637,7 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_description_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        //  Преобразуем ограничение по рейтингу в число
-        //if (!F::CheckVal( F::GetRequestStr('blog_limit_rating_topic'), 'float')) {
-        //    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_rating_error'), E::ModuleLang()->Get('error'));
-        //    $bOk = false;
-        //}
+
         //  Выполнение хуков
         E::ModuleHook()->Run('check_blog_fields', array('bOk' => &$bOk));
         return $bOk;
@@ -644,33 +649,33 @@ class ActionBlog extends Action {
      */
     protected function EventTopics() {
 
-        $sPeriod = 1; // по дефолту 1 день
+        $this->sTopicFilter = $this->sCurrentEvent;
+        $this->sTopicFilterPeriod = 1; // по дефолту 1 день
         if (in_array( F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
-            $sPeriod =  F::GetRequestStr('period');
+            $this->sTopicFilterPeriod =  F::GetRequestStr('period');
         }
-        $sShowType = $this->sCurrentEvent;
-        if (!in_array($sShowType, array('discussed', 'top'))) {
-            $sPeriod = 'all';
+        if (!in_array($this->sTopicFilter, array('discussed', 'top'))) {
+            $this->sTopicFilterPeriod = 'all';
         }
 
         //  Меню
-        $this->sMenuSubItemSelect = $sShowType == 'newall' ? 'new' : $sShowType;
+        $this->sMenuSubItemSelect = $this->sTopicFilter == 'all' ? 'new' : $this->sTopicFilter;
 
         //  Передан ли номер страницы
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
         if ($iPage == 1 && !F::GetRequest('period')) {
-            E::ModuleViewer()->SetHtmlCanonical(R::GetPath('blog') . $sShowType . '/');
+            E::ModuleViewer()->SetHtmlCanonical(R::GetPath('blog') . $this->sTopicFilter . '/');
         }
         //  Получаем список топиков
         $aResult = E::ModuleTopic()->GetTopicsCollective(
-            $iPage, Config::Get('module.topic.per_page'), $sShowType, $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+            $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilter, $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
         );
         //  Если нет топиков за 1 день, то показываем за неделю (7)
-        if (in_array($sShowType, array('discussed', 'top')) && !$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
-            $sPeriod = 7;
+        if (in_array($this->sTopicFilter, array('discussed', 'top')) && !$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
+            $this->sTopicFilterPeriod = 7;
             $aResult = E::ModuleTopic()->GetTopicsCollective(
-                $iPage, Config::Get('module.topic.per_page'), $sShowType,
-                $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+                $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilter,
+                $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
             );
         }
         $aTopics = $aResult['collection'];
@@ -681,20 +686,23 @@ class ActionBlog extends Action {
         //  Формируем постраничность
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('blog') . $sShowType,
-            in_array($sShowType, array('discussed', 'top')) ? array('period' => $sPeriod) : array()
+            R::GetPath('blog') . $this->sTopicFilter,
+            in_array($this->sTopicFilter, array('discussed', 'top')) ? array('period' => $this->sTopicFilterPeriod) : array()
         );
 
         //  Вызов хуков
-        E::ModuleHook()->Run('blog_show', array('sShowType' => $sShowType));
+        E::ModuleHook()->Run('blog_show', array('sShowType' => $this->sTopicFilter));
 
         //  Загружаем переменные в шаблон
         E::ModuleViewer()->Assign('aTopics', $aTopics);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
-        if (in_array($sShowType, array('discussed', 'top'))) {
-            E::ModuleViewer()->Assign('sPeriodSelectCurrent', $sPeriod);
-            E::ModuleViewer()->Assign('sPeriodSelectRoot', R::GetPath('blog') . $sShowType . '/');
+        if (in_array($this->sTopicFilter, array('discussed', 'top'))) {
+            E::ModuleViewer()->Assign('sPeriodSelectCurrent', $this->sTopicFilterPeriod);
+            E::ModuleViewer()->Assign('sPeriodSelectRoot', R::GetPath('blog') . $this->sTopicFilter . '/');
         }
+        E::ModuleViewer()->Assign('sTopicFilter', $this->sTopicFilter);
+        E::ModuleViewer()->Assign('sTopicFilterPeriod', $this->sTopicFilterPeriod);
+
         //  Устанавливаем шаблон вывода
         $this->SetTemplateAction('index');
     }
@@ -1062,16 +1070,16 @@ class ActionBlog extends Action {
 
         $this->sMenuHeadItemSelect = 'index';
 
-        $sPeriod = 1; // по дефолту 1 день
+        $this->sTopicFilterPeriod = 1; // по дефолту 1 день
         if (in_array( F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
-            $sPeriod =  F::GetRequestStr('period');
+            $this->sTopicFilterPeriod =  F::GetRequestStr('period');
         }
         $sBlogUrl = $this->sCurrentEvent;
-        $sShowType = in_array($this->GetParamEventMatch(0, 0), $this->aMenuFilters)
+        $this->sTopicFilter = in_array($this->GetParamEventMatch(0, 0), $this->aMenuFilters)
             ? $this->GetParamEventMatch(0, 0)
             : $this->sMenuDefault;
-        if (!in_array($sShowType, array('discussed', 'top'))) {
-            $sPeriod = 'all';
+        if (!in_array($this->sTopicFilter, array('discussed', 'top'))) {
+            $this->sTopicFilterPeriod = 'all';
         }
 
         //  Try to get blog by URL
@@ -1100,15 +1108,15 @@ class ActionBlog extends Action {
         }
 
         //  Меню
-        $this->sMenuSubItemSelect = $sShowType == 'newall' ? 'new' : $sShowType;
+        $this->sMenuSubItemSelect = $this->sTopicFilter == 'all' ? 'new' : $this->sTopicFilter;
         $this->sMenuSubBlogUrl = $oBlog->getUrlFull();
 
         //  Передан ли номер страницы
-        $iPage = $this->GetParamEventMatch(($sShowType == 'good') ? 0 : 1, 2)
-            ? $this->GetParamEventMatch(($sShowType == 'good') ? 0 : 1, 2)
+        $iPage = $this->GetParamEventMatch(($this->sTopicFilter == 'good') ? 0 : 1, 2)
+            ? $this->GetParamEventMatch(($this->sTopicFilter == 'good') ? 0 : 1, 2)
             : 1;
-        if (($iPage == 1) && !F::GetRequest('period') && in_array($sShowType, array('discussed', 'top'))) {
-            E::ModuleViewer()->SetHtmlCanonical($oBlog->getUrlFull() . $sShowType . '/');
+        if (($iPage == 1) && !F::GetRequest('period') && in_array($this->sTopicFilter, array('discussed', 'top'))) {
+            E::ModuleViewer()->SetHtmlCanonical($oBlog->getUrlFull() . $this->sTopicFilter . '/');
         }
 
         //  Получаем число новых топиков в текущем блоге (даже для закрытых блогов)
@@ -1117,35 +1125,35 @@ class ActionBlog extends Action {
         if (!$bCloseBlog) {
             //  Получаем список топиков
             $aResult = E::ModuleTopic()->GetTopicsByBlog(
-                $oBlog, $iPage, Config::Get('module.topic.per_page'), $sShowType,
-                $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+                $oBlog, $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilter,
+                $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
             );
             //  Если нет топиков за 1 день, то показываем за неделю (7)
-            if (in_array($sShowType, array('discussed', 'top')) && !$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
-                $sPeriod = 7;
+            if (in_array($this->sTopicFilter, array('discussed', 'top')) && !$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
+                $this->sTopicFilterPeriod = 7;
                 $aResult = E::ModuleTopic()->GetTopicsByBlog(
-                    $oBlog, $iPage, Config::Get('module.topic.per_page'), $sShowType,
-                    $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
+                    $oBlog, $iPage, Config::Get('module.topic.per_page'), $this->sTopicFilter,
+                    $this->sTopicFilterPeriod == 'all' ? null : $this->sTopicFilterPeriod * 60 * 60 * 24
                 );
             }
             $aTopics = $aResult['collection'];
             //  Формируем постраничность
-            $aPaging = ($sShowType == 'good')
+            $aPaging = ($this->sTopicFilter == 'good')
                 ? E::ModuleViewer()->MakePaging(
                     $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
                     Config::Get('pagination.pages.count'), rtrim($oBlog->getUrlFull(), '/')
                 )
                 : E::ModuleViewer()->MakePaging(
                     $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
-                    Config::Get('pagination.pages.count'), $oBlog->getUrlFull() . $sShowType,
-                    array('period' => $sPeriod)
+                    Config::Get('pagination.pages.count'), $oBlog->getUrlFull() . $this->sTopicFilter,
+                    array('period' => $this->sTopicFilterPeriod)
                 );
 
             E::ModuleViewer()->Assign('aPaging', $aPaging);
             E::ModuleViewer()->Assign('aTopics', $aTopics);
-            if (in_array($sShowType, array('discussed', 'top'))) {
-                E::ModuleViewer()->Assign('sPeriodSelectCurrent', $sPeriod);
-                E::ModuleViewer()->Assign('sPeriodSelectRoot', $oBlog->getUrlFull() . $sShowType . '/');
+            if (in_array($this->sTopicFilter, array('discussed', 'top'))) {
+                E::ModuleViewer()->Assign('sPeriodSelectCurrent', $this->sTopicFilterPeriod);
+                E::ModuleViewer()->Assign('sPeriodSelectRoot', $oBlog->getUrlFull() . $this->sTopicFilter . '/');
             }
         }
         //  Выставляем SEO данные
@@ -1174,7 +1182,7 @@ class ActionBlog extends Action {
             E::ModuleViewer()->Assign('aBlogs', $aBlogs);
         }
         //  Вызов хуков
-        E::ModuleHook()->Run('blog_collective_show', array('oBlog' => $oBlog, 'sShowType' => $sShowType));
+        E::ModuleHook()->Run('blog_collective_show', array('oBlog' => $oBlog, 'sShowType' => $this->sTopicFilter));
 
         //  Загружаем переменные в шаблон
         E::ModuleViewer()->Assign('aBlogUsers', $aBlogUsers);
@@ -1185,6 +1193,8 @@ class ActionBlog extends Action {
         E::ModuleViewer()->Assign('iCountBlogAdministrators', $aBlogAdministratorsResult['count'] + 1);
         E::ModuleViewer()->Assign('oBlog', $oBlog);
         E::ModuleViewer()->Assign('bCloseBlog', $bCloseBlog);
+        E::ModuleViewer()->Assign('sTopicFilter', $this->sTopicFilter);
+        E::ModuleViewer()->Assign('sTopicFilterPeriod', $this->sTopicFilterPeriod);
 
         //  Устанавливаем title страницы
         E::ModuleViewer()->AddHtmlTitle($oBlog->getTitle());
@@ -1351,10 +1361,6 @@ class ActionBlog extends Action {
 
                 E::ModuleComment()->AddCommentOnline($oCommentOnline);
             }
-
-            // * Сохраняем дату последнего коммента для юзера
-            $this->oUserCurrent->setDateCommentLast(F::Now());
-            E::ModuleUser()->Update($this->oUserCurrent);
 
             // * Список емайлов на которые не нужно отправлять уведомление
             $aExcludeMail = array($this->oUserCurrent->getMail());

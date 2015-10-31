@@ -780,7 +780,22 @@ class ModuleMenu extends Module {
     public function CompareParam($iParam, $sParamData) {
 
         return R::GetParam($iParam) == $sParamData;
+    }
 
+    /**
+     * Вызывается по строке "compare_get_param"
+     *
+     * @param string $sParam
+     * @param mixed $mParamData
+     *
+     * @return bool
+     */
+    public function CompareGetParam($sParam, $mParamData) {
+
+        if (!empty($_GET[$sParam])) {
+            return $_GET[$sParam] == $mParamData;
+        }
+        return false;
     }
 
     /**
@@ -795,6 +810,11 @@ class ModuleMenu extends Module {
      */
     public function TopicKind($sTopicType) {
 
+        $sViewTopicFilter = E::ModuleViewer()->getTemplateVars('sTopicFilter');
+        if ($sViewTopicFilter && $sViewTopicFilter == $sTopicType) {
+            return true;
+        }
+
         if (R::GetAction() != 'index') {
             return false;
         }
@@ -804,7 +824,40 @@ class ModuleMenu extends Module {
         }
 
         return R::GetActionEvent() == $sTopicType;
+    }
 
+    /**
+     * Вызывается по строке "topic_filter"
+     *
+     * @param $sParamData
+     *
+     * @return bool
+     */
+    public function TopicFilter($sParamData) {
+
+        $sViewTopicFilter = E::ModuleViewer()->getTemplateVars('sTopicFilter');
+        if ($sViewTopicFilter && $sViewTopicFilter == $sParamData) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Вызывается по строке "topic_filter_period"
+     *
+     * @param $sParamData
+     *
+     * @return bool
+     */
+    public function TopicFilterPeriod($sParamData) {
+
+        $sViewTopicFilterPeriod = E::ModuleViewer()->getTemplateVars('sTopicFilterPeriod');
+        if ($sViewTopicFilterPeriod && $sViewTopicFilterPeriod == $sParamData) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

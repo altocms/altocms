@@ -100,17 +100,17 @@
     {/if}
 
     {if E::IsUser()}
-        {$body_classes=$body_classes|cat:' ls-user-role-user'}
+        {$body_classes=$body_classes|cat:' alto-user-role-user'}
 
         {if E::IsAdmin()}
-            {$body_classes=$body_classes|cat:' ls-user-role-admin'}
+            {$body_classes=$body_classes|cat:' alto-user-role-admin'}
         {/if}
     {else}
-        {$body_classes=$body_classes|cat:' ls-user-role-guest'}
+        {$body_classes=$body_classes|cat:' alto-user-role-guest'}
     {/if}
 
     {if !E::IsAdmin()}
-        {$body_classes=$body_classes|cat:' ls-user-role-not-admin'}
+        {$body_classes=$body_classes|cat:' alto-user-role-not-admin'}
     {/if}
 
 {hook run='layout_head_end'}

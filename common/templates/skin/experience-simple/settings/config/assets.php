@@ -67,6 +67,8 @@ $config['assets']['default']['css'] = array(
     ),
     */
 
+    '___path.skin.dir___/assets/css/custom.css',
+
     /* Theme */
     '___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css',
     //'___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css.map',
