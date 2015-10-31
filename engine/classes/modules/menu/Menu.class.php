@@ -288,7 +288,8 @@ class ModuleMenu extends Module {
         Config::ResetCustomConfig("menu.data.{$sMenuId}");
         $this->ClearMenuCache($sMenuId);
 
-        $aMenu = Config::Get('menu.data.' . $sMenuId, Config::LEVEL_APP);
+        //$aMenu = Config::Get('menu.data.' . $sMenuId, Config::LEVEL_APP);
+        $aMenu = Config::Get('menu.data.' . $sMenuId, Config::LEVEL_SKIN);
         $aPreparedMenuData = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
         $aPreparedMenuData['_cfg'] = $aMenu;
         $oMenu->setProps($aPreparedMenuData);
