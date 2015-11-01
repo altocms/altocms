@@ -71,7 +71,8 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
                 if (preg_match('~[a-f0-9]{10}~', $sSubmenuId)) {
                     $aSettings = array_merge($aSettings, array('class' => Config::Get('menu.submenu.class')));
                 }
-                if (!empty($sSubmenuHtml = smarty_function_menu($aSettings))) {
+                $sSubmenuHtml = smarty_function_menu($aSettings);
+                if (!empty($sSubmenuHtml)) {
                     return $sSubmenuHtml;
                 }
                 return '';
