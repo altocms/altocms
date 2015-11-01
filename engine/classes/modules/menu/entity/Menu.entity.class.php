@@ -23,6 +23,14 @@ class ModuleMenu_EntityMenu extends Entity {
     public function Init() {
 
         $this->_aItems = isset($this->_aData['items']) ? $this->_aData['items'] : NULL;
+        if (!empty($this->_aItems)) {
+            /** @var ModuleMenu_EntityItem $oItem */
+            foreach($this->_aItems as $oItem) {
+                if (!empty($oItem) && is_object($oItem)) {
+                    $oItem->setMenu($this);
+                }
+            }
+        }
     }
 
     /**

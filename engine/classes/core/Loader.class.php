@@ -145,7 +145,7 @@ class Loader {
          */
         $sConfigFile = $sConfigDir . '/config.local.php';
         if (F::File_Exists($sConfigFile)) {
-            if ($aConfig = F::File_IncludeFile($sConfigFile, true)) {
+            if ($aConfig = F::IncludeFile($sConfigFile, true, true)) {
                 Config::Set($aConfig, false, null, $nConfigLevel, $sConfigFile);
             }
         }
@@ -255,7 +255,7 @@ class Loader {
     static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
         if (F::File_Exists($sFile)) {
-            $aCfg = F::File_IncludeFile($sFile, true, true);
+            $aCfg = F::IncludeFile($sFile, true, true);
             if ($aCfg) {
                 if (isset($aCfg[$sName])) {
                     $aConfig = $aCfg[$sName];

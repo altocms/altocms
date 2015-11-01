@@ -164,11 +164,12 @@ class ModuleMenu extends Module {
     /**
      * Возвращает меню по его идентификатору
      *
-     * @param $sMenuId
+     * @param string $sMenuId
+     * @param array  $aParams
      *
      * @return ModuleMenu_EntityMenu|bool
      */
-    public function GetMenu($sMenuId) {
+    public function GetMenu($sMenuId, $aParams = null) {
 
         if (!$sMenuId) {
             return null;
@@ -179,6 +180,9 @@ class ModuleMenu extends Module {
 
         // Настройки меню
         if ($aMenu = Config::Get('menu.data.' . $sMenuId)) {
+            if ($aParams) {
+                $aMenu = F::Array_Merge($aMenu, $aParams);
+            }
             // Такая форма вызова используется для того,
             // чтобы можно было повесить хук на этот метод
             $oMenu = E::ModuleMenu()->CreateMenu($sMenuId, $aMenu);

@@ -17,7 +17,7 @@ include_once __DIR__ . '/function.hook.php';
 function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
     // Меню нет - уходим
-    if (empty($aParams['id']) || !($oMenu = E::ModuleMenu()->GetMenu($aParams['id']))) {
+    if (empty($aParams['id']) || !($oMenu = E::ModuleMenu()->GetMenu($aParams['id'], $aParams))) {
         return '';
     }
 
@@ -60,26 +60,26 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
         // Сформируем подменю если нужно
         $oMenuItem->setMenuId($aParams['id']);
-        if (strpos($oMenuItemHtml = $oMenuItem->getHtml(), "[[submenu_") !== FALSE) {
-            $oMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) {
+        if (strpos($sMenuItemHtml = $oMenuItem->getHtml(), "[[submenu_") !== FALSE) {
+            $sMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) use($oMenuItem) {
                 if (isset($sSubmenuId[1])) {
                     $sSubmenuId = $sSubmenuId[1];
                 } else {
                     return '';
                 }
-                $aSettings = array('id' => $sSubmenuId);
+                $aSettings = array('id' => $sSubmenuId, 'parent_item' => $oMenuItem);
                 if (preg_match('~[a-f0-9]{10}~', $sSubmenuId)) {
                     $aSettings = array_merge($aSettings, array('class' => Config::Get('menu.submenu.class')));
                 }
-                if (!is_null($sSubmenuHtml = smarty_function_menu($aSettings))) {
+                if (!empty($sSubmenuHtml = smarty_function_menu($aSettings))) {
                     return $sSubmenuHtml;
                 }
                 return '';
-            }, $oMenuItemHtml);
+            }, $sMenuItemHtml);
         }
 
         // Добавим html в вывод
-        $sMenu .= $oMenuItemHtml;
+        $sMenu .= $sMenuItemHtml;
 
         $bEmpty = FALSE;
     }

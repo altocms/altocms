@@ -90,6 +90,11 @@ class ModuleMenu_EntityItem extends Entity {
         return $bDefault;
     }
 
+    /**
+     * @param string|array $aPlugins
+     *
+     * @return bool
+     */
     public function checkPlugin($aPlugins) {
 
         if (is_string($aPlugins)) {
@@ -109,8 +114,41 @@ class ModuleMenu_EntityItem extends Entity {
     }
 
     /**
+     * Set parent menu
+     *
+     * @param ModuleMenu_EntityMenu $oMenu
+     */
+    public function setMenu($oMenu) {
+
+        $this->setProp('_menu', !empty($oMenu) ? $oMenu : null);
+    }
+
+    /**
+     * Get parent menu
+     *
+     * @return ModuleMenu_EntityMenu|null
+     */
+    public function getMenu() {
+
+        return $this->getProp('_menu');
+    }
+
+    /**
+     * @return ModuleMenu_EntityItem|null
+     */
+    public function getParentItem() {
+
+        if ($oMenu = $this->getMenu()) {
+            return $oMenu->getParentItem();
+        }
+        return null;
+    }
+
+    /**
      * Проверка на то, нужно выводить элемент или нет
+     *
      * @param string|bool $sType Текущий контент
+     *
      * @return bool
      */
     public function isEnabled($sType = FALSE) {
@@ -154,7 +192,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @param array $aReplace
      * @param null  $sLang
      *
-     * @return mixed
+     * @return string
      */
     public function getLangText($sTextTemplate, $aReplace = array(), $sLang = NULL) {
 
@@ -165,6 +203,7 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает название текстовки для ссылки
+     *
      * @return int|null
      */
     public function getTitle() {
@@ -185,7 +224,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Получает описание элемента меню
-     * @return bool|mixed|null
+     *
+     * @return string|null
      */
     public function getDescription(){
 
@@ -200,7 +240,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает надпись на ссылке
-     * @return int|null
+     *
+     * @return string|null
      */
     public function getText() {
 
@@ -222,6 +263,7 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает дополнительные опции ссылки
+     *
      * @return ModuleMenu_EntityItemOptions|null
      */
     public function getOptions() {
@@ -235,6 +277,7 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает массив страниц где ссылка отображается
+     *
      * @return int|null
      */
     public function getOn() {
@@ -244,6 +287,7 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает массив страниц где ссылка НЕ отображается
+     *
      * @return int|null
      */
     public function getOff() {
@@ -253,6 +297,7 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает массив страниц где ссылка НЕ отображается
+     *
      * @return array|null
      */
     public function getType() {
@@ -267,7 +312,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает флаг активности ссылки - включена она или нет
-     * @return int|null
+     *
+     * @return bool|null
      */
     public function getDisplay() {
 
@@ -286,7 +332,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает флаг активности ссылки - включена она или нет
-     * @return int|null
+     *
+     * @return bool|null
      */
     public function getShow() {
 
@@ -305,7 +352,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает идентификатор меню
-     * @return mixed
+     *
+     * @return string
      */
     public function getId() {
 
@@ -314,7 +362,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает идентификатор подменю
-     * @return mixed
+     *
+     * @return string
      */
     public function getSubMenuId() {
 
@@ -323,7 +372,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает конфигурацию элемента меню
-     * @return mixed
+     *
+     * @return array
      */
     public function getItemConfig() {
 
@@ -332,7 +382,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает ссылку элемента меню
-     * @return mixed
+     *
+     * @return string
      */
     public function getLink() {
 
@@ -341,7 +392,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Показывает активна ссылка или нет
-     * @return mixed
+     *
+     * @return bool
      */
     public function getActive() {
 
@@ -350,13 +402,19 @@ class ModuleMenu_EntityItem extends Entity {
             return $this->_isActive;
         }
 
+        // if this is submenu and parent item is not active then this item cannot be active
+        if ($oParentItem = $this->getParentItem()) {
+            if (!$oParentItem->getActive()) {
+                return false;
+            }
+        }
+
         /** @var callable[]|[][] $aActiveRule Правило вычисления активности */
         $aActiveRule = isset($this->_aData['item_active']) ? $this->_aData['item_active'] : FALSE;
 
         $this->_isActive = $this->checkCustomRules($aActiveRule);
 
         return $this->_isActive;
-
     }
 
     /**
@@ -482,7 +540,6 @@ class ModuleMenu_EntityItem extends Entity {
         $sHtml = str_replace(array_keys($aParams), array_values($aParams), $sHtml);
 
         return $sHtml;
-
     }
 
     /**

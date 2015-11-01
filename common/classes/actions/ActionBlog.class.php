@@ -659,6 +659,7 @@ class ActionBlog extends Action {
         }
 
         //  Меню
+        //$this->sMenuSubItemSelect = $this->sTopicFilter == 'newall' ? 'new' : $this->sTopicFilter;
         $this->sMenuSubItemSelect = $this->sTopicFilter == 'all' ? 'new' : $this->sTopicFilter;
 
         //  Передан ли номер страницы
@@ -1108,6 +1109,7 @@ class ActionBlog extends Action {
         }
 
         //  Меню
+        //$this->sMenuSubItemSelect = $this->sTopicFilter == 'newall' ? 'new' : $this->sTopicFilter;
         $this->sMenuSubItemSelect = $this->sTopicFilter == 'all' ? 'new' : $this->sTopicFilter;
         $this->sMenuSubBlogUrl = $oBlog->getUrlFull();
 
