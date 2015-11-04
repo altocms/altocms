@@ -751,6 +751,7 @@ class Router extends LsObject {
      */
     static public function Action($sAction, $sEvent = null, $aParams = null) {
 
+        $sAction = trim($sAction, '/');
         // если в $sAction передан путь вида action/event/param..., то обрабатываем его
         if (!$sEvent && !$aParams && ($n = substr_count($sAction, '/'))) {
             if ($n > 2) {
