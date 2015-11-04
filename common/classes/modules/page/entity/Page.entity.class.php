@@ -35,12 +35,25 @@ class ModulePage_EntityPage extends Entity {
         return $this->getProp('page_url_full');
     }
 
+    /**
+     * @deprecated
+     *
+     * @return string
+     */
     public function getUrlPath() {
 
-        $sResult = $this->getProp('_page_url_path');
+        return $this->getLink();
+    }
+
+    /**
+     * @return string
+     */
+    public function getLink() {
+
+        $sResult = $this->getProp('_page_link');
         if (!$sResult) {
             $sResult = F::File_LocalUrl(R::GetPath('page') . '/' . $this->getUrlFull());
-            $this->setProp('_page_url_path', $sResult);
+            $this->setProp('_page_link', $sResult);
         }
         return $sResult;
     }
