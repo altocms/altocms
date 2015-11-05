@@ -703,7 +703,7 @@ class ModuleUser extends Module {
                 $iError = self::USER_AUTH_ERR_PASSWORD;
             }
         }
-        if ($oUser) {
+        if ($oUser && !$iError) {
             $iError = self::USER_AUTH_RESULT_OK;
             if (!$oUser->getActivate()) {
                 $iError = self::USER_AUTH_ERR_NOT_ACTIVATED;
