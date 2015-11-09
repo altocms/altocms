@@ -679,7 +679,9 @@ class ModuleUser extends Module {
         if (!$oUser && !empty($aUserAuthData['email'])) {
             if (F::CheckVal($aUserAuthData['email'], 'email')) {
                 $oUser = $this->GetUserByMail($aUserAuthData['email']);
-                if (!$oUser) {
+                if ($oUser) {
+                    $iError = null;
+                } else {
                     $iError = self::USER_AUTH_ERR_MAIL;
                 }
             }
