@@ -31,10 +31,11 @@
 
 	{$aHtmlHeadFiles.css}
 	
-	<link href='//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
 	<link href="{Config::Get('path.static.skin')}/images/favicon.ico?v1" rel="shortcut icon" />
 	<link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/" title="{Config::Get('view.name')}" />
+
 
 	{if $aHtmlRssAlternate}
 		<link rel="alternate" type="application/rss+xml" href="{$aHtmlRssAlternate.url}" title="{$aHtmlRssAlternate.title}">
@@ -48,6 +49,7 @@
 		<meta  HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.web')}/">
 	{/if}
 	
+	
 	<script type="text/javascript">
 		var DIR_WEB_ROOT 			= '{Config::Get('path.root.web')}';
 		var DIR_STATIC_SKIN 		= '{Config::Get('path.static.skin')}';
@@ -55,21 +57,29 @@
 		var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
 		var SESSION_ID				= '{$_sPhpSessionId}';
 		var BLOG_USE_TINYMCE		= '{Config::Get('view.tinymce')}';
+		
+		var TINYMCE_LANG = 'en';
+		{if Config::Get('lang.current') == 'russian'}
+			TINYMCE_LANG = 'ru';
+		{/if}
 
-		var tinyMCE = tinymce = false;
-		var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
-
-		var aRouter = [];
-		{strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
+		var aRouter = new Array();
+		{foreach from=$aRouter key=sPage item=sPath}
+			aRouter['{$sPage}'] = '{$sPath}';
+		{/foreach}
 	</script>
+	
 	
 	{$aHtmlHeadFiles.js}
 
+	
 	<script type="text/javascript">
+		var tinyMCE = false;
 		ls.lang.load({json var = $aLangJs});
 		ls.registry.set('comment_max_tree',{json var=$oConfig->Get('module.comment.max_tree')});
 		ls.registry.set('block_stream_show_tip',{json var=$oConfig->Get('block.stream.show_tip')});
 	</script>
+	
 	
 	{hook run='html_head_end'}
 	
@@ -92,6 +102,7 @@
 		}
 	</script>
 </head>
+
 
 
 {if E::IsUser()}

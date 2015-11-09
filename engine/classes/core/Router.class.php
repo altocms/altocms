@@ -443,12 +443,16 @@ class Router extends LsObject {
         if ($aRouterUriRules) {
             foreach ($aRouterUriRules as $sPattern => $sReplace) {
                 if ($sPattern[0] == '[' && substr($sPattern, -1) == ']') {
+                    $sRegExp = substr($sPattern, 1, strlen($sPattern) - 2);
+                } elseif ((strlen($sPattern) > 3) && ($sPattern[1] == '^') && (substr_count($sPattern, $sPattern[0]) == 2)) {
+                    $sRegExp = $sPattern;
+                } else {
+                    $sRegExp = null;
+                }
+                if ($sRegExp && preg_match($sRegExp, $sRequest)) {
                     // regex pattern
-                    $sPattern = substr($sPattern, 1, strlen($sPattern) - 2);
-                    if (preg_match($sPattern, $sRequest)) {
-                        $sRequest = preg_replace($sPattern, $sReplace, $sRequest);
-                        break;
-                    }
+                    $sRequest = preg_replace($sPattern, $sReplace, $sRequest);
+                    break;
                 } else {
                     if (substr($sPattern, -2) == '/*') {
                         $bFoundPattern = F::StrMatch(array(substr($sPattern, 0, strlen($sPattern) - 2), $sPattern), $sRequest, true);

@@ -33,12 +33,7 @@ class PluginLs_ActionEngine extends ActionPlugin {
 
     protected function EventLibCaptcha() {
 
-        if (!class_exists('KCAPTCHA', false)) {
-            F::IncludeLib('kcaptcha/kcaptcha.php');
-        }
-        $captcha = new KCAPTCHA();
-        $_SESSION['captcha_keystring'] = $captcha->getKeyString();
-        exit;
+        return R::Action('Captcha');
     }
 
 }

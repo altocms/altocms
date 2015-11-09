@@ -161,12 +161,13 @@ class PluginLs_ModuleImage extends Module {
 			 * Если не задана новая высота, то применяем масштабирование.
 			 * Если нужно добавить Watermark, то запрещаем ручное управление alfa-каналом
 			 */
-			$oImage->resize($iWidthDest,$iHeightDest,(!$iHeightDest),(!$aParams['watermark_use']));
+            $bWatermark = (isset($aParams['watermark_use']) ? $aParams['watermark_use'] : false);
+			$oImage->resize($iWidthDest,$iHeightDest,(!$iHeightDest),(!$bWatermark));
 
 			/**
 			 * Добавляем watermark согласно в конфигурации заданым параметрам
 			 */
-			if($aParams['watermark_use']) {
+			if($bWatermark) {
 				if ($oImage->get_image_params('width')>$aParams['watermark_min_width'] and $oImage->get_image_params('height')>$aParams['watermark_min_height']) {
 					switch($aParams['watermark_type']) {
 						default:
@@ -197,7 +198,7 @@ class PluginLs_ModuleImage extends Module {
 			/**
 			 * Скругляем углы
 			 */
-			if($aParams['round_corner']) {
+			if(!empty($aParams['round_corner'])) {
 				$oImage->round_corners($aParams['round_corner_radius'], $aParams['round_corner_rate']);
 			}
 			/**

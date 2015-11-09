@@ -614,12 +614,14 @@ class ModulePlugin extends Module {
     /**
      * Возвращает список активированных плагинов в системе
      *
+     * @param bool $bIdOnly
+     *
      * @return array
      */
-    public function GetActivePlugins() {
+    public function GetActivePlugins($bIdOnly = false) {
 
         if (is_null($this->aActivePlugins)) {
-            $this->aActivePlugins = F::GetPluginsList(false, false);
+            $this->aActivePlugins = F::GetPluginsList(false, $bIdOnly);
         }
         return $this->aActivePlugins;
     }

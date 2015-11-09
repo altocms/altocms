@@ -132,20 +132,6 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         return $sResult;
     }
 
-    public function GetSmartyObject() {
-
-        if (!$this->oSmarty) {
-            $this->_initTemplator();
-        }
-
-        // For LS interface compatibility
-        if (func_num_args() && ($aVariables = func_get_arg(0)) && is_array($aVariables)) {
-            $this->oSmarty->assign($aVariables);
-        }
-
-        return $this->oSmarty;
-    }
-
     public function VarAssign() {
 
         parent::VarAssign();
@@ -323,16 +309,24 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
      */
     public function SmartyDefaultTemplateHandler($sType, $sName, &$sContent, &$iTimestamp, $oSmarty) {
 
+        $sSkin = $this->GetConfigSkin();
         $sResult = parent::SmartyDefaultTemplateHandler($sType, $sName, $sContent, $iTimestamp, $oSmarty);
         if (!$sResult) {
             if ($sType == 'file') {
                 if (in_array($sName, $this->aTemplatesAutocreate)) {
-                    return $this->_autocreateOldTemplate($sName);
+                    $sResult = $this->_autocreateOldTemplate($sName);
+                    if ($sResult) {
+                        $this->_setTemplatePath($sSkin, $sName, $sResult);
+                    }
+                    return $sResult;
                 }
 
                 if ((strpos($sName, 'widgets/widget.') === 0)) {
                     $sFile = Config::Get('path.smarty.template') . str_replace('widgets/widget.', 'blocks/block.', $sName);
                     if (F::File_Exists($sFile)) {
+                        if ($sFile) {
+                            $this->_setTemplatePath($sSkin, $sName, $sFile);
+                        }
                         return $sFile;
                     }
                 } elseif (($sName == 'actions/ActionContent/add.tpl') || ($sName == 'actions/content/action.content.add.tpl') || ($sName == 'actions/content/action.content.edit.tpl')) {
@@ -372,8 +366,8 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                 }
 
                 if (!$sResult) {
-                    if (preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
-                        $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
+                    if (preg_match('~^(tpls/)?actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
+                        $sLsTemplate = 'actions/Action' . ucfirst($aMatches[2]) . '/' . $aMatches[4];
                         if ($this->TemplateExists($sLsTemplate, false)) {
                             $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
                         } else {
@@ -428,6 +422,11 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                 }
             }
         }
+
+        if ($sResult) {
+            $this->_setTemplatePath($sSkin, $sName, $sResult);
+        }
+
         return $sResult;
     }
 
@@ -533,15 +532,15 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
     protected function _initSkin() {
 
-        $oSkin = E::ModuleSkin()->GetSkin($this->GetConfigSkin());
+        $oSkin = $this->Skin_GetSkin($this->GetConfigSkin());
         $sCompatible = ($oSkin ? $oSkin->GetCompatible() : '');
 
         if (!$sCompatible || $sCompatible == 'ls') {
             // It's old LS skin
-            $aOldJs = Config::Get('plugin.ls.assets.default.js');
-            $aOldCss = Config::Get('plugin.ls.assets.default.css');
-            Config::Set('assets.default.js', $aOldJs);
-            Config::Set('assets.default.css', $aOldCss);
+            $aOldJs = Config::Get('assets.ls.head.default.js');
+            $aOldCss = Config::Get('assets.ls.head.default.css');
+            Config::Set('head.default.js', $aOldJs);
+            Config::Set('head.default.css', $aOldCss);
             Config::Set('view.compatible', 'ls');
         } else {
             Config::Set('view.compatible', $sCompatible ? $sCompatible : 'alto');

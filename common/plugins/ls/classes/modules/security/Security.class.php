@@ -24,7 +24,7 @@ class PluginLs_ModuleSecurity extends PluginLs_Inherit_ModuleSecurity {
         $sCode = parent::SetSecurityKey();
 
         // LS-compatible
-        E::ModuleViewer()->Assign('LIVESTREET_SECURITY_KEY', $sCode);
+        $this->Viewer_Assign('LIVESTREET_SECURITY_KEY', $sCode);
 
         return $sCode;
     }

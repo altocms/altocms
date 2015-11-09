@@ -76,6 +76,22 @@ abstract class Hook extends LsObject {
     }
 
     /**
+     * LS-compatibility
+     * @deprecated
+     *
+     * @param string $sName
+     * @param string $sCallBack
+     * @param int    $iPriority
+     * @param array  $aParams
+     */
+    public function AddDelegateHook($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
+
+        $aParams['delegate'] = true;
+        $aParams['sClassName'] = __CLASS__;
+        E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, $aParams);
+    }
+
+    /**
      * Обязательный метод в хуке - в нем происходит регистрация обработчиков хуков
      *
      * @abstract

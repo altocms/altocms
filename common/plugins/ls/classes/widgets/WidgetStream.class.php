@@ -21,12 +21,12 @@ class PluginLs_WidgetStream extends Widget {
     public function Exec() {
 
         // * Получаем комментарии
-        if ($aComments = E::ModuleComment()->GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
+        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
             $aVars = array('aComments' => $aComments);
 
             // * Формируем результат в виде шаблона и возвращаем
             $sTextResult = $this->Fetch('stream_comment.tpl', $aVars);
-            E::ModuleViewer()->Assign('sStreamComments', $sTextResult);
+            $this->Viewer_Assign('sStreamComments', $sTextResult);
         }
     }
 }

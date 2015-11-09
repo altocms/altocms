@@ -63,11 +63,11 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                 }
             } else {
                 $sTemplate = E::ModulePlugin()->GetDelegate('template', 'widgets/widget.' . $sWidgetName . '.tpl');
-                $sTemplate = F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir());
+                $sTemplate = F::File_Exists($sTemplate, $oSmartyTemplate->smarty->getTemplateDir());
                 if (!$sTemplate) {
                     // * LS-compatible * //
                     $sLsTemplate = E::ModulePlugin()->GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
-                    if (F::File_Exists($sLsTemplate, $oSmartyTemplate->getTemplateDir())) {
+                    if (F::File_Exists($sLsTemplate, $oSmartyTemplate->smarty->getTemplateDir())) {
                         $sTemplate = $sLsTemplate;
                     }
                 }
@@ -86,7 +86,7 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
             $sWidgetClass = E::ModulePlugin()->GetDelegate('block', $sWidgetClass);
             if (!$sTemplate) {
                 $sLsTemplate = E::ModulePlugin()->GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
-                if (F::File_Exists($sLsTemplate, $oSmartyTemplate->getTemplateDir())) {
+                if (F::File_Exists($sLsTemplate, $oSmartyTemplate->smarty->getTemplateDir())) {
                     $sTemplate = $sLsTemplate;
                 }
             }

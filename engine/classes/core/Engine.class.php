@@ -605,6 +605,7 @@ class Engine extends LsObject {
      * @param string $sName    Название метода в полном виде.
      * Например <pre>Module_Method</pre>
      * @param array $aArgs    Список аргументов
+     *
      * @return mixed
      */
     public function _CallModule($sName, &$aArgs) {
@@ -619,6 +620,12 @@ class Engine extends LsObject {
         } else {
             $xResult = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
         }
+
+        // LS-compatibility
+        if ($sName == 'Plugin_GetActivePlugins' && !empty($xResult) && is_array($xResult)) {
+            $xResult = array_keys($xResult);
+        }
+        
         return $xResult;
     }
 

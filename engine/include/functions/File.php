@@ -240,10 +240,12 @@ class AltoFunc_File {
 
         $bResult = is_dir($sDir);
         if (!$bResult && $bAutoMake) {
+            $iOldUmask = umask(0);
             $bResult = @mkdir($sDir, $nMask, true);
             if (!$bResult) {
                 F::SysWarning('Can not make dir "' . $sDir . '"');
             }
+            umask($iOldUmask);
         }
         return $bResult;
     }

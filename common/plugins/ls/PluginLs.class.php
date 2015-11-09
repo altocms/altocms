@@ -30,6 +30,7 @@ class PluginLs extends Plugin {
             'ModuleNotify',
         ),
         'action' => array(
+            'ActionSettings',
             'ActionContent',
         ),
         'widget' => array(

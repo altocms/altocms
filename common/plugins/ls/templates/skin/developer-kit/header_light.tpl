@@ -20,7 +20,7 @@
 	{$aHtmlHeadFiles.css}
 	
 	{if {Config::Get('view.theme')} == 'light'}
-		<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 	{/if}
 	
 	<link href="{Config::Get('path.static.skin')}/images/favicon.ico?v1" rel="shortcut icon" />
@@ -39,12 +39,16 @@
 		var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
 		var SESSION_ID				= '{$_sPhpSessionId}';
 		var BLOG_USE_TINYMCE		= '{Config::Get('view.tinymce')}';
+		
+		var TINYMCE_LANG = 'en';
+		{if Config::Get('lang.current') == 'ru'}
+			TINYMCE_LANG = 'ru';
+		{/if}
 
-		var tinyMCE = tinymce = false;
-		var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
-
-		var aRouter = [];
-		{strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
+		var aRouter = new Array();
+		{foreach from=$aRouter key=sPage item=sPath}
+			aRouter['{$sPage}'] = '{$sPath}';
+		{/foreach}
 	</script>
 	
 	
@@ -52,6 +56,7 @@
 
 	
 	<script type="text/javascript">
+		var tinyMCE = false;
 		ls.lang.load({json var = $aLangJs});
 		ls.registry.set('comment_max_tree',{json var=$oConfig->Get('module.comment.max_tree')});
 		ls.registry.set('block_stream_show_tip',{json var=$oConfig->Get('block.stream.show_tip')});
