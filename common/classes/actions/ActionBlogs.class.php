@@ -73,16 +73,22 @@ class ActionBlogs extends Action {
 
         // * Ищем блоги
         if (F::GetRequestStr('blog_type') == 'personal') {
-            $aFilter = array('include_type' => 'personal', 'title' => "%{$sTitle}%");
+            $aFilter = array('include_type' => 'personal');
         } else {
-            $aFilter = array('exclude_type' => 'personal', 'title' => "%{$sTitle}%");
+            $aFilter = array(
+                'include_type' => E::ModuleBlog()->GetAllowBlogTypes(E::User(), 'list', true),
+            );
+            $aFilter['exclude_type'] = 'personal';
         }
-        $aResult = E::ModuleBlog()->GetBlogsByFilter($aFilter, array('blog_title' => 'asc'), 1, 100);
+        $aFilter['title'] = "%{$sTitle}%";
+        $aFilter['order'] = array('blog_title' => 'asc');
 
-        // * Формируем и возвращает ответ
+        $aResult = E::ModuleBlog()->GetBlogsByFilter($aFilter, 1, 100);
+
+        // * Формируем и возвращаем ответ
         $aVars = array(
             'aBlogs'          => $aResult['collection'],
-            'oUserCurrent'    => E::ModuleUser()->GetUserCurrent(),
+            'oUserCurrent'    => E::User(),
             'sBlogsEmptyList' => E::ModuleLang()->Get('blogs_search_empty'),
         );
         E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('commons/common.blog_list.tpl', $aVars));
@@ -106,8 +112,13 @@ class ActionBlogs extends Action {
 
         // * Фильтр поиска блогов
         $aFilter = array(
-            'include_type' => E::ModuleBlog()->GetAllowBlogTypes(E::ModuleUser()->GetUserCurrent(), 'list', true),
+            'include_type' => E::ModuleBlog()->GetAllowBlogTypes(E::User(), 'list', true),
         );
+        if ($sOrder == 'blog_title') {
+            $aFilter['order'] = array('blog_title' => $sOrderWay);
+        } else {
+            $aFilter['order'] = array($sOrder => $sOrderWay, 'blog_title' => 'asc');
+        }
 
         // * Передан ли номер страницы
         $iPage = preg_match('/^\d+$/i', $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
@@ -115,7 +126,6 @@ class ActionBlogs extends Action {
         // * Получаем список блогов
         $aResult = E::ModuleBlog()->GetBlogsByFilter(
             $aFilter,
-            ($sOrder == 'blog_title') ? array('blog_title' => $sOrderWay) : array($sOrder => $sOrderWay, 'blog_title' => 'asc'),
             $iPage, Config::Get('module.blog.per_page')
         );
         $aBlogs = $aResult['collection'];
