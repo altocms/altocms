@@ -68,7 +68,7 @@
                                 {else}
                                     {$sBlogAvatar = $oBlog->getUrlFull()}
                                     {if $sBlogAvatar}
-                                        <img src="{$oBlog->getAvatarPath('medium')}" width="48" height="48" class="avatar mar6"/>
+                                        <img src="{$oBlog->getAvatarUrl('medium')}" width="48" height="48" class="avatar mar6"/>
                                     {else}
                                         <i class="fa fa-folder-o mar6"></i>
                                     {/if}

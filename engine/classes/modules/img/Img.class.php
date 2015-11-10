@@ -820,6 +820,7 @@ class ModuleImg extends Module {
     public function AutoresizeSkinImage($sFile, $sPrefix, $iSize) {
 
         $xResult = false;
+        $iSize = intval($iSize);
         $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $iSize);
         if ($sImageFile) {
             if ($iSize) {

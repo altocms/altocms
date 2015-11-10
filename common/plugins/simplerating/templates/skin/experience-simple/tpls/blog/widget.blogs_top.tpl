@@ -3,11 +3,11 @@
         <li class="js-popover-blog-{$oBlog->getId()}" data-placement="auto left">
             <a href="{$oBlog->getUrlFull()}" class="blog-name link link-dual link-lead link-clear">
                 <span class="blog-line-image">
-                    {$sPath = $oBlog->getAvatarPath('32x32crop')}
-                    {if $sPath}
-                        <img src="{$oBlog->getAvatarPath('32x32crop')}" class="avatar uppercase"/>
-                {else}
-                    <i class="fa fa-folder"></i>
+                    {$sUrl = $oBlog->getAvatarUrl('small')}
+                    {if $sUrl}
+                        <img src="{$sUrl}" class="avatar uppercase"/>
+                    {else}
+                        <i class="fa fa-folder"></i>
                     {/if}
                 </span>
 

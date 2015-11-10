@@ -355,10 +355,10 @@ class ModuleBlog_EntityBlog extends Entity {
             if (is_string($xSize) && $xSize[0] == 'x') {
                 $xSize = substr($xSize, 1);
             }
-            if ($nSize = intval($xSize)) {
-                $sResizePath = $sPath . '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+            if ($iSize = intval($xSize)) {
+                $sResizePath = $sPath . '-' . $iSize . 'x' . $iSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
                 if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
-                    $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
+                    $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sResizePath, 'avatar_blog', $iSize ? $iSize : null);
                 }
             }
         }

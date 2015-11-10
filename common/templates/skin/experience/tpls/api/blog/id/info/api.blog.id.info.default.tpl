@@ -3,7 +3,7 @@
    <div class="col-md-24"><div class="popover-header">{$oBlog->getTitle()}</div></div>
 
    <div class="col-md-9">
-      <img width="100%" src="{$oBlog->getAvatarPath('huge')}" alt="{$oBlog->getTitle()}"/>
+      <img width="100%" src="{$oBlog->getAvatarUrl('huge')}" alt="{$oBlog->getTitle()}"/>
    </div>
    <div class="col-md-15">
       <table>

@@ -17,11 +17,11 @@
              data-cache="false">
              <a href="{$oBlog->getUrlFull()}" class="blog-name link link-dual link-lead link-clear">
                 <span class="blog-line-image">
-                    {$sPath = $oBlog->getAvatarPath('small')}
-                    {if $sPath}
-                        <img src="{$oBlog->getAvatarPath('small')}" class="avatar uppercase"/>
-                {else}
-                    <i class="fa fa-folder"></i>
+                    {$sUrl = $oBlog->getAvatarUrl('small')}
+                    {if $sUrl}
+                        <img src="{$sUrl}" class="avatar uppercase"/>
+                    {else}
+                        <i class="fa fa-folder"></i>
                     {/if}
                 </span>
 
