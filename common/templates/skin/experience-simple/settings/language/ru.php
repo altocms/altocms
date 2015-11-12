@@ -69,8 +69,8 @@ return array(
     'panel_br' => 'Разделитель',
     'settings_menu_tuning_short' => 'Настройки',
     'talk_inbox_make_un_read' => 'Отметить как не прочитанное',
-    'ex_blog_leave' => '<i class="fa fa-sign-out"></i>&nbsp;покинуть',
-    'ex_blog_join' => '<i class="fa fa-sign-in"></i>&nbsp;вступить',
+    'ex_blog_leave' => '<i class="fa fa-sign-out"></i>&nbsp;отписаться',
+    'ex_blog_join' => '<i class="fa fa-sign-in"></i>&nbsp;подписаться',
 
 
     'topic_starter' => 'ТС',
