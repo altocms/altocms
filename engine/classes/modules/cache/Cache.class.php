@@ -463,6 +463,33 @@ class ModuleCache extends Module {
     }
 
     /**
+     * Make cache key
+     *
+     * @return string
+     */
+    public function Key() {
+
+        $sKey = '';
+        $aArgs = func_get_args();
+        foreach($aArgs as $xVal) {
+            if (is_null($xVal)) {
+                $sVal = '';
+            } elseif (is_bool($xVal)) {
+                $sVal = ($xVal ? '1' : '0');
+            } elseif (is_scalar($xVal)) {
+                $sVal = (string)$xVal;
+            } elseif (is_array($xVal)) {
+                ksort($xVal);
+                $sVal = serialize($xVal);
+            } else {
+                $sVal = serialize($xVal);
+            }
+            $sKey .= '[' . $sVal . ']';
+        }
+        return $sKey;
+    }
+
+    /**
      * Записать значение в кеш
      *
      * The following life time periods are recognized:
