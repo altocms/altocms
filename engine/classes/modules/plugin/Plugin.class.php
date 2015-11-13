@@ -315,13 +315,15 @@ class ModulePlugin extends Module {
         $oPlugin = null;
         $oPluginManifest = $this->_getPluginManifestById($sPluginId, $bActive);
 
-        $sClassName = $oPluginManifest->GetPluginClass();
-        $sPluginClassFile = $oPluginManifest->GetPluginClassFile();
-        if ($sClassName && $sPluginClassFile) {
-            F::IncludeFile($sPluginClassFile);
-            if (class_exists($sClassName, false)) {
-                /** @var Plugin $oPlugin */
-                $oPlugin = new $sClassName;
+        if ($oPluginManifest) {
+            $sClassName = $oPluginManifest->GetPluginClass();
+            $sPluginClassFile = $oPluginManifest->GetPluginClassFile();
+            if ($sClassName && $sPluginClassFile) {
+                F::IncludeFile($sPluginClassFile);
+                if (class_exists($sClassName, false)) {
+                    /** @var Plugin $oPlugin */
+                    $oPlugin = new $sClassName;
+                }
             }
         }
 
