@@ -20,8 +20,15 @@ class PluginLs_WidgetStream extends Widget {
      */
     public function Exec() {
 
+        $iLimit = C::Get('block.stream.row');
+        if (empty($iLimit)) {
+            $iLimit = C::Get('widgets.stream.params.limit');
+        }
+        if (empty($iLimit)) {
+            $iLimit = 20;
+        }
         // * Получаем комментарии
-        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
+        if ($aComments = $this->Comment_GetCommentsOnline('topic', $iLimit)) {
             $aVars = array('aComments' => $aComments);
 
             // * Формируем результат в виде шаблона и возвращаем

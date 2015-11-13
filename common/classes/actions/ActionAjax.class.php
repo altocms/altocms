@@ -1146,7 +1146,11 @@ class ActionAjax extends Action {
     protected function EventStreamComment() {
 
         $aVars = array();
-        if ($aComments = E::ModuleComment()->GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
+        $iLimit = C::Get('widgets.stream.params.limit');
+        if (empty($iLimit)) {
+            $iLimit = 20;
+        }
+        if ($aComments = E::ModuleComment()->GetCommentsOnline('topic', $iLimit)) {
             $aVars['aComments'] = $aComments;
         }
         $sTextResult = E::ModuleViewer()->FetchWidget('stream_comment.tpl', $aVars);
