@@ -150,6 +150,7 @@ class Loader {
             }
         }
 
+        $aConfigSections = F::Str2Array(Config::Get('config_load'));
         /*
          * Загружает конфиг-файлы плагинов вида /plugins/[plugin_name]/config/*.php
          * и include-файлы вида /plugins/[plugin_name]/include/*.php
@@ -175,15 +176,32 @@ class Loader {
                     foreach ($aConfigFiles as $sConfigFile) {
                         $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
-                            // Если конфиг этого плагина пуст, то загружаем массив целиком
-                            $sKey = 'plugin.' . $sPlugin;
-                            if (!Config::isExist($sKey)) {
-                                Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
+                            $sFileName = pathinfo($sConfigFile, PATHINFO_FILENAME);
+                            if (in_array($sFileName, $aConfigSections)) {
+                                // e.g "classes.php"
+                                $aConfigRoot = $aConfig;
+                                $aConfig = array();
+                            } elseif (isset($aConfig[Config::KEY_ROOT])) {
+                                $aConfigRoot = $aConfig[Config::KEY_ROOT];
+                                unset($aConfig[Config::KEY_ROOT]);
                             } else {
-                                // Если уже существуют привязанные к плагину ключи,
-                                // то сливаем старые и новое значения ассоциативно-комбинированно
-                                /** @see AltoFunc_Array::MergeCombo() */
-                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
+                                $aConfigRoot = array();
+                            }
+
+                            if (!empty($aConfigRoot)) {
+                                Config::Set($aConfigRoot, false, null, $nConfigLevel, $sConfigFile);
+                            }
+                            if (!empty($aConfig)) {
+                                // Если конфиг этого плагина пуст, то загружаем массив целиком
+                                $sKey = 'plugin.' . $sPlugin;
+                                if (!Config::isExist($sKey)) {
+                                    Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
+                                } else {
+                                    // Если уже существуют привязанные к плагину ключи,
+                                    // то сливаем старые и новое значения ассоциативно-комбинированно
+                                    /** @see AltoFunc_Array::MergeCombo() */
+                                    Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
+                                }
                             }
                         }
                     }
