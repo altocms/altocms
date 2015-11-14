@@ -451,7 +451,7 @@ class Router extends LsObject {
                 }
                 if ($sRegExp && preg_match($sRegExp, $sRequest)) {
                     // regex pattern
-                    $sRequest = preg_replace($sPattern, $sReplace, $sRequest);
+                    $sRequest = preg_replace($sRegExp, $sReplace, $sRequest);
                     break;
                 } else {
                     if (substr($sPattern, -2) == '/*') {
