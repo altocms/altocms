@@ -14,7 +14,7 @@
                     onComplete: function (evt, uiEvt) {
                         var uploaded = $('.js-alto-topic-uploader').altoMultiUploader('getUploaded');
                         $.each(uploaded, function(key, url) {
-                            console.log(url);
+                            //console.log(url);
                             var $param = $('#aim-params'),
                                 align = $param.find('[name=align]').val(),
                                 title = $param.find('[name=title]').val(),
@@ -69,7 +69,7 @@
 <div class="add-photo">
     <div class="img-container">
         <div>
-            {* ���� �������� ����������� *}
+            {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
 
             <div class="js-alto-topic-uploader js-topic-photoset"
                  data-target-id="{$sTargetId}"
@@ -82,7 +82,7 @@
 
 
 
-                {* ����� �������� ����������� *}
+                {* Форма загрузки изображений *}
                 <div class="js-alto-topic-uploader-form clearfix">
 
                         <div class="js-alto-multi-uploader-list list-unstyled row"></div>
