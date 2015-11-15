@@ -31,7 +31,7 @@ class Imagick extends Driver{
 	 * Composition mode
 	 * @var int
 	 */
-	protected $composition_mode =  \Imagick::COMPOSITE_OVERLAY;
+	protected $composition_mode =  \Imagick::COMPOSITE_OVER;
 
 	protected $resize_filter = \Imagick::FILTER_LANCZOS;
 
