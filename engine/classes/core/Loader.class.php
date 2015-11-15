@@ -176,10 +176,15 @@ class Loader {
                     foreach ($aConfigFiles as $sConfigFile) {
                         $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
-                            $sFileName = pathinfo($sConfigFile, PATHINFO_FILENAME);
-                            if (in_array($sFileName, $aConfigSections)) {
+                            $sSectionName = pathinfo($sConfigFile, PATHINFO_FILENAME);
+                            if (in_array($sSectionName, $aConfigSections)) {
                                 // e.g "classes.php"
                                 $aConfigRoot = $aConfig;
+                                if (!isset($aConfigRoot[$sSectionName])) {
+                                    $aConfigRoot = array(
+                                        $sSectionName => $aConfigRoot,
+                                    );
+                                }
                                 $aConfig = array();
                             } elseif (isset($aConfig[Config::KEY_ROOT])) {
                                 $aConfigRoot = $aConfig[Config::KEY_ROOT];
