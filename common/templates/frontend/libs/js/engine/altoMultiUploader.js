@@ -98,7 +98,7 @@
                     'crop_size': $this.options.previewCrop
                 },
                 multiple: true,
-                onFileComplete: function (evt, uiEvt) { ls.log('==3', evt, uiEvt);
+                onFileComplete: function (evt, uiEvt) {
                     if (uiEvt && uiEvt.status && uiEvt.status >= 400) {
                         ls.msg.error('HTTP Error ' + uiEvt.status, uiEvt.statusText ? uiEvt.statusText : '');
                     } else {

@@ -377,9 +377,14 @@ class ActionUploader extends Action {
         $aSize = $this->_getImageSize('size');
         if ($aSize) {
             $aSize = array(
-                'x1' => round($fRation * $aSize['x1']), 'y1' => round($fRation * $aSize['y1']),
-                'x2' => round($fRation * $aSize['x2']), 'y2' => round($fRation * $aSize['y2'])
+                'x1' => floor($fRation * $aSize['x1']), 'y1' => floor($fRation * $aSize['y1']),
+                'x2' => ceil($fRation * $aSize['x2']), 'y2' => ceil($fRation * $aSize['y2'])
             );
+            $iD = max($aSize['x2'] - $aSize['x1'] - $aSizeFile[0], $aSize['y2'] - $aSize['y1'] - $aSizeFile[1]);
+            if ($iD > 0) {
+                $aSize['x2'] -= $iD;
+                $aSize['y2'] -= $iD;
+            }
         }
 
         // * Вырезаем и сохраняем фото

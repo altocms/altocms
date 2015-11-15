@@ -447,6 +447,9 @@ class ModuleImg extends Module {
         } else {
             $oImgMark = $xWatermark;
         }
+        if (!$oImg || !$oImgMark) {
+            return false;
+        }
         if (!$bTopLeft) {
             $iCoordX = $oImg->GetWidth() - $oImgMark->GetWidth() - $iCoordX;
             $iCoordY = $oImg->GetHeight() - $oImgMark->GetHeight() - $iCoordY;

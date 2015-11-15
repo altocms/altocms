@@ -135,10 +135,13 @@ class ModuleImg_EntityImage extends Entity {
      */
     public function GetWidth() {
 
-        if ($oImage = $this->GetImage()) {
-            return $oImage->width;
+        $iWidth = $this->getProp('width');
+        if (!$iWidth) {
+            if ($oImage = $this->GetImage()) {
+                return $oImage->width;
+            }
         }
-        return null;
+        return $iWidth;
     }
 
     /**
@@ -148,10 +151,13 @@ class ModuleImg_EntityImage extends Entity {
      */
     public function GetHeight() {
 
-        if ($oImage = $this->GetImage()) {
-            return $oImage->height;
+        $iHeight = $this->getProp('height');
+        if (!$iHeight) {
+            if ($oImage = $this->GetImage()) {
+                return $oImage->height;
+            }
         }
-        return null;
+        return $iHeight;
     }
 
     /**
@@ -159,8 +165,7 @@ class ModuleImg_EntityImage extends Entity {
      */
     public function IsMultiframe() {
 
-        if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')
-        ) {
+        if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')) {
             return $oImage->image->getImageIterations();
         }
         return false;
@@ -241,13 +246,13 @@ class ModuleImg_EntityImage extends Entity {
 
         if ($oImage = $this->GetImage()) {
             if ($iWidth && $iHeight) {
-                $fWScale = $iWidth / $oImage->width;
-                $fHScale = $iHeight / $oImage->height;
+                $fWScale = $iWidth / $this->GetWidth();
+                $fHScale = $iHeight / $this->GetHeight();
                 $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
             } elseif ($iWidth) {
-                $fScale = $iWidth / $oImage->width;
+                $fScale = $iWidth / $this->GetWidth();
             } elseif ($iHeight) {
-                $fScale = $iHeight / $oImage->height;
+                $fScale = $iHeight / $this->GetHeight();
             } else {
                 throw new \Exception('Either width or height must be set');
             }
@@ -266,6 +271,8 @@ class ModuleImg_EntityImage extends Entity {
             } elseif ($fScale != 1.0) {
                 $oImage->scale($fScale);
             }
+            $this->SetWidth($iWidth);
+            $this->SetHeight($iHeight);
         }
         return $this;
     }
@@ -284,22 +291,24 @@ class ModuleImg_EntityImage extends Entity {
 
         if ($oImage = $this->GetImage()) {
             if ($iWidth && $iHeight) {
-                $fWScale = $iWidth / $oImage->width;
-                $fHScale = $iHeight / $oImage->height;
+                $fWScale = $iWidth / $this->GetWidth();
+                $fHScale = $iHeight / $this->GetHeight();
                 $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
-                $iWidth = ceil($oImage->width * $fScale);
-                $iHeight = ceil($oImage->height * $fScale);
+                $iWidth = ceil($this->GetWidth() * $fScale);
+                $iHeight = ceil($this->GetHeight() * $fScale);
             } elseif ($iWidth) {
-                $fScale = $iWidth / $oImage->width;
-                $iHeight = ceil($oImage->height * $fScale);
+                $fScale = $iWidth / $this->GetWidth();
+                $iHeight = ceil($this->GetHeight() * $fScale);
             } elseif ($iHeight) {
-                $fScale = $iHeight / $oImage->height;
-                $iWidth = ceil($oImage->width * $fScale);
+                $fScale = $iHeight / $this->GetHeight();
+                $iWidth = ceil($this->GetWidth() * $fScale);
             } else {
                 throw new \Exception('Either width or height must be set');
             }
 
             $oImage->resize($iWidth, $iHeight, $bFit);
+            $this->SetWidth($iWidth);
+            $this->SetHeight($iHeight);
         }
         return $this;
     }
