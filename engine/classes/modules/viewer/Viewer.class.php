@@ -677,6 +677,13 @@ class ModuleViewer extends Module {
             $this->InitAssetFiles();
         }
 
+        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
+        if (!$oSkin || !$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+            // Для старых скинов загружаем объект доступа к конфигурации
+            $this->Assign('oConfig', Config::getInstance());
+
+        }
+
         E::ModuleHook()->Run('render_init_done', array('bLocal' => $this->bLocal));
 
         $this->bInitRender = true;
@@ -887,12 +894,6 @@ class ModuleViewer extends Module {
         }
         $this->Assign('sSkinTheme', $sSkinTheme);
 
-        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
-        if (!$oSkin || !$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
-            // Для старых скинов загружаем объект доступа к конфигурации
-            $this->Assign('oConfig', Config::getInstance());
-
-        }
     }
 
     /**
@@ -2431,9 +2432,7 @@ class ModuleViewer extends Module {
          * Задача: если это файл плагина для текущего шаблона, то смотрим этот же файл шаблона плагина в /default/
          */
         $sSkin = $this->GetConfigSkin();
-if (strpos($sName, 'stream_comment') !== false) {
-    $s=1;
-}
+
         $sResult = $this->_getTemplatePath($sSkin, $sName);
         if ($sResult) {
             return $sResult;
