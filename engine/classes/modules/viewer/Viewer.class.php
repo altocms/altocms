@@ -1579,11 +1579,18 @@ class ModuleViewer extends Module {
         if (!is_null($sDir)) {
             $sDir = rtrim($sDir, '/') . '/';
         }
-        $aCheckNames = array(
-            $sDir . 'tpls/widgets/widget.' . $sName,
-            $sDir . ltrim($sName, '/'),
-            $sDir . 'widgets/widget.' . $sName,
-        );
+        if ($sName[0] == '/') {
+            $aCheckNames = array(
+                $sDir . ltrim($sName, '/'),
+            );
+        } else {
+            $aCheckNames = array(
+                $sDir . 'tpls/widgets/widget.' . $sName,
+                $sDir . ltrim($sName, '/'),
+                $sDir . 'widgets/widget.' . $sName,
+            );
+        }
+
         foreach ($aCheckNames as $sCheckName) {
             if ($sTplName = $this->TemplateExists($sCheckName)) {
                 // Если найден шаблон, то считаем, что это шаблонный виджет
