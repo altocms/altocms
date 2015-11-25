@@ -793,7 +793,11 @@ class Func {
 
         if (isset($_SERVER['REQUEST_URI'])) {
             $aResult = array();
-            $sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
+            //$sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
+            $sRequestUri = self::ParseUrl(null, PHP_URL_PATH);
+            if ($sRequestUri == '/') {
+                $sRequestUri = '__MAIN_PAGE__';
+            }
             foreach ($aPlugins as $sPluginName => $aPluginData) {
                 $sXmlText = F::File_GetContents($aPluginData['manifest']);
                 if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
