@@ -611,7 +611,7 @@ class ModuleViewerAsset extends Module {
     protected function _resetAssets() {
 
         $sFile = $this->GetAssetsCacheName();
-        F::File_PutContents($sFile . '.tmp', time());
+        F::File_PutContents($sFile . '.tmp', time(), LOCK_EX, true);
         F::File_Delete($sFile);
         F::File_Delete($this->GetAssetsCheckName());
     }
@@ -621,9 +621,9 @@ class ModuleViewerAsset extends Module {
      */
     protected function _saveAssets() {
 
-        F::File_PutContents($this->GetAssetsCheckName(), time());
+        F::File_PutContents($this->GetAssetsCheckName(), time(), LOCK_EX, true);
         $sFile = $this->GetAssetsCacheName();
-        F::File_PutContents($sFile, F::Serialize($this->aAssets));
+        F::File_PutContents($sFile, F::Serialize($this->aAssets), LOCK_EX, true);
         F::File_Delete($sFile . '.tmp');
     }
 

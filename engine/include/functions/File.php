@@ -756,15 +756,23 @@ class AltoFunc_File {
      * @param string $sFile
      * @param string $sData
      * @param int    $nFlags
+     * @param bool   $bLogWarning
      *
      * @return  bool|int
      */
-    static public function PutContents($sFile, $sData, $nFlags = 0) {
+    static public function PutContents($sFile, $sData, $nFlags = 0, $bLogWarning = false) {
 
+        $bResult = false;
         if ($sFile && static::CheckDir(dirname($sFile))) {
-            return file_put_contents($sFile, $sData, $nFlags);
+            $sData = (string)$sData;
+            $iResult = file_put_contents($sFile, $sData, $nFlags);
+            $bResult = ($iResult !== false && $iResult == strlen($sData));
         }
-        return false;
+        if ($bLogWarning) {
+            F::SysWarning('Cannot write to file "' . $sFile . '"');
+        }
+
+        return $bResult;
     }
 
     /**

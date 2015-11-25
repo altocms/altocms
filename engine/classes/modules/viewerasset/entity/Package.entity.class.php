@@ -201,7 +201,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                     $bPrepare = false;
                 }
             }
-            if (F::File_PutContents($sDestination, $sContents)) {
+            if (F::File_PutContents($sDestination, $sContents, LOCK_EX, true)) {
                 $aParams = array(
                     'file' => $sDestination,
                     'asset' => $sAsset,
@@ -211,7 +211,6 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 );
                 $this->AddLink($this->sOutType, E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aParams);
             } else {
-                F::SysWarning('Can not write asset file "' . $sDestination . '"');
                 return false;
             }
         } else {
@@ -504,7 +503,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         } elseif (($nStage == 3) && F::File_Exists($sFile . '.3.end.tmp')) {
             return false;
         }
-        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', time());
+        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', time(), LOCK_EX, true);
     }
 
     /**
@@ -514,7 +513,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     protected function _stageEnd($nStage, $bFinal = false) {
 
         $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
-        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time());
+        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time(), LOCK_EX, true);
         for ($n = 1; $n <= $nStage; $n++) {
             F::File_Delete($sFile . '.' . $n . '.begin.tmp');
             if ($n < $nStage || $bFinal) {

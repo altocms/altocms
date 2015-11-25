@@ -150,13 +150,13 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 if (!$this->CheckDestination($sCompressedFile)) {
                     if (($sContents = F::File_GetContents($sAssetFile))) {
                         $sContents = $this->Compress($sContents);
-                        if (F::File_PutContents($sCompressedFile, $sContents)) {
+                        if (F::File_PutContents($sCompressedFile, $sContents, LOCK_EX, true)) {
                             F::File_Delete($sAssetFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
                             if (C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
                                 // Сохраним gzip
                                 $sCompressedContent = gzencode($sContents, 9);
-                                F::File_PutContents($sCompressedFile . '.gz.css', $sCompressedContent);
+                                F::File_PutContents($sCompressedFile . '.gz.css', $sCompressedContent, LOCK_EX, true);
                             }
                         }
                     }
@@ -179,7 +179,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         $sContents = F::File_GetContents($sFile);
         if ($sContents !== false) {
             $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
-            if (F::File_PutContents($sDestination, $sContents) !== false) {
+            if (F::File_PutContents($sDestination, $sContents, LOCK_EX, true) !== false) {
                 return $sDestination;
             }
         }
