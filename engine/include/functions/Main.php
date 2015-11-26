@@ -14,6 +14,7 @@
 class AltoFunc_Main {
 
     static protected $sRandChars = '0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    static protected $sHexChars = '0123456789abcdef';
     static protected $sMemSizeUnits = 'BKMGTP';
 
     /**
@@ -98,6 +99,55 @@ class AltoFunc_Main {
             while (strlen($sResult) < $nLen) {
                 $sResult .= $sChars[rand(0, $nMax)];
             }
+        }
+        return $sResult;
+    }
+
+    /**
+     * Cryptographically secure pseudo-random number generator (CSPRNG)
+     * @link http://stackoverflow.com/questions/1846202/php-how-to-generate-a-random-unique-alphanumeric-string/13733588#13733588
+     *
+     * @param $iMin
+     * @param $iMax
+     *
+     * @return int
+     */
+    static public function CryptoRandom($iMin, $iMax) {
+
+        $iRange = $iMax - $iMin;
+        if ($iRange < 0) {
+            return $iMin; // not so random...
+        }
+        $nLog = log($iRange, 2);
+        $iBytes = (int)($nLog / 8) + 1; // length in bytes
+        $iBits = (int)$nLog + 1; // length in bits
+        $iFilter = (int)(1 << $iBits) - 1; // set all lower bits to 1
+        do {
+            $iRnd = hexdec(bin2hex(openssl_random_pseudo_bytes($iBytes)));
+            $iRnd = $iRnd & $iFilter; // discard irrelevant bits
+        } while ($iRnd >= $iRange);
+        return $iMin + $iRnd;
+    }
+
+    /**
+     * Random string using CSPRNG
+     *
+     * @param int $iLen
+     * @param bool|string $sChars
+     *
+     * @return string
+     */
+    static function CryptoRandomStr($iLen = 32, $sChars = true) {
+
+        $sResult = '';
+        if ($sChars === true) {
+            $sChars = self::$sHexChars;
+        } elseif (!is_string($sChars)) {
+            $sChars = self::$sRandChars;
+        }
+
+        for ($i = 0; $i < $iLen; $i++) {
+            $sResult .= $sChars[self::CryptoRandom(0, strlen($sChars))];
         }
         return $sResult;
     }
