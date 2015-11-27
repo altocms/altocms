@@ -118,6 +118,7 @@ class ModuleUserfeed extends Module {
             array('date_add' => 'desc'), $iPage, $iPerPage
         );
         $aTopicsIds = array();
+        /** @var ModuleSubscribe_EntityTrack $oTrack */
         foreach ($aTopicTracks['collection'] as $oTrack) {
             $aTopicsIds[] = $oTrack->getTargetId();
         }
@@ -128,17 +129,28 @@ class ModuleUserfeed extends Module {
     /**
      * Получает число новых тем и комментов где есть юзер
      *
-     * @param int $sUserId    ID пользователя
+     * @param int $iUserId    ID пользователя
      *
      * @return int
      */
-    public function GetCountTrackNew($sUserId) {
+    public function GetCountTrackNew($iUserId) {
 
-        if (false === ($data = E::ModuleCache()->Get("track_count_new_user_{$sUserId}"))) {
-            $data = $this->oMapper->GetCountTrackNew($sUserId);
+        $iUserId = (int)$iUserId;
+        if (!$iUserId) {
+            return false;
+        }
+
+        $sCacheKey = E::ModuleCache()->Key('track_count_new_user_', $iUserId);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
+            $data = $this->oMapper->GetCountTrackNew($iUserId);
+            if ($iUserId == E::UserId()) {
+                $sCacheType = ',tmp';
+            } else {
+                $sCacheType = null;
+            }
             E::ModuleCache()->Set(
-                $data, "track_count_new_user_{$sUserId}",
-                array('topic_update', 'topic_new', "topic_read_user_{$sUserId}"), 60 * 60 * 24
+                $data, $sCacheKey,
+                array('topic_update', 'topic_new', "topic_read_user_{$iUserId}"), 'P1D', $sCacheType
             );
         }
         return $data;

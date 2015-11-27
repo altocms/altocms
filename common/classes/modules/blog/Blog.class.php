@@ -284,7 +284,7 @@ class ModuleBlog extends Module {
      * @param array      $aBlogsId    Список ID блогов
      * @param array|null $aOrder     Порядок сортировки
      *
-     * @return array
+     * @return ModuleBlog_EntityBlog[]
      */
     public function GetBlogsByArrayId($aBlogsId, $aOrder = null) {
 
@@ -807,10 +807,10 @@ class ModuleBlog extends Module {
             $aFilter['user_role'] = $xRole;
         }
         $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter);
-        if (false === ($aBlogUserRels = E::ModuleCache()->Get($sCacheKey))) {
+        if (false === ($aBlogUserRels = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
             $aBlogUserRels = $this->oMapper->GetBlogUsers($aFilter);
             E::ModuleCache()->Set(
-                $aBlogUserRels, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 60 * 60 * 24 * 3
+                $aBlogUserRels, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 'P3D', ',tmp'
             );
         }
         //  Достаем дополнительные данные, для этого формируем список блогов и делаем мульти-запрос
