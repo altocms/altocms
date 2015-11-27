@@ -621,16 +621,39 @@ class ModuleViewerAsset extends Module {
      */
     protected function _saveAssets() {
 
-        F::File_PutContents($this->GetAssetsCheckName(), time(), LOCK_EX, true);
-        $sFile = $this->GetAssetsCacheName();
-        F::File_PutContents($sFile, F::Serialize($this->aAssets), LOCK_EX, true);
-        F::File_Delete($sFile . '.tmp');
+        $sCheckFileName = $this->GetAssetsCheckName();
+        F::File_PutContents($sCheckFileName, time(), LOCK_EX, true);
+        $sCacheFileName = $this->GetAssetsCacheName();
+        F::File_PutContents($sCacheFileName, F::Serialize($this->aAssets), LOCK_EX, true);
+        F::File_Delete($sCacheFileName . '.tmp');
+    }
+
+    /**
+     * Checks whether a set of files empty
+     *
+     * @return bool
+     */
+    protected function _isEmpty() {
+
+        $aFiles = $this->getFiles();
+        if (!empty($aFiles) && is_array($aFiles)) {
+            foreach($aFiles as $sType => $aFileSet) {
+                if (!empty($aFileSet)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
      * Prepare current asset pack
      */
     public function Prepare() {
+
+        if ($this->_isEmpty()) {
+            return;
+        }
 
         $bForcePreparation = Config::Get('compress.css.force') || Config::Get('compress.js.force');
         $xData = $this->_checkAssets();
