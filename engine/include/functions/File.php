@@ -768,7 +768,7 @@ class AltoFunc_File {
             $iResult = file_put_contents($sFile, $sData, $nFlags);
             $bResult = ($iResult !== false && $iResult == strlen($sData));
         }
-        if ($bLogWarning) {
+        if ($bResult === false && $bLogWarning) {
             F::SysWarning('Cannot write to file "' . $sFile . '"');
         }
 
