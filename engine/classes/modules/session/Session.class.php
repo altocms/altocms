@@ -297,6 +297,10 @@ class ModuleSession extends Module {
         } else {
             $nTime = 0;
         }
+        // setting a cookie with a value of FALSE will try to delete the cookie
+        if (is_bool($sValue)) {
+            $sValue = ($sValue ? 1 : 0);
+        }
         $bResult = setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
         if (DEBUG) {
             if (!$bResult) {
