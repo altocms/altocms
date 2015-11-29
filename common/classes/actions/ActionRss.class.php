@@ -39,6 +39,7 @@ class ActionRss extends Action {
         $this->AddEventPreg('/^index$/', '/^new$/', 'RssTopics');
         $this->AddEventPreg('/^index$/', '/^all$/', 'RssTopics');
         $this->AddEvent('index', 'RssTopics');
+        $this->AddEvent('new', 'RssTopics');
         $this->AddEvent('wall', 'RssWall');
         $this->AddEvent('allcomments', 'RssComments');
         $this->AddEventPreg('/^comments$/', '/^\d+$/', 'RssCommentsByTopic');

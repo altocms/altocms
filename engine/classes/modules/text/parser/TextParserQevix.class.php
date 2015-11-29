@@ -30,7 +30,9 @@ class TextParserQevix extends Qevix implements ITextParser {
                     continue;
                 }
                 foreach ($aExec as $aParams) {
-                    call_user_func_array(array($this, $sMethod), $aParams);
+                    if (method_exists($this, $sMethod)) {
+                        call_user_func_array(array($this, $sMethod), $aParams);
+                    }
                 }
             }
 
@@ -78,7 +80,12 @@ class TextParserQevix extends Qevix implements ITextParser {
 
         $sText = parent::makeText();
         if (!empty($this->aAutoReplace)) {
-            $sText = str_replace($this->aAutoReplace[0], $this->aAutoReplace[1], $sText);
+            if(isset($this->aAutoReplace['from']) && isset($this->aAutoReplace['to'])) {
+                $sText = str_replace($this->aAutoReplace['from'], $this->aAutoReplace['to'], $sText);
+            }
+            if(isset($this->aAutoReplace['0']) && isset($this->aAutoReplace['1'])) {
+                $sText = str_replace($this->aAutoReplace[0], $this->aAutoReplace[1], $sText);
+            }
         }
         return $sText;
     }
