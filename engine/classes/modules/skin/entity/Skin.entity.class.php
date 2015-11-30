@@ -68,12 +68,6 @@ class ModuleSkin_EntitySkin extends Entity {
         }
 
         // Обрабатываем данные манифеста
-        $sLang = E::ModuleLang()->GetLang();
-
-        $this->_xlang($oXml, 'name', $sLang);
-        $this->_xlang($oXml, 'author', $sLang);
-        $this->_xlang($oXml, 'description', $sLang, true);
-        //$oXml->homepage = E::ModuleText()->Parser((string)$oXml->homepage);
         $oXml->homepage = filter_var((string)$oXml->homepage, FILTER_SANITIZE_URL);
 
         if ($sId = (string)$oXml->id) {
@@ -86,9 +80,10 @@ class ModuleSkin_EntitySkin extends Entity {
     /**
      * Получает значение параметра из XML на основе языковой разметки
      *
-     * @param SimpleXMLElement $oXml    XML узел
-     * @param string           $sProperty    Свойство, которое нужно вернуть
-     * @param string           $sLang    Название языка
+     * @param SimpleXMLElement $oXml       XML узел
+     * @param string           $sProperty  Свойство, которое нужно вернуть
+     * @param string           $sLang      Название языка
+     * @param bool             $bParseText
      */
     protected function _xlang($oXml, $sProperty, $sLang, $bParseText = false) {
 
@@ -132,15 +127,36 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     /**
+     * @param string $sProp
+     * @param bool   $bParseText
+     *
+     * @return string
+     */
+    protected function _getLangProp($sProp, $bParseText = false) {
+
+        $sResult = $this->getProp('_' . $sProp);
+        if (is_null($sResult)) {
+            $sLang = E::ModuleLang()->GetLang();
+            $this->_xlang($this->_aData['property'], 'author', $sLang, $bParseText);
+            $xProp = $this->_getDataProperty($sProp);
+            if ($xProp->data) {
+                $sResult = (string)$xProp->data;
+            }
+            else {
+                $sResult = (string)$xProp->lang;
+            }
+            $this->setProp('_' . $sProp, $sResult);
+        }
+
+        return $sResult;
+    }
+
+    /**
      * @return string
      */
     public function GetName() {
 
-        $xProp = $this->_getDataProperty('name');
-        if ($xProp->data)
-            return $xProp->data;
-        else
-            return $xProp->lang;
+        return $this->_getLangProp('name');
     }
 
     /**
@@ -148,11 +164,7 @@ class ModuleSkin_EntitySkin extends Entity {
      */
     public function GetDescription() {
 
-        $xProp = $this->_getDataProperty('description');
-        if ($xProp->data)
-            return $xProp->data;
-        else
-            return $xProp->lang;
+        return $this->_getLangProp('description');
     }
 
     /**
@@ -160,11 +172,7 @@ class ModuleSkin_EntitySkin extends Entity {
      */
     public function GetAuthor() {
 
-        $xProp = $this->_getDataProperty('author');
-        if ($xProp->data)
-            return $xProp->data;
-        else
-            return $xProp->lang;
+        return $this->_getLangProp('author', true);
     }
 
     /**
@@ -404,7 +412,6 @@ class ModuleSkin_EntitySkin extends Entity {
         }
         return false;
     }
-
 
 }
 
