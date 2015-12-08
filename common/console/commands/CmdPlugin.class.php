@@ -17,6 +17,8 @@ EOD;
      * Подкоманда создания нового плагина
      */
     public function actionNew($aArgs) {
+        include_once '../../../engine/include/functions/Main.php';
+
         // Передано ли имя нового плагина
         if(!isset($aArgs[0]))
             die("The plugin name is not specified.\n");
@@ -41,9 +43,9 @@ EOD;
 
         // Парсим имена плагинов и пересоздаем массив
         foreach($aList as $sName=>$aFile) {
-            $sTarget=str_replace('Example',$this->strCamelize($this->_name),$aFile['target']);
+            $sTarget=str_replace('Example', AltoFunc_Main::StrCamelize($this->_name),$aFile['target']);
             $sTarget=str_replace('example',strtolower($this->_name),$sTarget);
-            $sNewName=str_replace('Example',$this->strCamelize($this->_name),$sName);
+            $sNewName=str_replace('Example', AltoFunc_Main::StrCamelize($this->_name),$sName);
             $sNewName=str_replace('example',strtolower($this->_name),$sNewName);
             if($sName != $sNewName)
                 unset($aList[$sName]);
@@ -62,7 +64,6 @@ EOD;
      * Парсер выражений в исходниках эталонного плагина
      */
     public function generatePlugin($source,$params) {
-        include_once '../../../engine/include/functions/Main.php';
 
         $content=file_get_contents($source);
         if (basename($source) == 'plugin.xml') {
