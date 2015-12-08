@@ -295,7 +295,7 @@ class ModulePlugin extends Module {
      *
      * @return ModulePlugin_EntityPlugin|null
      */
-    protected function _getPluginManifestById($sPluginId, $bActive) {
+    protected function _getPluginEntityById($sPluginId, $bActive) {
 
         $aPlugins = $this->GetPluginsList($bActive);
         if (!isset($aPlugins[$sPluginId])) {
@@ -313,16 +313,16 @@ class ModulePlugin extends Module {
     protected function _getPluginById($sPluginId, $bActive) {
 
         $oPlugin = null;
-        $oPluginManifest = $this->_getPluginManifestById($sPluginId, $bActive);
+        $oPluginEntity = $this->_getPluginEntityById($sPluginId, $bActive);
 
-        if ($oPluginManifest) {
-            $sClassName = $oPluginManifest->GetPluginClass();
-            $sPluginClassFile = $oPluginManifest->GetPluginClassFile();
+        if ($oPluginEntity) {
+            $sClassName = $oPluginEntity->GetPluginClass();
+            $sPluginClassFile = $oPluginEntity->GetPluginClassFile();
             if ($sClassName && $sPluginClassFile) {
                 F::IncludeFile($sPluginClassFile);
                 if (class_exists($sClassName, false)) {
                     /** @var Plugin $oPlugin */
-                    $oPlugin = new $sClassName;
+                    $oPlugin = new $sClassName($oPluginEntity);
                 }
             }
         }

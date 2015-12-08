@@ -21,6 +21,9 @@ abstract class LSC {
         if(file_exists($sCommandClassPath)) {
             // Подключаем класс команды
             require_once $sCommandClassPath;
+            /**
+             * @var LSC $oCommand
+             */
             $oCommand = new $sCommandClassName();
             $oCommand->run($aArgs);
         } else {
@@ -175,25 +178,26 @@ abstract class LSC {
      * Выводит помощь и список возможных команд
      */
     public function getHelp() {
-        $aList=array();
-        $handle=opendir(dirname(__FILE__).'/commands/');
-        while(($file=readdir($handle))!==false)
-        {
-            if($file==='.' || $file==='..')
+        $aList  = array();
+        $handle = opendir(dirname(__FILE__) . '/commands/');
+        while (($file = readdir($handle)) !== false) {
+            if ($file === '.' || $file === '..') {
                 continue;
-            if(is_file(dirname(__FILE__).'/commands/'.$file))
-                $aList[]=strtolower(preg_replace("/^(.*)\.(.*)\.(.*)/i","$1",$file));
+            }
+            if (is_file(dirname(__FILE__) . '/commands/' . $file)) {
+                $aList[] = strtolower(preg_replace("/^(.*)\.(.*)\.(.*)/i", "$1", $file));
+            }
         }
         closedir($handle);
 
-        echo "USAGE\n
-  ls ";
+        echo "USAGE:\nls ";
 
-        foreach($aList as $iKey=>$sName) {
-            if($iKey>0)
+        foreach ($aList as $iKey => $sName) {
+            if ($iKey > 0) {
                 echo "     ";
-            echo $sName."\n";
-        }
+            }
 
+            echo substr($sName, 3) . "\n";
+        }
     }
 }
