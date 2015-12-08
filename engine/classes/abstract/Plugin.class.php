@@ -64,9 +64,11 @@ abstract class Plugin extends LsObject {
     /**
      * Constructor
      */
-    public function __construct() {
-
-        $this->oPluginEntity = $this->GetPluginEntity();
+    public function __construct(ModulePlugin_EntityPlugin $oPluginEntity = null) {
+        if ($oPluginEntity)
+            $this->oPluginEntity = $oPluginEntity;
+        else
+            $this->oPluginEntity = $this->GetPluginEntity();
     }
 
     /**

@@ -29,6 +29,7 @@ class AltoFunc_Main {
 
     static public function StrCamelize($sStr) {
 
+        $sStr = str_replace('-', '_', $sStr);
         $aParts = explode('_', $sStr);
         $sCamelized = '';
         foreach ($aParts as $sPart) {
