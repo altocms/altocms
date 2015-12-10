@@ -548,6 +548,8 @@ class Loader {
             if (isset($aVendorNamespaces[$sPrefix])) {
                 if ($sFile = F::File_Exists($sFileName, $aVendorNamespaces[$sPrefix])) {
                     return self::_includeFile($sFile, $sClassName);
+                } elseif ($sFile = F::File_Exists($sFileName, $aVendorNamespaces[$sPrefix] . '/' . pathinfo($sFileName, PATHINFO_FILENAME))) {
+                    return self::_includeFile($sFile, $sClassName);
                 }
             }
         }
