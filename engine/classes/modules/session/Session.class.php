@@ -102,8 +102,8 @@ class ModuleSession extends Module {
                     session_start();
                 } else {
                     // wrong session ID, regenerates it
-                    session_regenerate_id();
                     session_start();
+                    session_regenerate_id();
                 }
             }
         } else {
