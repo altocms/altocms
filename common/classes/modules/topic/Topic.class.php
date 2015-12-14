@@ -2468,8 +2468,11 @@ class ModuleTopic extends Module {
             return $bResult;
         }
         $this->Cache_CleanByTags(
-            array("topic_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
+            array("topic_update", "blog_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
         );
+        $this->Cache_Delete("blog_{$nBlogId}");
+        $this->Cache_Delete("blog_{$nBlogIdNew}");
+
         return false;
     }
 
