@@ -2505,8 +2505,11 @@ class ModuleTopic extends Module {
             return $bResult;
         }
         E::ModuleCache()->CleanByTags(
-            array("topic_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
+            array("topic_update", "blog_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
         );
+        E::ModuleCache()->Delete("blog_{$nBlogId}");
+        E::ModuleCache()->Delete("blog_{$nBlogIdNew}");
+
         return false;
     }
 
