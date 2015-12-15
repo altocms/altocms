@@ -99,7 +99,7 @@
                         return false;
                     }
                     if (Math.ceil($last.offset().top) >= (firstTop + firstHeight)) {
-                        $last.prev().appendTo($this.$hiddenContainer);
+                        $last.prev().prependTo($this.$hiddenContainer);
                         hide();
                     }
                     return false;
