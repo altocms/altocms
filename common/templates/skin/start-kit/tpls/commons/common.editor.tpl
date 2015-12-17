@@ -13,7 +13,7 @@
 {include_once file='modals/modal.insert_img.tpl' sTargetType=$sTargetType bTmp=$bTmp}
 
 {if Config::Get('view.wysiwyg')}
-    {include_once file="editors/editor.tinymce.tpl"}
+    {include_once file="editors/editor.tinymce.tpl"  sSettingsTinymce = $sSettingsTinymce}
 {else}
-    {include_once file="editors/editor.markitup.tpl"}
+    {include_once file="editors/editor.markitup.tpl"  sSettingsMarkitup = $sSettingsMarkitup}
 {/if}
