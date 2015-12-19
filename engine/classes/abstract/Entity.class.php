@@ -541,24 +541,28 @@ abstract class Entity extends LsObject {
      */
     public function __call($sName, $aArgs) {
 
-        $sType = strtolower(substr($sName, 0, 3));
-        if (!strpos($sName, '_') && ($sType == 'get' || $sType == 'set')) {
-            $sKey = F::StrUnderscore(substr($sName, 3));
-            if ($sType == 'get') {
-                if ($this->isProp($sKey)) {
-                    return $this->getProp($sKey);
-                } else {
-                    if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
-                        $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
-                        if ($this->isProp($sModulePrefix . $sKey)) {
-                            return $this->getProp($sModulePrefix . $sKey);
+        if (!strpos($sName, '_')) {
+            $sType = strtolower(substr($sName, 0, 3));
+            if (($sType == 'get' || $sType == 'set')) {
+                $sKey = F::StrUnderscore(substr($sName, 3));
+                if ($sType == 'get') {
+                    if ($this->isProp($sKey)) {
+                        return $this->getProp($sKey);
+                    } else {
+                        if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
+                            $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
+                            if ($this->isProp($sModulePrefix . $sKey)) {
+                                return $this->getProp($sModulePrefix . $sKey);
+                            }
                         }
                     }
+                } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
+                    $this->setProp($sKey, $aArgs[0]);
                 }
-            } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
-                $this->setProp($sKey, $aArgs[0]);
+                return null;
+            } else {
+                return parent::__call($sName, $aArgs);
             }
-            return null;
         }
         return E::getInstance()->_CallModule($sName, $aArgs);
     }
