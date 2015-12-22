@@ -3,11 +3,11 @@
     <id>example</id>
     <name>
         <lang name="default">Example</lang>
-        <lang name="russian">Example</lang>
+        <lang name="ru">Example</lang>
     </name>
     <author>
         <lang name="default">author</lang>
-        <lang name="russian">автор</lang>
+        <lang name="ru">автор</lang>
     </author>
     <homepage>http://altocms.ru</homepage>
     <version>1.0.0</version>
@@ -27,6 +27,6 @@
     </requires>
     <description>
         <lang name="default">Description of plugin Example</lang>
-        <lang name="russian">Описание плагина Example</lang>
+        <lang name="ru">Описание плагина Example</lang>
     </description>
 </plugin>
