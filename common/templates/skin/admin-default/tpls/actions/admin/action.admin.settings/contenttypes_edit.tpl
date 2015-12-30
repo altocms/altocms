@@ -45,7 +45,7 @@
         if (admin && admin.sortable) {
             admin.sortable(container, sortSave);
         }
-    };
+    });
 </script>
 {/literal}
 
