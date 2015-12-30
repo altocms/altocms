@@ -29,14 +29,14 @@
                     <thead>
                     <tr>
                         <th>
-                            <input type="checkbox" name="" onclick="admin.selectAllRows(this);"/>
+                            <input class="hidden" type="checkbox" name="" onclick="admin.selectAllRows(this);"/>
                         </th>
                         <th class="name">{$aLang.action.admin.plugin_name}</th>
-                        <th class="name"></th>
+                        <th class="dirname"></th>
                         <th class="version">{$aLang.action.admin.plugin_version}</th>
                         <th class="author">{$aLang.action.admin.plugin_author}</th>
                         <th class="action">{$aLang.action.admin.plugin_action}</th>
-                        <th class="">{$aLang.action.admin.menu_settings}</th>
+                        <th class="settings">{$aLang.action.admin.menu_settings}</th>
                     </tr>
                     </thead>
 
@@ -49,10 +49,10 @@
                                        class="form_plugins_checkbox"/>
                             </td>
                             <td class="name">
-                                <div class="i-title">{$oPlugin->GetName()|escape:'html'}</div>
+                                <div class="i-title">{$oPlugin->GetName()}</div>
                                 <div class="description">
                                     <b>{$oPlugin->GetId()}</b>
-                                    - {$oPlugin->GetDescription()}
+                                    &mdash;&nbsp;{$oPlugin->GetDescription()|nl2br:true}
                                 </div>
                                 {if ($oPlugin->GetHomepage()>'')}
                                     <div class="url">
@@ -60,9 +60,9 @@
                                     </div>
                                 {/if}
                             </td>
-                            <td class="version">/{$oPlugin->GetDirname()|escape:'html'}</td>
+                            <td class="dirname">/{$oPlugin->GetDirname()|escape:'html'}</td>
                             <td class="version">{$oPlugin->GetVersion()|escape:'html'}</td>
-                            <td class="author">{$oPlugin->GetAuthor()|escape:'html'}</td>
+                            <td class="author">{$oPlugin->GetAuthor()}</td>
                             <td class="action">
                                 <div class="b-switch"
                                      onclick="admin.plugin.turn('{$oPlugin->GetId(true)}', '{!$oPlugin->isActive()}'); return false;">

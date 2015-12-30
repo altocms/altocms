@@ -18,7 +18,7 @@ $config['assets']['default']['js'] = Config::Get('assets.default.js');
 //$config['assets']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
 //$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
 //$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js";
+$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.js";

@@ -1,21 +1,22 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
- <script>
-     $(function () {
-         $('#modal-upload_img')
-                 .on('hidden.bs.modal', function () {
-                     var t = $('#modal-upload_img');
-                     t.find('input').val('').end()
-                     t.find('select :first').attr("selected", "selected");
-                     t.find('select').selecter("refresh").end()
-                     t.find('.selecter-selected').text(t.find('select :first').text());
-                     t.find('span.fileinput-filename').html("").end()
-                     t.find('[name="img_width"]').val("100").end()
-                     ;
-                 })
-     })
- </script>
+<script>
+$(function () {
+    $('#modal-upload_img').on('hidden.bs.modal', function () {
+        $('#modal-upload_img')
+            .find('input').val('')
+            .end()
+            .find('select :first').attr("selected", "selected")
+            .trigger('change') /* update state «selecter» plugin */
+            .end()
+            .find('span.fileinput-filename').html("")
+            .end()
+            .find('[name="img_width"]').val("100")
+        ;
+    })
+})
+</script>
  <div class="modal fade in" id="modal-upload_img">
      <div class="modal-dialog">
          <div class="modal-content">
