@@ -3,8 +3,9 @@
 
 A jQuery plugin for replacing default select elements. Part of the Formstone Library. 
 
-- [Demo](http://formstone.it/components/Selecter/demo/index.html) 
-- [Documentation](http://formstone.it/selecter/) 
+- [Demo](http://classic.formstone.it/components/selecter) 
+- [Documentation](http://classic.formstone.it/components/selecter) 
+- [Github](https://github.com/FormstoneClassic/Selecter)
 
 #### Bower Support 
-`bower install Selecter`
+`bower install Selecter` 
