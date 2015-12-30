@@ -48,7 +48,7 @@ class ModuleSession extends Module {
      *
      * @var bool
      */
-    protected $bUseStandartSession = true;
+    protected $bUseStandardSession = true;
 
     /**
      * Инициализация модуля
@@ -56,11 +56,20 @@ class ModuleSession extends Module {
      */
     public function Init() {
 
-        $this->bUseStandartSession = Config::Get('sys.session.standart');
+        $this->bUseStandardSession = Config::Get('sys.session.standart');
 
         // * Стартуем сессию
         $this->Start();
-        $this->SetCookie('visitor_id', F::RandomStr());
+
+        if (!$this->GetCookie('visitor_id')) {
+            $this->SetCookie('visitor_id', F::RandomStr());
+        }
+
+        if (PHP_VERSION_ID >= 50400) {
+            session_register_shutdown();
+        } else {
+            register_shutdown_function('session_write_close');
+        }
     }
 
     /**
@@ -69,7 +78,7 @@ class ModuleSession extends Module {
      */
     protected function Start() {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             $sSysSessionName = Config::Get('sys.session.name');
             session_name($sSysSessionName);
             session_set_cookie_params(
@@ -101,9 +110,11 @@ class ModuleSession extends Module {
                     session_id($sSSID);
                     session_start();
                 } else {
-                    // wrong session ID, regenerates it
                     session_start();
-                    session_regenerate_id();
+                    if ($sSSID) {
+                        // wrong session ID, regenerates it
+                        session_regenerate_id(true);
+                    }
                 }
             }
         } else {
@@ -153,7 +164,7 @@ class ModuleSession extends Module {
      */
     public function GetId() {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             return session_id();
         } else {
             return $this->sId;
@@ -208,7 +219,7 @@ class ModuleSession extends Module {
         if (is_null($sName)) {
             return $this->GetData();
         } else {
-            if ($this->bUseStandartSession) {
+            if ($this->bUseStandardSession) {
                 return isset($_SESSION[$sName]) ? $_SESSION[$sName] : $sDefault;
             } else {
                 return isset($this->aData[$sName]) ? $this->aData[$sName] : $sDefault;
@@ -224,7 +235,7 @@ class ModuleSession extends Module {
      */
     public function Set($sName, $data) {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             $_SESSION[$sName] = $data;
         } else {
             $this->aData[$sName] = $data;
@@ -239,7 +250,7 @@ class ModuleSession extends Module {
      */
     public function Drop($sName) {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             unset($_SESSION[$sName]);
         } else {
             if (isset($_SESSION[$sName])) unset($_SESSION[$sName]);
@@ -255,7 +266,7 @@ class ModuleSession extends Module {
      */
     public function GetData() {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             return $_SESSION;
         } else {
             return $this->aData;
@@ -268,7 +279,7 @@ class ModuleSession extends Module {
      */
     public function DropSession() {
 
-        if ($this->bUseStandartSession && session_id()) {
+        if ($this->bUseStandardSession && session_id()) {
             session_unset();
             $this->DelCookie(Config::Get('sys.session.name'));
             session_destroy();
@@ -340,6 +351,7 @@ class ModuleSession extends Module {
         }
         setcookie($sName, '', time() - 3600, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'));
     }
+
 }
 
 // EOF
