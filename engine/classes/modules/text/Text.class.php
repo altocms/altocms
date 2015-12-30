@@ -99,6 +99,27 @@ class ModuleText extends Module {
     }
 
     /**
+     * @param string $sType
+     * @param bool   $bClear
+     *
+     * @return ITextParser
+     */
+    static public function newTextParser($sType = 'default', $bClear = true) {
+
+        $sParser = C::Get('module.text.parser');
+
+        $sClassName = 'TextParser' . $sParser;
+        $sFileName = './parser/' . $sClassName . '.class.php';
+        F::IncludeFile($sFileName);
+
+        /** @var ITextParser $oTextParser */
+        $oTextParser = new $sClassName();
+        $oTextParser->loadConfig($sType, $bClear);
+
+        return $oTextParser;
+    }
+
+    /**
      * Add new special parser
      *
      * @param string   $sName

@@ -567,7 +567,7 @@ $config['module']['api']['post'] = false;       // Сторонний post-зп�
 /**
  * Настройки модуля Text
  */
-$config['module']['text']['parser'] = 'Jevix';  // Text parser class: Jevix or Qevix
+$config['module']['text']['parser'] = 'Qevix';  // Text parser class: Jevix or Qevix
 $config['module']['text']['char']['@'] = true;  // Convert @user into link to profile
 
 // All cyrillic symbols

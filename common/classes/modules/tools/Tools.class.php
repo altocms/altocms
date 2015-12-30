@@ -91,12 +91,11 @@ class ModuleTools extends Module {
      * @return string
      */
     public function RemoveAllTags($sText, &$aError = null) {
-        F::File_IncludeLib('Jevix/jevix.class.php');
 
-        /** @var Jevix $oJevix */
-        $oJevix = new Jevix();
+        /** @var ITextParser $oTextParser */
+        $oTextParser = ModuleText::newTextParser();
 
-        return htmlspecialchars_decode($oJevix->parse($sText, $aError));
+        return htmlspecialchars_decode($oTextParser->parse($sText, $aError));
     }
 
 }

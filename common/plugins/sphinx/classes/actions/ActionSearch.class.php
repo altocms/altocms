@@ -31,12 +31,14 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
             'topics'   => array('topic_publish' => 1),
             'comments' => array('comment_delete' => 0)
         );
+
     /**
      * Массив результата от Сфинкса
      *
      * @var null|array
      */
     protected $aSphinxRes = null;
+
     /**
      * Поиск вернул результат или нет
      *
@@ -84,43 +86,39 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      *
      */
     function EventTopics() {
-        /**
-         * Ищем
-         */
+
+        // * Ищем
         $aReq = $this->PrepareRequest();
         $aRes = $this->PrepareResults($aReq, Config::Get('module.topic.per_page'));
         if (false === $aRes) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return Router::Action('error');
         }
-        /**
-         * Если поиск дал результаты
-         */
+
+        // * Если поиск дал результаты
         if ($this->bIsResults) {
-            /**
-             * Получаем топик-объекты по списку идентификаторов
-             */
+
+            // * Получаем топик-объекты по списку идентификаторов
             $aTopics = E::ModuleTopic()->GetTopicsAdditionalData(array_keys($this->aSphinxRes['matches']));
-            /**
-             * Конфигурируем парсер jevix
-             */
-            E::ModuleText()->LoadJevixConfig('search');
-            /**
-             *  Делаем сниппеты
-             */
+
+            // * Конфигурируем парсер
+            $oTextParser = ModuleText::newTextParser('search');
+
+            $aErrors = array();
+
+            // *  Делаем сниппеты
+            /** @var ModuleTopic_EntityTopic $oTopic */
             foreach ($aTopics AS $oTopic) {
-                /**
-                 * Т.к. текст в сниппетах небольшой, то можно прогнать через парсер
-                 */
+                // * Т.к. текст в сниппетах небольшой, то можно прогнать через парсер
                 $oTopic->setTextShort(
-                    E::ModuleText()->TextParser(
+                    $oTextParser->parse(
                         E::ModuleSphinx()->GetSnippet(
                             $oTopic->getText(),
                             'topics',
                             $aReq['q'],
                             '<span class="searched-item">',
                             '</span>'
-                        )
+                        ), $aErrors
                     )
                 );
             }
@@ -138,40 +136,37 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      *
      */
     function EventComments() {
-        /**
-         * Ищем
-         */
+
+        // * Ищем
         $aReq = $this->PrepareRequest();
         $aRes = $this->PrepareResults($aReq, Config::Get('module.comment.per_page'));
         if (false === $aRes) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return Router::Action('error');
         }
-        /**
-         * Если поиск дал результаты
-         */
+
+        // * Если поиск дал результаты
         if ($this->bIsResults) {
-            /**
-             *  Получаем топик-объекты по списку идентификаторов
-             */
+
+            // *  Получаем топик-объекты по списку идентификаторов
             $aComments = E::ModuleComment()->GetCommentsAdditionalData(array_keys($this->aSphinxRes['matches']));
-            /**
-             * Конфигурируем парсер jevix
-             */
-            E::ModuleText()->LoadJevixConfig('search');
-            /**
-             * Делаем сниппеты
-             */
+
+            // * Конфигурируем парсер
+            $oTextParser = ModuleText::newTextParser('search');
+
+            $aErrors = array();
+            // * Делаем сниппеты
+            /** @var ModuleComment_EntityComment $oComment */
             foreach ($aComments AS $oComment) {
                 $oComment->setText(
-                    E::ModuleText()->TextParser(
+                    $oTextParser->parse(
                         E::ModuleSphinx()->GetSnippet(
                             htmlspecialchars($oComment->getText()),
                             'comments',
                             $aReq['q'],
                             '<span class="searched-item">',
                             '</span>'
-                        )
+                        ), $aErrors
                     )
                 );
             }
@@ -192,24 +187,23 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
 
         $aReq['q'] = F::GetRequestStr('q');
         if (!F::CheckVal($aReq['q'], 'text', 2, 255)) {
-            /**
+            /*
              * Если запрос слишком короткий перенаправляем на начальную страницу поиска
              * Хотя тут лучше показывать юзеру в чем он виноват
              */
             Router::Location(Router::GetPath('search'));
         }
         $aReq['sType'] = strtolower(Router::GetActionEvent());
-        /**
-         * Определяем текущую страницу вывода результата
-         */
+
+        // * Определяем текущую страницу вывода результата
         $aReq['iPage'] = intval(preg_replace('#^page([1-9]\d{0,5})$#', '\1', $this->getParam(0)));
         if (!$aReq['iPage']) {
             $aReq['iPage'] = 1;
         }
-        /**
-         *  Передача данных в шаблонизатор
-         */
+
+        // *  Передача данных в шаблонизатор
         E::ModuleViewer()->Assign('aReq', $aReq);
+
         return $aReq;
     }
 
@@ -222,29 +216,25 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      * @return array|bool
      */
     protected function PrepareResults($aReq, $iLimit) {
-        /**
-         *  Количество результатов по типам
-         */
+
+        // *  Количество результатов по типам
+        $aRes = array();
         foreach ($this->sTypesEnabled as $sType => $aExtra) {
             $aRes['aCounts'][$sType] = intval(E::ModuleSphinx()->GetNumResultsByType($aReq['q'], $sType, $aExtra));
         }
         if ($aRes['aCounts'][$aReq['sType']] == 0) {
-            /**
-             *  Объектов необходимого типа не найдено
-             */
+
+            // *  Объектов необходимого типа не найдено
             unset($this->sTypesEnabled[$aReq['sType']]);
-            /**
-             * Проверяем отсальные типы
-             */
+
+            // * Проверяем отсальные типы
             foreach (array_keys($this->sTypesEnabled) as $sType) {
                 if ($aRes['aCounts'][$sType]) {
                     Router::Location(Router::GetPath('search') . $sType . '/?q=' . $aReq['q']);
                 }
             }
         } elseif (($aReq['iPage'] - 1) * $iLimit <= $aRes['aCounts'][$aReq['sType']]) {
-            /**
-             * Ищем
-             */
+            // * Ищем
             $this->aSphinxRes = E::ModuleSphinx()->FindContent(
                 $aReq['q'],
                 $aReq['sType'],
@@ -252,17 +242,15 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
                 $iLimit,
                 $this->sTypesEnabled[$aReq['sType']]
             );
-            /**
-             * Возможно демон Сфинкса не доступен
-             */
+
+            // * Возможно демон Сфинкса не доступен
             if (false === $this->aSphinxRes) {
                 return false;
             }
 
             $this->bIsResults = true;
-            /**
-             * Формируем постраничный вывод
-             */
+
+            // * Формируем постраничный вывод
             $aPaging = E::ModuleViewer()->MakePaging(
                 $aRes['aCounts'][$aReq['sType']],
                 $aReq['iPage'],

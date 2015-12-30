@@ -12,7 +12,6 @@
  * @package actions
  * @since   0.9
  */
-F::File_IncludeLib('Jevix/jevix.class.php');
 
 class ActionSearch extends Action {
 
@@ -33,8 +32,8 @@ class ActionSearch extends Action {
     protected $bSearchStrict = true; // Строгий поиск
     protected $bSkipAllTags = true; // Не искать в тегах
 
-    /** @var Jevix */
-    protected $oJevix = null; // придется выборочно "чистить" HTML-текст
+    /** @var ITextParser */
+    protected $oTextParser = null; // придется выборочно "чистить" HTML-текст
 
     protected $bLogEnable = false;
     protected $oUser = null;
@@ -77,39 +76,39 @@ class ActionSearch extends Action {
 
         mb_internal_encoding('UTF-8');
 
-        $this->oJevix = new Jevix();
+        $this->oTextParser = ModuleText::newTextParser();
         // Разрешённые теги
         if ($this->nModeOutList == 'snippet') {
-            $this->oJevix->cfgAllowTags(array('a', 'img', 'object', 'param', 'embed'));
+            $this->oTextParser->cfgAllowTags(array('a', 'img', 'object', 'param', 'embed'));
         } else {
-            $this->oJevix->cfgAllowTags(array('a', 'img', 'object', 'param', 'embed'));
+            $this->oTextParser->cfgAllowTags(array('a', 'img', 'object', 'param', 'embed'));
         }
         // Коротие теги типа
-        $this->oJevix->cfgSetTagShort(array('img'));
+        $this->oTextParser->cfgSetTagShort(array('img'));
         // Разрешённые параметры тегов
-        $this->oJevix->cfgAllowTagParams(
+        $this->oTextParser->cfgAllowTagParams(
             'img',
             array('src', 'alt' => '#text', 'title', 'align' => array('right', 'left', 'center'), 'width' => '#int',
                   'height'     => '#int', 'hspace' => '#int', 'vspace' => '#int')
         );
-        $this->oJevix->cfgAllowTagParams('a', array('title', 'href', 'rel'));
-        $this->oJevix->cfgAllowTagParams('object', array('width' => '#int', 'height' => '#int', 'data' => '#link'));
-        $this->oJevix->cfgAllowTagParams('param', array('name' => '#text', 'value' => '#text'));
-        $this->oJevix->cfgAllowTagParams(
+        $this->oTextParser->cfgAllowTagParams('a', array('title', 'href', 'rel'));
+        $this->oTextParser->cfgAllowTagParams('object', array('width' => '#int', 'height' => '#int', 'data' => '#link'));
+        $this->oTextParser->cfgAllowTagParams('param', array('name' => '#text', 'value' => '#text'));
+        $this->oTextParser->cfgAllowTagParams(
             'embed',
             array('src' => '#image', 'type' => '#text', 'allowscriptaccess' => '#text', 'allowfullscreen' => '#text',
                   'width' => '#int', 'height' => '#int', 'flashvars' => '#text', 'wmode' => '#text')
         );
         // Параметры тегов являющиеся обязательными
-        $this->oJevix->cfgSetTagParamsRequired('img', 'src');
-        $this->oJevix->cfgSetTagParamsRequired('a', 'href');
+        $this->oTextParser->cfgSetTagParamsRequired('img', 'src');
+        $this->oTextParser->cfgSetTagParamsRequired('a', 'href');
         // Теги которые необходимо вырезать из текста вместе с контентом
-        $this->oJevix->cfgSetTagCutWithContent(array('script', 'iframe', 'style'));
+        $this->oTextParser->cfgSetTagCutWithContent(array('script', 'iframe', 'style'));
         // Вложенные теги
-        $this->oJevix->cfgSetTagChilds('object', 'param', false, true);
-        $this->oJevix->cfgSetTagChilds('object', 'embed', false, false);
+        $this->oTextParser->cfgSetTagChilds('object', 'param', false, true);
+        $this->oTextParser->cfgSetTagChilds('object', 'embed', false, false);
         // Отключение авто-добавления <br>
-        $this->oJevix->cfgSetAutoBrMode(true);
+        $this->oTextParser->cfgSetAutoBrMode(true);
 
         $this->SetTemplateAction('index');
     }
@@ -367,7 +366,7 @@ class ActionSearch extends Action {
         if ($this->bSkipAllTags) {
             $sText = strip_tags($sText);
         } else {
-            $sText = $this->oJevix->parse($sText, $aError);
+            $sText = $this->oTextParser->parse($sText, $aError);
             $sText = str_replace('<br/>', '', $sText);
         }
 
