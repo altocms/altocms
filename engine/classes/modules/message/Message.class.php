@@ -77,8 +77,12 @@ class ModuleMessage extends Module {
         /**
          * Добавляем в сессию те сообщения, которые были отмечены для сессионного использования
          */
-        E::ModuleSession()->Set('message_notice_session', $this->GetNoticeSession());
-        E::ModuleSession()->Set('message_error_session', $this->GetErrorSession());
+        if ($aMessages = $this->GetNoticeSession()) {
+            E::ModuleSession()->Set('message_notice_session', $aMessages);
+        }
+        if ($aMessages = $this->GetErrorSession()) {
+            E::ModuleSession()->Set('message_error_session', $aMessages);
+        }
 
         E::ModuleViewer()->Assign('aMsgNotice', $this->GetNotice());
         E::ModuleViewer()->Assign('aMsgError', $this->GetError());
