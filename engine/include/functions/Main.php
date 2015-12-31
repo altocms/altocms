@@ -794,24 +794,38 @@ class AltoFunc_Main {
      * URL encoding with double encoding for slashes
      *
      * @param string $sStr
+     * @param bool   $bExtra
      *
      * @return string
      */
-    static public function UrlEncode($sStr) {
+    static public function UrlEncode($sStr, $bExtra = false) {
 
-        return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
+        if (!empty($sStr)) {
+            if ($bExtra) {
+                return str_replace(array('%2F', '%5C', '-', '.', '_'), array('%252F', '%255C', '%2D', '%2E', '%5F'), urlencode($sStr));
+            }
+            return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
+        }
+        return '';
     }
 
     /**
      * URL encoding with double encoding for slashes
      *
      * @param string $sStr
+     * @param bool   $bExtra
      *
      * @return string
      */
-    static public function UrlDecode($sStr) {
+    static public function UrlDecode($sStr, $bExtra = false) {
 
-        return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
+        if (!empty($sStr)) {
+            if ($bExtra) {
+                return urldecode(str_replace(array('%252F', '%255C', '%2D', '%2E', '%5F'), array('%2F', '%5C', '-', '.', '_'), $sStr));
+            }
+            return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
+        }
+        return '';
     }
 
     /**

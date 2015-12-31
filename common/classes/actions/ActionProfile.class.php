@@ -347,21 +347,18 @@ class ActionProfile extends Action {
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
-        /**
-         * Пользователь авторизован и просматривает свой профиль?
-         */
+
+        // * Пользователь авторизован и просматривает свой профиль?
         if (!$this->oUserCurrent || $this->oUserProfile->getId() != $this->oUserCurrent->getId()) {
             return parent::EventNotFound();
         }
         $this->sMenuSubItemSelect = 'topics';
-        $sTag = $this->GetParamEventMatch(3, 0);
-        /*
-         * Передан ли номер страницы
-         */
+        $sTag = F::UrlDecode($this->GetParamEventMatch(3, 0), true);
+
+        // * Передан ли номер страницы
         $iPage = $this->GetParamEventMatch(4, 2) ? $this->GetParamEventMatch(4, 2) : 1;
-        /**
-         * Получаем список избранных топиков
-         */
+
+        // * Получаем список избранных топиков
         $aResult = E::ModuleFavourite()->GetTags(
             array('target_type' => 'topic', 'user_id' => $this->oUserProfile->getId(), 'text' => $sTag),
             array('target_id' => 'desc'), $iPage, Config::Get('module.topic.per_page')
@@ -371,24 +368,21 @@ class ActionProfile extends Action {
             $aTopicId[] = $oTag->getTargetId();
         }
         $aTopics = E::ModuleTopic()->GetTopicsAdditionalData($aTopicId);
-        /**
-         * Формируем постраничность
-         */
+
+        // * Формируем постраничность
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
             $this->oUserProfile->getUserUrl() . 'favourites/topics/tag/' . htmlspecialchars($sTag)
         );
-        /**
-         * Загружаем переменные в шаблон
-         */
+
+        // * Загружаем переменные в шаблон
         E::ModuleViewer()->Assign('aPaging', $aPaging);
         E::ModuleViewer()->Assign('aTopics', $aTopics);
         E::ModuleViewer()->Assign('sFavouriteTag', htmlspecialchars($sTag));
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile_favourites'));
-        /**
-         * Устанавливаем шаблон вывода
-         */
+
+        // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('favourite_topics');
     }
 

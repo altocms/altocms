@@ -55,7 +55,7 @@ class ActionTag extends Action {
     protected function EventTags() {
 
         // * Gets tag from URL
-        $sTag = F::UrlDecode(R::Url('event'));
+        $sTag = F::UrlDecode(R::Url('event'), true);
 
         // * Check page number
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
