@@ -250,10 +250,13 @@ class ActionSearch extends Action {
             } else {
                 $sRegexp = implode('|', $aWords);
             }
-            $sRegexp = '/' . $sRegexp . '/iusxSU';
         } else {
-            $sRegexp = '/' . $this->aReq['regexp'] . '/iusxSU';
+            $sRegexp = $this->aReq['regexp'];
         }
+
+        $sRegexp = preg_replace('/\s+/', '\\s+', $sRegexp);
+        $sRegexp = '/' . $sRegexp . '/iusxSU';
+
         return $sRegexp;
     }
 
