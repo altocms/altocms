@@ -1187,8 +1187,8 @@ class ModuleUploader extends Module {
      */
     public function GetTargetUrl($sTargetType, $iTargetId) {
 
-        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'photoset' || $sTargetType = 'topic') {
-            /** @var $oTopic ModuleTopic_EntityTopic */
+        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType == 'photoset' || $sTargetType == 'topic') {
+            /** @var ModuleTopic_EntityTopic $oTopic */
             if (!$oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
                 return '';
             }
