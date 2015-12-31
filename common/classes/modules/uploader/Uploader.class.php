@@ -821,7 +821,7 @@ class ModuleUploader extends Module {
                     $xSize['h'] = $oImg->getHeight();
                 }
                 if (!isset($xSize['w']) && isset($xSize['h'])) {
-                    $xSize['h'] = $oImg->getWeight();
+                    $xSize['w'] = $oImg->getWidth();
                 }
                 if ((isset($xSize['w']) && isset($xSize['h'])) && !(isset($xSize['x1']) && isset($xSize['y1']))) {
                     $oImg = E::ModuleImg()->CropCenter($oImg, $xSize['w'], $xSize['h']);
