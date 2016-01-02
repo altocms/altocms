@@ -16,11 +16,12 @@
 class ActionSearch extends Action {
 
     protected $aReq;
-    protected $sPatternW = '[\wа-яА-Я\.\*-]'; // символ слова
-    protected $sPatternB = '[^\wа-яА-Я\.\*-]'; // граница слова
-    protected $sPatternX = '[^\s\wа-яА-Я\*-]'; // запрещеные символы без *
-    protected $sPatternXA = '[^\s\wа-яА-Я-]'; // запрещеные символы, в т.ч. *
-    protected $nModeOutList;
+    protected $sPatternW = '[\wа-яА-Я\.\/\*\-]'; // символ слова
+    protected $sPatternB = '[^\wа-яА-Я\.\/\*\-]'; // граница слова
+    protected $sPatternX = '[^\s\wа-яА-Я\/\*\-]'; // запрещеные символы без *
+    protected $sPatternXA = '[^\s\wа-яА-Я\/\-]'; // запрещеные символы, в т.ч. *
+    protected $sPatternUrl;
+    protected $sModeOutList;
     protected $nShippetLength;
     protected $nShippetMaxLength;
     protected $sSnippetBeforeMatch;
@@ -42,6 +43,8 @@ class ActionSearch extends Action {
 
     protected $aConfig = array();
 
+    /** @var int */
+    protected $iItemsPerPage = 25;
     /**
      * Инициализация
      */
@@ -50,35 +53,43 @@ class ActionSearch extends Action {
         $this->SetDefaultEvent('index');
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('search'));
 
-        $this->nModeOutList = Config::Get('module.search.out_mode');
+        $this->sModeOutList = C::Get('module.search.out_mode');
 
-        $this->nShippetLength = Config::Get('module.search.snippet.length');
-        $this->nShippetMaxLength = Config::Get('module.search.snippet.max_length');
+        $this->nShippetLength = C::Get('module.search.snippet.length');
+        $this->nShippetMaxLength = C::Get('module.search.snippet.max_length');
         if (($this->nShippetMaxLength > 0) && ($this->nShippetMaxLength < $this->nShippetLength)) {
             $this->nShippetMaxLength = $this->nShippetLength;
         }
 
-        $this->sSnippetBeforeMatch = Config::Get('module.search.snippet.before_match');
-        $this->sSnippetAfterMatch = Config::Get('module.search.snippet.after_match');
-        $this->sSnippetBeforeFragment = Config::Get('module.search.snippet.before_fragment');
-        $this->sSnippetAfterFragment = Config::Get('module.search.snippet.after_fragment');
-        $this->nSnippetMaxFragments = Config::Get('module.search.snippet.max_fragments');
+        $this->sSnippetBeforeMatch = C::Get('module.search.snippet.before_match');
+        $this->sSnippetAfterMatch = C::Get('module.search.snippet.after_match');
+        $this->sSnippetBeforeFragment = C::Get('module.search.snippet.before_fragment');
+        $this->sSnippetAfterFragment = C::Get('module.search.snippet.after_fragment');
+        $this->nSnippetMaxFragments = C::Get('module.search.snippet.max_fragments');
 
-        $this->sPatternW = Config::Get('module.search.char_pattern');
+        $this->sPatternW = C::Get('module.search.char_pattern');
         $this->sPatternB = '[^' . mb_substr($this->sPatternW, 1); // '[^\wа-яА-Я\.\*-]';    // граница слова
         $this->sPatternX = '[^\s' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я\*-]';  // запрещеные символы без *
         $this->sPatternXA = '[^\s\*' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я-]';               // запрещеные символы, в т.ч. *
 
-        $this->bSearchStrict = Config::Get('module.search.strict_search');
-        $this->bSkipAllTags = Config::Get('module.search.skip_all_tags');
+        $this->sPatternUrl = "([a-z]+\:\/\/)?"; // SCHEME
+        $this->sPatternUrl .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; // User and Pass
+        $this->sPatternUrl .= "([a-z0-9-.]*)\.([a-z]{2,4})"; // Host or IP
+        $this->sPatternUrl .= "(\:[0-9]{2,5})?"; // Port
+        $this->sPatternUrl .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; // Path
+        $this->sPatternUrl .= "(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?"; // GET Query
+        $this->sPatternUrl .= "(#[a-z_.-][a-z0-9+\$_.-]*)?"; // Anchor
 
-        $this->nItemsPerPage = Config::Get('module.search.items_per_page');
+        $this->bSearchStrict = C::Get('module.search.strict_search');
+        $this->bSkipAllTags = C::Get('module.search.skip_all_tags');
+
+        $this->iItemsPerPage = C::Get('module.search.items_per_page');
 
         mb_internal_encoding('UTF-8');
 
         $this->oTextParser = ModuleText::newTextParser();
         // Разрешённые теги
-        if ($this->nModeOutList == 'snippet') {
+        if ($this->sModeOutList === 'snippet') {
             $this->oTextParser->cfgAllowTags(array('a', 'img', 'object', 'param', 'embed'));
         } else {
             $this->oTextParser->cfgAllowTags(array('a', 'img', 'object', 'param', 'embed'));
@@ -128,9 +139,58 @@ class ActionSearch extends Action {
         $this->AddEvent('blogs', 'EventBlogs');
     }
 
+    protected function _statKey() {
+
+        return 'module.search.last_queries.ip_' . F::GetUserIp();
+    }
+
+    /**
+     * @param array $aLastSearchQueries
+     */
+    protected function _statSave($aLastSearchQueries) {
+
+        $sData = F::Serialize($aLastSearchQueries, true);
+        if (C::Get('module.search.limit.check_ip')) {
+            if (E::ModuleCache()->CacheTypeAvailable('memory')) {
+                $sCacheType = 'memory';
+            } else {
+                $sCacheType = 'file';
+            }
+            E::ModuleCache()->Set($sData, $this->_statKey(), array(), false, ',' . $sCacheType);
+        } else {
+            E::ModuleSession()->Set('last_search_queries', $sData);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function _statLoad() {
+
+        if (C::Get('module.search.limit.check_ip')) {
+            if (E::ModuleCache()->CacheTypeAvailable('memory')) {
+                $sCacheType = 'memory';
+            } else {
+                $sCacheType = 'file';
+            }
+            $sData = E::ModuleCache()->Get($this->_statKey(), $sCacheType . ',');
+        } else {
+            $sData = E::ModuleSession()->Get('last_search_queries');
+        }
+        if (false !== $sData) {
+            $aLastSearchQueries = array();
+        } else {
+            $aLastSearchQueries = F::Unserialize($sData, array());
+        }
+        return $aLastSearchQueries;
+    }
+
+    /**
+     * @return bool
+     */
     protected function _checkLimits() {
 
-        $iLimitQueries = intval(C::Get('module.search.limit.queries'));
+        $iLimitQueries = (int)(C::Get('module.search.limit.queries'));
         $iLimitPeriod = F::ToSeconds(C::Get('module.search.limit.period'));
         $iLimitInterval = F::ToSeconds(C::Get('module.search.limit.interval'));
 
@@ -138,23 +198,14 @@ class ActionSearch extends Action {
             return true;
         }
 
-        $sLastSearchQueries = E::ModuleSession()->Get('last_search_queries');
-        if (empty($sLastSearchQueries)) {
-            $aLastSearchQueries = array();
-        } else {
-            $aLastSearchQueries = F::Unserialize($sLastSearchQueries);
-        }
+        $aLastSearchQueries = $this->_statLoad();
         $iCount = 0;
-        if (!empty($aLastSearchQueries)) {
+        if (count($aLastSearchQueries) > 0) {
             $iTimeLimit = time() - $iLimitPeriod;
-            //echo date('H:i:s', time()), '--', date('H:i:s', $iTimeLimit), '<br>';
             foreach($aLastSearchQueries as $iIndex => $aQuery) {
-                //echo $iIndex, ' - ', date('H:i:s', $aQuery['time']);
                 if ($aQuery['time'] >= $iTimeLimit) {
-                    $iCount += 1;
-                    //echo ' * ';
+                    ++$iCount;
                 }
-                //echo '<br>';
             }
             $aLastQuery = end($aLastSearchQueries);
         } else {
@@ -167,8 +218,9 @@ class ActionSearch extends Action {
             'time' => time(),
             'query' => F::GetRequest('q'),
         );
-        E::ModuleSession()->Set('last_search_queries', F::Serialize($aLastSearchQueries));
-        //die('iCount:' . $iCount);
+
+        $this->_statSave($aLastSearchQueries);
+
         if ($iCount > $iLimitQueries) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('search_err_frequency', array('num' => $iLimitQueries, 'sec' => $iLimitPeriod)));
             return false;
@@ -192,7 +244,7 @@ class ActionSearch extends Action {
             return;
         }
 
-        if (!($sLogFile = Config::Get('module.search.logs.file'))) {
+        if (!($sLogFile = C::Get('module.search.logs.file'))) {
             $sLogFile = 'search.log';
         }
         if (!$this->oUser) {
@@ -212,7 +264,7 @@ class ActionSearch extends Action {
         $sStrLog = 'user=>"' . $sUserLogin . '" ip=>"' . $_SERVER['REMOTE_ADDR'] . '"' . "\n" .
             str_repeat(' ', 22) . 'path=>' . $path . '"' . "\n" .
             str_repeat(' ', 22) . 'uri=>' . $uri . '"';
-        if (is_array($aVars) && sizeof($aVars)) {
+        if (is_array($aVars) && count($aVars)) {
             foreach ($aVars as $key => $val) {
                 $sStrLog .= "\n" . str_repeat(' ', 22) . $key . '=>"' . $val . '"';
             }
@@ -245,7 +297,7 @@ class ActionSearch extends Action {
                 $aWords[$iIndex] = $sWord;
             }
 
-            if (sizeof($aWords) == 1) {
+            if (count($aWords) == 1) {
                 $sRegexp = reset($aWords);
             } else {
                 $sRegexp = implode('|', $aWords);
@@ -490,7 +542,7 @@ class ActionSearch extends Action {
         if ($this->aReq['regexp']) {
             $aResult = E::ModuleSearch()->GetTopicsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
-                $this->nItemsPerPage, $this->aReq['params'],
+                $this->iItemsPerPage, $this->aReq['params'],
                 C::Get('module.search.accessible')
             );
 
@@ -501,9 +553,9 @@ class ActionSearch extends Action {
                 // * Подсветка поисковой фразы в тексте или формирование сниппета
                 foreach ($aTopicsFound AS $oTopic) {
                     if ($oTopic && $oTopic->getBlog()) {
-                        if ($this->nModeOutList == 'short') {
+                        if ($this->sModeOutList == 'short') {
                             $oTopic->setTextShort($this->_textHighlite($oTopic->getTextShort()));
-                        } elseif ($this->nModeOutList == 'full') {
+                        } elseif ($this->sModeOutList == 'full') {
                             $oTopic->setTextShort($this->_textHighlite($oTopic->getText()));
                         } else {
                             $oTopic->setTextShort($this->_makeSnippet($oTopic->getText()));
@@ -526,8 +578,8 @@ class ActionSearch extends Action {
         }
 
         $aPaging = E::ModuleViewer()->MakePaging(
-            $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-            Config::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
+            $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
+            C::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
         );
 
         $this->SetTemplateAction('results');
@@ -558,7 +610,7 @@ class ActionSearch extends Action {
         if ($this->aReq['regexp']) {
             $aResult = E::ModuleSearch()->GetCommentsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
-                $this->nItemsPerPage, $this->aReq['params']
+                $this->iItemsPerPage, $this->aReq['params']
             );
 
             if ($aResult['count'] == 0) {
@@ -570,7 +622,7 @@ class ActionSearch extends Action {
 
                 //подсветка поисковой фразы
                 foreach ($aComments AS $oComment) {
-                    if ($this->nModeOutList != 'snippet') {
+                    if ($this->sModeOutList != 'snippet') {
                         $oComment->setText($this->_textHighlite($oComment->getText()));
                     } else {
                         $oComment->setText($this->_makeSnippet($oComment->getText()));
@@ -591,8 +643,8 @@ class ActionSearch extends Action {
         }
 
         $aPaging = E::ModuleViewer()->MakePaging(
-            $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-            Config::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
+            $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
+            C::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
         );
 
         $this->SetTemplateAction('results');
@@ -623,7 +675,7 @@ class ActionSearch extends Action {
         if ($this->aReq['regexp']) {
             $aResult = E::ModuleSearch()->GetBlogsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
-                $this->nItemsPerPage, $this->aReq['params']
+                $this->iItemsPerPage, $this->aReq['params']
             );
             $aBlogs = array();
 
@@ -632,7 +684,7 @@ class ActionSearch extends Action {
                 $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($aResult['collection']);
                 //подсветка поисковой фразы
                 foreach ($aBlogs AS $oBlog) {
-                    if ($this->nModeOutList != 'snippet') {
+                    if ($this->sModeOutList !== 'snippet') {
                         $oBlog->setDescription($this->_textHighlite($oBlog->getDescription()));
                     } else {
                         $oBlog->setDescription($this->_makeSnippet($oBlog->getDescription()));
@@ -654,8 +706,8 @@ class ActionSearch extends Action {
         }
 
         $aPaging = E::ModuleViewer()->MakePaging(
-            $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-            Config::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
+            $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
+            C::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
         );
 
         $this->SetTemplateAction('results');
@@ -678,6 +730,21 @@ class ActionSearch extends Action {
     protected function _prepareRequest($sType = null) {
 
         $sRequest = trim(F::GetRequest('q'));
+        if (!$sRequest) {
+            $iMin = C::Get('module.search.min_length_req');
+            if (!$iMin || $iMin < 1) {
+                $iMin = 1;
+            }
+            E::ModuleMessage()->AddError(
+                E::ModuleLang()->Get(
+                    'search_err_length', array('min' => $iMin,
+                                               'max' => C::Get('module.search.max_length_req'))
+                )
+            );
+            $aReq['regexp'] = '';
+
+            return $aReq;
+        }
 
         // * Иногда ломается кодировка, напр., если ввели поиск в адресной строке браузера
         // * Пытаемся восстановить по основной кодировке браузера
@@ -697,19 +764,39 @@ class ActionSearch extends Action {
             $sRequest = preg_replace('/\s[\*\s]{2,}/', ' *', $sRequest);
         }
 
+        $iCountWords = preg_match_all('/("[^"]*"|[\S]+)/', $sRequest, $aM);
+        $aWords = $aM[0];
+        if ($iMaxWords = C::Get('module.search.limit.max_words')) {
+            if ($iCountWords > $iMaxWords) {
+                $aM[0] = array_slice($aM[0], 0, $iMaxWords);
+                E::ModuleMessage()->AddNotice(
+                    E::ModuleLang()->Get(
+                        'search_err_count_words', array('max' => $iMaxWords)
+                    ), true
+                );
+            }
+        }
+
+        foreach($aWords as $iIdx => $sWord) {
+            if (preg_match('/^' . $this->sPatternUrl . '/', $sWord)) {
+                $aWords[$iIdx] = '"' . $sWord . '"';
+            }
+        }
+
+        $sRequest = implode(' ', $aWords);
+
         $aReq['q'] = $sRequest;
-        $aReq['regexp'] = preg_quote(trim(mb_strtolower($aReq['q'])));
+        $aReq['regexp'] = preg_quote(trim(mb_strtolower($aReq['q'])), '/');
 
         // * Проверка длины запроса
         if (!F::CheckVal(
-            $aReq['regexp'], 'text', Config::Get('module.search.min_length_req'),
-            Config::Get('module.search.max_length_req')
-        )
-        ) {
+            $aReq['regexp'], 'text', C::Get('module.search.min_length_req'),
+            C::Get('module.search.max_length_req')
+        )) {
             E::ModuleMessage()->AddError(
                 E::ModuleLang()->Get(
-                    'search_err_length', array('min' => Config::Get('module.search.min_length_req'),
-                                               'max' => Config::Get('module.search.max_length_req'))
+                    'search_err_length', array('min' => C::Get('module.search.min_length_req'),
+                                               'max' => C::Get('module.search.max_length_req'))
                 )
             );
             $aReq['regexp'] = '';
@@ -717,8 +804,8 @@ class ActionSearch extends Action {
 
         // Save quoted substrings
         $aQuoted = array();
-        if (preg_match_all('/"([^"]+)"/U', $aReq['regexp'], $aMatches)) {
-            foreach($aMatches[1] as $sStr) {
+        if (preg_match_all('/"(\\\\\*)?([^"]+)(\\\\\*)?"/U', $aReq['regexp'], $aMatches)) {
+            foreach($aMatches[2] as $sStr) {
                 $sSubstKey = 'begin-' . md5($sStr) . '-end';
                 $aQuoted[0][] = $sSubstKey;
                 $aQuoted[1][] = $sStr;
@@ -736,8 +823,8 @@ class ActionSearch extends Action {
             $sStr = '';
             foreach ($aWords as $sWord) {
                 if (!F::CheckVal(
-                    $sWord, 'text', Config::Get('module.search.min_length_req'),
-                    Config::Get('module.search.max_length_req')
+                    $sWord, 'text', C::Get('module.search.min_length_req'),
+                    C::Get('module.search.max_length_req')
                 )
                 ) {
                     $nErr += 1;
@@ -748,11 +835,11 @@ class ActionSearch extends Action {
                     $sStr .= $sWord;
                 }
             }
-            if ($nErr == sizeof($aWords)) {
+            if ($nErr == count($aWords)) {
                 E::ModuleMessage()->AddError(
                     E::ModuleLang()->Get(
-                        'search_err_length_word', array('min' => Config::Get('module.search.min_length_req'),
-                                                        'max' => Config::Get('module.search.max_length_req'))
+                        'search_err_length_word', array('min' => C::Get('module.search.min_length_req'),
+                                                        'max' => C::Get('module.search.max_length_req'))
                     )
                 );
                 $aReq['regexp'] = '';
@@ -772,7 +859,7 @@ class ActionSearch extends Action {
                 $aReq['regexp'] = preg_replace('/' . $this->sPatternXA . '/iusxSU', ' ', $aReq['regexp']);
                 $aReq['regexp'] = trim(preg_replace('/(\s{2,})/', ' ', $aReq['regexp']));
                 // * Если после "чистки" что-то осталось, то продолжаем дальше
-                if ($aReq['regexp']) {
+                if (strlen($aReq['regexp']) > 0) {
                     $aReq['regexp'] = str_replace('* *', '|', $aReq['regexp']);
                     $aReq['regexp'] = str_replace('* ', '|[[:<:]]', $aReq['regexp']);
                     $aReq['regexp'] = str_replace(' *', '[[:>:]]|', $aReq['regexp']);
@@ -809,7 +896,7 @@ class ActionSearch extends Action {
             $aReq['sType'] = 'topics';
         }
         // * Определяем текущую страницу вывода результата
-        $aReq['iPage'] = intval(preg_replace('#^page(\d+)$#', '\1', $this->getParam(0)));
+        $aReq['iPage'] = (int)(preg_replace('#^page(\d+)$#', '\1', $this->getParam(0)));
         if (!$aReq['iPage']) {
             $aReq['iPage'] = 1;
         }

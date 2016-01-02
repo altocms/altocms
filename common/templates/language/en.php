@@ -967,6 +967,7 @@ return array(
     'search_err_length_word' => 'Word length in query must be from %%min%% to %%max%% characters',
     'search_err_frequency' => 'You can do not more than %%num%% queries per %%sec%% seconds',
     'search_err_interval' => 'Interval between queries could not be less than %%sec%% seconds',
+    'search_err_count_words' => 'Number of words in query cannot be then %%max%% (phrases in quotation marks are counted as one)',
 
     /***
      * Mail
