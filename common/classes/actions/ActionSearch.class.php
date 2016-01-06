@@ -177,7 +177,7 @@ class ActionSearch extends Action {
         } else {
             $sData = E::ModuleSession()->Get('last_search_queries');
         }
-        if (false !== $sData) {
+        if (false === $sData) {
             $aLastSearchQueries = array();
         } else {
             $aLastSearchQueries = F::Unserialize($sData, array());
@@ -730,21 +730,6 @@ class ActionSearch extends Action {
     protected function _prepareRequest($sType = null) {
 
         $sRequest = trim(F::GetRequest('q'));
-        if (!$sRequest) {
-            $iMin = C::Get('module.search.min_length_req');
-            if (!$iMin || $iMin < 1) {
-                $iMin = 1;
-            }
-            E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get(
-                    'search_err_length', array('min' => $iMin,
-                                               'max' => C::Get('module.search.max_length_req'))
-                )
-            );
-            $aReq['regexp'] = '';
-
-            return $aReq;
-        }
 
         // * Иногда ломается кодировка, напр., если ввели поиск в адресной строке браузера
         // * Пытаемся восстановить по основной кодировке браузера
@@ -774,6 +759,8 @@ class ActionSearch extends Action {
                         'search_err_count_words', array('max' => $iMaxWords)
                     ), true
                 );
+                // Чтобы поисковый запрос не выполнялся
+                $aReq['regexp'] = '';
             }
         }
 
@@ -786,11 +773,14 @@ class ActionSearch extends Action {
         $sRequest = implode(' ', $aWords);
 
         $aReq['q'] = $sRequest;
-        $aReq['regexp'] = preg_quote(trim(mb_strtolower($aReq['q'])), '/');
+        // Если $aReq['regexp'] уже был установлен, значит обрабатывать не нужно
+        if (!isset($aReq['regexp'])) {
+            $aReq['regexp'] = preg_quote(trim(mb_strtolower($aReq['q'])), '/');
+        }
 
         // * Проверка длины запроса
         if (!F::CheckVal(
-            $aReq['regexp'], 'text', C::Get('module.search.min_length_req'),
+            preg_quote(trim(mb_strtolower($aReq['q'])), '/'), 'text', C::Get('module.search.min_length_req'),
             C::Get('module.search.max_length_req')
         )) {
             E::ModuleMessage()->AddError(
