@@ -51,7 +51,6 @@ class ActionSearch extends Action {
     public function Init() {
 
         $this->SetDefaultEvent('index');
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('search'));
 
         $this->sModeOutList = C::Get('module.search.out_mode');
 
@@ -177,7 +176,7 @@ class ActionSearch extends Action {
         } else {
             $sData = E::ModuleSession()->Get('last_search_queries');
         }
-        if (false !== $sData) {
+        if (false === $sData) {
             $aLastSearchQueries = array();
         } else {
             $aLastSearchQueries = F::Unserialize($sData, array());
@@ -490,6 +489,9 @@ class ActionSearch extends Action {
         return $sSnippet;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function ExecEvent() {
 
         if (!$this->_checkLimits()) {
@@ -517,6 +519,7 @@ class ActionSearch extends Action {
             return $this->EventTopics();
         } else {
             $this->SetTemplateAction('index');
+            $this->_addHtmlTitle();
         }
     }
 
@@ -539,7 +542,7 @@ class ActionSearch extends Action {
 
         $this->aReq = $this->_prepareRequest('topics');
         $this->OutLog();
-        if ($this->aReq['regexp']) {
+        if (!empty($this->aReq['regexp'])) {
             $aResult = E::ModuleSearch()->GetTopicsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->iItemsPerPage, $this->aReq['params'],
@@ -565,22 +568,23 @@ class ActionSearch extends Action {
                     }
                 }
             }
+            if ($this->bLogEnable) {
+                $this->oLogs->RecordAdd(
+                    'search', array('q' => $this->aReq['q'], 'result' => 'topics:' . $aResult['count'])
+                );
+                $this->oLogs->RecordEnd('search', true);
+            }
+
+            $aPaging = E::ModuleViewer()->MakePaging(
+                $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
+                C::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
+            );
+
         } else {
             $aResult['count'] = 0;
             $aTopics = array();
+            $aPaging = array();
         }
-
-        if ($this->bLogEnable) {
-            $this->oLogs->RecordAdd(
-                'search', array('q' => $this->aReq['q'], 'result' => 'topics:' . $aResult['count'])
-            );
-            $this->oLogs->RecordEnd('search', true);
-        }
-
-        $aPaging = E::ModuleViewer()->MakePaging(
-            $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
-            C::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
-        );
 
         $this->SetTemplateAction('results');
 
@@ -592,7 +596,7 @@ class ActionSearch extends Action {
         );
 
         // *  Отправляем данные в шаблон
-        E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        $this->_addHtmlTitle();
         E::ModuleViewer()->Assign('bIsResults', !empty($aResult['count']));
         E::ModuleViewer()->Assign('aRes', $aRes);
         E::ModuleViewer()->Assign('aTopics', $aTopics);
@@ -607,7 +611,7 @@ class ActionSearch extends Action {
         $this->aReq = $this->_prepareRequest('comments');
 
         $this->OutLog();
-        if ($this->aReq['regexp']) {
+        if (!empty($this->aReq['regexp'])) {
             $aResult = E::ModuleSearch()->GetCommentsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->iItemsPerPage, $this->aReq['params']
@@ -629,23 +633,24 @@ class ActionSearch extends Action {
                     }
                 }
             }
+            // * Логгируем результаты, если требуется
+            if ($this->bLogEnable) {
+                $this->oLogs->RecordAdd(
+                    'search', array('q' => $this->aReq['q'], 'result' => 'comments:' . $aResult['count'])
+                );
+                $this->oLogs->RecordEnd('search', true);
+            }
+
+            $aPaging = E::ModuleViewer()->MakePaging(
+                $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
+                C::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
+            );
+
         } else {
             $aResult['count'] = 0;
             $aComments = array();
+            $aPaging = array();
         }
-
-        // * Логгируем результаты, если требуется
-        if ($this->bLogEnable) {
-            $this->oLogs->RecordAdd(
-                'search', array('q' => $this->aReq['q'], 'result' => 'comments:' . $aResult['count'])
-            );
-            $this->oLogs->RecordEnd('search', true);
-        }
-
-        $aPaging = E::ModuleViewer()->MakePaging(
-            $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
-            C::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
-        );
 
         $this->SetTemplateAction('results');
 
@@ -657,7 +662,7 @@ class ActionSearch extends Action {
         );
 
         // *  Отправляем данные в шаблон
-        E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        $this->_addHtmlTitle();
         E::ModuleViewer()->Assign('bIsResults', !empty($aResult['count']));
         E::ModuleViewer()->Assign('aRes', $aRes);
         E::ModuleViewer()->Assign('aComments', $aComments);
@@ -672,7 +677,7 @@ class ActionSearch extends Action {
         $this->aReq = $this->_prepareRequest('blogs');
 
         $this->OutLog();
-        if ($this->aReq['regexp']) {
+        if (!empty($this->aReq['regexp'])) {
             $aResult = E::ModuleSearch()->GetBlogsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->iItemsPerPage, $this->aReq['params']
@@ -691,33 +696,45 @@ class ActionSearch extends Action {
                     }
                 }
             }
+            // * Логгируем результаты, если требуется
+            if ($this->bLogEnable) {
+                $this->oLogs->RecordAdd(
+                    'search',
+                    array('q' => $this->aReq['q'], 'result' => 'blogs:' . $aResult['count'])
+                );
+                $this->oLogs->RecordEnd('search', true);
+            }
+
+            $aPaging = E::ModuleViewer()->MakePaging(
+                $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
+                C::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
+            );
+
         } else {
             $aResult['count'] = 0;
             $aBlogs = array();
+            $aPaging = array();
         }
-
-        // * Логгируем результаты, если требуется
-        if ($this->bLogEnable) {
-            $this->oLogs->RecordAdd(
-                'search',
-                array('q' => $this->aReq['q'], 'result' => 'blogs:' . $aResult['count'])
-            );
-            $this->oLogs->RecordEnd('search', true);
-        }
-
-        $aPaging = E::ModuleViewer()->MakePaging(
-            $aResult['count'], $this->aReq['iPage'], $this->iItemsPerPage, 4,
-            C::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
-        );
 
         $this->SetTemplateAction('results');
 
         // *  Отправляем данные в шаблон
-        E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        $this->_addHtmlTitle();
         E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
         E::ModuleViewer()->Assign('aRes', $aResult);
         E::ModuleViewer()->Assign('aBlogs', $aBlogs);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
+    }
+
+    /**
+     * Content of tag <title>
+     */
+    protected function _addHtmlTitle() {
+
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('search'));
+        if (!empty($this->aReq['q'])) {
+            E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        }
     }
 
     /**
@@ -741,7 +758,7 @@ class ActionSearch extends Action {
                                                'max' => C::Get('module.search.max_length_req'))
                 )
             );
-            $aReq['regexp'] = '';
+            $aReq = array('regexp' => '', 'q' => '');
 
             return $aReq;
         }
