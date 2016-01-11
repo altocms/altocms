@@ -675,7 +675,7 @@ class ModuleTopic extends Module {
 
             //чистим зависимые кеши
             E::ModuleCache()->CleanByTags(
-                array('topic_new', "topic_update_user_{$oTopic->getUserId()}", "topic_new_blog_{$oTopic->getBlogId()}")
+                array('topic_new', "topic_update_user_{$oTopic->getUserId()}", "blog_update_{$oTopic->getBlogId()}")
             );
             return $oTopic;
         }
@@ -1134,7 +1134,11 @@ class ModuleTopic extends Module {
                 foreach ($data as $oTopic) {
                     // * Добавляем к результату и сохраняем в кеш
                     $aTopics[$oTopic->getId()] = $oTopic;
-                    E::ModuleCache()->Set($oTopic, "topic_{$oTopic->getId()}", array(), 60 * 60 * 24 * 4);
+                    $aCacheTags = array('topic_update');
+                    if ($oTopic->getBlogId()) {
+                        $aCacheTags[] = 'blog_update_' . $oTopic->getBlogId();
+                    }
+                    E::ModuleCache()->Set($oTopic, "topic_{$oTopic->getId()}", $aCacheTags, 'P4D');
                     $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopic->getId()));
                 }
             }
@@ -1142,7 +1146,7 @@ class ModuleTopic extends Module {
 
         // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $nId) {
-            E::ModuleCache()->Set(null, "topic_{$nId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "topic_{$nId}", array('topic_update'), 'P4D');
         }
 
         // * Сортируем результат согласно входящему массиву
@@ -1171,7 +1175,7 @@ class ModuleTopic extends Module {
             foreach ($data as $oTopic) {
                 $aTopics[$oTopic->getId()] = $oTopic;
             }
-            E::ModuleCache()->Set($aTopics, "topic_id_{$s}", array("topic_update"), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($aTopics, "topic_id_{$s}", array('topic_update'), 'P1D');
             return $aTopics;
         }
         return $data;
@@ -2465,21 +2469,21 @@ class ModuleTopic extends Module {
     /**
      * Перемещает топики в другой блог
      *
-     * @param  array $aTopicsId    - Список ID топиков
-     * @param  int   $nBlogId      - ID блога
+     * @param  array $aTopicsId - Список ID топиков
+     * @param  int   $iBlogId   - ID блога
      *
      * @return bool
      */
-    public function MoveTopicsByArrayId($aTopicsId, $nBlogId) {
+    public function MoveTopicsByArrayId($aTopicsId, $iBlogId) {
 
-        E::ModuleCache()->CleanByTags(array("topic_update", "topic_new_blog_{$nBlogId}"));
-        if ($res = $this->oMapper->MoveTopicsByArrayId($aTopicsId, $nBlogId)) {
+        if ($res = $this->oMapper->MoveTopicsByArrayId($aTopicsId, $iBlogId)) {
+            E::ModuleCache()->CleanByTags(array('topic_update', "blog_update_{$iBlogId}"));
             // перемещаем теги
-            $this->oMapper->MoveTopicsTagsByArrayId($aTopicsId, $nBlogId);
+            $this->oMapper->MoveTopicsTagsByArrayId($aTopicsId, $iBlogId);
             // меняем target parent у комментов
-            E::ModuleComment()->UpdateTargetParentByTargetId($nBlogId, 'topic', $aTopicsId);
+            E::ModuleComment()->UpdateTargetParentByTargetId($iBlogId, 'topic', $aTopicsId);
             // меняем target parent у комментов в прямом эфире
-            E::ModuleComment()->UpdateTargetParentByTargetIdOnline($nBlogId, 'topic', $aTopicsId);
+            E::ModuleComment()->UpdateTargetParentByTargetIdOnline($iBlogId, 'topic', $aTopicsId);
             return $res;
         }
         return false;
@@ -2488,27 +2492,27 @@ class ModuleTopic extends Module {
     /**
      * Перемещает топики в другой блог
      *
-     * @param  int $nBlogId       ID старого блога
-     * @param  int $nBlogIdNew    ID нового блога
+     * @param  int $iOldBlogId ID старого блога
+     * @param  int $iNewBlogId ID нового блога
      *
      * @return bool
      */
-    public function MoveTopics($nBlogId, $nBlogIdNew) {
+    public function MoveTopics($iOldBlogId, $iNewBlogId) {
 
-        if ($bResult = $this->oMapper->MoveTopics($nBlogId, $nBlogIdNew)) {
+        if ($bResult = $this->oMapper->MoveTopics($iOldBlogId, $iNewBlogId)) {
             // перемещаем теги
-            $this->oMapper->MoveTopicsTags($nBlogId, $nBlogIdNew);
+            $this->oMapper->MoveTopicsTags($iOldBlogId, $iNewBlogId);
             // меняем target parent у комментов
-            E::ModuleComment()->MoveTargetParent($nBlogId, 'topic', $nBlogIdNew);
+            E::ModuleComment()->MoveTargetParent($iOldBlogId, 'topic', $iNewBlogId);
             // меняем target parent у комментов в прямом эфире
-            E::ModuleComment()->MoveTargetParentOnline($nBlogId, 'topic', $nBlogIdNew);
+            E::ModuleComment()->MoveTargetParentOnline($iOldBlogId, 'topic', $iNewBlogId);
             return $bResult;
         }
         E::ModuleCache()->CleanByTags(
-            array("topic_update", "blog_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
+            array('topic_update', 'blog_update', "blog_update_{$iOldBlogId}", "blog_update_{$iNewBlogId}")
         );
-        E::ModuleCache()->Delete("blog_{$nBlogId}");
-        E::ModuleCache()->Delete("blog_{$nBlogIdNew}");
+        E::ModuleCache()->Delete("blog_{$iOldBlogId}");
+        E::ModuleCache()->Delete("blog_{$iNewBlogId}");
 
         return false;
     }
