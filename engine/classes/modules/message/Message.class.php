@@ -24,45 +24,48 @@
  * @since 1.0
  */
 class ModuleMessage extends Module {
+
     /**
-     * Массив сообщений со статусом ОШИБКА
+     * An array of error messages
      *
      * @var array
      */
     protected $aMsgError = array();
+
     /**
-     * Массив сообщений со статусом СООБЩЕНИЕ
+     * An array of notice messages
      *
      * @var array
      */
     protected $aMsgNotice = array();
+
     /**
-     * Массив сообщений, который будут показаны на СЛЕДУЮЩЕЙ страничке
+     * An array of notice messages that will be displayed when the next page is loaded
      *
      * @var array
      */
     protected $aMsgNoticeSession = array();
+
     /**
-     * Массив ошибок, который будут показаны на СЛЕДУЮЩЕЙ страничке
+     * An array of error messages that will be displayed when the next page is loaded
      *
      * @var array
      */
     protected $aMsgErrorSession = array();
 
     /**
-     * Инициализация модуля
+     * Module initialization
      *
      */
     public function Init() {
+
         if (!$this->isInit()) {
-            /**
-             * Добавляем сообщения и ошибки, которые содержались в сессии
-             */
-            $aNoticeSession = E::ModuleSession()->Get('message_notice_session');
+            // Load messages from session
+            $aNoticeSession = E::ModuleSession()->GetClear('message_notice_session');
             if (is_array($aNoticeSession) && count($aNoticeSession)) {
                 $this->aMsgNotice = $aNoticeSession;
             }
-            $aErrorSession = E::ModuleSession()->Get('message_error_session');
+            $aErrorSession = E::ModuleSession()->GetClear('message_error_session');
             if (is_array($aErrorSession) && count($aErrorSession)) {
                 $this->aMsgError = $aErrorSession;
             }
@@ -70,13 +73,13 @@ class ModuleMessage extends Module {
     }
 
     /**
-     * При завершении работы модуля передаем списки сообщений в шаблоны Smarty
+     * Assign messages to template variables and save special messages to session
+     * (they will be shown in the next page)
      *
      */
     public function Shutdown() {
-        /**
-         * Добавляем в сессию те сообщения, которые были отмечены для сессионного использования
-         */
+
+        // Save messages in session
         if ($aMessages = $this->GetNoticeSession()) {
             E::ModuleSession()->Set('message_notice_session', $aMessages);
         }
@@ -89,13 +92,14 @@ class ModuleMessage extends Module {
     }
 
     /**
-     * Добавляет новое сообщение об ошибке
+     * Add new error message
      *
-     * @param string $sMsg    Сообщение
-     * @param string $sTitle    Заголовок
-     * @param bool   $bUseSession    Показать сообщение при следующей загрузке страницы
+     * @param string $sMsg        Message
+     * @param string $sTitle      Title
+     * @param bool   $bUseSession Save message in the session
      */
     public function AddError($sMsg, $sTitle = null, $bUseSession = false) {
+
         if (!$bUseSession) {
             $this->aMsgError[] = array('msg' => $sMsg, 'title' => $sTitle);
         } else {
@@ -104,25 +108,27 @@ class ModuleMessage extends Module {
     }
 
     /**
-     * Создаёт единственное сообщение об ошибке(т.е. очищает все предыдущие)
+     * Add a single error message (and clear all previous errors)
      *
-     * @param string $sMsg    Сообщение
-     * @param string $sTitle    Заголовок
-     * @param bool   $bUseSession    Показать сообщение при следующем обращении пользователя к сайту
+     * @param string $sMsg        Message
+     * @param string $sTitle      Title
+     * @param bool   $bUseSession Save message in the session
      */
     public function AddErrorSingle($sMsg, $sTitle = null, $bUseSession = false) {
+
         $this->ClearError();
         $this->AddError($sMsg, $sTitle, $bUseSession);
     }
 
     /**
-     * Добавляет новое сообщение
+     * Add new notice message
      *
-     * @param string $sMsg    Сообщение
-     * @param string $sTitle    Заголовок
-     * @param bool   $bUseSession    Показать сообщение при следующем обращении пользователя к сайту
+     * @param string $sMsg        Message
+     * @param string $sTitle      Title
+     * @param bool   $bUseSession Save message in the session
      */
     public function AddNotice($sMsg, $sTitle = null, $bUseSession = false) {
+
         if (!$bUseSession) {
             $this->aMsgNotice[] = array('msg' => $sMsg, 'title' => $sTitle);
         } else {
@@ -131,72 +137,77 @@ class ModuleMessage extends Module {
     }
 
     /**
-     * Создаёт единственное сообщение, удаляя предыдущие
+     * Add a single notice message (and clear all previous notices)
      *
-     * @param string $sMsg    Сообщение
-     * @param string $sTitle    Заголовок
-     * @param bool   $bUseSession    Показать сообщение при следующем обращении пользователя к сайту
+     * @param string $sMsg        Message
+     * @param string $sTitle      Title
+     * @param bool   $bUseSession Save message in the session
      */
     public function AddNoticeSingle($sMsg, $sTitle = null, $bUseSession = false) {
+
         $this->ClearNotice();
         $this->AddNotice($sMsg, $sTitle, $bUseSession);
     }
 
     /**
-     * Очищает стек сообщений
-     *
-     */
-    public function ClearNotice() {
-        $this->aMsgNotice = array();
-        $this->aMsgNoticeSession = array();
-    }
-
-    /**
-     * Очищает стек ошибок
+     * Clear an array of error messages
      *
      */
     public function ClearError() {
+
         $this->aMsgError = array();
         $this->aMsgErrorSession = array();
     }
 
     /**
-     * Получает список сообщений об ошибке
+     * Clear an array of notice messages
+     *
+     */
+    public function ClearNotice() {
+
+        $this->aMsgNotice = array();
+        $this->aMsgNoticeSession = array();
+    }
+
+    /**
+     * Return an array of error messages
      *
      * @return array
      */
     public function GetError() {
+
         return $this->aMsgError;
     }
 
     /**
-     * Получает список сообщений
+     * Return an array of notice messages
      *
      * @return array
      */
     public function GetNotice() {
+
         return $this->aMsgNotice;
     }
 
     /**
-     * Возвращает список сообщений,
-     * которые необходимо поместить в сессию
-     *
-     * @return array
-     */
-    public function GetNoticeSession() {
-        return $this->aMsgNoticeSession;
-    }
-
-    /**
-     * Возвращает список ошибок,
-     * которые необходимо поместить в сессию
+     * Return an array of error messages to be saved in the session
      *
      * @return array
      */
     public function GetErrorSession() {
+
         return $this->aMsgErrorSession;
     }
+    /**
+     * Return an array of notice messages to be saved in the session
+     *
+     * @return array
+     */
+    public function GetNoticeSession() {
+
+        return $this->aMsgNoticeSession;
+    }
+
 }
 
 // EOF
