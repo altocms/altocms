@@ -228,10 +228,26 @@ class ModuleSession extends Module {
     }
 
     /**
+     * Get session data and drop it from current session
+     *
+     * @param string|null $sName
+     * @param mixed|null  $sDefault
+     *
+     * @return mixed|null
+     */
+    public function GetClear($sName = null, $sDefault = null) {
+
+        $xResult = $this->Get($sName, $sDefault);
+        $this->Drop($sName);
+
+        return $xResult;
+    }
+
+    /**
      * Записывает значение в сессию
      *
-     * @param string $sName    Имя параметра
-     * @param mixed $data    Данные
+     * @param string $sName  Имя параметра
+     * @param mixed  $data   Данные
      */
     public function Set($sName, $data) {
 
@@ -250,12 +266,14 @@ class ModuleSession extends Module {
      */
     public function Drop($sName) {
 
-        if ($this->bUseStandardSession) {
+        if (isset($_SESSION[$sName])) {
             unset($_SESSION[$sName]);
-        } else {
-            if (isset($_SESSION[$sName])) unset($_SESSION[$sName]);
-            unset($this->aData[$sName]);
-            $this->Save();
+        }
+        if (!$this->bUseStandardSession) {
+            if (isset($this->aData[$sName])) {
+                unset($this->aData[$sName]);
+                $this->Save();
+            }
         }
     }
 
