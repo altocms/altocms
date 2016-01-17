@@ -16,14 +16,14 @@ return array(
     'menu_community' => 'Community',
     'menu_people' => 'People',
     'menu_download' => 'Download',
-    'noscript_message' => 'Javascript is disabled in your browser, so the site will work incorrectly (if at all)',
+    'noscript_message' => 'Javascript is disabled in your browser, this site may become unusable or may be displayed incorrectly',
 
     /***
      * Blogs
      */
     'blogs' => 'Blogs',
-    'blogs_search_title_hint' => 'Search by title',
-    'blogs_search_empty' => 'No search results are found',
+    'blogs_search_title_hint' => 'Search in titles',
+    'blogs_search_empty' => 'Sorry, no results',
     'blogs_title' => 'Title',
     'blogs_readers' => 'Readers',
     'blogs_rating' => 'Rating',
@@ -31,7 +31,7 @@ return array(
     'blogs_personal_title' => 'Blog by',
     'blogs_personal_description' => 'This is your personal blog.',
     'blog_closed' => 'Private blog',
-    'blog_no_topic' => 'No one posted here yet',
+    'blog_no_topic' => 'No one has posted here yet',
     'blog_rss' => 'RSS feed',
     'blog_rating' => 'Rating',
     'blog_vote_count' => 'Votes',
@@ -40,7 +40,7 @@ return array(
     'blog_fold_info' => 'Minimize &uarr',
     'blog_add' => 'Create blog',
     'blog_can_add' => 'You can create you own blog!',
-    'blog_cant_add' => 'Your rating must be more than %%rating%% to add blogs.',
+    'blog_cant_add' => 'Your rating must be higher than %%rating%% to create blogs.',
 
     /***
      * These definitions are used for naming and describing blogs of different types
@@ -48,8 +48,8 @@ return array(
     'blogtypes_type_personal_name' => 'Personal',
     'blogtypes_type_personal_title' => 'Blog by %%login%%',
     'blogtypes_type_personal_description' => 'It\'s your personal blog',
-    'blogtypes_type_open_name' => 'Open',
-    'blogtypes_type_open_description' => 'Open — anybody can subscribe to this blog, articles are visible for everyone',
+    'blogtypes_type_open_name' => 'Public',
+    'blogtypes_type_open_description' => 'Public — anyone can subscribe to this blog, posts are visible for everyone',
     'blogtypes_type_close_name' => 'Private',
     'blogtypes_type_close_description' => 'Private - one can subscribe to this blog via invitation from blog administration only, articles are visible for followers only',
     'blogtypes_type_hidden_name' => 'Secret',
