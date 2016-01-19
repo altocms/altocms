@@ -1241,7 +1241,7 @@ class Engine extends LsObject {
             if ($aInfo[self::CI_PLUGIN]) {
                 // Сущность модуля плагина
                 $sFile = 'plugins/' . $sPluginDir
-                    . '/classes/modules/' . strtolower($aInfo[self::CI_MODULE])
+                    . '/classes/modules/' . F::StrUnderscore($aInfo[self::CI_MODULE])
                     . '/entity/' . $aInfo[self::CI_ENTITY] . '.entity.class.php';
             } else {
                 // Сущность модуля ядра
@@ -1253,7 +1253,7 @@ class Engine extends LsObject {
             if ($aInfo[self::CI_PLUGIN]) {
                 // Маппер модуля плагина
                 $sFile = 'plugins/' . $sPluginDir
-                    . '/classes/modules/' . strtolower($aInfo[self::CI_MODULE])
+                    . '/classes/modules/' . F::StrUnderscore($aInfo[self::CI_MODULE])
                     . '/mapper/' . $aInfo[self::CI_MAPPER] . '.mapper.class.php';
             } else {
                 // Маппер модуля ядра
@@ -1275,7 +1275,7 @@ class Engine extends LsObject {
             if ($aInfo[self::CI_PLUGIN]) {
                 // Модуль плагина
                 $sFile = 'plugins/' . $sPluginDir
-                    . '/classes/modules/' . strtolower($aInfo[self::CI_MODULE])
+                    . '/classes/modules/' . F::StrUnderscore($aInfo[self::CI_MODULE])
                     . '/' . $aInfo[self::CI_MODULE] . '.class.php';
                 ;
             } else {

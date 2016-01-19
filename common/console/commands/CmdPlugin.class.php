@@ -46,7 +46,7 @@ EOD;
             $sTarget=str_replace('Example', AltoFunc_Main::StrCamelize($this->_name),$aFile['target']);
             $sTarget=str_replace('example',strtolower($this->_name),$sTarget);
             $sNewName=str_replace('Example', AltoFunc_Main::StrCamelize($this->_name),$sName);
-            $sNewName=str_replace('example',strtolower($this->_name),$sNewName);
+            $sNewName=str_replace('example', AltoFunc_Main::StrUnderscore(AltoFunc_Main::StrCamelize($this->_name)),$sNewName);
             if($sName != $sNewName)
                 unset($aList[$sName]);
 
