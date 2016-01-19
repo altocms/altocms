@@ -141,7 +141,7 @@ return array(
     'blog_menu_all_new' => 'New',
     'blog_menu_all_list' => 'All blogs',
     'blog_menu_collective' => 'Group blogs',
-    'blog_menu_collective_good' => 'Hot',
+    'blog_menu_collective_good' => 'Popular',
     'blog_menu_collective_new' => 'New',
     'blog_menu_collective_discussed' => 'Discussed',
     'blog_menu_collective_top' => 'TOP',
