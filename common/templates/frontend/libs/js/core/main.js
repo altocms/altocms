@@ -954,19 +954,26 @@ ls.autocomplete = (function ($) {
         return oldString.replace(/<\/?[^>]+>/g,'');
     };
 
+    this.ajaxFunc = function(element, url, params, callback, more) {
+        ls.ajax(url, params, callback, more);
+    };
+
     /**
      * Добавляет автокомплитер к полю ввода
      */
-    this.add = function (obj, sPath, multiple) {
+    this.add = function (element, sPath, multiple, ajaxFunc) {
+        if (!ajaxFunc) {
+            ajaxFunc = this.ajaxFunc;
+        }
         if (multiple) {
-            obj.bind('keydown', function (event) {
+            element.bind('keydown', function (event) {
                 if (event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active) {
                     event.preventDefault();
                 }
             })
                 .autocomplete({
                     source: function (request, response) {
-                        ls.ajax(sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
+                        ajaxFunc(element, sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
                             response(data.aItems);
                         });
                     },
@@ -993,9 +1000,9 @@ ls.autocomplete = (function ($) {
                         $(this).val(ls.autocomplete.stripHTML($(this).val()));
                     });
         } else {
-            obj.autocomplete({
+            element.autocomplete({
                 source: function (request, response) {
-                    ls.ajax(sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
+                    ajaxFunc(element, sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
                         response(data.aItems);
                     });
                 }

@@ -1140,22 +1140,30 @@ class ActionBlog extends Action {
             }
             $aTopics = $aResult['collection'];
             //  Формируем постраничность
-            $aPaging = ($this->sTopicFilter == 'good')
-                ? E::ModuleViewer()->MakePaging(
+            if (($this->sTopicFilter == 'good')) {
+                $aPaging = E::ModuleViewer()->MakePaging(
+                        $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
+                        Config::Get('pagination.pages.count'), rtrim($oBlog->getLink(), '/')
+                    );
+            } elseif (($this->sTopicFilter == 'all') || ($this->sTopicFilter == 'newall')) {
+                $aPaging = E::ModuleViewer()->MakePaging(
                     $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
-                    Config::Get('pagination.pages.count'), rtrim($oBlog->getUrlFull(), '/')
-                )
-                : E::ModuleViewer()->MakePaging(
-                    $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
-                    Config::Get('pagination.pages.count'), $oBlog->getUrlFull() . $this->sTopicFilter,
-                    array('period' => $this->sTopicFilterPeriod)
+                    Config::Get('pagination.pages.count'), $oBlog->getLink() . $this->sTopicFilter
                 );
+            } else {
+                $aPaging = E::ModuleViewer()->MakePaging(
+                        $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
+                        Config::Get('pagination.pages.count'), $oBlog->getLink() . $this->sTopicFilter,
+                        array('period' => $this->sTopicFilterPeriod)
+                    );
+            }
 
             E::ModuleViewer()->Assign('aPaging', $aPaging);
             E::ModuleViewer()->Assign('aTopics', $aTopics);
+            E::ModuleViewer()->Assign('iTopicsTotal', $aResult['count']);
             if (in_array($this->sTopicFilter, array('discussed', 'top'))) {
                 E::ModuleViewer()->Assign('sPeriodSelectCurrent', $this->sTopicFilterPeriod);
-                E::ModuleViewer()->Assign('sPeriodSelectRoot', $oBlog->getUrlFull() . $this->sTopicFilter . '/');
+                E::ModuleViewer()->Assign('sPeriodSelectRoot', $oBlog->getLink() . $this->sTopicFilter . '/');
             }
         }
         //  Выставляем SEO данные

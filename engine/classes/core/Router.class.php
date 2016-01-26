@@ -1424,27 +1424,23 @@ class Router extends LsObject {
                 }
                 if ($sAction == $sCurrentAction) {
                     if (!$aEvents) {
-                        $bResult = true;
-                        break;
+                        return true;
                     }
-                }
-                $aEvents = (array)$aEvents;
-                foreach ($aEvents as $sEventPreg) {
-                    if (($sCurrentEventName && $sEventPreg == $sCurrentEventName) || $sEventPreg == $sCurrentEvent) {
-                        // * Это название event`a
-                        $bResult = true;
-                        break 2;
-                    } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
-                        // LS-compatibility
-                        // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
-                        $bResult = true;
-                        break 2;
-                    } elseif ((substr($sEventPreg, 0, 1) == '[')
-                        && (substr($sEventPreg, -1) == ']')
-                        && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
-                        // * Это регулярное выражение
-                        $bResult = true;
-                        break 2;
+                    $aEvents = (array)$aEvents;
+                    foreach ($aEvents as $sEventPreg) {
+                        if (($sCurrentEventName && $sEventPreg == $sCurrentEventName) || $sEventPreg == $sCurrentEvent) {
+                            // * Это название event`a
+                            return true;
+                        } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
+                            // LS-compatibility
+                            // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
+                            return true;
+                        } elseif ((substr($sEventPreg, 0, 1) == '[')
+                            && (substr($sEventPreg, -1) == ']')
+                            && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
+                            // * Это регулярное выражение
+                            return true;
+                        }
                     }
                 }
             }

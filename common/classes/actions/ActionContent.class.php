@@ -62,7 +62,7 @@ class ActionContent extends Action {
     public function Init() {
 
         // * Проверяем авторизован ли юзер
-        if (!E::ModuleUser()->IsAuthorization() && R::GetActionEvent() !== 'go' && R::GetActionEvent() !== 'photo') {
+        if (!E::ModuleUser()->IsAuthorization() && (R::GetActionEvent() !== 'go') && (R::GetActionEvent() !== 'photo')) {
             return parent::EventNotFound();
         }
         $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
@@ -354,7 +354,9 @@ class ActionContent extends Action {
         if (isset($_REQUEST['submit_topic_publish'])) {
             $oTopic->setPublish(1);
             $oTopic->setPublishDraft(1);
-            $oTopic->setDateShow(F::Now());
+            if (!$oTopic->getDateShow()) {
+                $oTopic->setDateShow(F::Now());
+            }
         } else {
             $oTopic->setPublish(0);
             $oTopic->setPublishDraft(0);

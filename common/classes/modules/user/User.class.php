@@ -2238,6 +2238,70 @@ class ModuleUser extends Module {
     }
 
     /**
+     * @param int|string $xSize
+     * @param string     $sSex
+     *
+     * @return string
+     */
+    public function getDefaultAvatarUrl($xSize, $sSex) {
+
+        if ($sSex !== 'female' && $sSex !== 'male') {
+            $sSex = 'male';
+        }
+
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
+            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . $sSex . '.png';
+
+        if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
+            $xSize = $sRealSize;
+        }
+        if (is_string($xSize) && strpos($xSize, 'x')) {
+            list($nW, $nH) = array_map('intval', explode('x', $xSize));
+        } else {
+            $nW = $nH = (int)$xSize;
+        }
+
+        $sResizePath = $sPath . '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
+            $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sResizePath, 'avatar', max($nH, $nW));
+        }
+        if ($sResizePath) {
+            $sPath = $sResizePath;
+        } elseif (!F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', null);
+        }
+
+        return E::ModuleUploader()->Dir2Url($sPath);
+    }
+
+    /**
+     * @param int|string $xSize
+     * @param string     $sSex
+     *
+     * @return string
+     */
+    public function GetDefaultPhotoUrl($xSize, $sSex) {
+
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
+            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . $sSex . '.png';
+
+        if (strpos($xSize, 'x') !== false) {
+            list($nW, $nH) = array_map('intval', explode('x', $xSize));
+        } else {
+            $nW = $nH = (int)$xSize;
+        }
+        $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
+        }
+
+        return E::ModuleUploader()->Dir2Url($sPath);
+    }
+
+    /**
      * Returns stats of user publications and favourites
      *
      * @param int|object $xUser

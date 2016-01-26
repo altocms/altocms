@@ -781,6 +781,23 @@ class ModuleTopic_MapperTopic extends Mapper {
             $sWhere .= " OR (t.topic_date_show IS NULL AND t.topic_date_add >=  '" . $aFilter['topic_new'] . "')";
             $sWhere .= ")";
         }
+        if (isset($aFilter['topic_date_show'])) {
+            if (is_array($aFilter['topic_date_show'])) {
+                $sDate1 = reset($aFilter['topic_date_show']);
+                $sDate2 = next($aFilter['topic_date_show']);
+            } else {
+                $sDate1 = $sDate2 = $aFilter['topic_date_show'];
+            }
+            if (strlen($sDate1) == 10) {
+                $sDate1 .= ' 00:00:00';
+            }
+            if (strlen($sDate2) == 10) {
+                $sDate2 = F::DateTimeAdd($sDate2, 'P1D');
+            } else {
+                $sDate2 = F::DateTimeAdd($sDate2, 'PT1S');
+            }
+            $sWhere .= "AND (t.topic_date_show >=  '" . $sDate1 . "' AND t.topic_date_show <'" . $sDate2 . "')";
+        }
         if (isset($aFilter['user_id'])) {
             $sWhere .= is_array($aFilter['user_id'])
                 ? " AND t.user_id IN(" . implode(', ', $aFilter['user_id']) . ")"

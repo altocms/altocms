@@ -84,6 +84,13 @@ class Config extends Storage {
     protected $nLevel = 0;
 
     /**
+     * Sources of config values
+     *
+     * @var array
+     */
+    protected $aSources = array();
+
+    /**
      * Constructor
      */
     public function __construct() {
@@ -98,6 +105,24 @@ class Config extends Storage {
 
         if (DEBUG) {
             //var_dump('Config', self::$aElapsedTime);
+        }
+    }
+
+    protected function _addSource($sSource) {
+
+        if (DEBUG) {
+            $aStack = array_slice(debug_backtrace(false), 1, null);
+            $aPoint = array();
+            foreach($aStack as $aCaller) {
+                if (empty($aCaller['class']) || ($aCaller['class'] != 'Config' && !is_subclass_of($aCaller['class'], 'Config'))) {
+                    break;
+                }
+                $aPoint = $aCaller;
+            }
+            $this->aSources[] = array(
+                'source' => $sSource,
+                'caller' => $aPoint,
+            );
         }
     }
 
@@ -247,6 +272,9 @@ class Config extends Storage {
         $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
 
         $bResult = parent::SetStorage($sStorageKey, $aConfig, $bReset);
+        if (DEBUG) {
+            $this->_addSource($sSource);
+        }
         $this->_clearQuickMap();
 
         return $bResult;
@@ -758,7 +786,7 @@ class Config extends Storage {
      * or
      *   Config::Set(array('key', $xData), $bReplace, ...);
      *
-     * @param string|array $sKey    - Key or Config data array
+     * @param string|array $xKey    - Key or Config data array
      * @param mixed        $xValue  - Value(s) or Replace flag
      * @param string       $sRoot   - Root key
      * @param int          $nLevel  - Level of config
@@ -766,23 +794,25 @@ class Config extends Storage {
      *
      * @return bool
      */
-    static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null, $sSource = null) {
+    static public function Set($xKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null, $sSource = null) {
 
         if (DEBUG) {
             $nTime = microtime(true);
         }
 
-        if (is_array($sKey) && is_bool($xValue)) {
-            $aConfigData = $sKey;
+        if (is_array($xKey) && is_bool($xValue)) {
+            $aConfigData = $xKey;
             $bReplace = $xValue;
             $xValue = reset($aConfigData);
+            $sKey = key($aConfigData);
         } else {
+            $sKey = (string)$xKey;
             $aConfigData = array($sKey => $xValue);
             $bReplace = false;
         }
 
         if ($aConfigData) {
-            if (is_integer($sRoot) && (is_null($nLevel) || is_string($nLevel))) {
+            if (is_int($sRoot) && (is_null($nLevel) || is_string($nLevel))) {
                 if (is_string($nLevel)) {
                     $sSource = $nLevel;
                 }

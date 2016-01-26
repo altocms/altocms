@@ -671,13 +671,22 @@ class ModuleUser_EntityUser extends Entity {
      * Возвращает дефолтный аватар пользователя
      *
      * @param int|string $xSize
+     * @param string     $sSex
+     *
      * @return string
      */
-    public function getDefaultAvatarUrl($xSize = null) {
+    public function getDefaultAvatarUrl($xSize = null, $sSex = null) {
+
+        if (!$sSex) {
+            $sSex = ($this->getProfileSex() === 'woman' ? 'female' : 'male');
+        }
+        if ($sSex !== 'female' && $sSex !== 'male') {
+            $sSex = 'male';
+        }
 
         $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
-            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
-            . '.png';
+            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . $sSex . '.png';
 
         if (!$xSize) {
             if (Config::Get('module.user.profile_avatar_size')) {
@@ -783,29 +792,24 @@ class ModuleUser_EntityUser extends Entity {
      * Returns URL for default photo of current skin
      *
      * @param int|string $xSize
+     * @param string     $sSex
      *
      * @return string
      */
-    public function GetDefaultPhotoUrl($xSize = null) {
+    public function GetDefaultPhotoUrl($xSize = null, $sSex = null) {
 
-        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
-            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
-            . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
-            . '.png';
-        if ($xSize) {
-            if (strpos($xSize, 'x') !== false) {
-                list($nW, $nH) = array_map('intval', explode('x', $xSize));
-            } else {
-                $nW = $nH = intval($xSize);
-            }
-            $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-        } else {
-            $nW = $nH = self::DEFAULT_PHOTO_SIZE;
+        if (!$sSex) {
+            $sSex = ($this->getProfileSex() === 'woman' ? 'female' : 'male');
         }
-        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            E::ModuleImg()->AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
+        if (!$xSize) {
+            $xSize = self::DEFAULT_PHOTO_SIZE;
         }
-        return E::ModuleUploader()->Dir2Url($sPath);
+        if (is_numeric($xSize)) {
+            $xSize = $xSize . 'x' . $xSize;
+        }
+        $sResult = E::ModuleUser()->GetDefaultPhotoUrl($xSize, $sSex);
+
+        return $sResult;
     }
 
     /**

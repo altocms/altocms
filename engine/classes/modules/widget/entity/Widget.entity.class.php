@@ -320,6 +320,22 @@ class ModuleWidget_EntityWidget extends Entity {
         return $sType;
     }
 
+
+    public function getTemplate() {
+
+        $sTemplate = $this->getProp('template');
+        if (is_null($sTemplate) && ($this->getType() === 'template')) {
+            if ($this->getPlugin()) {
+                $sTemplate = Plugin::GetTemplateFile($this->getPlugin(), $this->getName());
+            } else {
+                $sTemplate = $this->getName();
+            }
+            $this->setTemplate($sTemplate);
+        }
+
+        return $sTemplate;
+    }
+
     /**
      * Returns name of widget
      *
