@@ -9,16 +9,17 @@ abstract class LSC {
         $aArgs = $_SERVER['argv'];
 
         // Если не передана команда выводим помощь
-        if(count($aArgs)==1) {
-            echo self::getHelp()."\n";
-            return ;
+        if (count($aArgs) == 1) {
+            echo self::getHelp() . "\n";
+
+            return;
         }
 
         $sCommandClassName = 'Cmd' . ucwords($aArgs[1]);
-        $sCommandClassPath = dirname(__FILE__).'/commands/'.$sCommandClassName.'.class.php';
+        $sCommandClassPath = dirname(__FILE__) . '/commands/' . $sCommandClassName . '.class.php';
 
         // Существует ли такой класс, а следовательно и команда
-        if(file_exists($sCommandClassPath)) {
+        if (file_exists($sCommandClassPath)) {
             // Подключаем класс команды
             require_once $sCommandClassPath;
             /**
@@ -26,7 +27,8 @@ abstract class LSC {
              */
             $oCommand = new $sCommandClassName();
             $oCommand->run($aArgs);
-        } else {
+        }
+        else {
             die("Command not isset\n");
         }
     }
@@ -36,12 +38,13 @@ abstract class LSC {
      */
     public function run($aArgs) {
         // Если не передана подкоманда или передана подкоманда help выводим помощь
-        if(!isset($aArgs[2]) or $aArgs[2]=='help') {
-            echo $this->getHelp()."\n";
-            return ;
+        if (!isset($aArgs[2]) or $aArgs[2] == 'help') {
+            echo $this->getHelp() . "\n";
+
+            return;
         }
 
-        $sMethodName = 'action'.ucwords($aArgs[2]);
+        $sMethodName = 'action' . ucwords($aArgs[2]);
 
         // Оставляем в массиве только параметры для подкоманды
         array_shift($aArgs);
@@ -54,109 +57,109 @@ abstract class LSC {
     /*
      * Создает массив файлов используемый при копировании
      */
-    public function buildFileList($sSourceDir, $sTargetDir, $sBaseDir='')
-    {
-        $aList=array();
-        $handle=opendir($sSourceDir);
-        while(($sFile=readdir($handle))!==false)
-        {
-            if($sFile==='.' || $sFile==='..' || $sFile==='.svn' ||$sFile==='.gitignore')
+    public function buildFileList($sSourceDir, $sTargetDir, $sBaseDir = '') {
+        $aList  = array();
+        $handle = opendir($sSourceDir);
+        while (($sFile = readdir($handle)) !== false) {
+            if ($sFile === '.' || $sFile === '..' || $sFile === '.svn' || $sFile === '.gitignore') {
                 continue;
+            }
 
-            $sSourcePath=$sSourceDir.DIRECTORY_SEPARATOR.$sFile;
-            $sTargetPath=$sTargetDir.DIRECTORY_SEPARATOR.$sFile;
+            $sSourcePath = $sSourceDir . DIRECTORY_SEPARATOR . $sFile;
+            $sTargetPath = $sTargetDir . DIRECTORY_SEPARATOR . $sFile;
 
-            $sName=($sBaseDir==='')? $sFile : $sBaseDir.'/'.$sFile;
+            $sName = ($sBaseDir === '') ? $sFile : $sBaseDir . '/' . $sFile;
 
             // Строим массив с ключем в виде имени файла или папки, пути к исходнику и пути назначения
-            $aList[$sName]=array(
-                'source'=>$sSourcePath,
-                'target'=>$sTargetPath
+            $aList[$sName] = array(
+                'source' => $sSourcePath,
+                'target' => $sTargetPath
             );
 
             // Если директория то рекурсивно получаем массив его содержимого и объединяем с главным
-            if(is_dir($sSourcePath)) {
-                $aList=array_merge($aList,$this->buildFileList($sSourcePath,$sTargetPath,$sName));
+            if (is_dir($sSourcePath)) {
+                $aList = array_merge($aList, $this->buildFileList($sSourcePath, $sTargetPath, $sName));
             }
         }
         closedir($handle);
+
         return $aList;
     }
 
     /*
      * Копирование файлов
      */
-    public function copyFiles($fileList)
-    {
-        $overwriteAll=false;
-        foreach($fileList as $name=>$file)
-        {
-            $source=strtr($file['source'],'/\\',DIRECTORY_SEPARATOR);
-            $target=strtr($file['target'],'/\\',DIRECTORY_SEPARATOR);
+    public function copyFiles($fileList) {
+        $overwriteAll = false;
+        foreach ($fileList as $name => $file) {
+            $source = strtr($file['source'], '/\\', DIRECTORY_SEPARATOR);
+            $target = strtr($file['target'], '/\\', DIRECTORY_SEPARATOR);
 
-            $callback=isset($file['callback']) ? $file['callback'] : null;
-            $params=isset($file['params']) ? $file['params'] : null;
+            $callback = isset($file['callback']) ? $file['callback'] : null;
+            $params   = isset($file['params']) ? $file['params'] : null;
 
-            if(is_dir($source))
-            {
+            if (is_dir($source)) {
                 // Проверяем существует ли директория или досоздаем папки
                 $this->ensureDirectory($target);
                 continue;
             }
 
             // Если существует коллбэк то вызываем его
-            if($callback!==null)
-                $content=call_user_func($callback,$source,$params);
+            if ($callback !== null) {
+                $content = call_user_func($callback, $source, $params);
+            }
             // Либо отдаем содержимое исходника без изменений
-            else
-                $content=file_get_contents($source);
+            else {
+                $content = file_get_contents($source);
+            }
 
             // Если файл в папке назначения уже существует
-            if(is_file($target))
-            {
+            if (is_file($target)) {
                 // Если содержимое старого и нового файла совпадают
-                if($content===file_get_contents($target))
-                {
+                if ($content === file_get_contents($target)) {
                     echo "  unchanged $name\n";
                     continue;
                 }
 
                 // Если мы выбрали перезапись в ветке false
-                if($overwriteAll)
+                if ($overwriteAll) {
                     echo "  overwrite $name\n";
-                else
-                {
+                }
+                else {
                     echo "      exist $name\n";
                     echo "            ...overwrite? [Yes|No|All|Quit] ";
 
                     // Спрашиваем у пользователя как поступить
-                    $answer=trim(fgets(STDIN));
-                    if(!strncasecmp($answer,'q',1))
+                    $answer = trim(fgets(STDIN));
+                    if (!strncasecmp($answer, 'q', 1)) {
                         return;
-                    else if(!strncasecmp($answer,'y',1))
-                        echo "  overwrite $name\n";
-                    else if(!strncasecmp($answer,'a',1))
-                    {
-                        echo "  overwrite $name\n";
-                        $overwriteAll=true;
                     }
-                    else
-                    {
-                        echo "       skip $name\n";
-                        continue;
+                    else {
+                        if (!strncasecmp($answer, 'y', 1)) {
+                            echo "  overwrite $name\n";
+                        }
+                        else {
+                            if (!strncasecmp($answer, 'a', 1)) {
+                                echo "  overwrite $name\n";
+                                $overwriteAll = true;
+                            }
+                            else {
+                                echo "       skip $name\n";
+                                continue;
+                            }
+                        }
                     }
                 }
             }
             // Если файла еще не существует
-            else
-            {
+            else {
                 // Досоздаем папки в случае отсутствия
                 $this->ensureDirectory(dirname($target));
                 echo "   generate $name\n";
             }
 
             // Создаем файл и записываем в него содержимое
-            file_put_contents($target,$content);
+            file_put_contents($target, $content);
         }
     }
 
@@ -164,12 +167,10 @@ abstract class LSC {
      * Создает родительские папки если они не существуют
      * @param string $directory
      */
-    public function ensureDirectory($directory)
-    {
-        if(!is_dir($directory))
-        {
+    public function ensureDirectory($directory) {
+        if (!is_dir($directory)) {
             $this->ensureDirectory(dirname($directory));
-            echo "      mkdir ".strtr($directory,'\\','/')."\n";
+            echo "      mkdir " . strtr($directory, '\\', '/') . "\n";
             mkdir($directory);
         }
     }
