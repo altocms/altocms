@@ -74,6 +74,9 @@ class ModuleLang extends Module {
         $this->aLangPaths = F::File_NormPath(Config::Get('lang.paths'));
         $this->bDeleteUndefinedVars = Config::Get('module.lang.delete_undefined');
 
+        // Allowed languages
+        $aLangsAllow = (array)Config::Get('lang.allow');
+
         // Проверку на языки делаем, только если сайт мультиязычный
         if (Config::Get('lang.multilang')) {
             // Время хранение языка в куках
@@ -98,6 +101,11 @@ class ModuleLang extends Module {
             $iSavePeriod = 0;
             $sLangKey = null;
         }
+        // Current language must be in allowed languages
+        if (!in_array($this->sCurrentLang, $aLangsAllow)) {
+            $this->sCurrentLang = reset($aLangsAllow);
+        }
+
         // Проверяем на случай старого обозначения языков
         $this->sDefaultLang = $this->_checkLang($this->sDefaultLang);
         $this->sCurrentLang = $this->_checkLang($this->sCurrentLang);

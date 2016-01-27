@@ -128,7 +128,7 @@ ls.settings = (function ($) {
             extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height],alto:photoset[from|to|style|position|topic],alto:user[login|style],alto:spoiler[style|title]",
             pagebreak_separator: "<cut>",
             media_strict: false,
-            language: 'ru',
+            language: TINYMCE_LANG ? TINYMCE_LANG : 'ru',
             inline_styles: false,
             setup: function (editor) {
                 editor.on('change', function() {
@@ -164,7 +164,7 @@ ls.settings = (function ($) {
             extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
             pagebreak_separator: "<cut>",
             media_strict: false,
-            language: 'ru',
+            language: TINYMCE_LANG ? TINYMCE_LANG : 'ru',
             inline_styles: false,
             formats: {
                 underline:      {inline: 'u', exact: true},

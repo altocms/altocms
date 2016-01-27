@@ -47,7 +47,7 @@
         var BLOG_USE_TINYMCE = '{Config::Get('view.tinymce')}';
 
         var tinyMCE = tinymce = false;
-        var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
+        var TINYMCE_LANG = {if E::ModuleLang()->GetLang() == 'ru'}'ru'{else}'en'{/if};
 
         var aRouter = [];
         {strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}

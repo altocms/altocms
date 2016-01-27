@@ -12,7 +12,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
 
 class Loader {
 
-    static $bConfigLoaded = false;
+    static protected $bConfigLoaded = false;
 
     /**
      * @param array $aConfig
@@ -90,7 +90,7 @@ class Loader {
         F::IncludeLib('UserLocale/UserLocale.class.php');
         // Устанавливаем признак того, является ли сайт многоязычным
         $aLangsAllow = (array)Config::Get('lang.allow');
-        if (sizeof($aLangsAllow) > 1) {
+        if (count($aLangsAllow) > 1) {
             UserLocale::initLocales($aLangsAllow);
             Config::Set('lang.multilang', true);
         } else {
@@ -165,7 +165,7 @@ class Loader {
                 $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
                     // move config.php to begin of array
-                    if (sizeof($aConfigFiles) > 1) {
+                    if (count($aConfigFiles) > 1) {
                         $sConfigFile = $sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/config.php';
                         $iIndex = array_search($sConfigFile, $aConfigFiles);
                         if ($iIndex) {
