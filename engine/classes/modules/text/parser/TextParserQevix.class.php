@@ -66,6 +66,25 @@ class TextParserQevix extends Qevix implements ITextParser {
     }
 
     /**
+     * @param string       $tag
+     * @param array|string $params
+     *
+     * @throws Exception
+     */
+    public function cfgAllowTagParams($tag, $params) {
+
+        if (is_array($params) && count($params)) {
+            foreach ($params as $attr => $rule) {
+                if (is_array($rule) && isset($rule['#domain'])) {
+                    $params[$attr]['#link'] = $params[$attr]['#domain'];
+                    unset($params[$attr]['#domain']);
+                }
+            }
+        }
+        parent::cfgAllowTagParams($tag, $params);
+    }
+
+    /**
      * @param string $sText
      * @param array  $aErrors
      *

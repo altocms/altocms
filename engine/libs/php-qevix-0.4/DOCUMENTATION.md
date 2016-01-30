@@ -116,7 +116,8 @@ $qevix->cfgSetTagBlockType(array('ol','ul','code'));
 ### cfgAllowTagParams
 
 cfgAllowTagParams — Добавляет разрешенные параметры для тегов. Значение по умолчанию - шаблон #text. Разрешенные шаблоны #text, #int, #link, #regexp(...).
-Например, шаблон с регулярным выражением может выглядеть так: "#regexp(\d+(%|px))"
+Шаблон с регулярным выражением может выглядеть так: "#regexp(\d+(%|px))"
+Шаблон #link может быть задан строкой или описан массивом с указанием разрешенных доменов: "array('#link' => ['youtube.com', 'video.com'])"
 
 `$qevix->cfgAllowTagParams($tag, $params)`
 
@@ -128,6 +129,7 @@ cfgAllowTagParams — Добавляет разрешенные параметр
 ```php
 $qevix->cfgAllowTagParams('a', array('title', 'href' => '#link', 'rel' => '#text', 'target' => array('_blank')));
 $qevix->cfgAllowTagParams('img', array('src' => '#text', 'alt' => '#text', 'title', 'align' => array('right', 'left', 'center'), 'width' => '#int', 'height' => '#int'));
+$qevix->cfgAllowTagParams('video', array('src' => array('#link' => ['youtube.com', 'video.com']));
 ```
 
 ### cfgSetTagParamsRequired

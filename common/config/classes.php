@@ -18,7 +18,7 @@ return array(
     'class'  => array(
         'LsObject' => '___path.dir.engine___/classes/abstract/LsObject.class.php',
         'Jevix' => '___path.dir.libs___/Jevix/jevix.class.php',
-        'Qevix' => '___path.dir.libs___/php-qevix-0.3.1/qevix.php',
+        'Qevix' => '___path.dir.libs___/php-qevix-0.4/qevix.php',
     ),
     'prefix' => array(
         'DbSimple_' => '___path.dir.libs___/DbSimple3/lib/',

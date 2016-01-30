@@ -342,7 +342,7 @@ class Qevix
 			throw new Exception("Параметр \$char метода cfgSetSpecialCharCallback должен быть строкой из одного символа");
 		}
 
-		$charClass = $this->getClassByOrd($this->ord($char));
+		$charClass = $this->getClassByOrd(self::ord($char));
 
 		if(($charClass & self::SPECIAL_CHAR) == self::NIL) {
 			throw new Exception("Параметр \$char метода cfgSetSpecialCharCallback отсутствует в списке разрешенных символов");
@@ -426,7 +426,7 @@ class Qevix
 	 * @param array $errors сообщения об ошибках
 	 * @return string
 	 */
-	function parse($text, &$errors)
+	public function parse($text, &$errors)
 	{
 		$this->prevPos = -1;
 		$this->prevChar = null;
@@ -503,21 +503,21 @@ class Qevix
 
 		$this->prevPos = $prevPos;
 		$this->prevChar = ($prevPosStatus) ? $this->textBuf[$prevPos] : null;
-		$this->prevCharOrd = ($prevPosStatus) ? $this->ord($this->prevChar) : 0;
+		$this->prevCharOrd = ($prevPosStatus) ? self::ord($this->prevChar) : 0;
 		$this->prevCharClass = ($prevPosStatus) ? $this->getClassByOrd($this->prevCharOrd) : self::NIL;
 
 		$curPosStatus = ($curPos < $this->textLen && $curPos >= 0) ? true : false;
 
 		$this->curPos = $curPos;
 		$this->curChar = ($curPosStatus) ? $this->textBuf[$curPos] : null;
-		$this->curCharOrd = ($curPosStatus) ? $this->ord($this->curChar) : 0;
+		$this->curCharOrd = ($curPosStatus) ? self::ord($this->curChar) : 0;
 		$this->curCharClass = ($curPosStatus) ? $this->getClassByOrd($this->curCharOrd) : self::NIL;
 
 		$nextPosStatus = ($nextPos < $this->textLen && $nextPos >= 0) ? true : false;
 
 		$this->nextPos = $nextPos;
 		$this->nextChar = ($nextPosStatus) ? $this->textBuf[$nextPos] : null;
-		$this->nextCharOrd = ($nextPosStatus) ? $this->ord($this->nextChar) : 0;
+		$this->nextCharOrd = ($nextPosStatus) ? self::ord($this->nextChar) : 0;
 		$this->nextCharClass = ($nextPosStatus) ? $this->getClassByOrd($this->nextCharOrd) : self::NIL;
 
 		return (!is_null($this->curChar)) ? true : false;
@@ -1312,10 +1312,35 @@ class Qevix
 			}
 
 			// Параметр есть в списке и это массив возможных значений
-			if(is_array($paramAllowedValues) && !in_array($value, $paramAllowedValues))
+			if(is_array($paramAllowedValues))
 			{
-				$this->setError('Недопустимое значение "'.$value.'" для атрибута "'.$param.'" тега "'.$tagName.'"');
-				continue;
+				if(isset($paramAllowedValues['#link']) && is_array($paramAllowedValues['#link']))
+				{
+					if(preg_match('#javascript:#iu', $value)) {
+						$this->setError('Попытка вставить JavaScript в URI');
+						continue;
+					}
+
+					$protocols = implode('|', $this->linkProtocolAllow);
+
+					$found = false;
+					foreach($paramAllowedValues['#link'] as $domain) {
+						$domain = preg_quote($domain);
+						if(preg_match('#^(('.$protocols.'):)?//'.$domain.'/#iu', $value)) {
+							$found = true;
+							break;
+						}
+					}
+					if(!$found) {
+						$this->setError('Недопустимое значение "'.$value.'" для атрибута "'.$param.'" тега "'.$tagName.'"');
+						continue;
+					}
+				}
+				else if(!in_array($value, $paramAllowedValues))
+				{
+					$this->setError('Недопустимое значение "'.$value.'" для атрибута "'.$param.'" тега "'.$tagName.'"');
+					continue;
+				}
 			}
 
 			// Параметр есть в списке и это строка представляющая правило

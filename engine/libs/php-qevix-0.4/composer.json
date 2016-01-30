@@ -8,5 +8,8 @@
 	"require": {
 		"php": ">=5.0.0",
 		"ext-mbstring": "*"
-	}
+	},
+	"autoload": {
+		"files": ["qevix.php"]
+  	}
 }

@@ -69,7 +69,7 @@ return array(
                 'object',
                 array('width' => '#int', 'height' => '#int', 'type'  => '#text',
                       'data'  => array('#domain' => array(
-                              'youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com',
+                              'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com',
                           )),
                 )
             ),
@@ -80,7 +80,7 @@ return array(
             array(
                 'embed',
                 array('src' => array('#domain' => array(
-                            'youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'static.googleusercontent.com',
+                            'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'static.googleusercontent.com',
                         )),
                     'type'              => '#text',
                     'allowscriptaccess' => '#text',
@@ -104,7 +104,7 @@ return array(
                 array('width' => '#int',
                       'height' => '#int',
                       'src'   => array('#domain' => array(
-                          'youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'vk.com', 'vkontakte.ru',
+                          'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'vk.com', 'vkontakte.ru',
                           'slideshare.net', 'mixcloud.com', 'soundcloud.com', 'maps.google.ru', 'issuu.com',
                       )))
             ),
