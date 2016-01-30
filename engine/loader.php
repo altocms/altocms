@@ -12,10 +12,10 @@ if (!defined('ALTO_DIR')) die('');
 /**
  * Versions
  */
-define('ALTO_VERSION', '1.1.19');
+define('ALTO_VERSION', '1.2.0-dev');
 define('LS_VERSION', '1.0.3'); // LS-compatible
-define('ALTO_PHP_REQUIRED', '5.3'); // required version of PHP
-define('ALTO_MYSQL_REQUIRED', '5.0'); // required version of PHP
+define('ALTO_PHP_REQUIRED', '5.4'); // required version of PHP
+define('ALTO_MYSQL_REQUIRED', '5.0'); // required version of MySQL
 
 if (version_compare(phpversion(), ALTO_PHP_REQUIRED) < 0) {
     die ('PHP version ' . ALTO_PHP_REQUIRED . ' or more requires for Alto CMS');
