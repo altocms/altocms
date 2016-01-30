@@ -180,7 +180,7 @@ class ModuleText extends Module {
      *
      * @return string
      */
-    public function TextParser($sText, &$aError) {
+    public function TextParser($sText, &$aError = null) {
 
         $sResult = $this->oTextParser->parse($sText, $aError);
         return $sResult;
