@@ -86,8 +86,15 @@ abstract class Hook extends LsObject {
      */
     public function AddDelegateHook($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
 
+        if (is_string($iPriority) && !is_numeric($iPriority)) {
+            $sClassName = $iPriority;
+            $iPriority = $aParams;
+            $aParams = array();
+        } else {
+            $sClassName = __CLASS__;
+        }
         $aParams['delegate'] = true;
-        $aParams['sClassName'] = __CLASS__;
+        $aParams['sClassName'] = $sClassName;
         E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, $aParams);
     }
 
