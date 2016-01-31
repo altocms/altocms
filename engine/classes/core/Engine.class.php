@@ -21,13 +21,6 @@ F::IncludeFile('Decorator.class.php');
 F::IncludeFile('../abstract/Entity.class.php');
 F::IncludeFile('../abstract/Mapper.class.php');
 
-F::IncludeFile('../abstract/ModuleORM.class.php');
-F::IncludeFile('../abstract/EntityORM.class.php');
-F::IncludeFile('../abstract/MapperORM.class.php');
-
-F::IncludeFile('ManyToManyRelation.class.php');
-
-
 /**
  * Основной класс движка. Ядро.
  *
@@ -298,36 +291,30 @@ class Engine extends LsObject {
      */
     public function Init() {
 
-        if (self::$nStage >= self::STAGE_RUN) return;
+        if (self::$nStage >= self::STAGE_RUN) {
+            return;
+        }
 
         self::$nStage = self::STAGE_INIT;
-        /**
-         * Загружаем плагины
-         */
+
+        // * Загружаем плагины
         $this->LoadPlugins();
-        /**
-         * Инициализируем хуки
-         */
+
+        // * Инициализируем хуки
         $this->InitHooks();
-        /**
-         * Загружаем модули автозагрузки
-         */
+
+        // * Загружаем модули автозагрузки
         $this->LoadModules();
-        /**
-         * Инициализируем загруженные модули
-         */
+
+        // * Инициализируем загруженные модули
         $this->InitModules();
-        /**
-         * Инициализируем загруженные плагины
-         */
+
+        // * Инициализируем загруженные плагины
         $this->InitPlugins();
-        /**
-         * Запускаем хуки для события завершения инициализации Engine
-         */
-        //E::ModuleHook()->Run('engine_init_complete');
-        //$aArgs = array('engine_init_complete');
-        //$this->_CallModule('Hook_Run', $aArgs);
+
+        // * Запускаем хук для события завершения инициализации Engine
         $this->GetModule('Hook')->Run('engine_init_complete');
+
         self::$nStage = self::STAGE_RUN;
     }
 
@@ -345,6 +332,9 @@ class Engine extends LsObject {
         }
     }
 
+    /**
+     * @return int
+     */
     static public function GetStage() {
 
         return self::$nStage;
@@ -353,6 +343,7 @@ class Engine extends LsObject {
     /**
      * Производит инициализацию всех модулей
      *
+     * @throws Exception
      */
     protected function InitModules() {
 
@@ -386,6 +377,7 @@ class Engine extends LsObject {
      * Проверяет модуль на инициализацию
      *
      * @param string $sModuleClass    Класс модуля
+     *
      * @return bool
      */
     public function isInitModule($sModuleClass) {
@@ -403,6 +395,7 @@ class Engine extends LsObject {
     /**
      * Завершаем работу всех модулей
      *
+     * @throws Exception
      */
     protected function ShutdownModules() {
 
@@ -461,7 +454,7 @@ class Engine extends LsObject {
         $oModule = new $sModuleClass();
         $oModuleDecorator = Decorator::Create($oModule);
         $this->aModules[$sModuleClass] = $oModuleDecorator;
-        if ($bInit || $sModuleClass == 'ModuleCache') {
+        if ($bInit || $sModuleClass === 'ModuleCache') {
             $this->InitModule($oModuleDecorator);
         }
         $tm2 = microtime(true);
@@ -496,6 +489,9 @@ class Engine extends LsObject {
         }
     }
 
+    /**
+     * @return array
+     */
     public function GetLoadedModules() {
 
         return $this->aModules;
@@ -622,7 +618,7 @@ class Engine extends LsObject {
         }
 
         // LS-compatibility
-        if ($sName == 'Plugin_GetActivePlugins' && !empty($xResult) && is_array($xResult)) {
+        if ($sName === 'Plugin_GetActivePlugins' && !empty($xResult) && is_array($xResult)) {
             $xResult = array_keys($xResult);
         }
         
@@ -706,7 +702,7 @@ class Engine extends LsObject {
 
         // $sCallName === 'User' or $sCallName === 'ModuleUser' or $sCallName === 'PluginUser\User' or $sCallName === 'PluginUser\ModuleUser'
         $sPrefix = substr($sModuleName, 0, 6);
-        if ($sPrefix == 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+        if ($sPrefix === 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
             $sModuleName = $aMatches[2];
         } elseif ($sPrefix === 'Plugin' && preg_match('/^Plugin([A-Z][\w]*)\\\\(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
             $sModuleName = 'Plugin' . $aMatches[1] . '_Module' . $aMatches[3];
@@ -880,7 +876,7 @@ class Engine extends LsObject {
              * Делегирование указывается только в полной форме!
              */
             //$sClass = static::getInstance()->Plugin_GetDelegate('entity', $sClass);
-            if ($sClass != 'ModulePlugin_EntityPlugin') {
+            if ($sClass !== 'ModulePlugin_EntityPlugin') {
                 $sClass = static::Module('Plugin')->GetDelegate('entity', $sClass);
             }
 

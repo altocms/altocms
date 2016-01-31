@@ -23,6 +23,9 @@ return array(
     'prefix' => array(
         'DbSimple_' => '___path.dir.libs___/DbSimple3/lib/',
     ),
+    'namespace' => array(
+        'alto\engine\ar' => '___path.dir.engine___/classes/ar/',
+    ),
 );
 
 // EOF

@@ -235,7 +235,7 @@ class Router extends LsObject {
 
             // Проверка языка в URL
             if ($aRequestUrl && $aLangs && Config::Get('lang.in_url')) {
-                if (sizeof($aLangs) && sizeof($aRequestUrl) && in_array($aRequestUrl[0], $aLangs)) {
+                if (count($aLangs) && count($aRequestUrl) && in_array($aRequestUrl[0], $aLangs)) {
                     static::$sLang = array_shift($aRequestUrl);
                 }
             }
@@ -275,7 +275,7 @@ class Router extends LsObject {
         $sBase = !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
         if ($sBase && $iPathOffset) {
             $aPath = explode('/', trim($aUrlParts['path'], '/'));
-            $iPathOffset = min($iPathOffset, sizeof($aPath));
+            $iPathOffset = min($iPathOffset, count($aPath));
             for($i = 0; $i < $iPathOffset; $i++) {
                 $sBase .= '/' . $aPath[$i];
             }
@@ -332,7 +332,7 @@ class Router extends LsObject {
                     if (!is_array($xTarget)) {
                         $sTarget = $xTarget;
                         $iCode = 301;
-                    } elseif (sizeof($xTarget) == 1) {
+                    } elseif (count($xTarget) == 1) {
                         $sTarget = reset($xTarget);
                         $iCode = 301;
                     } else {
