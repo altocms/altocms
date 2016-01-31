@@ -19,7 +19,7 @@
  * @package modules.user
  * @since   1.0
  */
-class ModuleUser extends Module {
+class ModuleUser extends \alto\engine\ar\ArModule {
 
     const USER_SESSION_KEY = 'user_key';
 

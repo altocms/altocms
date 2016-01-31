@@ -19,7 +19,7 @@
  * @package modules.user
  * @since   1.0
  */
-class ModuleUser_MapperUser extends Mapper {
+class ModuleUser_MapperUser extends \alto\engine\ar\ArMapper {
     /**
      * Добавляет юзера
      *

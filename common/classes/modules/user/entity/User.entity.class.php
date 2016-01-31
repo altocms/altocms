@@ -19,7 +19,7 @@
  * @package modules.user
  * @since   1.0
  */
-class ModuleUser_EntityUser extends Entity {
+class ModuleUser_EntityUser extends \alto\engine\ar\EntityRecord {
 
     const DEFAULT_AVATAR_SIZE = 100;
     const DEFAULT_PHOTO_SIZE = 250;
