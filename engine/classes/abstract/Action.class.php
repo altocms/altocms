@@ -78,7 +78,7 @@ abstract class Action extends LsObject {
      *
      * @var string|null
      */
-    protected $sDefaultEvent = 'index';
+    protected $sDefaultEvent = 'default';
 
     /**
      * Текущий евент
@@ -175,9 +175,9 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * @param string $sType
-     * @param string $sKey
-     * @param mixed  $xValue
+     * @param string       $sType
+     * @param string|array $sKey
+     * @param mixed|null   $xValue
      */
     protected function _setRequestData($sType, $sKey, $xValue = null) {
 
@@ -199,7 +199,7 @@ abstract class Action extends LsObject {
 
         $aResult = array();
         if ($sBodyData) {
-            if ($this->_getRequestData('HEADER', 'Content-Type') == 'application/json') {
+            if ($this->_getRequestData('HEADER', 'Content-Type') === 'application/json') {
                 $aResult = json_decode($sBodyData, true);
             } else {
                 $aExplodedData = explode('&', $sBodyData);
@@ -295,7 +295,7 @@ abstract class Action extends LsObject {
      */
     protected function _addEventHandler($aArgs, $iType) {
 
-        $iCountArgs = sizeof($aArgs);
+        $iCountArgs = count($aArgs);
         if ($iCountArgs < 2) {
             throw new Exception('Incorrect number of arguments when adding events');
         }
@@ -408,8 +408,8 @@ abstract class Action extends LsObject {
      */
     public function ExecEvent() {
 
-        if ($this->GetDefaultEvent() == 'index' && method_exists($this, 'EventIndex')) {
-            $this->AddEvent('index', 'EventIndex');
+        if ($this->GetDefaultEvent() === 'default' && method_exists($this, 'EventDefault')) {
+            $this->AddEvent('default', 'EventDefault');
         }
         $this->sCurrentEvent = R::GetActionEvent();
         if ($this->sCurrentEvent == null) {
@@ -526,7 +526,7 @@ abstract class Action extends LsObject {
      */
     protected function GetLastParam($sDefault = null) {
 
-        $nNumParams = sizeof($this->GetParams());
+        $nNumParams = count($this->GetParams());
         if ($nNumParams > 0) {
             $iOffset = $nNumParams - 1;
             return $this->GetParam($iOffset, $sDefault);
