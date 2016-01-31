@@ -385,20 +385,7 @@ class Router extends LsObject {
     protected function GetRouterUriRules() {
 
         $aRewrite = (array)Config::Get('router.uri');
-        /*
-        $sTopicUrlPattern = static::GetTopicUrlPattern();
-        if ($sTopicUrlPattern) {
-            $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
-        }
-        $sUserUrlPattern = static::GetUserUrlPattern();
-        if ($sUserUrlPattern) {
-            if (strpos(static::GetUserUrlMask(), '%user_id%')) {
-                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/id-$1'));
-            } elseif (strpos(static::GetUserUrlMask(), '%login%')) {
-                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
-            }
-        }
-        */
+
         return $aRewrite;
     }
 

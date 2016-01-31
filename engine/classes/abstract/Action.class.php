@@ -811,6 +811,23 @@ abstract class Action extends LsObject {
         return null;
     }
 
+    /**
+     * Create pagination array
+     *
+     * @param int   $iCount
+     * @param int   $iCurrentPage
+     * @param int   $iCountPerPage
+     * @param int   $iCountPageLine
+     * @param int   $sBaseUrl
+     * @param array $aGetParamsList
+     *
+     * @return array
+     */
+    public function MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl, $aGetParamsList = array()) {
+
+        return E::ModuleViewer()->MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl, $aGetParamsList);
+    }
+
 }
 
 // EOF
