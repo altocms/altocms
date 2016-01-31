@@ -22,9 +22,9 @@ ls.user = (function ($) {
         }
 
         if (sAction == 'accept') {
-            var url = aRouter.profile + 'ajaxfriendaccept/';
+            var url = ls.routerUrl('profile') + 'ajaxfriendaccept/';
         } else {
-            var url = aRouter.profile + 'ajaxfriendadd/';
+            var url = ls.routerUrl('profile') + 'ajaxfriendadd/';
         }
 
         var params = {idUser: idUser, userText: sText};
@@ -54,7 +54,7 @@ ls.user = (function ($) {
      * Удаление из друзей
      */
     this.removeFriend = function (obj, idUser, sAction) {
-        var url = aRouter.profile + 'ajaxfrienddelete/';
+        var url = ls.routerUrl('profile') + 'ajaxfrienddelete/';
         var params = {idUser: idUser, sAction: sAction};
 
         ls.hook.marker('removeFriendBefore');
@@ -128,7 +128,7 @@ ls.user = (function ($) {
         if (!this.jcropAvatar) {
             return false;
         }
-        var url = aRouter.settings + 'profile/resize-avatar/';
+        var url = ls.routerUrl('settings') + 'profile/resize-avatar/';
         var params = {size: this.jcropAvatar.tellSelect()};
 
         ls.hook.marker('resizeAvatarBefore');
@@ -153,7 +153,7 @@ ls.user = (function ($) {
      * Удаление аватарки
      */
     this.removeAvatar = function () {
-        var url = aRouter.settings + 'profile/remove-avatar/';
+        var url = ls.routerUrl('settings') + 'profile/remove-avatar/';
         var params = {};
 
         ls.hook.marker('removeAvatarBefore');
@@ -177,7 +177,7 @@ ls.user = (function ($) {
      * Отмена ресайза аватарки, подчищаем временный данные
      */
     this.cancelAvatar = function () {
-        var url = aRouter.settings + 'profile/cancel-avatar/';
+        var url = ls.routerUrl('settings') + 'profile/cancel-avatar/';
         var params = {};
 
         ls.hook.marker('cancelAvatarBefore');
@@ -249,7 +249,7 @@ ls.user = (function ($) {
         if (!this.jcropFoto) {
             return false;
         }
-        var url = aRouter.settings + 'profile/resize-photo/';
+        var url = ls.routerUrl('settings') + 'profile/resize-photo/';
         var params = {size: this.jcropFoto.tellSelect()};
 
         ls.hook.marker('resizeFotoBefore');
@@ -274,7 +274,7 @@ ls.user = (function ($) {
      * Удаление фотки
      */
     this.removeFoto = function () {
-        var url = aRouter.settings + 'profile/remove-photo/';
+        var url = ls.routerUrl('settings') + 'profile/remove-photo/';
         var params = {};
 
         ls.hook.marker('removeFotoBefore');
@@ -298,7 +298,7 @@ ls.user = (function ($) {
      * Отмена ресайза фотки, подчищаем временный данные
      */
     this.cancelFoto = function () {
-        var url = aRouter.settings + 'profile/cancel-photo/';
+        var url = ls.routerUrl('settings') + 'profile/cancel-photo/';
         var params = {};
 
         ls.hook.marker('cancelFotoBefore');
@@ -321,7 +321,7 @@ ls.user = (function ($) {
      * @param aFields
      */
     this.validateRegistrationFields = function (aFields, sForm) {
-        var url = aRouter.registration + 'ajax-validate-fields/';
+        var url = ls.routerUrl('registration') + 'ajax-validate-fields/';
         var params = {fields: aFields};
         if (typeof(sForm) == 'string') {
             sForm = $('#' + sForm);
@@ -362,7 +362,7 @@ ls.user = (function ($) {
      * @param form
      */
     this.registration = function (form) {
-        var url = aRouter.registration + 'ajax-registration/';
+        var url = ls.routerUrl('registration') + 'ajax-registration/';
 
         this.formLoader(form);
         ls.hook.marker('registrationBefore');
@@ -404,7 +404,7 @@ ls.user = (function ($) {
      * @param form
      */
     this.login = function (form) {
-        var url = aRouter.login + 'ajax-login/';
+        var url = ls.routerUrl('login') + 'ajax-login/';
 
         this.formLoader(form);
         ls.hook.marker('loginBefore');
@@ -457,7 +457,7 @@ ls.user = (function ($) {
      * @param form
      */
     this.reminder = function (form) {
-        var url = aRouter.login + 'ajax-reminder/';
+        var url = ls.routerUrl('login') + 'ajax-reminder/';
 
         this.formLoader(form);
         ls.hook.marker('reminderBefore');
@@ -493,7 +493,7 @@ ls.user = (function ($) {
      * @param form
      */
     this.reactivation = function (form) {
-        var url = aRouter.login + 'ajax-reactivation/';
+        var url = ls.routerUrl('login') + 'ajax-reactivation/';
 
         ls.hook.marker('reactivationBefore');
         ls.ajaxSubmit(url, form, function (result) {

@@ -10,14 +10,14 @@ ls.comments = (function ($) {
     this.options = {
         type: {
             topic: {
-                url_add:        aRouter.blog + 'ajaxaddcomment/',
-                url_response:   aRouter.blog + 'ajaxresponsecomment/',
-                url_get:        aRouter.blog + 'ajaxgetcomment/',
-                url_update:     aRouter.blog + 'ajaxupdatecomment/'
+                url_add:        ls.routerUrl('blog') + 'ajaxaddcomment/',
+                url_response:   ls.routerUrl('blog') + 'ajaxresponsecomment/',
+                url_get:        ls.routerUrl('blog') + 'ajaxgetcomment/',
+                url_update:     ls.routerUrl('blog') + 'ajaxupdatecomment/'
             },
             talk: {
-                url_add:        aRouter.talk + 'ajaxaddcomment/',
-                url_response:   aRouter.talk + 'ajaxresponsecomment/'
+                url_add:        ls.routerUrl('talk') + 'ajaxaddcomment/',
+                url_response:   ls.routerUrl('talk') + 'ajaxresponsecomment/'
             }
         },
         classes: {
