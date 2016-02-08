@@ -362,7 +362,7 @@ $config['module']['uploader']['images']['default'] = array(
                 'path' => '___path.static.dir___/___path.uploads.root___',
                 'file' => 'altocms.png',
                 'topleft' => false,
-                'position' => '0,0',
+                'position' => '0,0', // вместо пикселей можно указать center для одной или обоих координат
             ),
         ),
         '@mime(jpeg)' => array(

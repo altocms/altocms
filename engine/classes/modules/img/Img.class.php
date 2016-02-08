@@ -450,8 +450,17 @@ class ModuleImg extends Module {
         if (!$oImg || !$oImgMark) {
             return false;
         }
-        if (!$bTopLeft) {
+
+        if ('center' == $iCoordX) {
+            $iCoordX = round($oImg->GetWidth() / 2  - $oImgMark->GetWidth() / 2);
+        }
+        elseif (!$bTopLeft) {
             $iCoordX = $oImg->GetWidth() - $oImgMark->GetWidth() - $iCoordX;
+        }
+        if ('center' == $iCoordY) {
+            $iCoordY = round($oImg->GetHeight() / 2 - $oImgMark->GetHeight() / 2);
+        }
+        elseif (!$bTopLeft) {
             $iCoordY = $oImg->GetHeight() - $oImgMark->GetHeight() - $iCoordY;
         }
         $oImg->Overdraw($oImgMark, $iCoordX, $iCoordY);
