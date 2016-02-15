@@ -1117,7 +1117,7 @@ class Install {
         }
 
         if ($bCreate) {
-            @mysqli_query($oDb, "CREATE DATABASE $sName");
+            @mysqli_query($oDb, 'CREATE DATABASE `' . mysqli_real_escape_string($oDb, $sName) . '`');
             return @mysqli_select_db($oDb, $sName);
         }
         return false;
