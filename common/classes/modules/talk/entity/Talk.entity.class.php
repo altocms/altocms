@@ -43,11 +43,13 @@ class ModuleTalk_EntityTalk extends Entity {
     /**
      * Вовзращает заголовок сообщения
      *
+     * @param  bool $bConvertSpecialChars
+     *
      * @return string|null
      */
-    public function getTitle() {
+    public function getTitle($bConvertSpecialChars = true) {
 
-        return $this->getProp('talk_title');
+        return $this->getPropHtmlSafe('talk_title', null, $bConvertSpecialChars);
     }
 
     /**

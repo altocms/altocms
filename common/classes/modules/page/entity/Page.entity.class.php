@@ -58,9 +58,14 @@ class ModulePage_EntityPage extends Entity {
         return $sResult;
     }
 
-    public function getTitle() {
+    /**
+     * @param bool $bConvertSpecialChars
+     *
+     * @return mixed|null|string
+     */
+    public function getTitle($bConvertSpecialChars = true) {
 
-        return $this->getProp('page_title');
+        return $this->getPropHtmlSafe('page_title', null, $bConvertSpecialChars);
     }
 
     public function getText() {

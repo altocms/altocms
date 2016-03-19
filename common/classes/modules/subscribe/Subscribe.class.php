@@ -27,12 +27,14 @@ class ModuleSubscribe extends Module {
      * @var ModuleSubscribe_MapperSubscribe
      */
     protected $oMapper;
+
     /**
      * Объект текущего пользователя
      *
      * @var ModuleUser_EntityUser|null
      */
     protected $oUserCurrent;
+
     /**
      * Список доступных объектов подписок с параметрами
      * На данный момент допустим параметр allow_for_guest=>1 - указывает на возможность создавать подписку для гостя
@@ -48,10 +50,10 @@ class ModuleSubscribe extends Module {
      * Инициализация
      *
      */
-    public function Init() {
+    public function init() {
 
         $this->oMapper = E::GetMapper(__CLASS__);
-        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->getUserCurrent();
     }
 
     /**
@@ -59,7 +61,7 @@ class ModuleSubscribe extends Module {
      *
      * @return array
      */
-    public function GetTargetTypes() {
+    public function getTargetTypes() {
 
         return $this->aTargetTypes;
     }
@@ -72,7 +74,7 @@ class ModuleSubscribe extends Module {
      *
      * @return bool
      */
-    public function AddTargetType($sTargetType, $aParams = array()) {
+    public function addTargetType($sTargetType, $aParams = array()) {
 
         if (!array_key_exists($sTargetType, $this->aTargetTypes)) {
             $this->aTargetTypes[$sTargetType] = $aParams;
@@ -88,7 +90,7 @@ class ModuleSubscribe extends Module {
      *
      * @return bool
      */
-    public function IsAllowTargetType($sTargetType) {
+    public function isAllowTargetType($sTargetType) {
 
         return in_array($sTargetType, array_keys($this->aTargetTypes));
     }
@@ -102,9 +104,9 @@ class ModuleSubscribe extends Module {
      *
      * @return bool
      */
-    public function CheckTarget($sTargetType, $iTargetId, $iStatus = null) {
+    public function checkTarget($sTargetType, $iTargetId, $iStatus = null) {
 
-        $sMethod = 'CheckTarget' . F::StrCamelize($sTargetType);
+        $sMethod = 'checkTarget' . F::StrCamelize($sTargetType);
         if (method_exists($this, $sMethod)) {
             return $this->$sMethod($iTargetId, $iStatus);
         }
@@ -120,9 +122,9 @@ class ModuleSubscribe extends Module {
      *
      * @return bool
      */
-    public function GetUrlTarget($sTargetType, $iTargetId) {
+    public function getUrlTarget($sTargetType, $iTargetId) {
 
-        $sMethod = 'GetUrlTarget' . F::StrCamelize($sTargetType);
+        $sMethod = 'getUrlTarget' . F::StrCamelize($sTargetType);
         if (method_exists($this, $sMethod)) {
             return $this->$sMethod($iTargetId);
         }
@@ -136,9 +138,9 @@ class ModuleSubscribe extends Module {
      *
      * @return bool
      */
-    public function IsAllowTargetForGuest($sTargetType) {
+    public function isAllowTargetForGuest($sTargetType) {
 
-        if ($this->IsAllowTargetType($sTargetType)) {
+        if ($this->isAllowTargetType($sTargetType)) {
             if (isset($this->aTargetTypes[$sTargetType]['allow_for_guest'])
                 && $this->aTargetTypes[$sTargetType]['allow_for_guest']
             ) {
@@ -155,9 +157,9 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntitySubscribe|bool
      */
-    public function AddSubscribe($oSubscribe) {
+    public function addSubscribe($oSubscribe) {
 
-        if ($sId = $this->oMapper->AddSubscribe($oSubscribe)) {
+        if ($sId = $this->oMapper->addSubscribe($oSubscribe)) {
             $oSubscribe->setId($sId);
             return $oSubscribe;
         }
@@ -173,12 +175,12 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntitySubscribe|bool
      */
-    public function AddSubscribeSimple($sTargetType, $sTargetId, $sMail, $sUserId = null) {
+    public function addSubscribeSimple($sTargetType, $sTargetId, $sMail, $sUserId = null) {
 
         if (!$sMail) {
             return false;
         }
-        if (!($oSubscribe = E::ModuleSubscribe()->GetSubscribeByTargetAndMail($sTargetType, $sTargetId, $sMail))) {
+        if (!($oSubscribe = E::ModuleSubscribe()->getSubscribeByTargetAndMail($sTargetType, $sTargetId, $sMail))) {
             /** @var ModuleSubscribe_EntitySubscribe $oSubscribe */
             $oSubscribe = E::GetEntity('Subscribe');
             $oSubscribe->setTargetType($sTargetType);
@@ -191,10 +193,10 @@ class ModuleSubscribe extends Module {
             /**
              * Если только для авторизованных, то добавляем user_id
              */
-            if ($sUserId && !$this->IsAllowTargetForGuest($sTargetType)) {
+            if ($sUserId && !$this->isAllowTargetForGuest($sTargetType)) {
                 $oSubscribe->setUserId($sUserId);
             }
-            E::ModuleSubscribe()->AddSubscribe($oSubscribe);
+            E::ModuleSubscribe()->addSubscribe($oSubscribe);
         }
         return $oSubscribe;
     }
@@ -206,9 +208,9 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntityTrack|bool
      */
-    public function AddTrack($oTrack) {
+    public function addTrack($oTrack) {
 
-        if ($sId = $this->oMapper->AddTrack($oTrack)) {
+        if ($sId = $this->oMapper->addTrack($oTrack)) {
             $oTrack->setId($sId);
             return $oTrack;
         }
@@ -224,12 +226,12 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntityTrack|bool
      */
-    public function AddTrackSimple($sTargetType, $sTargetId, $sUserId) {
+    public function addTrackSimple($sTargetType, $sTargetId, $sUserId) {
 
         if (!$sUserId) {
             return false;
         }
-        if (!($oTrack = E::ModuleSubscribe()->GetTrackByTargetAndUser($sTargetType, $sTargetId, $sUserId))) {
+        if (!($oTrack = E::ModuleSubscribe()->getTrackByTargetAndUser($sTargetType, $sTargetId, $sUserId))) {
             /** @var ModuleSubscribe_EntityTrack $oTrack */
             $oTrack = E::GetEntity('ModuleSubscribe_EntityTrack');
             $oTrack->setTargetType($sTargetType);
@@ -239,7 +241,7 @@ class ModuleSubscribe extends Module {
             $oTrack->setKey(F::RandomStr(32));
             $oTrack->setIp(F::GetUserIp());
             $oTrack->setStatus(1);
-            E::ModuleSubscribe()->AddTrack($oTrack);
+            E::ModuleSubscribe()->addTrack($oTrack);
         }
         return $oTrack;
     }
@@ -251,9 +253,9 @@ class ModuleSubscribe extends Module {
      *
      * @return int
      */
-    public function UpdateSubscribe($oSubscribe) {
+    public function updateSubscribe($oSubscribe) {
 
-        return $this->oMapper->UpdateSubscribe($oSubscribe);
+        return $this->oMapper->updateSubscribe($oSubscribe);
     }
 
     /**
@@ -265,9 +267,9 @@ class ModuleSubscribe extends Module {
      *
      * @return int
      */
-    public function ChangeSubscribeMail($sMailOld, $sMailNew, $iUserId = null) {
+    public function changeSubscribeMail($sMailOld, $sMailNew, $iUserId = null) {
 
-        return $this->oMapper->ChangeSubscribeMail($sMailOld, $sMailNew, $iUserId);
+        return $this->oMapper->changeSubscribeMail($sMailOld, $sMailNew, $iUserId);
     }
 
     /**
@@ -277,9 +279,9 @@ class ModuleSubscribe extends Module {
      *
      * @return int
      */
-    public function UpdateTrack($oTrack) {
+    public function updateTrack($oTrack) {
 
-        return $this->oMapper->UpdateTrack($oTrack);
+        return $this->oMapper->updateTrack($oTrack);
     }
 
     /**
@@ -292,9 +294,9 @@ class ModuleSubscribe extends Module {
      *
      * @return array('collection'=>array,'count'=>int)
      */
-    public function GetSubscribes($aFilter, $aOrder, $iCurrPage, $iPerPage) {
+    public function getSubscribes($aFilter, $aOrder, $iCurrPage, $iPerPage) {
 
-        return array('collection' => $this->oMapper->GetSubscribes($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
+        return array('collection' => $this->oMapper->getSubscribes($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
                      'count'      => $iCount);
     }
 
@@ -308,9 +310,9 @@ class ModuleSubscribe extends Module {
      *
      * @return array('collection'=>array,'count'=>int)
      */
-    public function GetTracks($aFilter, $aOrder, $iCurrPage, $iPerPage) {
+    public function getTracks($aFilter, $aOrder, $iCurrPage, $iPerPage) {
 
-        return array('collection' => $this->oMapper->GetTracks($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
+        return array('collection' => $this->oMapper->getTracks($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
                      'count'      => $iCount);
     }
 
@@ -323,9 +325,9 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntitySubscribe|null
      */
-    public function GetSubscribeByTargetAndMail($sTargetType, $iTargetId, $sMail) {
+    public function getSubscribeByTargetAndMail($sTargetType, $iTargetId, $sMail) {
 
-        $aRes = $this->GetSubscribes(
+        $aRes = $this->getSubscribes(
             array('target_type' => $sTargetType, 'target_id' => $iTargetId, 'mail' => $sMail), array(), 1, 1
         );
         if (isset($aRes['collection'][0])) {
@@ -341,9 +343,9 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntitySubscribe|null
      */
-    public function GetSubscribeByKey($sKey) {
+    public function getSubscribeByKey($sKey) {
 
-        $aRes = $this->GetSubscribes(array('key' => $sKey), array(), 1, 1);
+        $aRes = $this->getSubscribes(array('key' => $sKey), array(), 1, 1);
         if (isset($aRes['collection'][0])) {
             return $aRes['collection'][0];
         }
@@ -359,9 +361,9 @@ class ModuleSubscribe extends Module {
      *
      * @return ModuleSubscribe_EntityTrack|null
      */
-    public function GetTrackByTargetAndUser($sTargetType, $iTargetId, $sUserId) {
+    public function getTrackByTargetAndUser($sTargetType, $iTargetId, $sUserId) {
 
-        $aRes = $this->GetTracks(
+        $aRes = $this->getTracks(
             array('target_type' => $sTargetType, 'target_id' => $iTargetId, 'user_id' => $sUserId), array(), 1, 1
         );
         if (isset($aRes['collection'][0])) {
@@ -381,10 +383,10 @@ class ModuleSubscribe extends Module {
      * @param array  $aExcludeMail    Список емайлов на которые НЕ нужно отправлять
      * @param string $sPluginName     Название или класс плагина для корректной отправки
      */
-    public function Send($sTargetType, $iTargetId, $sTemplate, $sTitle, $aParams = array(), $aExcludeMail = array(), $sPluginName = null) {
+    public function send($sTargetType, $iTargetId, $sTemplate, $sTitle, $aParams = array(), $aExcludeMail = array(), $sPluginName = null) {
 
         $iPage = 1;
-        $aSubscribes = E::ModuleSubscribe()->GetSubscribes(
+        $aSubscribes = E::ModuleSubscribe()->getSubscribes(
             array('target_type'  => $sTargetType, 'target_id' => $iTargetId, 'status' => 1,
                   'exclude_mail' => $aExcludeMail), array(), $iPage, 20
         );
@@ -393,7 +395,7 @@ class ModuleSubscribe extends Module {
             /** @var ModuleSubscribe_EntitySubscribe $oSubscribe */
             foreach ($aSubscribes['collection'] as $oSubscribe) {
                 $aParams['sSubscribeKey'] = $oSubscribe->getKey();
-                E::ModuleNotify()->Send(
+                E::ModuleNotify()->send(
                     $oSubscribe->getMail(),
                     $sTemplate,
                     $sTitle,
@@ -401,7 +403,7 @@ class ModuleSubscribe extends Module {
                     $sPluginName
                 );
             }
-            $aSubscribes = E::ModuleSubscribe()->GetSubscribes(
+            $aSubscribes = E::ModuleSubscribe()->getSubscribes(
                 array('target_type' => $sTargetType, 'target_id' => $iTargetId, 'status' => 1,
                       'exclude_mail' => $aExcludeMail), array(), $iPage, 20
             );
@@ -417,9 +419,9 @@ class ModuleSubscribe extends Module {
      *
      * @return bool
      */
-    public function CheckTargetTopicNewComment($iTargetId, $iStatus) {
+    public function checkTargetTopicNewComment($iTargetId, $iStatus) {
 
-        if ($oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
+        if ($oTopic = E::ModuleTopic()->getTopicById($iTargetId)) {
             /**
              * Топик может быть в закрытом блоге, поэтому необходимо разрешить подписку только если пользователь в нем состоит
              * Отписываться разрешаем с любого топика
@@ -427,7 +429,7 @@ class ModuleSubscribe extends Module {
             if ($iStatus == 1 && $oTopic->getBlog()->IsPrivate()) {
                 if (!$this->oUserCurrent
                     || !($oTopic->getBlog()->getOwnerId() == $this->oUserCurrent->getId()
-                        || E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oTopic->getBlogId(), $this->oUserCurrent->getId()))
+                        || E::ModuleBlog()->getBlogUserByBlogIdAndUserId($oTopic->getBlogId(), $this->oUserCurrent->getId()))
                 ) {
                     return false;
                 }
@@ -445,9 +447,9 @@ class ModuleSubscribe extends Module {
      *
      * @return string|bool
      */
-    public function GetUrlTargetTopicNewComment($iTargetId) {
+    public function getUrlTargetTopicNewComment($iTargetId) {
 
-        if (($oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) && $oTopic->getPublish()) {
+        if (($oTopic = E::ModuleTopic()->getTopicById($iTargetId)) && $oTopic->getPublish()) {
             return $oTopic->getUrl();
         }
         return false;

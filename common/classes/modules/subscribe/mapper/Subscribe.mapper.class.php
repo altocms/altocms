@@ -28,7 +28,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return int|bool
      */
-    public function AddSubscribe($oSubscribe) {
+    public function addSubscribe($oSubscribe) {
 
         $sql = "INSERT INTO ?_subscribe(?#) VALUES(?a)";
         if ($iId = $this->oDb->query($sql, $oSubscribe->getKeyProps(), $oSubscribe->getValProps())) {
@@ -45,7 +45,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return ModuleSubscribe_EntitySubscribe|null
      */
-    public function GetSubscribeByTypeAndMail($sType, $sMail) {
+    public function getSubscribeByTypeAndMail($sType, $sMail) {
 
         $sql = "SELECT * FROM ?_subscribe WHERE target_type = ? AND mail = ?";
         if ($aRow = $this->oDb->selectRow($sql, $sType, $sMail)) {
@@ -61,7 +61,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return int
      */
-    public function UpdateSubscribe($oSubscribe) {
+    public function updateSubscribe($oSubscribe) {
 
         $sql = "UPDATE ?_subscribe
 			SET 
@@ -86,7 +86,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return int
      */
-    public function ChangeSubscribeMail($sMailOld, $sMailNew, $iUserId = null) {
+    public function changeSubscribeMail($sMailOld, $sMailNew, $iUserId = null) {
 
         $sql = "UPDATE ?_subscribe
 			SET
@@ -108,7 +108,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return array
      */
-    public function GetSubscribes($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function getSubscribes($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
         $aOrderAllow = array('id', 'date_add', 'status');
         $sOrder = '';
         foreach ($aOrder as $key => $value) {
@@ -169,7 +169,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return int|bool
      */
-    public function AddTrack($oTrack) {
+    public function addTrack($oTrack) {
 
         $sql = "INSERT INTO ?_track (?#) VALUES (?a) ";
         $iId = $this->oDb->query($sql, $oTrack->getKeyProps(), $oTrack->getValProps());
@@ -183,7 +183,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return int
      */
-    public function UpdateTrack($oTrack) {
+    public function updateTrack($oTrack) {
 
         $sql = "UPDATE ?_track
 			SET
@@ -210,7 +210,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      *
      * @return array
      */
-    public function GetTracks($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function getTracks($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
 
         $aOrderAllow = array('id', 'date_add', 'status');
         $sOrder = '';

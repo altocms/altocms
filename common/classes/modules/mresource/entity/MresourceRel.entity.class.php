@@ -14,13 +14,13 @@
  * @method setType($xParam)
  * @method setUserId($iUserId)
  *
- * @method int GetMresourceId()
+ * @method int getMresourceId()
  * @method string getTargetType()
  *
  */
 class ModuleMresource_EntityMresourceRel extends ModuleMresource_EntityMresource {
 
-    public function GetId() {
+    public function getId() {
 
         return $this->getProp('id');
     }

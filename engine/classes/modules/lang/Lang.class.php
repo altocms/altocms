@@ -384,7 +384,7 @@ class ModuleLang extends Module {
      *
      * @return string
      */
-    public function GetLang() {
+    public function getLang() {
 
         return $this->sCurrentLang;
     }
@@ -396,7 +396,7 @@ class ModuleLang extends Module {
      *
      * @return array
      */
-    public function GetLangAliases($bIncludeCurrentLang = false) {
+    public function getLangAliases($bIncludeCurrentLang = false) {
 
         $aResult = F::Str2Array(Config::Get('lang.aliases.' . $this->GetLang()));
         if ($bIncludeCurrentLang) {
@@ -410,7 +410,7 @@ class ModuleLang extends Module {
      *
      * @return string
      */
-    public function GetDefaultLang() {
+    public function getDefaultLang() {
 
         return $this->sDefaultLang;
     }
@@ -420,7 +420,7 @@ class ModuleLang extends Module {
      *
      * @return array
      */
-    public function GetDefaultLangAliases() {
+    public function getDefaultLangAliases() {
 
         return F::Str2Array(Config::Get('lang.aliases.' . $this->GetDefaultLang()));
     }
@@ -430,7 +430,7 @@ class ModuleLang extends Module {
      *
      * @return string
      */
-    public function GetLangDefault() {
+    public function getLangDefault() {
 
         return $this->GetDefaultLang();
     }
@@ -441,7 +441,7 @@ class ModuleLang extends Module {
      * @param  string $sLang
      * @return array
      */
-    public function GetLangMsg($sLang = null) {
+    public function getLangMsg($sLang = null) {
 
         if (!$sLang) {
             $sLang = $this->sCurrentLang;
@@ -452,7 +452,7 @@ class ModuleLang extends Module {
         return array();
     }
 
-    public function GetLangArray() {
+    public function getLangArray() {
 
         return new LangArray();
     }
@@ -467,7 +467,7 @@ class ModuleLang extends Module {
      *
      * @return string
      */
-    public function Get($sName, $aReplace = array(), $bDelete = true, $bEmptyResult = false) {
+    public function get($sName, $aReplace = array(), $bDelete = true, $bEmptyResult = false) {
 
         if (empty($sName)) {
             return 'EMPTY_LANG_TEXT';
@@ -621,7 +621,7 @@ class ModuleLang extends Module {
      *
      * @return array
      */
-    public function GetLangList() {
+    public function getLangList() {
 
         $aLangList = (array)Config::Get('lang.allow');
         if (!$aLangList) {
@@ -639,7 +639,7 @@ class ModuleLang extends Module {
     /**
      * Возвращает список доступных языков
      */
-    public function GetAvailableLanguages() {
+    public function getAvailableLanguages() {
 
         $aLanguages = UserLocale::getAvailableLanguages(true);
         foreach ($aLanguages as $sLang=>$aLang) {

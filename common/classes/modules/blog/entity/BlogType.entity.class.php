@@ -96,7 +96,7 @@ class ModuleBlog_EntityBlogType extends Entity {
         return $this->getLangTextProp('type_name', $sLang);
     }
 
-    public function GetTitle($sLang = null) {
+    public function getTitle($sLang = null) {
 
         return $this->_getPropLangText('blogtypes_type_%%type_code%%_title', 'title', '', $sLang);
     }

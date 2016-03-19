@@ -51,11 +51,13 @@ class ModuleBlog_EntityBlog extends Entity {
     /**
      * Возвращает название блога
      *
+     * @param  bool $bConvertSpecialChars
+     *
      * @return string|null
      */
-    public function getTitle() {
+    public function getTitle($bConvertSpecialChars = true) {
 
-        return $this->getProp('blog_title');
+        return $this->getPropHtmlSafe('blog_title', null, $bConvertSpecialChars);
     }
 
     /**

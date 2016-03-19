@@ -123,7 +123,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsByArrayId($aBlogId, $aOrder = null) {
+    public function getBlogsByArrayId($aBlogId, $aOrder = null) {
 
         if (!$aBlogId) {
             return array();
@@ -246,7 +246,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return ModuleBlog_EntityBlogUser[]
      */
-    public function GetBlogUsers($aFilter, &$iCount = null, $iCurrPage = null, $iPerPage = null) {
+    public function getBlogUsers($aFilter, &$iCount = null, $iCurrPage = null, $iPerPage = null) {
 
         if (!empty($aFilter['user_all_role']) && !empty($aFilter['user_role'])) {
             unset($aFilter['user_role']);
@@ -308,7 +308,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return ModuleBlog_EntityBlogUser[]
      */
-    public function GetBlogUsersByArrayBlog($aBlogId, $nUserId) {
+    public function getBlogUsersByArrayBlog($aBlogId, $nUserId) {
 
         if (!is_array($aBlogId) || count($aBlogId) == 0) {
             return array();
@@ -337,7 +337,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return int[]
      */
-    public function GetAuthorsIdByBlogId($nBlogId) {
+    public function getAuthorsIdByBlogId($nBlogId) {
 
         $sql = "
             SELECT DISTINCT t.user_id
@@ -357,7 +357,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  int|null
      */
-    public function GetPersonalBlogByUserId($iUserId) {
+    public function getPersonalBlogByUserId($iUserId) {
 
         $aCriteria = array(
             'filter' => array(
@@ -378,7 +378,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  array
      */
-    public function GetBlogsIdByOwnersId($aUsersId) {
+    public function getBlogsIdByOwnersId($aUsersId) {
 
         $aCriteria = array(
             'filter' => array(
@@ -396,7 +396,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  ModuleBlog_EntityBlog|null
      */
-    public function GetBlogByTitle($sTitle) {
+    public function getBlogByTitle($sTitle) {
 
         $aCriteria = array(
             'filter' => array(
@@ -415,7 +415,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return ModuleBlog_EntityBlog|null
      */
-    public function GetBlogByUrl($xUrl) {
+    public function getBlogByUrl($xUrl) {
 
         return $this->GetBlogsIdByUrl($xUrl);
     }
@@ -427,7 +427,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return int|array
      */
-    public function GetBlogsIdByUrl($xUrl) {
+    public function getBlogsIdByUrl($xUrl) {
 
         $aCriteria = array(
             'filter' => array(
@@ -449,7 +449,7 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
     }
 
-    public function GetBlogsByOwnerId($iUserId) {
+    public function getBlogsByOwnerId($iUserId) {
 
         return $this->GetBlogsIdByOwnerId($iUserId);
     }
@@ -461,7 +461,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  array
      */
-    public function GetBlogsIdByOwnerId($iUserId) {
+    public function getBlogsIdByOwnerId($iUserId) {
 
         $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aFilter['user_id'] = intval($iUserId);
@@ -477,7 +477,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * LS-compatibility
      */
-    public function GetBlogs() {
+    public function getBlogs() {
 
         return $this->GetBlogsId();
     }
@@ -487,7 +487,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  array
      */
-    public function GetBlogsId() {
+    public function getBlogsId() {
 
         $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aCriteria = array(
@@ -504,7 +504,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsIdByFilter($aFilter) {
+    public function getBlogsIdByFilter($aFilter) {
 
         if (isset($aFilter['user_id'])) {
             $aFilter['user_id'] = intval($aFilter['user_id']);
@@ -538,7 +538,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsRating(&$iCount, $iCurrPage, $iPerPage) {
+    public function getBlogsRating(&$iCount, $iCurrPage, $iPerPage) {
 
         $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aCriteria = array(
@@ -562,7 +562,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsRatingJoin($nUserId, $nLimit) {
+    public function getBlogsRatingJoin($nUserId, $nLimit) {
 
         $sql = "SELECT
                     b.*
@@ -592,7 +592,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsRatingSelf($nUserId, $nLimit) {
+    public function getBlogsRatingSelf($nUserId, $nLimit) {
 
         $sql = "SELECT
                     b.*
@@ -614,7 +614,7 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * LS-compatibility
      */
-    public function GetCloseBlogs($oUser = null) {
+    public function getCloseBlogs($oUser = null) {
 
         return $this->GetCloseBlogsId($oUser);
     }
@@ -626,7 +626,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetCloseBlogsId($oUser = null) {
+    public function getCloseBlogsId($oUser = null) {
 
         // Gets an array of types of blogs that closed for user
         $aTypes = E::ModuleBlog()->GetCloseBlogTypes($oUser);
@@ -714,7 +714,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      * 
      * Use GetBlogsIdByFilterPerPage() instead
      */
-    public function GetBlogsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function getBlogsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
 
         return $this->GetBlogsIdByFilterPerPage($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
     }
@@ -730,7 +730,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage = null, $iPerPage = null) {
+    public function getBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage = null, $iPerPage = null) {
 
         $aCriteria = array(
             'filter' => array(),
@@ -782,7 +782,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  ModuleBlog_BlogType[]
      */
-    public function GetBlogTypes() {
+    public function getBlogTypes() {
 
         $sql
             = "
@@ -848,7 +848,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return ModuleTopic_EntityContentType[][]
      */
-    public function GetBlogTypeContentByArrayId($aBlogTypeId) {
+    public function getBlogTypeContentByArrayId($aBlogTypeId) {
 
         $sql =
             "SELECT
@@ -955,7 +955,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogCountsByTypes($aTypes = null) {
+    public function getBlogCountsByTypes($aTypes = null) {
 
         if ($aTypes && !is_array($aTypes)) {
             $aTypes = array($aTypes);
@@ -981,7 +981,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return ModuleBlog_BlogType|null
      */
-    public function GetBlogTypeById($nBlogTypeId) {
+    public function getBlogTypeById($nBlogTypeId) {
 
         $sql
             = "
@@ -1208,7 +1208,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsData($aExcludeTypes) {
+    public function getBlogsData($aExcludeTypes) {
 
         if (isset($aExcludeTypes) && !is_array($aExcludeTypes)) {
             $aExcludeTypes = array($aExcludeTypes);
@@ -1255,7 +1255,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsIdByCriteria($aCriteria = array()) {
+    public function getBlogsIdByCriteria($aCriteria = array()) {
 
         if (isset($aCriteria['filter'])) {
             $aFilter = $aCriteria['filter'];
