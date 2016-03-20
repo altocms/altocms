@@ -21,7 +21,7 @@ class ModuleSkin_EntitySkin extends Entity {
             $aParams['id'] = (string)$aParams;
         }
         $this->setProps($aParams);
-        if (!$this->isProp('property') && $this->getId()) {
+        if (!$this->hasProp('property') && $this->getId()) {
             $this->LoadFromXmlFile($this->getId(), $aParams);
         }
         $this->Init();

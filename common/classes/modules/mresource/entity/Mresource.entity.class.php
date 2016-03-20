@@ -299,9 +299,9 @@ class ModuleMresource_EntityMresource extends Entity {
      */
     public function GetOriginalPathUrl() {
 
-        $sPropKey = '-original-url';
-        if (!$this->isProp($sPropKey)) {
-            $sUrl = $this->GetPathUrl();
+        $sPropKey = '__original-url';
+        if (!$this->hasProp($sPropKey)) {
+            $sUrl = $this->getPathUrl();
             if (!$this->IsLink() && $this->IsImage() && $sUrl) {
                 $aOptions = array();
                 $sOriginal = E::ModuleImg()->OriginalFile($sUrl, $aOptions);
@@ -322,10 +322,10 @@ class ModuleMresource_EntityMresource extends Entity {
      */
     public function GetOriginalHash() {
 
-        $sPropKey = '-original-hash';
-        if (!$this->isProp($sPropKey)) {
+        $sPropKey = '__original-hash';
+        if (!$this->hasProp($sPropKey)) {
             $sHash = $this->GetHash();
-            if (($sPathUrl = $this->GetPathUrl()) && ($sOriginalUrl = $this->GetOriginalPathUrl())) {
+            if (($sPathUrl = $this->getPathUrl()) && ($sOriginalUrl = $this->GetOriginalPathUrl())) {
                 if ($sOriginalUrl !== $sPathUrl) {
                     $sHash = E::ModuleMresource()->CalcUrlHash($sOriginalUrl);
                 }

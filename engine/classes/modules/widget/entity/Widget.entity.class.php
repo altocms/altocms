@@ -18,7 +18,6 @@
  * @method setOrder($iOrder)
  *
  * @method getCondition()
- * @method GetTemplate()
  */
 class ModuleWidget_EntityWidget extends Entity {
 
@@ -31,7 +30,7 @@ class ModuleWidget_EntityWidget extends Entity {
             $this->_checkId();
         }
         if (is_null($this->GetPriority())) {
-            $this->SetPriority(0);
+            $this->setPriority(0);
         }
         if ($this->GetId()) {
             $aCfgData = Config::Get('widget.' . $this->GetId() . '.config');
@@ -64,16 +63,22 @@ class ModuleWidget_EntityWidget extends Entity {
      */
     protected function _checkId() {
 
-        if (!$this->isProp('id')) {
+        if (!$this->hasProp('id')) {
             $sId = $this->GetHash();
             $this->setProp('id', $sId);
         }
         return $this->getProp('id');
     }
 
+    /**
+     * @param string $sKey
+     * @param mixed  $xDefault
+     *
+     * @return mixed|null
+     */
     public function getProp($sKey, $xDefault = null) {
 
-        if (parent::isProp($sKey)) {
+        if (parent::hasProp($sKey)) {
             return parent::getProp($sKey, $xDefault);
         }
         $xResult = $this->getParam($sKey);
