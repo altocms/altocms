@@ -18,9 +18,9 @@ use \E as E, \F as F, \C as C;
  */
 class Builder extends Query {
 
-    protected $aWithRelations = array();
+    protected $aWithRelations = [];
 
-    protected $aFields = array();
+    protected $aFields = [];
 
     /**
      * CriteriaORM2 constructor.
@@ -94,13 +94,13 @@ class Builder extends Query {
     protected function _resolveRelations($oVar) {
 
         if (!empty($this->aWithRelations)) {
-            if ($oVar instanceof Collection) {
+            if ($oVar instanceof EntityCollection) {
                 $oItem = $oVar->current();
             } else {
                 $oItem = $oVar;
             }
             foreach($this->aWithRelations as $sRelation) {
-                $oItem->getFieldValue($sRelation);
+                $oItem->getAttr($sRelation);
             }
         }
     }
@@ -111,7 +111,7 @@ class Builder extends Query {
     protected function _resolveFields() {
 
         $oEntity = $this->getEntity();
-        $aEntityFields = $oEntity->getFieldsInfo();
+        $aEntityFields = $oEntity->getFields();
         foreach($aEntityFields as $sName => $aFieldInfo) {
             if (!empty($aEntityFields[$sName][self::COLUMN_TYPE_FIELD])) {
                 $this->aFields[$sName] = $aEntityFields[$sName][self::COLUMN_TYPE_FIELD];
@@ -146,7 +146,7 @@ class Builder extends Query {
     /*
     public function select() {
 
-        $this->aColumns = array();
+        $this->aColumns = [];
         foreach(func_get_args() as $xArg) {
             $this->_addColumn($xArg);
         }
@@ -229,7 +229,7 @@ class Builder extends Query {
 
         switch (func_num_args()) {
             case 0:
-                $aRelationNames = array();
+                $aRelationNames = [];
                 break;
             case 1:
                 $aArg = func_get_arg(0);
@@ -291,7 +291,7 @@ class Builder extends Query {
             }
         }
 
-        $aResult = array();
+        $aResult = [];
         foreach($this->aColumns as $sColumn => $aColumn) {
             if ($aColumn['type'] == self::COLUMN_TYPE_FIELD) {
                 if (!strpos($aColumn['data'], '.')) {
@@ -315,7 +315,7 @@ class Builder extends Query {
      */
     public function getTableNames() {
 
-        $aTableNames = array();
+        $aTableNames = [];
         $oEntity = $this->getEntity();
         if ($oEntity) {
             $aTableNames[] = array(
@@ -336,7 +336,7 @@ class Builder extends Query {
      */
     public function getJoinTableNames() {
 
-        $aTableNames = array();
+        $aTableNames = [];
         if (!empty($this->aTables)) {
             foreach($this->aTables as $aTable) {
                 //$aTable['join'] . $aTable['join_table'] . $aTable['join_alias'] . $aTable['join_condition'];
@@ -435,9 +435,9 @@ class Builder extends Query {
     /**
      * @param array $aPrimaryKeyValues
      *
-     * @return Collection
+     * @return EntityCollection
      */
-    public function all($aPrimaryKeyValues = array()) {
+    public function all($aPrimaryKeyValues = []) {
 
         if (!empty($aPrimaryKeyValues) && ($oEntity = $this->getEntity())) {
             $sPrimaryKey = $oEntity->getPrimaryKey();
@@ -466,7 +466,7 @@ class Builder extends Query {
             } else {
                 /** @var EntityRecord $oItem */
                 foreach($aResult as $oItem) {
-                    $xIndex = $oItem->getFieldValue($sIndexKey);
+                    $xIndex = $oItem->getAttr($sIndexKey);
                     $oCollection[$xIndex] = $oItem;
                 }
             }
@@ -490,7 +490,6 @@ class Builder extends Query {
 
         return $aResult;
     }
-
 
 }
 

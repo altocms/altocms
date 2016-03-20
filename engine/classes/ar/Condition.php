@@ -18,13 +18,13 @@ use \E as E, \F as F, \C as C;
  */
 class Condition extends \Entity {
 
-    protected $aCondition = array();
+    protected $aCondition = [];
 
     /** @var int Level of condition block */
     protected $iConditionLevel = 0;
 
     /** @var array Params in expressions */
-    static private $aConditionParams = array();
+    static private $aConditionParams = [];
 
     /**
      * Condition constructor.
@@ -108,7 +108,7 @@ class Condition extends \Entity {
      */
     protected function _prepare($bHasOperator, $xExp, $sOperator = null, $xValue = null) {
 
-        $aResult = array();
+        $aResult = [];
         if (!$bHasOperator) {
             if (is_array($xExp)) {
                 // ->where(['foo', 123])
@@ -322,7 +322,7 @@ class Condition extends \Entity {
      *
      * @return Condition
      */
-    public function condition($xExp, $sOperator = null, $xValue = null, $aParams = array()) {
+    public function condition($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
         $this->_condition(func_num_args(), null, $xExp, $sOperator, $xValue);
         if (!empty($aParams)) {

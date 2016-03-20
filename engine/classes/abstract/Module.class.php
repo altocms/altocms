@@ -241,7 +241,7 @@ abstract class Module extends LsObject {
             $aAargs = $aAargs[1];
         }
         foreach($aAargs as $iIdx => $sPropKey) {
-            if (!$oEntity->isProp($sPropKey)) {
+            if (!$oEntity->hasProp($sPropKey)) {
                 unset($aAargs[$iIdx]);
             }
         }

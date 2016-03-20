@@ -21,18 +21,18 @@ class Query extends Condition {
     CONST COLUMN_TYPE_FIELD = 'field';
     CONST COLUMN_TYPE_EXPRESSION = 'expression';
 
-    protected $aColumns = array();
+    protected $aColumns = [];
 
-    protected $aTables = array();
+    protected $aTables = [];
 
-    protected $aJoinTables = array();
+    protected $aJoinTables = [];
 
     /** @var Condition */
     protected $oWhere = null;
 
-    protected $aOrderBy = array();
+    protected $aOrderBy = [];
 
-    protected $aGroupBy = array();
+    protected $aGroupBy = [];
 
     /**
      * @param $xData
@@ -77,7 +77,7 @@ class Query extends Condition {
      */
     protected function _escapeNameList($aList) {
 
-        $aResult = array();
+        $aResult = [];
         foreach($aList as $aName) {
             if (is_array($aName) && !empty($aName['name'])) {
                 $sName = $this->_escapeName($aName['name']);
@@ -106,7 +106,7 @@ class Query extends Condition {
      */
     public function select() {
 
-        $this->aColumns = array();
+        $this->aColumns = [];
         foreach(func_get_args() as $xArg) {
             $this->_addColumn($xArg);
         }
@@ -219,7 +219,7 @@ class Query extends Condition {
      *
      * @return Builder
      */
-    public function whereSql($sExp, $aParams = array()) {
+    public function whereSql($sExp, $aParams = []) {
 
         $this->oWhere->_addCondition(null, 'sql', $sExp);
         return $this->bind($aParams);
@@ -231,7 +231,7 @@ class Query extends Condition {
      *
      * @return Builder
      */
-    public function andWhereSql($sExp, $aParams = array()) {
+    public function andWhereSql($sExp, $aParams = []) {
 
         $this->oWhere->_addCondition('AND', 'sql', $sExp);
         return $this->bind($aParams);
@@ -243,7 +243,7 @@ class Query extends Condition {
      *
      * @return Builder
      */
-    public function orWhereSql($sExp, $aParams = array()) {
+    public function orWhereSql($sExp, $aParams = []) {
 
         $this->oWhere->_addCondition('OR', 'sql', $sExp);
         return $this->bind($aParams);
@@ -260,7 +260,7 @@ class Query extends Condition {
      *
      * @return Builder
      */
-    public function where($xExp, $sOperator = null, $xValue = null, $aParams = array()) {
+    public function where($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
         if (func_num_args() == 2) {
             $aParams = $sOperator;
@@ -280,7 +280,7 @@ class Query extends Condition {
      *
      * @return Builder
      */
-    public function andWhere($xExp, $sOperator = null, $xValue = null, $aParams = array()) {
+    public function andWhere($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
         if (func_num_args() == 2) {
             $aParams = $sOperator;
@@ -300,7 +300,7 @@ class Query extends Condition {
      *
      * @return Builder
      */
-    public function orWhere($xExp, $sOperator = null, $xValue = null, $aParams = array()) {
+    public function orWhere($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
         if (func_num_args() == 2) {
             $aParams = $sOperator;
@@ -347,7 +347,7 @@ class Query extends Condition {
             $this->aGroupBy = array($xFields);
         }
         if (is_array($xFields)) {
-            $aData = array();
+            $aData = [];
             foreach($xFields as $sField) {
                 $aData[] = array('name' => $sField);
             }
@@ -448,7 +448,7 @@ class Query extends Condition {
             }
         }
 
-        $aResult = array();
+        $aResult = [];
         foreach($this->_getColumns() as $sColumn => $aColumn) {
             $sExpression = '';
             if ($aColumn['type'] == self::COLUMN_TYPE_FIELD) {
@@ -495,7 +495,7 @@ class Query extends Condition {
      */
     public function getJoinTablesStr() {
 
-        $aResult = array();
+        $aResult = [];
         foreach($this->aJoinTables as $aJoinTable) {
             $sJoinTable = $aJoinTable['join'] . ' ' . $this->_escapeName($aJoinTable['name']);
             if (!empty($aJoinTable['alias'])) {
@@ -624,7 +624,7 @@ class Query extends Condition {
         if (is_array($aResult) && !empty($aResult)) {
             return reset($aResult);
         }
-        return array();
+        return [];
     }
 
     public function queryScalar() {

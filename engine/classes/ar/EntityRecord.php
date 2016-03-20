@@ -12,83 +12,53 @@ namespace alto\engine\ar;
 use \E as E, \F as F, \C as C;
 
 /**
- * Абстрактный класс сущности ORM - аналог active record
- * Позволяет без написания SQL запросов работать с базой данных.
- * <pre>
- * $oUser=E::ModuleUser()->GetUserById(1);
- * $oUser->setName('Claus');
- * $oUser->Update();
- * </pre>
- * Возможно получать списки объектов по фильтру:
- * <pre>
- * $aUsers=E::ModuleUser()->GetUserItemsByAgeAndSex(18,'male');
- * // эквивалентно
- * $aUsers=E::ModuleUser()->GetUserItemsByFilter(array('age'=>18,'sex'=>'male'));
- * // эквивалентно
- * $aUsers=E::ModuleUser()->GetUserItemsByFilter(array('#where'=>array('age = ?d and sex = ?' => array(18,'male'))));
- * </pre>
+ * Абстрактный класс сущности ORM - аналог Active Record
  *
  * @package engine.ar
  * @since   1.2
  */
 abstract class EntityRecord extends \Entity {
 
-    const PROP_IS_PROP = 1;
-    const PROP_IS_FIELD = 2;
-    const PROP_IS_CALLABLE = 3;
-    const PROP_IS_RELATION = 4;
+    const ATTR_IS_PROP     = 1;
+    const ATTR_IS_FIELD    = 2;
+    const ATTR_IS_CALLABLE = 3;
+    const ATTR_IS_RELATION = 4;
 
-    /**
-     * Массив исходных данных сущности
-     *
-     * @var array
-     */
-    protected $_aOriginalData = array();
+    protected $aExtra;
 
     protected $sPrimaryKey;
 
     protected $sTableName;
-
-    protected $aFields = array();
 
     /**
      * Список полей таблицы сущности
      *
      * @var array
      */
-    protected $aTableFields = null;
+    protected $aTableColumns = null;
 
-    /**
-     * Список данных связей
-     *
-     * @var array
-     */
-    protected $aRelationsData = array();
-
-    /**
-     * Флаг новая сущность или нет
-     *
-     * @var bool
-     */
-    protected $bIsNew = true;
+    protected $aAttributes = [];
 
     static protected $oInstance;
 
     /**
      * Установка связей
-     * @see Entity::__construct
+     * @see \Entity::__construct
      *
-     * @param bool $aParam Ассоциативный массив данных сущности
+     * @param bool $aParams Ассоциативный массив данных сущности
      */
-    public function __construct($aParam = false) {
+    public function __construct($aParams = null) {
 
-        parent::__construct($aParam);
+        parent::__construct($aParams);
     }
 
+    /**
+     * @return array
+     */
     public function __sleep() {
 
         foreach($this->_aData as $sKey => $xVal) {
-            if (substr($sKey, 0, 2) === '__') {
+            if (0 === strpos($sKey, '__')) {
                 unset($this->_aData[$sKey]);
             }
         }
@@ -109,15 +79,106 @@ abstract class EntityRecord extends \Entity {
         return self::$oInstance;
     }
 
+    /**
+     * @return string
+     */
     static public function tableName() {
 
         return self::instance()->getTableName();
     }
 
+    /* *** Extra data *** */
+
+    /**
+     * @param array $aExtra
+     *
+     * @return string
+     */
+    protected function extraSerialize($aExtra) {
+
+        $aExtra = (array)$aExtra;
+        return 'j:' . json_encode($aExtra);
+    }
+
+    /**
+     * @param string $sExtra
+     *
+     * @return array
+     */
+    protected function extraUnserialize($sExtra) {
+
+        $aExtra = [];
+        if ($sExtra) {
+            if (0 === strpos($sExtra, 'j:')) {
+                $aExtra = @json_decode($sExtra, true);
+            } else {
+                $aExtra = @unserialize($sExtra);
+            }
+            $aExtra = (array)$aExtra;
+        }
+        return $aExtra;
+    }
+
+    /**
+     * @param string $sKey
+     * @param mixed  $xVal
+     *
+     * @return EntityRecord
+     */
+    public function setPropExtra($sKey, $xVal) {
+
+        if (is_null($this->aExtra)) {
+            $this->aExtra = $this->extraUnserialize($this->getAttr('extra'));
+        }
+        $this->aExtra[$sKey] = $xVal;
+
+        return $this;
+    }
+
+    /**
+     * @param string $sKey
+     *
+     * @return null|mixed
+     */
+    public function getPropExtra($sKey) {
+
+        if (is_null($this->aExtra)) {
+            $this->aExtra = $this->extraUnserialize($this->getAttr('extra'));
+        }
+        if (isset($this->aExtra[$sKey])) {
+            return $this->aExtra[$sKey];
+        }
+        return null;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getExtra() {
+
+        if (is_null($this->aExtra)) {
+            return $this->getProp('extra');
+        }
+        return $this->extraSerialize($this->aExtra);
+    }
+
+    /**
+     * @param $sExtra
+     *
+     * @return EntityRecord
+     */
+    public function setExtra($sExtra) {
+
+        $this->setProp('extra', $sExtra);
+        return $this;
+    }
+
+    /* *** --- *** */
+
     public function clearProps() {
 
         foreach($this->_aData as $sKey => $xVal) {
-            if (substr($sKey, 0, 2) === '__') {
+            if (0 === strpos($sKey, '__')) {
                 unset($this->_aData[$sKey]);
             }
         }
@@ -131,12 +192,7 @@ abstract class EntityRecord extends \Entity {
         $sModuleClass = $this->getProp('__module_class');
         if (!$sModuleClass) {
             $aInfo = E::GetClassInfo($this, E::CI_MODULE | E::CI_PPREFIX);
-            /*
-            $sModuleClass = $aInfo[E::CI_MODULE];
-            if (!empty($aInfo[E::CI_PPREFIX])) {
-                $sModuleClass = $aInfo[E::CI_PPREFIX] . $sModuleClass;
-            }
-            */
+
             $sModuleClass = E::ModulePlugin()->GetDelegate('module', $aInfo[E::CI_MODULE]);
             if ($sModuleClass == $aInfo[E::CI_MODULE] && !empty($aInfo[E::CI_PPREFIX])) {
                 $sPluginModuleClass = $aInfo[E::CI_PPREFIX] . 'Module' . $sModuleClass;
@@ -188,6 +244,7 @@ abstract class EntityRecord extends \Entity {
         }
         return null;
     }
+
     /**
      * @return string
      */
@@ -209,7 +266,7 @@ abstract class EntityRecord extends \Entity {
             } else {
                 $this->sTableName = C::Get('db.table.prefix') . $sTable;
             }
-        } elseif ($this->sTableName[0] == '?' && $this->sTableName[0] == '_') {
+        } elseif (substr($this->sTableName, 0, 2) === '?_') {
             return C::Get('db.table.prefix') . substr($this->sTableName, 2);
         }
         return $this->sTableName;
@@ -223,7 +280,9 @@ abstract class EntityRecord extends \Entity {
     public function getPrimaryKey() {
 
         if (!$this->sPrimaryKey) {
-            if ($aIndex = $this->getModule()->getMapper()->readPrimaryIndexFromTable($this->getTableName())) {
+            /** @var array $aIndex */
+            $aIndex = $this->getModule()->getMapper()->readPrimaryIndexFromTable($this->getTableName());
+            if (is_array($aIndex)) {
                 if (count($aIndex) > 1) {
                     // Составной индекс
                     $this->sPrimaryKey = $aIndex;
@@ -240,38 +299,43 @@ abstract class EntityRecord extends \Entity {
      *
      * @return string
      */
-    public function _getPrimaryKeyValue() {
+    public function getPrimaryKeyValue() {
 
         return $this->getProp($this->_getPrimaryKey());
     }
 
     /**
-     * Новая или нет сущность
-     * Новая - еще не сохранялась в БД
+     * @param null $aKeys
      *
-     * @return bool
+     * @return array
      */
-    public function isNew() {
+    public function getAllProps($aKeys = null) {
 
-        return $this->bIsNew;
+        $aProps = parent::getAllProps($aKeys);
+        if (is_null($aKeys)) {
+            foreach($aProps as $sKey => $xVal) {
+                if (substr($sKey, 0, 2) == '__') {
+                    unset($aProps[$sKey]);
+                }
+            }
+        }
+        return $aProps;
     }
 
     /**
-     * Установка флага "новая"
+     * @param EntityCollection $oCollection
      *
-     * @param bool $bIsNew    Флаг - новая сущность или нет
+     * @return EntityRecord
      */
-    public function setNew($bIsNew) {
-
-        $this->bIsNew = $bIsNew;
-    }
-
     public function setCollection($oCollection) {
 
         $this->setProp('__collection', $oCollection);
         return $this;
     }
 
+    /**
+     * @return EntityCollection|null
+     */
     public function getCollection() {
 
         return $this->getProp('__collection');
@@ -288,47 +352,14 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
-     * Добавление сущности в БД
-     *
-     * @return Entity|false
-     */
-    public function add() {
-
-        if ($this->beforeSave()) {
-            if ($res = $this->_Method(__FUNCTION__)) {
-                $this->afterSave();
-                return $res;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Обновление сущности в БД
-     *
-     * @return Entity|false
-     */
-    public function update() {
-
-        if ($this->beforeSave()) {
-            if ($res = $this->_Method(__FUNCTION__)) {
-                $this->afterSave();
-                return $res;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Сохранение сущности в БД (если новая то создается)
      *
-     * @return Entity|false
+     * @return \Entity|false
      */
     public function save() {
 
         if ($this->beforeSave()) {
-            if ($res = $this->_Method(__FUNCTION__)) {
-                $this->setNew(false);
+            if ($res = $this->_callMethod(__FUNCTION__)) {
                 $this->afterSave();
                 return $res;
             }
@@ -339,12 +370,12 @@ abstract class EntityRecord extends \Entity {
     /**
      * Удаление сущности из БД
      *
-     * @return Entity|false
+     * @return \Entity|false
      */
     public function delete() {
 
         if ($this->beforeDelete()) {
-            if ($res = $this->_Method(__FUNCTION__)) {
+            if ($res = $this->_callMethod(__FUNCTION__)) {
                 $this->afterDelete();
                 return $res;
             }
@@ -355,22 +386,11 @@ abstract class EntityRecord extends \Entity {
     /**
      * Обновляет данные сущности из БД
      *
-     * @return Entity|false
+     * @return \Entity|false
      */
-    public function Reload() {
+    public function reload() {
 
-        return $this->_Method(__FUNCTION__);
-    }
-
-    /**
-     * Возвращает список полей сущности
-     *
-     * @return array
-     */
-    public function readColumns() {
-
-        $aColumns = $this->getMapper()->readColumnsFromTable($this->getTableName());
-        return $aColumns;
+        return $this->_callMethod(__FUNCTION__);
     }
 
     /**
@@ -410,123 +430,20 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
-     * Для сущности со связью RELATION_TREE возвращает список прямых потомков
+     * Возвращает список полей сущности
      *
      * @return array
      */
-    public function getChildren() {
+    public function readColumns() {
 
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            return $this->_Method(__FUNCTION__ . 'Of');
-        }
-        return $this->__call(__FUNCTION__, array());
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE возвращает список всех потомков
-     *
-     * @return array
-     */
-    public function getDescendants() {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            return $this->_Method(__FUNCTION__ . 'Of');
-        }
-        return $this->__call(__FUNCTION__, array());
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE возвращает предка
-     *
-     * @return Entity
-     */
-    public function getParent() {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            return $this->_Method(__FUNCTION__ . 'Of');
-        }
-        return $this->__call(__FUNCTION__, array());
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE возвращает список всех предков
-     *
-     * @return array
-     */
-    public function getAncestors() {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            return $this->_Method(__FUNCTION__ . 'Of');
-        }
-        return $this->__call(__FUNCTION__, array());
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE устанавливает потомков
-     *
-     * @param array $aChildren    Список потомков
-     *
-     * @return mixed
-     */
-    public function setChildren($aChildren = array()) {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            $this->aRelationsData['children'] = $aChildren;
+        $oMapper = $this->getMapper();
+        if ($oMapper) {
+            $aColumns = $oMapper->readColumnsFromTable($this->getTableName());
         } else {
-            $aArgs = func_get_args();
-            return $this->__call(__FUNCTION__, $aArgs);
+            $aColumns = [];
         }
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE устанавливает потомков
-     *
-     * @param array $aDescendants    Список потомков
-     *
-     * @return mixed
-     */
-    public function setDescendants($aDescendants = array()) {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            $this->aRelationsData['descendants'] = $aDescendants;
-        } else {
-            $aArgs = func_get_args();
-            return $this->__call(__FUNCTION__, $aArgs);
-        }
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE устанавливает предка
-     *
-     * @param Entity $oParent    Родитель
-     *
-     * @return mixed
-     */
-    public function setParent($oParent = null) {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            $this->aRelationsData['parent'] = $oParent;
-        } else {
-            $aArgs = func_get_args();
-            return $this->__call(__FUNCTION__, $aArgs);
-        }
-    }
-
-    /**
-     * Для сущности со связью RELATION_TREE устанавливает предков
-     *
-     * @param array $oParent    Родитель
-     *
-     * @return mixed
-     */
-    public function setAncestors($oParent = null) {
-
-        if (in_array(ArModule::RELATION_TREE, $this->aRelations)) {
-            $this->aRelationsData['ancestors'] = $oParent;
-        } else {
-            $aArgs = func_get_args();
-            return $this->__call(__FUNCTION__, $aArgs);
-        }
+        
+        return $aColumns;
     }
 
     /**
@@ -541,10 +458,13 @@ abstract class EntityRecord extends \Entity {
         $sPluginName = (!empty($aClassInfoPrim[E::CI_PLUGIN]) ? $aClassInfoPrim[E::CI_PLUGIN] : null);
 
         // * If Module not exists, try to find its root Delegator
-        $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, Engine::CI_MODULE);
-        if (empty($aClassInfo[E::CI_MODULE]) && $sRootDelegator = E::ModulePlugin()->GetRootDelegater('entity', $sClass)) {
-            $sModuleName = E::GetModuleName($sRootDelegator);
-            $sPluginName = E::GetPluginName($sRootDelegator);
+        $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, E::CI_MODULE);
+        if (empty($aClassInfo[E::CI_MODULE])) {
+            $sRootDelegator = E::ModulePlugin()->GetRootDelegater('entity', $sClass);
+            if ($sRootDelegator) {
+                $sModuleName = E::GetModuleName($sRootDelegator);
+                $sPluginName = E::GetPluginName($sRootDelegator);
+            }
         }
         if ($sPluginName) {
             $sModuleName = 'Plugin' . $sPluginName . '\\' . $sModuleName;
@@ -562,88 +482,157 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
-     * @param null $aKeys
-     *
-     * @return array
-     */
-    public function getAllProps($aKeys = null) {
-
-        $aProps = parent::getAllProps($aKeys);
-        if (is_null($aKeys)) {
-            foreach($aProps as $sKey => $xVal) {
-                if (substr($sKey, 0, 2) == '__') {
-                    unset($aProps[$sKey]);
-                }
-            }
-        }
-        return $aProps;
-    }
-
-    /**
      * Проксирует вызов методов в модуль сущности
      *
      * @param string $sName    Название метода
      *
      * @return mixed
      */
-    protected function _Method($sName) {
+    protected function _callMethod($sName) {
 
         $sModuleName = E::GetModuleName($this);
         $sEntityName = E::GetEntityName($this);
         $sPluginPrefix = E::GetPluginPrefix($this);
         $sPluginName = E::GetPluginName($this);
-        /**
-         * If Module not exists, try to find its root Delegator
-         */
-        $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, Engine::CI_MODULE);
-        if (empty($aClassInfo[E::CI_MODULE])
-            && $sRootDelegater = E::ModulePlugin()->GetRootDelegater('entity', get_class($this))
-        ) {
-            $sModuleName = E::GetModuleName($sRootDelegater);
-            $sPluginPrefix = E::GetPluginPrefix($sRootDelegater);
-            $sPluginName = E::GetPluginName($sRootDelegater);
+
+        // * If Module not exists, try to find its root Delegator
+        $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, E::CI_MODULE);
+        if (empty($aClassInfo[E::CI_MODULE])) {
+            $sRootDelegator = E::ModulePlugin()->GetRootDelegater('entity', get_class($this));
+            if ($sRootDelegator) {
+                $sModuleName = E::GetModuleName($sRootDelegator);
+                $sPluginPrefix = E::GetPluginPrefix($sRootDelegator);
+                $sPluginName = E::GetPluginName($sRootDelegator);
+            }
         }
-        //$aCallArgs = array($this);
-        //return E::GetInstance()->_CallModule("{$sPluginPrefix}{$sModuleName}_{$sName}{$sEntityName}", $aCallArgs);
+
         if ($sPluginName) {
             $sModuleName = 'Plugin' . $sPluginName . '\\' . $sModuleName;
         }
         $sMethodName = $sName . $sEntityName;
+
         return E::Module($sModuleName)->$sMethodName($this);
     }
 
     /**
-     * Устанавливает данные сущности
-     *
-     * @param array $aData    Ассоциативный массив данных сущности
+     * @param string $sName
+     * @param string $sTableField
+     * 
+     * @return EntityRecord
      */
-    public function _setData($aData) {
+    public function addAttr($sName, $sTableField) {
 
-        if (is_array($aData)) {
-            foreach ($aData as $sKey => $val) {
-                if (array_key_exists($sKey, $this->aRelations)) {
-                    $this->aRelationsData[$sKey] = $val;
-                } else {
-                    $this->_aData[$sKey] = $val;
-                }
-            }
-            $this->_aOriginalData = $this->_aData;
-        }
+        $this->aAttributes[$sName] = [
+            'type' => self::ATTR_IS_FIELD,
+            'data' => $sTableField,
+        ];
+
+        return $this;
     }
 
     /**
-     * Возвращает все данные сущности
+     * Calculate and return value of attribute
+     *
+     * @param $sAttrName
+     * @param $aAttrData
+     *
+     * @return mixed|null
+     */
+    protected function _getAttrValue($sAttrName, $aAttrData) {
+
+        $iType = (isset($aAttrData['type']) ? $aAttrData['type'] : 0);
+        $xData = (isset($aAttrData['data']) ? $aAttrData['data'] : null);
+        if ($iType && $xData) {
+            switch ($iType) {
+                case self::ATTR_IS_PROP:
+                    return $this->getProp($sAttrName);
+                case self::ATTR_IS_FIELD:
+                    return $this->getProp($xData);
+                case self::ATTR_IS_CALLABLE:
+                    return call_user_func($xData, $sAttrName, $this);
+                case self::ATTR_IS_RELATION:
+                    if ($this->hasRelBind($sAttrName)) {
+                        return $this->getRelBind($sAttrName);
+                    }
+                    /** @var $xData Relation */
+                    return $xData->getResult($this);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return array of attribute data by type
+     *
+     * @param int $iType
      *
      * @return array
      */
-    public function _getOriginalData() {
+    protected function _getAttrDataByType($iType) {
 
-        return $this->_aOriginalData;
+        $aResult = [];
+        if ($this->aAttributes) {
+            foreach($this->aAttributes as $sAttrName => $aAttrData) {
+                if (isset($aAttrData['type']) && $aAttrData['type'] === $iType) {
+                    $aResult[$sAttrName] = $aAttrData;
+                }
+            }
+        }
+        return $aResult;
     }
 
-    public function hasField($sProperty, $sTableField) {
+    /**
+     * Return value of the attribute
+     *
+     * @param $sName
+     *
+     * @return mixed|null
+     */
+    public function getAttr($sName) {
 
-        $this->aFields[$sProperty] = array('field' => $sTableField);
+        if (strpos($sName, '.')) {
+            list($sAttrName, $sLastName) = explode('.', $sName, 2);
+            $oAttr = $this->getAttr($sAttrName);
+            if (is_object($oAttr) && $oAttr instanceof EntityRecord) {
+                return $oAttr->getAttr($sLastName);
+            }
+        } elseif (isset($this->aAttributes[$sName])) {
+            return $this->_getAttrValue($sName, $this->aAttributes[$sName]);
+        }
+        return $this->getProp($sName);
+    }
+
+
+    /**
+     * Return values of all attributes
+     *
+     * @param null $aNames
+     *
+     * @return array
+     */
+    public function getAttributes($aNames = null) {
+
+        $aResult = $this->getAllProps($aNames);
+        if ($this->aAttributes) {
+            if (!is_array($aNames)) {
+                $aNames = (array)$aNames;
+            }
+            foreach($this->aAttributes as $sAttrName => $aAttrData) {
+                if (empty($aNames) || in_array($sAttrName, $aNames)) {
+                    $aResult[$sAttrName] = $this->_getAttrValue($sAttrName, $aAttrData);
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    public function getAttribute($sName) {
+
+    }
+
+    public function setAttribute($sName, $xValue) {
+
+        return $this;
     }
 
     /**
@@ -651,26 +640,41 @@ abstract class EntityRecord extends \Entity {
      *
      * @return array
      */
-    public function getFieldsInfo() {
+    public function getTableColumns() {
 
-        $aFields = $this->getProp('__fields');
-        if (is_null($aFields)) {
-            if (is_null($this->aTableFields)) {
-                $this->aTableFields = $this->readColumns();
+        $aColumns = $this->getProp('__columns');
+        if (is_null($aColumns)) {
+            if (is_null($this->aTableColumns)) {
+                $this->aTableColumns = $this->readColumns();
             }
             if (!empty($this->aFields)) {
-                $aFields = array_merge($this->aTableFields, $this->aFields);
+                $aColumns = array_merge($this->aTableColumns, $this->aFields);
             } else {
-                $aFields = $this->aTableFields;
+                $aColumns = $this->aTableColumns;
             }
-            $this->setProp('__fields', $aFields);
+            $this->setProp('__columns', $aColumns);
         }
 
-        return $aFields;
+        return $aColumns;
     }
 
     /**
-     * @param string $sField          Название поля
+     * @return array
+     */
+    public function getFields() {
+        
+        $aFields = $this->getTableColumns();
+        $aFieldAliases = $this->_getAttrDataByType(self::ATTR_IS_FIELD);
+        foreach ($aFieldAliases as $sName => $aAttr) {
+            if (!empty($aAttr['data']) && is_string($aAttr['data']) && isset($aFields[$aAttr['data']])) {
+                $aFields[$sName] = $aFields[$aAttr['data']];
+            }
+        }
+        return $aFields;
+    }
+    
+    /**
+     * @param string $sField Название поля
      *
      * @return null|string
      */
@@ -689,16 +693,8 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
-     * Возвращает список связей
-     *
-     * @return array
-     */
-    public function getRelations() {
-
-        return $this->aRelationsData;
-    }
-
-    /**
+     * Add relation
+     * 
      * @param string $sRelType
      * @param string $sField
      * @param string $sRelEntity
@@ -706,42 +702,52 @@ abstract class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function setRelation($sRelType, $sField, $sRelEntity, $aRelFields) {
+    public function addRelation($sRelType, $sField, $sRelEntity, $aRelFields) {
 
         $oRelation = new Relation($sRelType, $this, $sField, $sRelEntity, $aRelFields);
-        $this->aRelationsData[$sField] = $oRelation;
+        $this->aAttributes[$sField] = [
+            'type' => self::ATTR_IS_RELATION,
+            'data' => $oRelation,
+        ];
+
         return $oRelation;
     }
 
     /**
+     * Add relation one-to-one
+     * 
      * @param array $aRelation
      * @param array $aRelFields
      *
      * @return Relation
      */
-    public function hasRelOne($aRelation, $aRelFields = null) {
+    public function addRelOne($aRelation, $aRelFields = null) {
 
         $sRelEntity = reset($aRelation);
         $sField = key($aRelation);
 
-        return $this->setRelation(ArModule::RELATION_HAS_ONE, $sField, $sRelEntity, $aRelFields);
+        return $this->addRelation(ArModule::RELATION_HAS_ONE, $sField, $sRelEntity, $aRelFields);
     }
 
     /**
+     * Add relation one-to-many
+     * 
      * @param array $aRelation
      * @param array $aRelFields
      *
      * @return Relation
      */
-    public function hasRelMany($aRelation, $aRelFields = null) {
+    public function addRelMany($aRelation, $aRelFields = null) {
 
         $sRelEntity = reset($aRelation);
         $sField = key($aRelation);
 
-        return $this->setRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, $aRelFields);
+        return $this->addRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, $aRelFields);
     }
 
     /**
+     * Add relation many-to-many via junction table
+     * 
      * @param array $aRelation
      * @param string $sJuncTable
      * @param null $xJuncToRelation
@@ -749,7 +755,7 @@ abstract class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function hasRelManyVia($aRelation, $sJuncTable, $xJuncToRelation = null, $xJuncToMaster = null) {
+    public function addRelManyVia($aRelation, $sJuncTable, $xJuncToRelation = null, $xJuncToMaster = null) {
 
         $sRelEntity = reset($aRelation);
         $sField = key($aRelation);
@@ -768,43 +774,112 @@ abstract class EntityRecord extends \Entity {
         }
 
         return $this
-            ->setRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, array($sRelKey => $sMasterKey))
+            ->addRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, array($sRelKey => $sMasterKey))
             ->viaTable($sJuncTable, $sJuncRelKey, $sJuncMasterKey);
     }
 
     /**
+     * Add relation with aggregate function
+     *
      * @param string $sField
      * @param string $sRelEntity
-     * @param array $aRelFields
+     * @param array  $aRelFields
      *
      * @return Relation
      */
-    public function hasRelStat($sField, $sRelEntity, $aRelFields = null) {
+    public function addRelStat($sField, $sRelEntity, $aRelFields = null) {
 
         if (is_array($sField) && (is_array($sRelEntity))) {
             $aRelFields = $sRelEntity;
             $sRelEntity = reset($sField);
             $sField = key($sField);
         }
-        return $this->setRelation(ArModule::RELATION_HAS_STAT, $sField, $sRelEntity, $aRelFields);
+        return $this->addRelation(ArModule::RELATION_HAS_STAT, $sField, $sRelEntity, $aRelFields);
     }
 
-    public function isField($sKey) {
+    /**
+     * Return all relations
+     *
+     * @return array
+     */
+    public function getRelations() {
 
-        if ($this->isProp($sKey)) {
-            return self::PROP_IS_PROP;
+        return $this->_getAttrDataByType(self::ATTR_IS_RELATION);
+    }
+
+    public function getRelation($sName) {
+        
+        $aRelations = $this->getRelations();
+        if (isset($aRelations[$sName])) {
+            return $aRelations[$sName];
+        }
+        return null;
+    }
+
+    /**
+     * Bind result data to relation
+     * 
+     * @param string $sName
+     * @param mixed  $xData
+     */
+    public function setRelBind($sName, $xData) {
+        
+        if (isset($this->aAttributes[$sName]['type']) && $this->aAttributes[$sName]['type'] == self::ATTR_IS_RELATION) {
+            $this->aAttributes[$sName]['bind'] = $xData;
+        }
+    }
+
+    /**
+     * Return binding data if exists
+     * 
+     * @param string $sName
+     *
+     * @return null
+     */
+    public function getRelBind($sName) {
+
+        if ($this->hasRelBind($sName)) {
+            return $this->aAttributes[$sName]['bind'];
+        }
+        return null;
+    }
+
+    /**
+     * Check binding data
+     * 
+     * @param string $sName
+     *
+     * @return bool
+     */
+    public function hasRelBind($sName) {
+
+        if (isset($this->aAttributes[$sName]['type']) && $this->aAttributes[$sName]['type'] == self::ATTR_IS_RELATION) {
+            return array_key_exists('bind', $this->aAttributes[$sName]);
+        }
+        return false;
+    }
+    
+    /**
+     * @param string $sName
+     *
+     * @return int
+     */
+    public function hasAttribute($sName) {
+
+        if ($this->hasProp($sName)) {
+            return self::ATTR_IS_PROP;
         }
 
-        $sField = $this->getFieldName($sKey);
-        if (is_scalar($sField) && $sField != $sKey) {
-            return self::PROP_IS_FIELD;
+        $sField = $this->getFieldName($sName);
+        if (is_scalar($sField) && $sField != $sName) {
+            return self::ATTR_IS_FIELD;
         }
         if (is_callable($sField)) {
-            return self::PROP_IS_CALLABLE;
+            return self::ATTR_IS_CALLABLE;
         }
 
-        if (!empty($this->aRelationsData[$sKey])) {
-            return self::PROP_IS_RELATION;
+        if (!empty($this->aRelationsData[$sName])) {
+            return self::ATTR_IS_RELATION;
         }
 
         return 0;
@@ -818,25 +893,25 @@ abstract class EntityRecord extends \Entity {
     public function getFieldValue($xKey) {
 
         if (is_array($xKey)) {
-            $aResult = array();
+            $aResult = [];
             foreach($xKey as $sKey) {
-                $aResult[$sKey] = $this->getFieldValue($sKey);
+                $aResult[$sKey] = $this->getAttr($sKey);
             }
             return $aResult;
         }
         $sKey = (string)$xKey;
-        $iFlag = $this->isField($sKey);
-        if ($iFlag == self::PROP_IS_PROP) {
+        $iFlag = $this->hasAttribute($sKey);
+        if ($iFlag == self::ATTR_IS_PROP) {
             return $this->getProp($sKey);
-        } elseif ($iFlag == self::PROP_IS_FIELD) {
+        } elseif ($iFlag == self::ATTR_IS_FIELD) {
             $sField = $this->getFieldName($sKey);
-            if ($sField != $sKey && $this->isProp($sField)) {
+            if ($sField != $sKey && $this->hasProp($sField)) {
                 return $this->getProp($sField);
             }
-        } elseif ($iFlag == self::PROP_IS_CALLABLE) {
+        } elseif ($iFlag == self::ATTR_IS_CALLABLE) {
             $xCallback = $this->getFieldName($sKey);
             return $xCallback($this);
-        } elseif ($iFlag == self::PROP_IS_RELATION) {
+        } elseif ($iFlag == self::ATTR_IS_RELATION) {
             $sField = $this->getFieldName($sKey);
 
             /** @var Relation $oRelation */
@@ -878,70 +953,11 @@ abstract class EntityRecord extends \Entity {
         if (!strpos($sName, '_') && in_array($sType, array('get', 'set', 'reload'))) {
             $sKey = F::StrUnderscore(preg_replace('/' . $sType . '/', '', $sName, 1));
             if ($sType == 'get') {
-                return $this->getFieldValue($sKey);
-
-                if ($this->isProp($sKey)) {
-                    return $this->getProp($sKey);
-                } else {
-                    $sField = $this->getFieldName($sKey);
-                    if ($sField != $sKey && $this->isProp($sField)) {
-                        return $this->getProp($sField);
-                    }
-                }
-
-                // * Check relations
-                if (!empty($this->aRelationsData[$sKey])) {
-                    $oRelation = $this->aRelationsData[$sKey];
-                    $xRelValue = $oRelation->query();
-
-                    /*
-                    $sRelationType = $this->aRelationsData[$sKey]['type'];
-
-                    $sEntityRel = $this->aRelationsData[$sKey]['rel_entity'];
-                    $sRelKey = $this->aRelationsData[$sKey]['rel_entity_key'];
-
-                    $sProperKey = $this->aRelationsData[$sKey]['proper_key'];
-
-                    $oRelModule = E::Module($sEntityRel);
-                    $xValue = $this->getProp($sProperKey);
-                    $oBuilder = $oRelModule->find()->where([$sRelKey => $xValue]);
-
-                    switch ($sRelationType) {
-                        case Module::RELATION_HAS_ONE:
-                            $xRelValue = $oBuilder->one();
-                            break;
-                        case Module::RELATION_HAS_MANY :
-                            $xRelValue = $oBuilder->all();
-                            break;
-                        default:
-                            $xRelValue = null;
-                    }
-                    */
-                    $this->setProp($sField, $xRelValue);
-                    return $xRelValue;
-
-                    // Нужно ли учитывать дополнительный фильтр
-                    $bUseFilter = is_array($mCmdArgs) && array_key_exists(0, $aArgs) && is_array($aArgs[0]);
-                    if ($bUseFilter) {
-                        $mCmdArgs = array_merge($mCmdArgs, $aArgs[0]);
-                    }
-                    $aCallArgs = array($mCmdArgs);
-                    $res = E::GetInstance()->_CallModule($sCmd, $aCallArgs);
-
-                    // Сохраняем данные только в случае "чистой" выборки
-                    if (!$bUseFilter) {
-                        $this->aRelationsData[$sKey] = $res;
-                    }
-
-                    return $res;
-                }
-
-                return null;
+                return $this->getAttr($sKey);
             } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
                 if (array_key_exists($sKey, $this->aRelationsData)) {
                     $this->aRelationsData[$sKey] = $aArgs[0];
                 } else {
-                    //$this->_aData[$this->getFieldName($sKey)] = $aArgs[0];
                     return $this->setProp($sKey, $aArgs[0]);
                 }
             } elseif ($sType == 'reload') {
@@ -950,22 +966,10 @@ abstract class EntityRecord extends \Entity {
                     return $this->__call('get' . F::StrCamelize($sKey), $aArgs);
                 }
             }
-        } else {
-            return parent::__call($sName, $aArgs);
         }
+        return parent::__call($sName, $aArgs);
     }
 
-    /**
-     * Сбрасывает данные необходимой связи
-     *
-     * @param string $sKey    Ключ(поле) связи
-     */
-    public function resetRelationsData($sKey) {
-
-        if (isset($this->aRelationsData[$sKey])) {
-            unset($this->aRelationsData[$sKey]);
-        }
-    }
 }
 
 // EOF

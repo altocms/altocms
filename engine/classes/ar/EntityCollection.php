@@ -19,7 +19,7 @@ use \E as E, \F as F, \C as C;
 class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
 
     /** @var array  */
-    private $aItems = array();
+    private $aItems = [];
 
     /** @var array  */
     private $aKeys = null;
@@ -36,7 +36,7 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
 
         $this->iPosition = 0;
         if (func_num_args() == 0) {
-            $aItems = array();
+            $aItems = [];
         } elseif (!is_array($aItems)) {
             $aItems = array($aItems);
         }
@@ -90,7 +90,7 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
     }
 
     /**
-     *
+     * Rewind collection
      */
     public function rewind() {
 
@@ -99,6 +99,8 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
     }
 
     /**
+     * Return item from current position
+     * 
      * @return mixed
      */
     public function current() {
@@ -107,6 +109,8 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
     }
 
     /**
+     * Return key from current position
+     *
      * @return mixed
      */
     public function key() {
@@ -172,26 +176,29 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
     public function asArray($bItemsAsArray = false) {
 
         if (!$bItemsAsArray) {
-            return $this->getAItems();
+            return $this->getItems();
         }
-        $aResult = array();
+        $aResult = [];
 
         /** @var EntityRecord $oItem */
         foreach($this->aItems as $xKey => $oItem) {
-            $aResult[$xKey] = $oItem->getAllProps();
+            $aResult[$xKey] = $oItem->getAttributes();
         }
         return $aResult;
     }
 
     /**
-     * @param $sColumn
+     * @param string $sColumn
      *
      * @return mixed
      */
     public function getColumn($sColumn) {
 
-        $aResult = $this->asArray(true);
-        return \F::Array_Column($aResult, $sColumn);
+        $aResult = [];
+        foreach($this->aItems as $xKey => $oItem) {
+            $aResult[$xKey] = $oItem->getAttr($sColumn);
+        }
+        return $aResult;
     }
 
     /**
@@ -203,7 +210,8 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
     public function seekItemByKey($sKey, $xValue) {
 
         $aResult = array_filter($this->aItems, function ($oItem) use ($sKey, $xValue) {
-            return $oItem->getFieldValue($sKey) == $xValue;
+            /** @var EntityRecord $oItem */
+            return $oItem->getAttr($sKey) == $xValue;
         });
         return !empty($aResult) ? reset($aResult) : null;
     }
@@ -218,7 +226,8 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
         $xValue = reset($aParams);
         $sKey = key($aParams);
         $aResult = array_filter($this->aItems, function ($oItem) use ($sKey, $xValue) {
-            return $oItem->getFieldValue($sKey) == $xValue;
+            /** @var EntityRecord $oItem */
+            return $oItem->getAttr($sKey) == $xValue;
         });
         return !empty($aResult) ? reset($aResult) : null;
     }

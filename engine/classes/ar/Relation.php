@@ -229,14 +229,16 @@ class Relation extends Builder {
         return $this;
     }
 
-    public function getResult() {
+    public function getResult($oMasterEntity = null) {
 
-        if ($this->isProp('__result')) {
+        if ($this->hasProp('__result')) {
             return $this->getProp('__result');
         }
 
         $xResult = $this->getProp('__result');
-        $oMasterEntity = $this->getMasterEntity();
+        if (!$oMasterEntity) {
+            $oMasterEntity = $this->getMasterEntity();
+        }
         if ($oMasterEntity) {
             $oCollection = $oMasterEntity->getCollection();
             if ($oCollection) {
@@ -253,7 +255,7 @@ class Relation extends Builder {
     /**
      * @param EntityRecord $oMasterEntity
      *
-     * @return Collection|EntityRecord|null
+     * @return EntityCollection|EntityRecord|null
      */
     protected function _queryEntity($oMasterEntity) {
 
@@ -261,7 +263,7 @@ class Relation extends Builder {
         $sRelEntityKey = $this->getEntityKey();
         switch ($this->getType()) {
             case ArModule::RELATION_HAS_ONE:
-                $this->where([$sRelEntityKey => $oMasterEntity->getFieldValue($sMasterKey)]);
+                $this->where([$sRelEntityKey => $oMasterEntity->getAttr($sMasterKey)]);
                 $xRelValue = $this->one();
                 break;
             case ArModule::RELATION_HAS_MANY :
@@ -277,9 +279,9 @@ class Relation extends Builder {
                         $sJuncMasterKey = $sMasterKey;
                     }
                     $this->leftJoin($sJuncTable, array($sJuncRelKey => $sRelEntityKey));
-                    $this->where([$sJuncMasterKey => $oMasterEntity->getFieldValue($sMasterKey)]);
+                    $this->where([$sJuncMasterKey => $oMasterEntity->getAttr($sMasterKey)]);
                 } else {
-                    $this->where([$sRelEntityKey => $oMasterEntity->getFieldValue($sMasterKey)]);
+                    $this->where([$sRelEntityKey => $oMasterEntity->getAttr($sMasterKey)]);
                 }
                 if (!empty($this->aLimit)) {
                     $this->limit($this->aLimit[0], $this->aLimit[1]);
@@ -307,15 +309,16 @@ class Relation extends Builder {
 
     /**
      * @param EntityRecord     $oMasterEntity
-     * @param Collection $oCollection
+     * @param EntityCollection $oCollection
      *
-     * @return Collection|null
+     * @return EntityCollection|null
      */
     protected function _queryCollection($oMasterEntity, $oCollection) {
 
         $sMasterKey = $this->getMasterKey();
         $sMasterField = $this->getMasterField();
-        $aKeyValues = array_filter(array_unique($oCollection->getColumn($sMasterKey)));
+        //$aKeyValues = array_filter(array_unique($oCollection->getColumn($sMasterKey)));
+        $aKeyValues = array_unique($oCollection->getColumn($sMasterKey));
         $sRelKey = $this->getEntityKey();
 
         switch ($this->getType()) {
@@ -325,17 +328,19 @@ class Relation extends Builder {
                 $aResults = $this->all()->asArray();
 
                 if (count($aResults)) {
+                    /** @var EntityRecord $oEntity */
                     foreach($oCollection->asArray() as $oEntity) {
                         $oEntity->setProp($sMasterField, null);
                     }
                     foreach($aResults as $sKey => $oItem) {
+                        /** @var EntityRecord $oCollectionEntity */
                         $oCollectionEntity = $oCollection->seekItemByKey($sMasterKey, $sKey);
                         if ($oCollectionEntity && !$oCollectionEntity->getProp($sMasterField)) {
-                            $oCollectionEntity->setProp($sMasterField, $oItem);
+                            $oCollectionEntity->setRelBind($sMasterField, $oItem);
                         }
                     }
                 }
-                $xRelValue = $oMasterEntity->getProp($sMasterField);
+                $xRelValue = $oMasterEntity->getRelBind($sMasterField);
                 break;
             case ArModule::RELATION_HAS_MANY :
                 $sJuncTable = $this->getJuncTable();
@@ -355,7 +360,6 @@ class Relation extends Builder {
                     $this->addSelect($sJuncTable . '.' . $sJuncMasterKey);
                     $sSubsetKey = $sJuncMasterKey;
                 } else {
-                    //$this->where([$sRelEntityKey => $oMasterEntity->getFieldValue($sMasterKey)]);
                     $this->where([$sRelKey => $aKeyValues]);
                     $sSubsetKey = $sRelKey;
                 }
@@ -363,25 +367,28 @@ class Relation extends Builder {
                 $aResults = $this->all()->asArray();
 
                 if (count($aResults)) {
-                    $aCollections = array();
+                    $aCollections = [];
+                    /** @var EntityRecord $oItem */
                     foreach($aResults as $oItem) {
                         $aCollections[$oItem->getProp($sSubsetKey)][] = $oItem;
                     }
+                    /** @var EntityRecord $oEntity */
                     foreach($oCollection->asArray() as $oEntity) {
                         $oEntity->setProp($sMasterField, new EntityCollection());
                     }
                     foreach($aCollections as $sKey => $aSubset) {
+                        /** @var EntityRecord $oCollectionEntity */
                         $oCollectionEntity = $oCollection->seekItemByKey($sMasterKey, $sKey);
                         if ($oCollectionEntity) {
                             if (!empty($this->aLimit)) {
                                 $aSubset = array_slice($aSubset, $this->aLimit[0], $this->aLimit[1], true);
                                 $this->limit($this->aLimit[0], $this->aLimit[1]);
                             }
-                            $oCollectionEntity->setProp($sMasterField, new EntityCollection($aSubset));
+                            $oCollectionEntity->setRelBind($sMasterField, new EntityCollection($aSubset));
                         }
                     }
                 }
-                $xRelValue = $oMasterEntity->getProp($sMasterField);
+                $xRelValue = $oMasterEntity->getRelBind($sMasterField);
                 break;
             case ArModule::RELATION_HAS_STAT :
                 $xRelValue = null;
@@ -398,19 +405,21 @@ class Relation extends Builder {
                     $this->groupBy($sRelKey);
                     $aResults = $this->query();
                     if (count($aResults)) {
+                        /** @var EntityRecord $oEntity */
                         foreach($oCollection->asArray() as $oEntity) {
                             $oEntity->setProp($sMasterField, 0);
                         }
                         foreach($aResults as $aRow) {
                             $sKey = $aRow[$sRelKey];
                             $iVal = $aRow[$sColumn];
+                            /** @var EntityRecord $oCollectionEntity */
                             $oCollectionEntity = $oCollection->seekItemByKey($sMasterKey, $sKey);
                             if ($oCollectionEntity && !$oCollectionEntity->getProp($sMasterField)) {
-                                $oCollectionEntity->setProp($sMasterField, $iVal);
+                                $oCollectionEntity->setRelBind($sMasterField, $iVal);
                             }
                         }
                     }
-                    $xRelValue = $oMasterEntity->getProp($sMasterField);
+                    $xRelValue = $oMasterEntity->getRelBind($sMasterField);
                 }
                 break;
             default:

@@ -19,7 +19,7 @@ use \E as E, \F as F, \C as C;
  */
 class ArMapper extends \Mapper {
 
-    static protected $aEntityTables = array();
+    static protected $aEntityTables = [];
 
     protected $sCachePrefix = 'schema_table_';
 
@@ -57,8 +57,8 @@ class ArMapper extends \Mapper {
         $aIndexes = $this->_getCachedTableInfo($sTableName, 'indexes');
         if (false === $aIndexes) {
             $sql = "SHOW INDEX FROM " . $sTableName;
-            $aIndexes = array();
-            $aPrimary = array();
+            $aIndexes = [];
+            $aPrimary = [];
             /**
              * TODO: Унести в DbSimple, т.к. может отличаться в разных движках баз
              */
@@ -108,12 +108,12 @@ class ArMapper extends \Mapper {
         $aColumns = $this->_getCachedTableInfo($sTableName, 'columns');
         if (false === $aColumns) {
             $sql = "SHOW COLUMNS FROM " . $sTableName;
-            $aColumns = array();
+            $aColumns = [];
             /**
              * TODO: Унести в DbSimple, т.к. может отличаться в разных движках баз
              */
             if ($aRows = $this->oDb->select($sql)) {
-                $aPrimaryKey = array();
+                $aPrimaryKey = [];
                 foreach ($aRows as $aRow) {
                     $aColumns[$aRow['Field']] = array(
                         'field' => strtolower($aRow['Field']),
@@ -238,14 +238,14 @@ class ArMapper extends \Mapper {
     public function getItemsByCriteria($oBuilder) {
 
         $aRows = $this->getRowsByQuery($oBuilder);
-        $aItems = array();
+        $aItems = [];
         if ($aRows) {
+            /** @var EntityRecord $oEntity */
             $oEntity = $oBuilder->getEntity();
             foreach($aRows as $xKey => $aRow) {
                 $aItems[$xKey] = clone $oEntity;
                 $aItems[$xKey]->setProps($aRow);
-                $aItems[$xKey]->setNew(false);
-                //$aItems[$xKey]->renewRelations();
+                $aItems[$xKey]->init();
             }
         }
         return $aItems;
@@ -321,11 +321,10 @@ class ArMapper extends \Mapper {
                   $aFilter['#by_value']), array_values($aFilterFields)
         );
 
-        $aItems = array();
+        $aItems = [];
         if ($aRows = call_user_func_array(array($this->oDb, 'select'), $aQueryParams)) {
             foreach ($aRows as $aRow) {
                 $oEntity = E::GetEntity($sEntityFull, $aRow);
-                $oEntity->setNew(false);
                 $aItems[] = $oEntity;
             }
         }
@@ -367,7 +366,7 @@ class ArMapper extends \Mapper {
      */
     public function BuildFilterX($aFilter, $oEntitySample) {
 
-        $aFilterFields = array();
+        $aFilterFields = [];
         foreach ($aFilter as $k => $v) {
             if (substr($k, 0, 1) == '#' || (is_string($v) && substr($v, 0, 1) == '#')) {
 
@@ -496,7 +495,7 @@ class ArMapper extends \Mapper {
     public function getManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId, $sRelationKey) {
 
         if (!C::Get($sDbTableAlias)) {
-            return array();
+            return [];
         }
         $sql = 'SELECT ?# FROM ' . C::Get($sDbTableAlias) . ' WHERE ?# = ?d';
         return $this->oDb->selectCol($sql, $sRelationKey, $sEntityKey, $iEntityId);
@@ -526,7 +525,7 @@ class ArMapper extends \Mapper {
 
         if (count($aInsertSet)) {
             $sql = 'INSERT INTO ' . C::Get($sDbTableAlias) . ' (?#,?#) VALUES ';
-            $aParams = array();
+            $aParams = [];
             foreach ($aInsertSet as $iId) {
                 $sql .= '(?d, ?d), ';
                 $aParams[] = $iEntityId;

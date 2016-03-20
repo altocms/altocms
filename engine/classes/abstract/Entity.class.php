@@ -42,7 +42,7 @@ abstract class Entity extends LsObject {
      *
      * @var array
      */
-    protected $_aData = array();
+    protected $_aData = [];
 
     /**
      * Имя поля с первичным ключом в БД
@@ -57,7 +57,7 @@ abstract class Entity extends LsObject {
      *
      * @var array
      */
-    protected $aValidateRules = array();
+    protected $aValidateRules = [];
 
     /**
      * Список ошибок валидации в разрезе полей, например
@@ -70,7 +70,7 @@ abstract class Entity extends LsObject {
      *
      * @var array
      */
-    protected $aValidateErrors = array();
+    protected $aValidateErrors = [];
 
     /**
      * Сценарий валиадции полей
@@ -87,16 +87,20 @@ abstract class Entity extends LsObject {
      */
     protected $aMResourceTypes;
 
+    protected $aUpdated = [];
 
     /**
      * Если передать в конструктор ассоциативный массив свойств и их значений, то они автоматом загрузятся в сущность
      *
-     * @param array|null $aParam    Ассоциативный массив данных сущности
+     * @param array|null $aParams    Ассоциативный массив данных сущности
      */
-    public function __construct($aParam = null) {
+    public function __construct($aParams = null) {
 
-        $this->setProps($aParam);
-        $this->Init();
+        parent::__construct();
+        if ($aParams) {
+            $this->setProps($aParams);
+        }
+        $this->init();
     }
 
     /**
@@ -104,28 +108,60 @@ abstract class Entity extends LsObject {
      */
     public function __wakeup() {
 
-        $this->Init();
+        $this->init();
+    }
+
+    /**
+     * Получение первичного ключа сущности (ключ, а не значение!)
+     * @see _getPrimaryKeyValue
+     *
+     * @return null|string
+     */
+    public function _getPrimaryKey() {
+
+        if (!$this->sPrimaryKey) {
+            if (isset($this->_aData['id'])) {
+                $this->sPrimaryKey = 'id';
+            } else {
+                // Получение primary_key из схемы бд (пока отсутствует)
+                $this->sPrimaryKey = 'id';
+            }
+        }
+
+        return $this->sPrimaryKey;
+    }
+
+    /**
+     * Возвращает значение первичного ключа/поля
+     *
+     * @return mixed|null
+     */
+    public function _getPrimaryKeyValue() {
+
+        return $this->getProp($this->_getPrimaryKey());
     }
 
     /**
      * Метод инициализации сущности, вызывается при её создании или при восстановлении из кеша
      */
-    public function Init() {
+    public function init() {
 
-        $this->aValidateRules = array();
+        $this->aValidateRules = [];
     }
 
     /**
      * Sets property of entity
      *
-     * @param   string $sKey
-     * @param   mixed $xVal
+     * @param string $sKey
+     * @param mixed  $xVal
      *
-     * @return  object
+     * @return \Entity
      */
     public function setProp($sKey, $xVal) {
 
         $this->_aData[$sKey] = $xVal;
+        $this->aUpdated[] = $sKey;
+
         return $this;
     }
 
@@ -136,25 +172,26 @@ abstract class Entity extends LsObject {
      * @param string $sSubKey
      * @param mixed  $xVal
      *
-     * @return  object
+     * @return \Entity
      */
     public function appendProp($sKey, $sSubKey, $xVal = null) {
 
-        if (func_num_args() == 2) {
+        if (func_num_args() === 2) {
             $xVal = $sSubKey;
             $sSubKey = null;
         }
         $xData = $this->getProp($sKey);
         if (!is_null($xData) && !is_array($xData)) {
-            $this->_aData[$sKey] = array($xData);
+            $this->_aData[$sKey] = [$xData];
         } elseif (is_null($xData)) {
-            $this->_aData[$sKey] = array();
+            $this->_aData[$sKey] = [];
         }
         if (is_null($sSubKey)) {
             $this->_aData[$sKey][] = $xVal;
         } else {
             $this->_aData[$sKey][$sSubKey] = $xVal;
         }
+        $this->aUpdated[] = $sKey;
 
         return $this;
     }
@@ -162,9 +199,10 @@ abstract class Entity extends LsObject {
     /**
      * Gets property of entity
      *
-     * @param   string $sKey
-     * @param   mixed $xDefault
-     * @return  mixed|null
+     * @param  string $sKey
+     * @param  mixed $xDefault
+     *
+     * @return mixed|null
      */
     public function getProp($sKey, $xDefault = null) {
 
@@ -172,6 +210,65 @@ abstract class Entity extends LsObject {
             return $this->_aData[$sKey];
         }
         return $xDefault;
+    }
+
+    /**
+     * Returns property and convert special characters to HTML entities for
+     * a safe display on web page
+     *
+     * @param  string $sKey
+     * @param  mixed  $xDefault
+     * @param  bool   $bConvertSpecialChars
+     *
+     * @return mixed|null|string
+     */
+    public function getPropHtmlSafe($sKey, $xDefault = null, $bConvertSpecialChars = true) {
+
+        $sResult = $this->getProp($sKey, $xDefault);
+        if ($sResult && is_string($sResult) && $bConvertSpecialChars) {
+            $sResult = htmlspecialchars($sResult, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+        }
+
+        return $sResult;
+    }
+
+    /**
+     * Returns TRUE if property exists
+     *
+     * @param   string $sKey
+     * @return  bool
+     */
+    public function hasProp($sKey) {
+
+        return isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData);
+    }
+
+    /**
+     * @deprecated
+     * @param $sKey
+     *
+     * @return bool
+     */
+    public function isProp($sKey) {
+
+        return $this->hasProp($sKey);
+    }
+
+    /**
+     * Устанавливает данные сущности
+     *
+     * @param array $aData    Ассоциативный массив данных сущности
+     *
+     * @return \Entity
+     */
+    public function setProps($aData) {
+
+        if (is_array($aData) && count($aData)) {
+            foreach ($aData as $sKey => $val) {
+                $this->setProp($sKey, $val);
+            }
+        }
+        return $this;
     }
 
     /**
@@ -186,11 +283,11 @@ abstract class Entity extends LsObject {
     public function getLangSuffixProp($sKey, $sLang = null, $xDefault = null) {
 
         if (is_null($sLang)) {
-            $sLang = E::ModuleLang()->GetLang();
+            $sLang = E::ModuleLang()->getLang();
         }
         $sResult = $this->getProp($sKey . '_' . $sLang);
         if (is_null($sResult)) {
-            $sResult = $this->getProp($sKey . '_' . E::ModuleLang()->GetDefaultLang());
+            $sResult = $this->getProp($sKey . '_' . E::ModuleLang()->getDefaultLang());
             if (is_null($sResult) && !is_null($sVal = $this->getProp($sKey . '_en'))) {
                 return $sVal;
             }
@@ -206,7 +303,7 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Localize substring like {{<key>}}
+     * Localize substring like "{{<key>}}"
      *
      * @param string $sKey  - Property key
      * @param string $sLang - Language
@@ -218,8 +315,8 @@ abstract class Entity extends LsObject {
         $sResult = $this->getProp('[' . $sLang . ']' . $sKey);
         if (!$sResult) {
             $sResult = $this->getProp($sKey);
-            if (substr($sResult, 0, 2) == '{{' && substr($sResult, -2) == '}}') {
-                if (!is_null($sText = E::ModuleLang()->Get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
+            if (substr($sResult, 0, 2) === '{{' && substr($sResult, -2) === '}}') {
+                if (!is_null($sText = E::ModuleLang()->get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
                     $sResult = $sText;
                 }
             }
@@ -232,12 +329,17 @@ abstract class Entity extends LsObject {
      * Deletes property of entity
      *
      * @param   string  $sKey
+     *
+     * @return \Entity
      */
     public function delProp($sKey) {
 
         if (isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData)) {
             unset($this->_aData[$sKey]);
         }
+        $this->aUpdated[] = $sKey;
+
+        return $this;
     }
 
     /**
@@ -250,24 +352,26 @@ abstract class Entity extends LsObject {
      */
     public function getPropMask($sKey, $xMask = null) {
 
-        $nVal = intval($this->getProp($sKey));
+        $iVal = (int)$this->getProp($sKey);
         if (is_null($xMask)) {
-            return $nVal;
+            return $iVal;
         }
         if (is_string($xMask) && strcspn($xMask, '01')) {
             $xMask = bindec($xMask);
         }
-        return $nVal & $xMask;
+        return $iVal & $xMask;
     }
 
     /**
      * @param string     $sKey
      * @param int|string $xMask - integer or string mask like '01001110'
      * @param bool       $bAnd  - OR/AND operation
+     *
+     * @return \Entity
      */
     public function setPropMask($sKey, $xMask, $bAnd = false) {
 
-        $nVal = intval($this->getProp($sKey));
+        $nVal = (int)$this->getProp($sKey);
         if (is_string($xMask) && strcspn($xMask, '01')) {
             $xMask = bindec($xMask);
         }
@@ -276,23 +380,62 @@ abstract class Entity extends LsObject {
         } else {
             $this->setProp($sKey, $nVal | $xMask);
         }
+        $this->aUpdated[] = $sKey;
+
+        return $this;
     }
+
+    /**
+     * If primary key is NULL then it's new entity
+     *
+     * @return bool
+     */
+    public function isNew() {
+
+        return $this->_getPrimaryKeyValue() === null;
+    }
+
+    /**
+     * Return property which was updated
+     *
+     * @return array
+     */
+    public function getUpdated() {
+
+        if (!empty($this->aUpdated)) {
+            $aUpdated = array_unique($this->aUpdated);
+            $aUpdated = array_filter($aUpdated, function($sKey){
+                return $sKey[0] !== '_';
+            });
+            return $aUpdated;
+        }
+        return [];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUpdated() {
+
+        return (count($this->getUpdated()) === 0);
+    }
+
 
     protected function _getExpandedData($sSubKey = null) {
 
         $aData = $this->getProp(self::EXP_KEY);
         if (!is_array($aData)) {
             $aData = array(
-                self::EXP_KEY_SET => array(),
-                self::EXP_KEY_DEL => array(),
-                self::EXP_KEY_MOD => array(),
+                self::EXP_KEY_SET => [],
+                self::EXP_KEY_DEL => [],
+                self::EXP_KEY_MOD => [],
             );
         } elseif (!isset($aData[self::EXP_KEY_SET])) {
-            $aData[self::EXP_KEY_SET] = array();
+            $aData[self::EXP_KEY_SET] = [];
         } elseif (!isset($aExpanded[self::EXP_KEY_DEL])) {
-            $aData[self::EXP_KEY_DEL] = array();
+            $aData[self::EXP_KEY_DEL] = [];
         } elseif (!isset($aExpanded[self::EXP_KEY_MOD])) {
-            $aData[self::EXP_KEY_MOD] = array();
+            $aData[self::EXP_KEY_MOD] = [];
         }
         if ($sSubKey && in_array($sSubKey, array(self::EXP_KEY_SET, self::EXP_KEY_DEL, self::EXP_KEY_MOD))) {
             return $aData[$sSubKey];
@@ -353,8 +496,8 @@ abstract class Entity extends LsObject {
         $this->setProp($sKey, $xVal);
         $aData = array(
             'type' => $sType,
-            'string' => (($sType != 'text') ? $xVal : null),
-            'text' => (($sType == 'text') ? serialize($xVal) : null),
+            'string' => (($sType !== 'text') ? $xVal : null),
+            'text' => (($sType === 'text') ? serialize($xVal) : null),
         );
         $xNew = serialize($aData);
         // Добавляем в expanded-набор, получаем старое значение
@@ -383,7 +526,7 @@ abstract class Entity extends LsObject {
 
     public function _getExpandedForUpdate($bModifiedOnly = true) {
 
-        $aResult = array();
+        $aResult = [];
         if (!$bModifiedOnly) {
             $aResult = $this->_getExpandedData(self::EXP_KEY_SET);
         } else {
@@ -406,39 +549,6 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Returns TRUE if property exists
-     *
-     * @param   string $sKey
-     * @return  bool
-     */
-    public function isProp($sKey) {
-
-        return isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData);
-    }
-
-    /**
-     * LS-compatible
-     */
-    public function _setData($aData) {
-
-        $this->setProps($aData);
-    }
-
-    /**
-     * Устанавливает данные сущности
-     *
-     * @param array $aData    Ассоциативный массив данных сущности
-     */
-    public function setProps($aData) {
-
-        if (is_array($aData) && sizeof($aData)) {
-            foreach ($aData as $sKey => $val) {
-                $this->setProp($sKey, $val);
-            }
-        }
-    }
-
-    /**
      * Получает массив данных сущности
      *
      * @param array|bool $aKeys - Список полей, данные по которым необходимо вернуть,
@@ -458,7 +568,7 @@ abstract class Entity extends LsObject {
         } else {
             $bRecursively = false;
         }
-        $aReturn = array();
+        $aReturn = [];
         foreach ($aKeys as $sKey) {
             if (!$bRecursively) {
                 $aReturn[$sKey] = $this->getProp($sKey);
@@ -495,35 +605,11 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * LS-compatible
-     */
-    public function _getData($aKeys = array()) {
-
-        return $this->getAllProps($aKeys);
-    }
-
-    /**
-     * LS-compatible
-     */
-    public function _getDataOne($sKey) {
-
-        return $this->getProp($sKey);
-    }
-
-    /**
-     * LS-compatible
-     */
-    public function _getDataArray() {
-
-        return $this->getAllProps(true);
-    }
-
-    /**
      * @return string
      */
     public function getEntityName() {
 
-        $aInfo = E::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
+        $aInfo = E::getInstance()->getClassInfo($this, Engine::CI_ENTITY);
         if (isset($aInfo[Engine::CI_ENTITY])) {
             return $aInfo[Engine::CI_ENTITY];
         }
@@ -537,26 +623,27 @@ abstract class Entity extends LsObject {
      *
      * @param string $sName Имя метода
      * @param array $aArgs Аргументы
+     *
      * @return mixed
      */
     public function __call($sName, $aArgs) {
 
         if (!strpos($sName, '_')) {
             $sType = strtolower(substr($sName, 0, 3));
-            if (($sType == 'get' || $sType == 'set')) {
+            if (($sType === 'get' || $sType === 'set')) {
                 $sKey = F::StrUnderscore(substr($sName, 3));
-                if ($sType == 'get') {
-                    if ($this->isProp($sKey)) {
+                if ($sType === 'get') {
+                    if ($this->hasProp($sKey)) {
                         return $this->getProp($sKey);
                     } else {
                         if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
                             $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
-                            if ($this->isProp($sModulePrefix . $sKey)) {
+                            if ($this->hasProp($sModulePrefix . $sKey)) {
                                 return $this->getProp($sModulePrefix . $sKey);
                             }
                         }
                     }
-                } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
+                } elseif ($sType === 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
                     $this->setProp($sKey, $aArgs[0]);
                 }
                 return null;
@@ -568,36 +655,6 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Получение первичного ключа сущности (ключ, а не значение!)
-     * @see _getPrimaryKeyValue
-     *
-     * @return null|string
-     */
-    public function _getPrimaryKey() {
-
-        if (!$this->sPrimaryKey) {
-            if (isset($this->_aData['id'])) {
-                $this->sPrimaryKey = 'id';
-            } else {
-                // Получение primary_key из схемы бд (пока отсутствует)
-                $this->sPrimaryKey = 'id';
-            }
-        }
-
-        return $this->sPrimaryKey;
-    }
-
-    /**
-     * Возвращает значение первичного ключа/поля
-     *
-     * @return mixed|null
-     */
-    public function _getPrimaryKeyValue() {
-
-        return $this->getProp($this->_getPrimaryKey());
-    }
-
-    /**
      * Выполняет валидацию данных сущности
      * Если $aFields=null, то выполняется валидация по всем полям из $this->aValidateRules, иначе по пересечению
      *
@@ -606,7 +663,7 @@ abstract class Entity extends LsObject {
      *
      * @return bool
      */
-    public function _Validate($aFields = null, $bClearErrors = true) {
+    public function _validate($aFields = null, $bClearErrors = true) {
 
         if ($bClearErrors) {
             $this->_clearValidateErrors();
@@ -628,7 +685,7 @@ abstract class Entity extends LsObject {
 
         $aValidators = $this->_createValidators();
 
-        $aValidatorsReturn = array();
+        $aValidatorsReturn = [];
         $sScenario = $this->_getValidateScenario();
 
         /** @var ModuleValidate_EntityValidator $oValidator */
@@ -652,7 +709,7 @@ abstract class Entity extends LsObject {
      */
     public function _createValidators() {
 
-        $aValidators = array();
+        $aValidators = [];
         foreach ($this->aValidateRules as $aRule) {
             if (isset($aRule[0], $aRule[1])) {
                 $aValidators[] = E::ModuleValidate()->CreateValidator($aRule[1], $this, $aRule[0], array_slice($aRule, 2));
@@ -673,7 +730,7 @@ abstract class Entity extends LsObject {
     public function _hasValidateErrors($sField = null) {
 
         if ($sField === null) {
-            return $this->aValidateErrors !== array();
+            return $this->aValidateErrors !== [];
         } else {
             return isset($this->aValidateErrors[$sField]);
         }
@@ -691,7 +748,7 @@ abstract class Entity extends LsObject {
         if ($sField === null) {
             return $this->aValidateErrors;
         } else {
-            return isset($this->aValidateErrors[$sField]) ? $this->aValidateErrors[$sField] : array();
+            return isset($this->aValidateErrors[$sField]) ? $this->aValidateErrors[$sField] : [];
         }
     }
 
@@ -733,7 +790,7 @@ abstract class Entity extends LsObject {
     public function _clearValidateErrors($sField = null) {
 
         if ($sField === null) {
-            $this->aValidateErrors = array();
+            $this->aValidateErrors = [];
         } else {
             unset($this->aValidateErrors[$sField]);
         }
@@ -770,12 +827,12 @@ abstract class Entity extends LsObject {
      * @param   string $sPrefix
      * @return  array
      */
-    public function ToArray($aMethods = null, $sPrefix = '') {
+    public function toArray($aMethods = null, $sPrefix = '') {
 
         if (!is_array($aMethods)) {
             $aMethods = get_class_methods($this);
         }
-        $aEntity = array();
+        $aEntity = [];
         foreach ($aMethods as $sMethod) {
             if (!preg_match('#^get([a-z][a-z\d]*)$#i', $sMethod, $aMatch)) {
                 continue;
@@ -789,15 +846,15 @@ abstract class Entity extends LsObject {
 
     public function setExpanded($sName, $sValue, $sType = 'string') {
 
-        if ($sType == 'number' && is_scalar($sValue)) {
+        if ($sType === 'number' && is_scalar($sValue)) {
             if (filter_var($sValue, FILTER_VALIDATE_FLOAT)) {
-                $sValue = floatval($sValue);
+                $sValue = (float)$sValue;
             } else {
-                $sValue = intval($sValue);
+                $sValue = (int)$sValue;
             }
-        } elseif ($sType == 'string' && is_scalar($sValue)) {
+        } elseif ($sType === 'string' && is_scalar($sValue)) {
             $sValue = (string)$sValue;
-            if (sizeof($sValue) > self::EXP_STR_MAX) {
+            if (count($sValue) > self::EXP_STR_MAX) {
                 $sValue = substr($sValue, 0, self::EXP_STR_MAX);
             }
         } else {
@@ -815,16 +872,17 @@ abstract class Entity extends LsObject {
      * Проверяет массив правил. В качестве правил может быть задана колбэк-функция
      * или указан метод владельца сущности, который должен быть реализован заранее
      *
-     * @param $aRules
-     * @param bool $bConcatenateResult
-     * @param bool $sOwnerClassName
+     * @param array $aRules
+     * @param bool  $bConcatenateResult
+     * @param bool  $sOwnerClassName
+     *
      * @return bool
      */
     public function checkCustomRules($aRules, $bConcatenateResult = FALSE, $sOwnerClassName = FALSE) {
 
         // Ключ кэша
         $sCacheKey = md5(serialize($aRules) . (string)$bConcatenateResult . (string)$sOwnerClassName);
-        if (!(FALSE === ($data = E::ModuleCache()->GetTmp($sCacheKey)))) {
+        if (!(FALSE === ($data = E::ModuleCache()->getTmp($sCacheKey)))) {
             return $data;
         }
 
@@ -849,7 +907,7 @@ abstract class Entity extends LsObject {
         }
 
         if (!$sOwnerClassName) {
-            $aOwnerClassName = E::getInstance()->GetClassInfo($this, Engine::CI_MODULE);
+            $aOwnerClassName = E::getInstance()->getClassInfo($this, Engine::CI_MODULE);
             $sOwnerClassName = reset($aOwnerClassName);
         }
 
@@ -894,14 +952,14 @@ abstract class Entity extends LsObject {
 
             /**
              * Передан вызов функции, например
-             * $xRule = array('compare_action' => array('index'))
+             * $xRule = ['compare_action' => array('index')])
              */
             $sTmpMethodName = FALSE;
             $aTmpMethodParams = FALSE;
             // Метод передан строкой
             if (is_int($sMethodName) && is_string($xRule)) {
                 $sTmpMethodName = $xRule;
-                $aTmpMethodParams = array();
+                $aTmpMethodParams = [];
             }
             // Метод передан массивом
             if (is_string($sMethodName) && is_array($xRule)) {
@@ -947,7 +1005,7 @@ abstract class Entity extends LsObject {
      */
     protected function _getDefaultMediaTypes() {
 
-        return array();
+        return [];
     }
 
     /**
@@ -975,7 +1033,7 @@ abstract class Entity extends LsObject {
     public function addMediaTypes($sMediaType) {
 
         if (is_null($this->aMResourceTypes)) {
-            $this->aMResourceTypes = array();
+            $this->aMResourceTypes = [];
         }
         $this->aMResourceTypes = (string)$sMediaType;
     }
@@ -1000,11 +1058,11 @@ abstract class Entity extends LsObject {
     public function setMediaResources($sType, $data) {
 
         if (!is_array($data)) {
-            $data = array($data);
+            $data = [$data];
         }
         $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
         if (is_null($aMedia)) {
-            $aMedia = array();
+            $aMedia = [];
         }
         $aMedia[$sType] = $data;
         $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
@@ -1017,8 +1075,8 @@ abstract class Entity extends LsObject {
      */
     public function getMediaResources($sType = null) {
 
-        $iEntityId = intval($this->getId());
-        $aResult = array();
+        $iEntityId = (int)$this->getId();
+        $aResult = [];
         if ($iEntityId) {
             $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
             if (is_null($aMedia) && ($sType || $this->getMediaTypes())) {
@@ -1027,8 +1085,8 @@ abstract class Entity extends LsObject {
                 if ($sType && !in_array($sType, $aTargetTypes)) {
                     $aTargetTypes[] = $sType;
                 }
-                $aImages = E::ModuleUploader()->GetTargetImages($aTargetTypes, $iEntityId);
-                $aMedia = array_fill_keys($aTargetTypes, array());
+                $aImages = E::ModuleUploader()->getTargetImages($aTargetTypes, $iEntityId);
+                $aMedia = array_fill_keys($aTargetTypes, []);
                 /** @var ModuleMresource_EntityMresourceRel $oImage */
                 foreach($aImages as $oImage) {
                     $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
@@ -1040,11 +1098,11 @@ abstract class Entity extends LsObject {
                     $aResult = $aMedia;
                 }
             } elseif ($sType && !array_key_exists($sType, $aMedia)) {
-                $aImages = E::ModuleUploader()->GetTargetImages($sType, $iEntityId);
+                $aImages = E::ModuleUploader()->getTargetImages($sType, $iEntityId);
                 if (!empty($aImages)) {
                     $aMedia[$sType] = $aImages;
                 } else {
-                    $aMedia[$sType] = array();
+                    $aMedia[$sType] = [];
                 }
                 $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
                 $aResult = $aMedia[$sType];
@@ -1057,6 +1115,38 @@ abstract class Entity extends LsObject {
             }
         }
         return $aResult;
+    }
+
+    /**
+     * LS-compatible
+     */
+    public function _setData($aData) {
+
+        $this->setProps($aData);
+    }
+
+    /**
+     * LS-compatible
+     */
+    public function _getData($aKeys = []) {
+
+        return $this->getAllProps($aKeys);
+    }
+
+    /**
+     * LS-compatible
+     */
+    public function _getDataOne($sKey) {
+
+        return $this->getProp($sKey);
+    }
+
+    /**
+     * LS-compatible
+     */
+    public function _getDataArray() {
+
+        return $this->getAllProps(true);
     }
 
 }
