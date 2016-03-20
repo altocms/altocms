@@ -425,8 +425,10 @@ class Builder extends Query {
         $aResult = $this->_execQuery();
 
         if (!empty($aResult)) {
+            /** @var EntityRecord $oEntity */
             $oEntity = reset($aResult);
             $this->_resolveRelations($oEntity);
+            $oEntity->setRecordStatus(ArModule::RECORD_STATUS_SAVED);
             return $oEntity;
         }
         return null;
@@ -462,11 +464,15 @@ class Builder extends Query {
         if ($aResult) {
             $sIndexKey = $this->getProp('index_by');
             if (!$sIndexKey) {
-                $oCollection->setItems($aResult);
+                $oCollection->setItems($aResult, function($oItem){
+                    /** @var EntityRecord $oItem */
+                    $oItem->setRecordStatus(ArModule::RECORD_STATUS_SAVED);
+                });
             } else {
                 /** @var EntityRecord $oItem */
                 foreach($aResult as $oItem) {
                     $xIndex = $oItem->getAttr($sIndexKey);
+                    $oItem->setRecordStatus(ArModule::RECORD_STATUS_SAVED);
                     $oCollection[$xIndex] = $oItem;
                 }
             }

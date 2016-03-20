@@ -22,6 +22,7 @@
  * @method bool MethodExists($sMethodName)
  */
 abstract class Module extends LsObject {
+    
     const STATUS_INIT_BEFORE = 1;
     const STATUS_INIT = 2;
     const STATUS_DONE_BEFORE = 3;

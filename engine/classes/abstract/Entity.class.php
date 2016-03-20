@@ -413,6 +413,8 @@ abstract class Entity extends LsObject {
     }
 
     /**
+     * Whether the record was updated
+     * 
      * @return bool
      */
     public function isUpdated() {
@@ -420,6 +422,13 @@ abstract class Entity extends LsObject {
         return (count($this->getUpdated()) === 0);
     }
 
+    /**
+     * Clear list of updated properties
+     */
+    public function resetUpdated() {
+
+        $this->aUpdated = [];
+    }
 
     protected function _getExpandedData($sSubKey = null) {
 

@@ -147,13 +147,23 @@ class EntityCollection implements \ArrayAccess, \Iterator, \Countable {
     }
 
     /**
-     * @param $aItems
+     * @param array    $aItems
+     * @param callable $Callback
      */
-    public function setItems($aItems) {
+    public function setItems($aItems, $Callback = null) {
 
-        foreach($aItems as $xItem) {
-            if ($xItem instanceof EntityRecord) {
-                $xItem->setCollection($this);
+        if (is_callable($Callback)) {
+            foreach($aItems as $xItem) {
+                $Callback($xItem);
+                if ($xItem instanceof EntityRecord) {
+                    $xItem->setCollection($this);
+                }
+            }
+        } else {
+            foreach($aItems as $xItem) {
+                if ($xItem instanceof EntityRecord) {
+                    $xItem->setCollection($this);
+                }
             }
         }
         $this->aItems = $aItems;

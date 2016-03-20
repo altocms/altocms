@@ -24,11 +24,13 @@ abstract class EntityRecord extends \Entity {
     const ATTR_IS_CALLABLE = 3;
     const ATTR_IS_RELATION = 4;
 
-    protected $aExtra;
-
-    protected $sPrimaryKey;
-
     protected $sTableName;
+
+    protected $xPrimaryKey;
+
+    protected $iRecordStatus = 0;
+    
+    protected $aExtra;
 
     /**
      * Список полей таблицы сущности
@@ -175,6 +177,20 @@ abstract class EntityRecord extends \Entity {
 
     /* *** --- *** */
 
+    public function isNew() {
+        
+        return $this->iRecordStatus === ArModule::RECORD_STATUS_NEW;
+    }
+    
+    public function setRecordStatus($iStatus) {
+        
+        $this->iRecordStatus = (int)$iStatus;
+        if ($this->iRecordStatus === ArModule::RECORD_STATUS_SAVED) {
+            $this->resetUpdated();
+        }
+        return $this;
+    }
+    
     public function clearProps() {
 
         foreach($this->_aData as $sKey => $xVal) {
@@ -246,6 +262,17 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
+     * @param $sTableName
+     *
+     * @return EntityRecord
+     */
+    public function setTableName($sTableName) {
+
+        $this->sTableName = $sTableName;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getTableName() {
@@ -297,11 +324,29 @@ abstract class EntityRecord extends \Entity {
     /**
      * Получение значения primary key
      *
-     * @return string
+     * @param bool $bAsArray
+     *
+     * @return mixed
      */
-    public function getPrimaryKeyValue() {
+    public function getPrimaryKeyValue($bAsArray = false) {
 
-        return $this->getProp($this->_getPrimaryKey());
+        $xResult = null;
+        $aPrimaryKey = $this->getPrimaryKey();
+        if (is_array($aPrimaryKey)) {
+            foreach($aPrimaryKey as $sKey) {
+                $xResult[$sKey] = $this->getProp($sKey);
+            }
+            if (!$bAsArray) {
+                $xResult = array_values($xResult);
+            }
+        } else {
+            if ($bAsArray) {
+                $xResult = [$aPrimaryKey => $this->getProp($this->getPrimaryKey())];
+            } else {
+                $xResult = $this->getProp($this->getPrimaryKey());
+            }
+        }
+        return $xResult;
     }
 
     /**
@@ -352,16 +397,17 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
-     * Сохранение сущности в БД (если новая то создается)
+     * Сохранение сущности в БД (если новая, то создается)
      *
-     * @return \Entity|false
+     * @return EntityRecord|false
      */
     public function save() {
 
         if ($this->beforeSave()) {
-            if ($res = $this->_callMethod(__FUNCTION__)) {
+            $oModule = $this->getModule();
+            if ($xResult = $oModule->save($this)) {
                 $this->afterSave();
-                return $res;
+                return $xResult;
             }
         }
         return false;
@@ -370,27 +416,18 @@ abstract class EntityRecord extends \Entity {
     /**
      * Удаление сущности из БД
      *
-     * @return \Entity|false
+     * @return EntityRecord|false
      */
     public function delete() {
 
         if ($this->beforeDelete()) {
-            if ($res = $this->_callMethod(__FUNCTION__)) {
+            $oModule = $this->getModule();
+            if ($xResult = $oModule->delete($this)) {
                 $this->afterDelete();
-                return $res;
+                return $xResult;
             }
         }
         return false;
-    }
-
-    /**
-     * Обновляет данные сущности из БД
-     *
-     * @return \Entity|false
-     */
-    public function reload() {
-
-        return $this->_callMethod(__FUNCTION__);
     }
 
     /**
@@ -488,7 +525,7 @@ abstract class EntityRecord extends \Entity {
      *
      * @return mixed
      */
-    protected function _callMethod($sName) {
+    protected function _callMethod($sMethodName) {
 
         $sModuleName = E::GetModuleName($this);
         $sEntityName = E::GetEntityName($this);
@@ -509,7 +546,7 @@ abstract class EntityRecord extends \Entity {
         if ($sPluginName) {
             $sModuleName = 'Plugin' . $sPluginName . '\\' . $sModuleName;
         }
-        $sMethodName = $sName . $sEntityName;
+        //$sMethodName = $sName . $sEntityName;
 
         return E::Module($sModuleName)->$sMethodName($this);
     }
@@ -630,7 +667,26 @@ abstract class EntityRecord extends \Entity {
 
     }
 
-    public function setAttribute($sName, $xValue) {
+    public function setAttr($sName, $xValue) {
+
+        $iType = (isset($this->aAttributes[$sName]['type']) ? $this->aAttributes[$sName]['type'] : 0);
+        $xData = (isset($this->aAttributes[$sName]['data']) ? $this->aAttributes[$sName]['data'] : null);
+        if ($iType) {
+            switch ($iType) {
+                case self::ATTR_IS_PROP:
+                    return $this->setProp($sName, $xValue);
+                case self::ATTR_IS_FIELD:
+                    if ($xData && is_string($xData)) {
+                        return $this->setProp($xData, $xValue);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            // may be exception?
+        } else {
+            $this->setProp($sName, $xValue);
+        }
 
         return $this;
     }
@@ -870,16 +926,8 @@ abstract class EntityRecord extends \Entity {
             return self::ATTR_IS_PROP;
         }
 
-        $sField = $this->getFieldName($sName);
-        if (is_scalar($sField) && $sField != $sName) {
-            return self::ATTR_IS_FIELD;
-        }
-        if (is_callable($sField)) {
-            return self::ATTR_IS_CALLABLE;
-        }
-
-        if (!empty($this->aRelationsData[$sName])) {
-            return self::ATTR_IS_RELATION;
+        if (isset($this->aAttributes[$sName]['type'])) {
+            return $this->aAttributes[$sName]['type'];
         }
 
         return 0;
@@ -922,6 +970,16 @@ abstract class EntityRecord extends \Entity {
             return $xValue;
         }
         return null;
+    }
+
+    public function getInsertData() {
+        
+        return $this->getAllProps();
+    }
+
+    public function getUpdateData() {
+
+        return $this->getAllProps();
     }
 
     public function __clone() {

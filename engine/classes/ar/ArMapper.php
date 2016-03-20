@@ -138,18 +138,22 @@ class ArMapper extends \Mapper {
     }
 
     /**
-     * Добавление сущности в БД
+     * Insert entity into DB
      *
      * @param EntityRecord $oEntity    Объект сущности
      *
-     * @return int|bool    Если есть primary индекс с автоинкрементом, то возвращает его для новой записи
+     * @return int    Если есть primary индекс с автоинкрементом, то возвращает его для новой записи
      */
-    public function addEntity($oEntity) {
+    public function insertEntity($oEntity) {
 
-        $sTableName = static::GetTableName($oEntity);
+        $sTableName = $this->oDb->escape(static::GetTableName($oEntity), true);
+        $aFields = $oEntity->getInsertData();
+        $aNames = array_keys($aFields);
+        $aValues = array_values($aFields);
 
         $sql = "INSERT INTO " . $sTableName . " (?#) VALUES (?a)";
-        return $this->oDb->query($sql, $oEntity->getKeyProps(), $oEntity->getValProps());
+
+        return $this->oDb->query($sql, $aNames, $aValues);
     }
 
     /**
@@ -161,34 +165,18 @@ class ArMapper extends \Mapper {
      */
     public function updateEntity($oEntity) {
 
-        $sTableName = static::GetTableName($oEntity);
+        $sTableName = $this->oDb->escape(static::GetTableName($oEntity), true);
+        $aFields = $oEntity->getUpdateData();
 
-        if ($aPrimaryKey = $oEntity->_getPrimaryKey()) {
-            // Возможен составной ключ
-            if (!is_array($aPrimaryKey)) {
-                $aPrimaryKey = array($aPrimaryKey);
-            }
-            $sWhere = ' 1 = 1 ';
-            foreach ($aPrimaryKey as $sField) {
-                $sWhere .= ' and ' . $this->oDb->escape($sField, true) . " = "
-                    . $this->oDb->escape($oEntity->getProp($sField));
-            }
-            $sql = "UPDATE " . $sTableName . " SET ?a WHERE {$sWhere}";
-            return $this->oDb->query($sql, $oEntity->getAllProps());
-        } else {
-            $aOriginalData = $oEntity->_getOriginalData();
-            $sWhere = implode(
-                ' AND ', array_map(
-                    create_function(
-                        '$k,$v,$oDb',
-                        'return "{$oDb->escape($k,true)} = {$oDb->escape($v)}";'
-                    ), array_keys($aOriginalData), array_values($aOriginalData),
-                    array_fill(0, count($aOriginalData), $this->oDb)
-                )
-            );
-            $sql = "UPDATE " . $sTableName . " SET ?a WHERE 1=1 AND " . $sWhere;
-            return $this->oDb->query($sql, $oEntity->getAllProps());
+        $aPrimaryKey = $oEntity->getPrimaryKeyValue(true);
+        // Возможен составной ключ
+        $sWhere = ' (1 = 1) ';
+        foreach ($aPrimaryKey as $sField => $xValue) {
+            $sWhere .= " AND (" . $this->oDb->escape($sField, true) . " = " . $this->oDb->escape($xValue) . ")";
         }
+        $sql = "UPDATE " . $sTableName . " SET ?a WHERE {$sWhere} LIMIT 1";
+
+        return $this->oDb->query($sql, $aFields);
     }
 
     /**
@@ -200,35 +188,17 @@ class ArMapper extends \Mapper {
      */
     public function deleteEntity($oEntity) {
 
-        $sTableName = static::GetTableName($oEntity);
+        $sTableName = $this->oDb->escape(static::GetTableName($oEntity), true);
 
-        if ($aPrimaryKey = $oEntity->_getPrimaryKey()) {
-            // Возможен составной ключ
-            if (!is_array($aPrimaryKey)) {
-                $aPrimaryKey = array($aPrimaryKey);
-            }
-            $sWhere = ' 1 = 1 ';
-            foreach ($aPrimaryKey as $sField) {
-                $sWhere .= ' and ' . $this->oDb->escape($sField, true) . " = " . $this->oDb->escape(
-                    $oEntity->getProp($sField)
-                );
-            }
-            $sql = "DELETE FROM " . $sTableName . " WHERE {$sWhere}";
-            return $this->oDb->query($sql);
-        } else {
-            $aOriginalData = $oEntity->_getOriginalData();
-            $sWhere = implode(
-                ' AND ', array_map(
-                    create_function(
-                        '$k,$v,$oDb',
-                        'return "{$oDb->escape($k,true)} = {$oDb->escape($v)}";'
-                    ), array_keys($aOriginalData), array_values($aOriginalData),
-                    array_fill(0, count($aOriginalData), $this->oDb)
-                )
-            );
-            $sql = "DELETE FROM " . $sTableName . " WHERE 1=1 AND " . $sWhere;
-            return $this->oDb->query($sql);
+        $aPrimaryKey = $oEntity->getPrimaryKeyValue(true);
+        // Возможен составной ключ
+        $sWhere = ' (1 = 1) ';
+        foreach ($aPrimaryKey as $sField => $xValue) {
+            $sWhere .= " AND (" . $this->oDb->escape($sField, true) . " = " . $this->oDb->escape($xValue) . ")";
         }
+        $sql = "DELETE FROM " . $sTableName . " WHERE {$sWhere} LIMIT 1";
+
+        return $this->oDb->query($sql);
     }
 
     /**
@@ -473,13 +443,19 @@ class ArMapper extends \Mapper {
          *    prefix_user -> если модуль совпадает с сущностью
          *    prefix_user_invite -> если модуль не сопадает с сущностью
          */
-        $sClass = E::ModulePlugin()->GetDelegater(
-            'entity', is_object($oEntity) ? get_class($oEntity) : $oEntity
-        );
-        if (empty(static::$aEntityTables[$sClass])) {
-            static::$aEntityTables[$sClass] = $sClass::tableName();
+        if (is_object($oEntity)) {
+            $sTableName = $oEntity->getTableName();
+        } else {
+            $sClass = E::ModulePlugin()->GetDelegater(
+                'entity', is_object($oEntity) ? get_class($oEntity) : $oEntity
+            );
+            if (empty(static::$aEntityTables[$sClass])) {
+                static::$aEntityTables[$sClass] = $sClass::tableName();
+            }
+            $sTableName = static::$aEntityTables[$sClass];
         }
-        return static::$aEntityTables[$sClass];
+
+        return $sTableName;
     }
 
     /**
