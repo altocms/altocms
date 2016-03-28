@@ -402,7 +402,8 @@ class Builder extends Query {
      */
     public function one($xPrimaryKeyValue = null) {
 
-        if (!is_null($xPrimaryKeyValue) && ($oEntity = $this->getEntity())) {
+        $oEntity = $this->getEntity();
+        if (!is_null($xPrimaryKeyValue) && $oEntity) {
             $sPrimaryKey = $oEntity->getPrimaryKey();
             if ($sPrimaryKey) {
                 if (is_array($sPrimaryKey) && is_array($xPrimaryKeyValue)) {
@@ -420,6 +421,16 @@ class Builder extends Query {
                 // Err: primary key not found
             }
         }
+
+        $aRelations = $oEntity->getRelations();
+        if ($aRelations) {
+            foreach($aRelations as $sRelName => $oRelation) {
+                if (!$oRelation->getProp('lazy')) {
+                    $this->width($sRelName);
+                }
+            }
+        }
+
         $this->limit(0, 1);
 
         $aResult = $this->_execQuery();

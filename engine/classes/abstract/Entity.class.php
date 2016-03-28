@@ -558,43 +558,43 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Получает массив данных сущности
+     * Получает массив свойств сущности
      *
-     * @param array|bool $aKeys - Список полей, данные по которым необходимо вернуть,
-     *                            если не передан, то возвращаются все данные.
-     *                            Если true - рекурсивное преобразование в массив
+     * @param array|bool $aKeys - Список свойств, которые необходимо вернуть,
+     *                            если не передан, то возвращаются все свойства
      * @return array
      */
     public function getAllProps($aKeys = null) {
 
-        if (is_null($aKeys) || (is_array($aKeys) && !count($aKeys))) {
+        if (empty($aKeys)) {
             return $this->_aData;
         }
 
-        if (is_bool($aKeys)) {
-            $aKeys = array_keys($this->_aData);
-            $bRecursively = (bool)$aKeys;
-        } else {
-            $bRecursively = false;
-        }
         $aReturn = [];
         foreach ($aKeys as $sKey) {
-            if (!$bRecursively) {
-                $aReturn[$sKey] = $this->getProp($sKey);
-            } else {
-                $xValue = $this->getProp($sKey);
-                if (is_object($xValue) && $xValue instanceOf Entity) {
-                    $aResult[$sKey] = $xValue->getAllProps($bRecursively);
-                } else {
-                    $aResult[$sKey] = $xValue;
-                }
-            }
+            $aReturn[$sKey] = $this->getProp($sKey);
         }
         return $aReturn;
     }
 
     /**
-     * Returns all keys of entity properies
+     * @param array|null $aKeys
+     *
+     * @return array
+     */
+    public function asArray($aKeys = null) {
+        
+        $aProps = $this->getAllProps($aKeys);
+        foreach($aProps as $sKey => $xVal) {
+            if (is_object($xVal) && ($xVal instanceOf Entity)) {
+                $aResult[$sKey] = $xVal->asArray();
+            }
+        }
+        return $aProps;
+    }
+    
+    /**
+     * Returns all keys of entity properties
      *
      * @return array
      */
@@ -604,7 +604,7 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Returns all values of entity properies as simple (non-associative) array
+     * Returns all values of entity properties as simple (non-associative) array
      *
      * @return array
      */
@@ -1155,7 +1155,7 @@ abstract class Entity extends LsObject {
      */
     public function _getDataArray() {
 
-        return $this->getAllProps(true);
+        return $this->asArray();
     }
 
 }

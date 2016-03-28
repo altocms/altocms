@@ -152,7 +152,8 @@ class AltoFunc_Array {
     /**
      * Рекурсивный вариант array_keys
      *
-     * @param  array $aData     Массив
+     * @param array  $aData      Массив
+     * @param string $sDelimiter Разделитель
      *
      * @return array
      */
@@ -177,9 +178,9 @@ class AltoFunc_Array {
     /**
      * Преобразует строку в массив
      *
-     * @param   string|array    $sStr
-     * @param   string          $sSeparator
-     * @param   bool            $bSkipEmpty
+     * @param   string|array $sStr
+     * @param   string       $sSeparator
+     * @param   bool         $bSkipEmpty
      *
      * @return  array
      */
@@ -354,6 +355,25 @@ class AltoFunc_Array {
             $aArray = & $aResult;
         }
         return $aArray;
+    }
+
+    /**
+     * Returns pair [key => value] as array [key, value]
+     * It's usefull to extract key and value to separate variables:
+     * list($xKey, $xValue) = F::Array_Pair($aArray);
+     *
+     * @param $aData
+     *
+     * @return array
+     */
+    static public function Pair($aData) {
+
+        if (is_array($aData) || ($aData instanceof ArrayObject)) {
+            $xVal = reset($aData);
+            $xKey = key($aData);
+            return [$xKey, $xVal];
+        }
+        return [null, null];
     }
 
     /**

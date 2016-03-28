@@ -9,6 +9,7 @@
  */
 
 namespace alto\engine\ar;
+use Alto\GithubApi\Entity;
 use \E as E, \F as F, \C as C;
 
 /**
@@ -17,12 +18,15 @@ use \E as E, \F as F, \C as C;
  * @package engine.ar
  * @since   1.2
  */
-abstract class EntityRecord extends \Entity {
+class EntityRecord extends \Entity {
 
     const ATTR_IS_PROP     = 1;
     const ATTR_IS_FIELD    = 2;
     const ATTR_IS_CALLABLE = 3;
     const ATTR_IS_RELATION = 4;
+
+    /** @var array Attributes definition */
+    protected $aAttributes = [];
 
     protected $sTableName;
 
@@ -38,8 +42,6 @@ abstract class EntityRecord extends \Entity {
      * @var array
      */
     protected $aTableColumns = null;
-
-    protected $aAttributes = [];
 
     static protected $oInstance;
 
@@ -177,11 +179,19 @@ abstract class EntityRecord extends \Entity {
 
     /* *** --- *** */
 
+    /**
+     * @return bool
+     */
     public function isNew() {
         
         return $this->iRecordStatus === ArModule::RECORD_STATUS_NEW;
     }
-    
+
+    /**
+     * @param int $iStatus
+     *
+     * @return EntityRecord
+     */
     public function setRecordStatus($iStatus) {
         
         $this->iRecordStatus = (int)$iStatus;
@@ -190,14 +200,18 @@ abstract class EntityRecord extends \Entity {
         }
         return $this;
     }
-    
-    public function clearProps() {
+
+    /**
+     * @return EntityRecord
+     */
+    public function clearTmpProps() {
 
         foreach($this->_aData as $sKey => $xVal) {
             if (0 === strpos($sKey, '__')) {
                 unset($this->_aData[$sKey]);
             }
         }
+        return $this;
     }
 
     /**
@@ -347,24 +361,6 @@ abstract class EntityRecord extends \Entity {
             }
         }
         return $xResult;
-    }
-
-    /**
-     * @param null $aKeys
-     *
-     * @return array
-     */
-    public function getAllProps($aKeys = null) {
-
-        $aProps = parent::getAllProps($aKeys);
-        if (is_null($aKeys)) {
-            foreach($aProps as $sKey => $xVal) {
-                if (substr($sKey, 0, 2) == '__') {
-                    unset($aProps[$sKey]);
-                }
-            }
-        }
-        return $aProps;
     }
 
     /**
@@ -552,17 +548,115 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
-     * @param string $sName
-     * @param string $sTableField
-     * 
+     * Define attributes
+     *
+     * @param string $sKey
+     * @param int    $iType
+     * @param mixed  $xData
+     *
      * @return EntityRecord
      */
-    public function addAttr($sName, $sTableField) {
+    protected function _defineAttr($sKey, $iType, $xData) {
 
-        $this->aAttributes[$sName] = [
-            'type' => self::ATTR_IS_FIELD,
-            'data' => $sTableField,
+        $this->aAttributes[$sKey] = [
+            'type' => $iType,
+            'data' => $xData,
         ];
+        if ($iType === self::ATTR_IS_PROP) {
+            $this->setProp($sKey, $xData);
+        }
+        return $this;
+    }
+
+    /**
+     * Define attribute as simple data
+     *
+     * @param string     $sName
+     * @param null|mixed $xDefault
+     *
+     * @return EntityRecord
+     */
+    public function defineProp($sName, $xDefault = null) {
+
+        return $this->_defineAttr($sName, self::ATTR_IS_PROP, $xDefault);
+    }
+
+    /**
+     * Define attribute as field alias
+     *
+     * @param string $sName
+     * @param string $sFieldName
+     *
+     * @return EntityRecord
+     */
+    public function defineAttrField($sName, $sFieldName) {
+
+        return $this->_defineAttr($sName, self::ATTR_IS_FIELD, $sFieldName);
+    }
+
+    /**
+     * Define attribute as field alias
+     *
+     * @param string $sName
+     * @param string $sFieldName
+     *
+     * @return EntityRecord
+     */
+    public function defineField($sName, $sFieldName) {
+
+        return $this->defineAttrField($sName, $sFieldName);
+    }
+
+    /**
+     * Define attribute as callback function
+     *
+     * @param string   $sName
+     * @param callable $xCallback
+     *
+     * @return EntityRecord
+     */
+    public function defineAttrFunc($sName, callable $xCallback) {
+
+        return $this->_defineAttr($sName, self::ATTR_IS_CALLABLE, $xCallback);
+    }
+
+    /**
+     * Define attribute as relation
+     *
+     * @param string   $sName
+     * @param Relation $oRelation
+     *
+     * @return EntityRecord
+     */
+    public function defineAttrRelation($sName, $oRelation) {
+
+        return $this->_defineAttr($sName, self::ATTR_IS_RELATION, $oRelation);
+    }
+
+
+    /**
+     * @param string|array $xTable
+     * @param array        $aFields
+     *
+     * @return EntityRecord
+     */
+    public function addFieldsFrom($xTable, $aFields) {
+
+        if (is_string($xTable)) {
+            $sTable = $xTable;
+            if (substr($sTable, 0, 2) === '?_') {
+                $sAlias = substr($sTable, 2);
+            } else {
+                $sAlias = $sTable;
+            }
+        } else {
+            list($sTable, $sAlias) = F::Array_Pair($xTable);
+        }
+        $oRelEntity = new self();
+        $oRelEntity->setTableName($sTable);
+        
+        $oRelation = $this->addRelation(ArModule::RELATION_HAS_ONE, $sAlias, $oRelEntity, $aFields);
+        $oRelation->setLazy(false);
 
         return $this;
     }
@@ -570,8 +664,8 @@ abstract class EntityRecord extends \Entity {
     /**
      * Calculate and return value of attribute
      *
-     * @param $sAttrName
-     * @param $aAttrData
+     * @param string $sAttrName
+     * @param array  $aAttrData
      *
      * @return mixed|null
      */
@@ -629,33 +723,37 @@ abstract class EntityRecord extends \Entity {
 
         if (strpos($sName, '.')) {
             list($sAttrName, $sLastName) = explode('.', $sName, 2);
-            $oAttr = $this->getAttr($sAttrName);
-            if (is_object($oAttr) && $oAttr instanceof EntityRecord) {
-                return $oAttr->getAttr($sLastName);
+            $xData = $this->getAttr($sAttrName);
+            if (is_object($xData) && $xData instanceof EntityRecord) {
+                return $xData->getAttr($sLastName);
             }
         } elseif (isset($this->aAttributes[$sName])) {
             return $this->_getAttrValue($sName, $this->aAttributes[$sName]);
         }
-        return $this->getProp($sName);
+        return parent::getProp($sName);
     }
 
-
     /**
-     * Return values of all attributes
-     *
-     * @param null $aNames
+     * Return array of property values
+     * 
+     * @param array|null $aKeys
+     * @param bool       $bSkipTmp
      *
      * @return array
      */
-    public function getAttributes($aNames = null) {
+    protected function _getAttrValues($aKeys = null, $bSkipTmp = false) {
 
-        $aResult = $this->getAllProps($aNames);
+        if (is_null($aKeys) && $bSkipTmp) {
+            $aResult = $this->getProps();
+        } else {
+            $aResult = parent::getAllProps($aKeys);
+        }
         if ($this->aAttributes) {
-            if (!is_array($aNames)) {
-                $aNames = (array)$aNames;
+            if (!is_array($aKeys)) {
+                $aKeys = (array)$aKeys;
             }
             foreach($this->aAttributes as $sAttrName => $aAttrData) {
-                if (empty($aNames) || in_array($sAttrName, $aNames)) {
+                if (empty($aKeys) || in_array($sAttrName, $aKeys)) {
                     $aResult[$sAttrName] = $this->_getAttrValue($sAttrName, $aAttrData);
                 }
             }
@@ -663,10 +761,38 @@ abstract class EntityRecord extends \Entity {
         return $aResult;
     }
 
-    public function getAttribute($sName) {
+    public function getProps($aKeys = null) {
 
+        $aResult = parent::getAllProps($aKeys);
+        if (is_null($aKeys)) {
+            foreach($aResult as $sKey => $xVal) {
+                if (substr($sKey, 0, 2) == '__') {
+                    unset($aResult[$sKey]);
+                }
+            }
+        }
+
+        return $aResult;
     }
 
+    /**
+     * Return values of all attributes
+     *
+     * @param null $aKeys
+     *
+     * @return array
+     */
+    public function getAttributes($aKeys = null) {
+
+        return $this->_getAttrValues($aKeys, true);
+    }
+
+    /**
+     * @param string $sName
+     * @param mixed  $xValue
+     *
+     * @return EntityRecord|\Entity
+     */
     public function setAttr($sName, $xValue) {
 
         $iType = (isset($this->aAttributes[$sName]['type']) ? $this->aAttributes[$sName]['type'] : 0);
@@ -683,9 +809,8 @@ abstract class EntityRecord extends \Entity {
                 default:
                     break;
             }
-            // may be exception?
         } else {
-            $this->setProp($sName, $xValue);
+            parent::setProp($sName, $xValue);
         }
 
         return $this;
@@ -715,18 +840,31 @@ abstract class EntityRecord extends \Entity {
     }
 
     /**
+     * @param bool $bWithValues
+     *
      * @return array
      */
-    public function getFields() {
+    public function getFields($bWithValues = false) {
         
         $aFields = $this->getTableColumns();
-        $aFieldAliases = $this->_getAttrDataByType(self::ATTR_IS_FIELD);
+        /*
+        $aFieldAliases = $this->_getPropDataByType(self::ATTR_IS_FIELD);
         foreach ($aFieldAliases as $sName => $aAttr) {
             if (!empty($aAttr['data']) && is_string($aAttr['data']) && isset($aFields[$aAttr['data']])) {
                 $aFields[$sName] = $aFields[$aAttr['data']];
             }
         }
-        return $aFields;
+        */
+        $aNames = array_keys($aFields);
+        if (!$bWithValues) {
+            return array_keys($aNames);
+        }
+        $aResult = [];
+        foreach($aNames as $sName) {
+            $aResult[$sName] = $this->getAttr($sName);
+        }
+
+        return $aResult;
     }
     
     /**
@@ -860,7 +998,16 @@ abstract class EntityRecord extends \Entity {
      */
     public function getRelations() {
 
-        return $this->_getAttrDataByType(self::ATTR_IS_RELATION);
+        $aResult = [];
+        $aData = $this->_getAttrDataByType(self::ATTR_IS_RELATION);
+        if ($aData) {
+            foreach($aData as $sAttrName => $aAttrData) {
+                if (!empty($aAttrData['data']) && $aAttrData['data'] instanceof Relation) {
+                    $aResult[$sAttrName] = $aAttrData['data'];
+                }
+            }
+        }
+        return $aResult;
     }
 
     public function getRelation($sName) {
@@ -972,28 +1119,24 @@ abstract class EntityRecord extends \Entity {
         return null;
     }
 
+    /**
+     * @return array
+     */
     public function getInsertData() {
         
-        return $this->getAllProps();
-    }
-
-    public function getUpdateData() {
-
-        return $this->getAllProps();
-    }
-
-    public function __clone() {
-
-        $this->clearProps();
-        if (!empty($this->aRelationsData)) {
-            foreach($this->aRelationsData as $sKey => $oRelation) {
-                $this->aRelationsData[$sKey] = clone $oRelation;
-                $this->aRelationsData[$sKey]->setMasterEntity($this);
-            }
-        }
+        return $this->getFields(true);
     }
 
     /**
+     * @return array
+     */
+    public function getUpdateData() {
+
+        return $this->getFields(true);
+    }
+
+    /**
+     * LS-compatible
      * Ставим хук на вызов неизвестного метода и считаем что хотели вызвать метод какого либо модуля
      * Также производит обработку методов set* и get*
      * Учитывает связи и может возвращать связанные данные
@@ -1011,18 +1154,9 @@ abstract class EntityRecord extends \Entity {
         if (!strpos($sName, '_') && in_array($sType, array('get', 'set', 'reload'))) {
             $sKey = F::StrUnderscore(preg_replace('/' . $sType . '/', '', $sName, 1));
             if ($sType == 'get') {
-                return $this->getAttr($sKey);
+                return $this->getProp($sKey);
             } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
-                if (array_key_exists($sKey, $this->aRelationsData)) {
-                    $this->aRelationsData[$sKey] = $aArgs[0];
-                } else {
-                    return $this->setProp($sKey, $aArgs[0]);
-                }
-            } elseif ($sType == 'reload') {
-                if (array_key_exists($sKey, $this->aRelationsData)) {
-                    unset($this->aRelationsData[$sKey]);
-                    return $this->__call('get' . F::StrCamelize($sKey), $aArgs);
-                }
+                return $this->setProp($sKey, $aArgs[0]);
             }
         }
         return parent::__call($sName, $aArgs);
