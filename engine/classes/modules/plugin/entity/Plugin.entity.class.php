@@ -13,8 +13,9 @@
  *
  * @method bool GetIsActive()
  *
- * @method SetNum($iParam)
- * @method SetIsActive($bParam)
+ * @method setNum($iParam)
+ *
+ * @method int getNum()
  */
 class ModulePlugin_EntityPlugin extends Entity {
 
@@ -28,6 +29,7 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function __construct($aParams = false) {
 
+        parent::__construct();
         if (!is_array($aParams)) {
             // передан ID плагина
             $aParams = array(
@@ -38,14 +40,14 @@ class ModulePlugin_EntityPlugin extends Entity {
         $this->setProps($aParams);
 
         if(empty($aParams['manifest']) && !empty($aParams['id'])) {
-            $aParams['manifest'] = E::ModulePlugin()->GetPluginManifestFile($aParams['id']);
+            $aParams['manifest'] = E::ModulePlugin()->getPluginManifestFile($aParams['id']);
         }
         if(!empty($aParams['manifest'])) {
             $this->LoadFromXmlFile($aParams['manifest'], $aParams);
         }
-        $this->Init();
-        if (!$this->GetNum()) {
-            $this->SetNum(-1);
+        $this->init();
+        if (!$this->getNum()) {
+            $this->setNum(-1);
         }
     }
 
@@ -57,8 +59,8 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function LoadFromXmlFile($sPluginXmlFile, $aData = null) {
 
-        $sPluginXmlString = E::ModulePlugin()->GetPluginManifestFrom($sPluginXmlFile);
-        $this->LoadFromXml($sPluginXmlString, $aData);
+        $sPluginXmlString = E::ModulePlugin()->getPluginManifestFrom($sPluginXmlFile);
+        $this->loadFromXml($sPluginXmlString, $aData);
     }
 
     /**
@@ -67,7 +69,7 @@ class ModulePlugin_EntityPlugin extends Entity {
      * @param string $sPluginXmlString
      * @param array  $aData
      */
-    public function LoadFromXml($sPluginXmlString, $aData = null) {
+    public function loadFromXml($sPluginXmlString, $aData = null) {
 
         if ($this->oXml = @simplexml_load_string($sPluginXmlString)) {
             if (is_null($aData)) {
@@ -137,6 +139,11 @@ class ModulePlugin_EntityPlugin extends Entity {
         }
     }
 
+    /**
+     * @param null|string $sProp
+     *
+     * @return array
+     */
     protected function _getXmlProperty($sProp = null) {
 
         if (is_null($sProp)) {
@@ -146,11 +153,16 @@ class ModulePlugin_EntityPlugin extends Entity {
         }
     }
 
+    /**
+     * @param string $sName
+     *
+     * @return string
+     */
     protected function _getXmlLangProperty($sName) {
 
         $sResult = $this->getProp($sName);
         if (is_null($sResult)) {
-            $aLangs = E::ModuleLang()->GetLangAliases(true);
+            $aLangs = E::ModuleLang()->getLangAliases(true);
             $this->_xlang($this->oXml, $sName, $aLangs);
             $xProp = $this->_getXmlProperty($sName);
             if ($xProp->data) {
@@ -166,13 +178,13 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @param bool $bEncode
      *
-     * @return mixed|null
+     * @return string
      */
-    public function GetId($bEncode = false) {
+    public function getId($bEncode = false) {
 
         $sResult = $this->getProp('id');
         if ($bEncode) {
-            $sResult = E::ModulePlugin()->EncodeId($sResult);
+            $sResult = E::ModulePlugin()->encodeId($sResult);
         }
 
         return $sResult;
@@ -181,7 +193,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string|null
      */
-    public function GetManifestFile() {
+    public function getManifestFile() {
 
         return $this->getProp('manifest');
     }
@@ -189,7 +201,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetName() {
+    public function getName() {
 
         return $this->_getXmlLangProperty('name');
     }
@@ -197,7 +209,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetDescription() {
+    public function getDescription() {
 
         return $this->_getXmlLangProperty('description');
     }
@@ -205,7 +217,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetAuthor() {
+    public function getAuthor() {
 
         return $this->_getXmlLangProperty('author');
     }
@@ -213,18 +225,18 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetPluginClass() {
+    public function getPluginClass() {
 
-        return Plugin::GetPluginClass($this->GetId());
+        return Plugin::GetPluginClass($this->getId());
     }
 
     /**
      * @return null|string
      */
-    public function GetPluginClassFile() {
+    public function getPluginClassFile() {
 
-        $sManifest = $this->GetManifestFile();
-        $sClassName = $this->GetPluginClass();
+        $sManifest = $this->getManifestFile();
+        $sClassName = $this->getPluginClass();
         if ($sManifest && $sClassName) {
             return dirname($sManifest) . '/' . $sClassName . '.class.php';
         }
@@ -234,22 +246,22 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetAdminClass() {
+    public function getAdminClass() {
 
         $aAdminPanel = $this->getProp('adminpanel');
         if (isset($aAdminPanel['class']))
             return $aAdminPanel['class'];
         else {
-            return 'Plugin' . ucfirst($this->GetId()) . '_ActionAdmin';
+            return 'Plugin' . ucfirst($this->getId()) . '_ActionAdmin';
         }
     }
 
     /**
      * @return bool
      */
-    public function HasAdminpanel() {
+    public function hasAdminpanel() {
 
-        $sClass = $this->GetAdminClass();
+        $sClass = $this->getAdminClass();
         try {
             if (class_exists($sClass, true)) {
                 return true;
@@ -263,11 +275,11 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return array|bool
      */
-    public function GetAdminMenuEvents() {
+    public function getAdminMenuEvents() {
 
-        if ($this->IsActive()) {
+        if ($this->isActive()) {
             $aEvents = array();
-            $sPluginClass = $this->GetPluginClass();
+            $sPluginClass = $this->getPluginClass();
             $aProps = (array)(new $sPluginClass);
             if (isset($aProps['aAdmin']) && is_array($aProps['aAdmin']) && isset($aProps['aAdmin']['menu'])) {
                 foreach ((array)$aProps['aAdmin']['menu'] as $sEvent => $sClass) {
@@ -288,7 +300,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetVersion() {
+    public function getVersion() {
 
         return (string)$this->_getXmlProperty('version');
     }
@@ -296,7 +308,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetHomepage() {
+    public function getHomepage() {
 
         $sResult = $this->getProp('homepage');
         if (is_null($sResult)) {
@@ -309,7 +321,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetSettings() {
+    public function getSettings() {
 
         $sResult = $this->getProp('settings');
         if (is_null($sResult)) {
@@ -322,24 +334,33 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function GetDirname() {
+    public function getDirname() {
 
         $sResult = (string)$this->_getXmlProperty('dirname');
-        return $sResult ? $sResult : $this->GetId();
+        return $sResult ? $sResult : $this->getId();
     }
 
     /**
      * @return string
      */
-    public function GetEmail() {
+    public function getEmail() {
 
         return (string)$this->_getXmlProperty('author')->email;
     }
 
     /**
+     * @param $bFlag
+     *
+     * @return Entity
+     */
+    public function setActive($bFlag) {
+
+        return $this->setProp('is_active', (bool)$bFlag);
+    }
+    /**
      * @return bool
      */
-    public function IsActive() {
+    public function isActive() {
 
         return (bool)$this->getProp('is_active');
     }
@@ -349,13 +370,13 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function isTop() {
 
-        return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
+        return ($sVal = $this->getPriority()) && strtolower($sVal) == 'top';
     }
 
     /**
      * @return array
      */
-    public function Requires() {
+    public function requires() {
 
         return $this->_getXmlProperty('requires');
     }
@@ -363,9 +384,9 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function RequiredAltoVersion() {
+    public function requiredAltoVersion() {
 
-        $oRequires = $this->Requires();
+        $oRequires = $this->requires();
         $sAltoVersion = (string)$oRequires->alto->version;
         if (!$sAltoVersion) {
             $sAltoVersion = (string)$oRequires->alto;
@@ -376,9 +397,9 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return string
      */
-    public function RequiredPhpVersion() {
+    public function requiredPhpVersion() {
 
-        $oRequires = $this->Requires();
+        $oRequires = $this->requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
         }
@@ -388,9 +409,9 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return array|SimpleXmlElement
      */
-    public function RequiredPlugins() {
+    public function requiredPlugins() {
 
-        $oRequires = $this->Requires();
+        $oRequires = $this->requires();
         if ($oRequires->plugins) {
             return $oRequires->plugins->children();
         }
@@ -400,9 +421,9 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * @return bool
      */
-    public function EngineCompatible() {
+    public function engineCompatible() {
 
-        $oRequires = $this->Requires();
+        $oRequires = $this->requires();
 
         $sLsVersion = (string)$oRequires->livestreet;
         $sAltoVersion = (string)$oRequires->alto->version;
