@@ -23,6 +23,8 @@ class Decorator extends LsObject {
     protected $sName;
     protected $bHookEnable = true;
     protected $sHookPrefix;
+    
+    /** @var  object Decorated component */
     protected $oComponent;
 
     /** @var  ModuleHook */
@@ -238,7 +240,7 @@ class Decorator extends LsObject {
             return $oComponent;
         }
         if (DEBUG) {
-            $sDecoratorClassName = 'Decorator' . $sClassName;
+            $sDecoratorClassName = 'DecoratorOf_' . str_replace('\\', '_', $sClassName);
             $sDecoratorClassCode = 'class ' . $sDecoratorClassName . ' extends Decorator { }';
             eval($sDecoratorClassCode);
             $oComponentDecorator = new $sDecoratorClassName($oComponent);

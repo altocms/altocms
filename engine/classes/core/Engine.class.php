@@ -82,102 +82,54 @@ F::IncludeFile('../abstract/Mapper.class.php');
  */
 class Engine extends LsObject {
 
-    /**
-     * Имя плагина
-     * @var int
-     */
+    // Plugin name
     const CI_PLUGIN = 1;
 
-    /**
-     * Имя экшна
-     * @var int
-     */
+    // Action name
     const CI_ACTION = 2;
 
-    /**
-     * Имя модуля
-     * @var int
-     */
+    // Module name
     const CI_MODULE = 4;
 
-    /**
-     * Имя сущности
-     * @var int
-     */
+    // Entity name
     const CI_ENTITY = 8;
 
-    /**
-     * Имя маппера
-     * @var int
-     */
+    // Mapper name
     const CI_MAPPER = 16;
 
-    /**
-     * Имя метода
-     * @var int
-     */
+    // Method name
     const CI_METHOD = 32;
 
-    /**
-     * Имя хука
-     * @var int
-     */
+    // Hook name
     const CI_HOOK = 64;
 
-    /**
-     * Имя класс наследования
-     * @var int
-     */
+    // Inherit class name
     const CI_INHERIT = 128;
 
-    /**
-     * Имя блока
-     * @var int
-     */
+    // LS-compatible
     const CI_BLOCK = 256;
 
-    /**
-     * Имя виджета
-     * @var int
-     */
+    // Widget name
     const CI_WIDGET = 512;
 
-    /**
-     * Префикс плагина
-     * @var int
-     */
+    // Plugin prefix
     const CI_PPREFIX = 8192;
 
-    /**
-     * Разобранный класс наследования
-     * @var int
-     */
+    // Inherit classes
     const CI_INHERITS = 16384;
 
-    /**
-     * Путь к файлу класса
-     * @var int
-     */
+    // Path to file of class
     const CI_CLASSPATH = 32768;
 
-    /**
-     * Все свойства класса
-     * @var int
-     */
+    // All properties
     const CI_ALL = 65535;
 
-    /**
-     * Свойства по-умолчанию
-     * CI_ALL ^ (CI_CLASSPATH | CI_INHERITS | CI_PPREFIX)
-     * @var int
-     */
+    // Default properies set^ CI_ALL ^ (CI_CLASSPATH | CI_INHERITS | CI_PPREFIX)
     const CI_DEFAULT = 8191;
 
-    /**
-     * Объекты
-     * CI_ACTION | CI_MAPPER | CI_HOOK | CI_PLUGIN | CI_ACTION | CI_MODULE | CI_ENTITY | CI_BLOCK | CI_WIDGET
-     * @var int
-     */
+    // Any component: CI_ACTION | CI_MAPPER | CI_HOOK | CI_PLUGIN | CI_ACTION | CI_MODULE | CI_ENTITY | CI_BLOCK | CI_WIDGET
+    const CI_COMPONENTS = 863;
+    // Old alias of CI_COMPONENTS
     const CI_OBJECT = 863;
 
     const CI_AREA_ENGINE = 1;
@@ -369,7 +321,7 @@ class Engine extends LsObject {
             throw new Exception('Recursive initialization of module "' . get_class($oModule) . '"');
         }
         $oModule->SetInit(true);
-        $oModule->Init();
+        $oModule->init();
         $oModule->SetInit();
     }
 
@@ -383,8 +335,7 @@ class Engine extends LsObject {
     public function isInitModule($sModuleClass) {
 
         if ($sModuleClass !== 'ModulePlugin' && $sModuleClass !== 'ModuleHook') {
-            //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
-            $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
+            $sModuleClass = $this->GetModule('Plugin')->getLastOf('module', $sModuleClass);
         }
         if (isset($this->aModules[$sModuleClass]) && $this->aModules[$sModuleClass]->isInit()) {
             return true;
@@ -474,8 +425,7 @@ class Engine extends LsObject {
             foreach ($aAutoloadModules as $sModuleName) {
                 $sModuleClass = 'Module' . $sModuleName;
                 if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                    //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
-                    $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
+                    $sModuleClass = $this->GetModule('Plugin')->getLastOf('module', $sModuleClass);
                 }
 
                 if (!isset($this->aModules[$sModuleClass])) {
@@ -581,7 +531,7 @@ class Engine extends LsObject {
 
         /** @var Plugin $oPlugin */
         foreach ($this->aPlugins as $oPlugin) {
-            $oPlugin->Init();
+            $oPlugin->init();
         }
     }
 
@@ -675,8 +625,7 @@ class Engine extends LsObject {
 
             // * Получаем делегат модуля (в случае наличия такового)
             if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
-                $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
+                $sModuleClass = $this->GetModule('Plugin')->getLastOf('module', $sModuleClass);
             }
             $this->aModulesMap[$sCallName] = array($sModuleClass, $sModuleName, $sMethod);
         }
@@ -693,24 +642,32 @@ class Engine extends LsObject {
     /**
      * Возвращает объект модуля
      *
-     * @param string $sModuleName Имя модуля
+     * @param string $sModule Имя модуля
      *
      * @return object|null
      * @throws Exception
      */
-    public function GetModule($sModuleName) {
+    public function GetModule($sModule) {
+
+        if (isset($this->aModules[$sModule])) {
+            return $this->aModules[$sModule];
+        }
 
         // $sCallName === 'User' or $sCallName === 'ModuleUser' or $sCallName === 'PluginUser\User' or $sCallName === 'PluginUser\ModuleUser'
-        $sPrefix = substr($sModuleName, 0, 6);
-        if ($sPrefix === 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+        $sPrefix = substr($sModule, 0, 6);
+        if ($sPrefix === 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModule, $aMatches)) {
             $sModuleName = $aMatches[2];
-        } elseif ($sPrefix === 'Plugin' && preg_match('/^Plugin([A-Z][\w]*)\\\\(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+        } elseif ($sPrefix === 'Plugin' && preg_match('/^Plugin([A-Z][\w]*)\\\\(Module)?([A-Z].*)$/', $sModule, $aMatches)) {
             $sModuleName = 'Plugin' . $aMatches[1] . '_Module' . $aMatches[3];
+        } else {
+            $sModuleName = $sModule;
         }
         if ($sModuleName) {
             $aData = $this->GetModuleMethod($sModuleName);
+            $oModule = $aData[0];
+            $this->aModules[$sModule] = $oModule->setInstanceName($sModuleName);
 
-            return $aData[0];
+            return $oModule;
         }
         return null;
     }
@@ -785,7 +742,7 @@ class Engine extends LsObject {
             if (!$oConnect) {
                 $oConnect = static::Module('Database')->GetConnect();
             }
-            $sClass = static::Module('Plugin')->GetDelegate('mapper', $sClass);
+            $sClass = static::Module('Plugin')->getLastOf('mapper', $sClass);
             return new $sClass($oConnect);
         }
         return null;
@@ -877,7 +834,7 @@ class Engine extends LsObject {
              */
             //$sClass = static::getInstance()->Plugin_GetDelegate('entity', $sClass);
             if ($sClass !== 'ModulePlugin_EntityPlugin') {
-                $sClass = static::Module('Plugin')->GetDelegate('entity', $sClass);
+                $sClass = static::Module('Plugin')->getLastOf('entity', $sClass);
             }
 
             self::$aClasses[$sName] = $sClass;
@@ -902,9 +859,12 @@ class Engine extends LsObject {
     public static function GetEntity($sName, $aParams = array()) {
 
         $sClass = static::GetEntityClass($sName);
+        if ($sClass === 'ModuleModule_EntityEntity') {
+            $s=1;
+        }
         /** @var Entity $oEntity */
         $oEntity = new $sClass($aParams);
-        $oEntity->Init();
+        $oEntity->init();
 
         return $oEntity;
     }
@@ -928,7 +888,7 @@ class Engine extends LsObject {
                     if (isset($aRows[$iIndex])) {
                         /** @var Entity $oEntity */
                         $oEntity = new $sClass($aRows[$iIndex]);
-                        $oEntity->Init();
+                        $oEntity->init();
                         $aResult[$iIndex] = $oEntity;
                     }
                 }
@@ -936,7 +896,7 @@ class Engine extends LsObject {
                 foreach ($aRows as $nI => $aRow) {
                     /** @var Entity $oEntity */
                     $oEntity = new $sClass($aRow);
-                    $oEntity->Init();
+                    $oEntity->init();
                     $aResult[$nI] = $oEntity;
                 }
             }
