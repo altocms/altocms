@@ -34,6 +34,9 @@ abstract class Module extends LsObject {
     /** @var bool Признак предзагрузки */
     protected $bPreloaded = false;
 
+    /** @var  string Instance name */
+    protected $sInstanceName;
+
     final public function __construct() {
 
     }
@@ -98,6 +101,26 @@ abstract class Module extends LsObject {
             }
         }
         return null;
+    }
+
+    /**
+     * @param $sInstanceName
+     *
+     * @return $this
+     */
+    public function setInstanceName($sInstanceName) {
+
+        $this->sInstanceName = $sInstanceName;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInstanceName() {
+
+        return $this->sInstanceName;
     }
 
     /**

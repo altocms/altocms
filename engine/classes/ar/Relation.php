@@ -21,15 +21,18 @@ use \E as E, \F as F, \C as C;
  * @method setMasterKey(string $sParam)
  * @method setEntityKey(string $sParam)
  * @method setLazy(bool $bParam)
- * @method setJuncTable($sTable);
- * @method setJuncRelKey($sKeyToRelation);
- * @method setJuncMasterKey($sKeyToMaster);
+ * @method setJuncTable(string $sTable);
+ * @method setJuncRelKey(string $sKeyToRelation);
+ * @method setJuncMasterKey(string $sKeyToMaster);
  *
  * @method string getType()
  * @method string getMasterField()
  * @method string getMasterKey()
  * @method string getEntityKey()
  * @method bool   getLazy()
+ * @method string getJuncTable()
+ * @method string getJuncRelKey()
+ * @method string getJuncMasterKey()
  */
 class Relation extends Builder {
 
@@ -39,6 +42,15 @@ class Relation extends Builder {
 
     protected $sStatField;
 
+    /**
+     * Relation constructor.
+     *
+     * @param $sRelType
+     * @param $xEntity
+     * @param $sField
+     * @param $sRelEntity
+     * @param $aRelFields
+     */
     public function __construct($sRelType, $xEntity, $sField, $sRelEntity, $aRelFields) {
 
         parent::__construct(null);
@@ -76,8 +88,8 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sName
-     * @param $sField
+     * @param string $sName
+     * @param string $sField
      *
      * @return Relation
      */
@@ -100,7 +112,7 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sField
+     * @param string $sField
      *
      * @return Relation
      */
@@ -110,7 +122,7 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sField
+     * @param string $sField
      *
      * @return Relation
      */
@@ -120,7 +132,7 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sField
+     * @param string $sField
      *
      * @return Relation
      */
@@ -130,7 +142,7 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sField
+     * @param string $sField
      *
      * @return Relation
      */
@@ -140,7 +152,7 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sField
+     * @param string $sField
      *
      * @return Relation
      */
@@ -150,9 +162,9 @@ class Relation extends Builder {
     }
 
     /**
-     * @param $sTable
-     * @param $sKeyToRelation
-     * @param $sKeyToMaster
+     * @param string $sTable
+     * @param string $sKeyToRelation
+     * @param string $sKeyToMaster
      *
      * @return Relation
      */
@@ -205,7 +217,7 @@ class Relation extends Builder {
         $aJuncTable = '';
         if (is_array($aRelFields)) {
             if (count($aRelFields) == 1) {
-                list($sRelKey, $sMasterKey) = $this->_arrayPair($aRelFields);
+                list($sRelKey, $sMasterKey) = F::Array_Pair($aRelFields);
             } else {
                 list($sRelKey, $aJuncTable, $sMasterKey) = $aRelFields;
             }
@@ -229,6 +241,11 @@ class Relation extends Builder {
         return $this;
     }
 
+    /**
+     * @param EntityRecord $oMasterEntity
+     *
+     * @return EntityCollection|EntityRecord
+     */
     public function getResult($oMasterEntity = null) {
 
         if ($this->hasProp('__result')) {
@@ -427,6 +444,7 @@ class Relation extends Builder {
         }
         return $xRelValue;
     }
+    
 }
 
 // EOF

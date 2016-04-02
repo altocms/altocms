@@ -25,10 +25,12 @@ class EntityRecord extends \Entity {
     const ATTR_IS_CALLABLE = 3;
     const ATTR_IS_RELATION = 4;
 
+    const DEFAULT_ALIAS = 't';
+
     /** @var array Attributes definition */
     protected $aAttributes = [];
 
-    protected $sTableName;
+    protected $aTables = [['alias' => self::DEFAULT_ALIAS]];
 
     protected $xPrimaryKey;
 
@@ -276,13 +278,26 @@ class EntityRecord extends \Entity {
     }
 
     /**
-     * @param $sTableName
+     * Sets table name and alias (default alias is 't')
+     * <pre>
+     * setTableName($sTableName);
+     * setTableName([$sTableAlias => $sTableName]);
+     * </pre>
+     *
+     * @param string|array $xTable
      *
      * @return EntityRecord
      */
-    public function setTableName($sTableName) {
+    public function setTableName($xTable) {
 
-        $this->sTableName = $sTableName;
+        if (is_array($xTable)) {
+            list($sTableName, $sTableAlias) = F::Array_Pair($xTable);
+        } else {
+            $sTableName = (string)$xTable;
+            $sTableAlias = static::DEFAULT_ALIAS;
+        }
+        $this->aTables[0] = ['name' => $sTableName, 'alias' => $sTableAlias];
+
         return $this;
     }
 
@@ -291,8 +306,9 @@ class EntityRecord extends \Entity {
      */
     public function getTableName() {
 
-        if (empty($this->sTableName)) {
-            $sClass = E::ModulePlugin()->GetDelegater('entity', get_called_class());
+        if (!isset($this->aTables[0]['name'])) {
+            //$sClass = E::ModulePlugin()->GetDelegater('entity', get_called_class());
+            $sClass = get_called_class();
             $sModuleName = F::StrUnderscore(E::GetModuleName($sClass));
             $sEntityName = F::StrUnderscore(E::GetEntityName($sClass));
             if (strpos($sEntityName, $sModuleName) === 0) {
@@ -301,16 +317,21 @@ class EntityRecord extends \Entity {
                 $sTable = F::StrUnderscore($sModuleName) . '_' . F::StrUnderscore($sEntityName);
             }
 
-            // * Если название таблиц переопределено в конфиге, то возвращаем его
-            if (C::Get('db.table.' . $sTable)) {
-                $this->sTableName = C::Get('db.table.' . $sTable);
-            } else {
-                $this->sTableName = C::Get('db.table.prefix') . $sTable;
-            }
-        } elseif (substr($this->sTableName, 0, 2) === '?_') {
-            return C::Get('db.table.prefix') . substr($this->sTableName, 2);
+            $this->aTables[0]['name'] = '?_' . $sTable;
         }
-        return $this->sTableName;
+
+        return $this->aTables[0]['name'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableAlias() {
+
+        if (isset($this->aTables[0]['alias'])) {
+            return $this->aTables[0]['alias'];
+        }
+        return static::DEFAULT_ALIAS;
     }
 
     /**
@@ -363,6 +384,17 @@ class EntityRecord extends \Entity {
         return $xResult;
     }
 
+    /**
+     * @return array
+     */
+    public function getQueryFields() {
+        
+        $sAlias = $this->getTableAlias();
+        $aFields = [$sAlias . '.*'];
+        
+        return $aFields;
+    }
+    
     /**
      * @param EntityCollection $oCollection
      *
@@ -493,7 +525,7 @@ class EntityRecord extends \Entity {
         // * If Module not exists, try to find its root Delegator
         $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, E::CI_MODULE);
         if (empty($aClassInfo[E::CI_MODULE])) {
-            $sRootDelegator = E::ModulePlugin()->GetRootDelegater('entity', $sClass);
+            $sRootDelegator = E::ModulePlugin()->getFirstOf('entity', $sClass);
             if ($sRootDelegator) {
                 $sModuleName = E::GetModuleName($sRootDelegator);
                 $sPluginName = E::GetPluginName($sRootDelegator);
@@ -512,39 +544,6 @@ class EntityRecord extends \Entity {
     static public function mapper() {
 
         return static::model()->getMapper();
-    }
-
-    /**
-     * Проксирует вызов методов в модуль сущности
-     *
-     * @param string $sName    Название метода
-     *
-     * @return mixed
-     */
-    protected function _callMethod($sMethodName) {
-
-        $sModuleName = E::GetModuleName($this);
-        $sEntityName = E::GetEntityName($this);
-        $sPluginPrefix = E::GetPluginPrefix($this);
-        $sPluginName = E::GetPluginName($this);
-
-        // * If Module not exists, try to find its root Delegator
-        $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, E::CI_MODULE);
-        if (empty($aClassInfo[E::CI_MODULE])) {
-            $sRootDelegator = E::ModulePlugin()->GetRootDelegater('entity', get_class($this));
-            if ($sRootDelegator) {
-                $sModuleName = E::GetModuleName($sRootDelegator);
-                $sPluginPrefix = E::GetPluginPrefix($sRootDelegator);
-                $sPluginName = E::GetPluginName($sRootDelegator);
-            }
-        }
-
-        if ($sPluginName) {
-            $sModuleName = 'Plugin' . $sPluginName . '\\' . $sModuleName;
-        }
-        //$sMethodName = $sName . $sEntityName;
-
-        return E::Module($sModuleName)->$sMethodName($this);
     }
 
     /**
@@ -655,7 +654,7 @@ class EntityRecord extends \Entity {
         $oRelEntity = new self();
         $oRelEntity->setTableName($sTable);
         
-        $oRelation = $this->addRelation(ArModule::RELATION_HAS_ONE, $sAlias, $oRelEntity, $aFields);
+        $oRelation = $this->defineRelation(ArModule::RELATION_HAS_ONE, $sAlias, $oRelEntity, $aFields);
         $oRelation->setLazy(false);
 
         return $this;
@@ -896,7 +895,7 @@ class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function addRelation($sRelType, $sField, $sRelEntity, $aRelFields) {
+    public function defineRelation($sRelType, $sField, $sRelEntity, $aRelFields) {
 
         $oRelation = new Relation($sRelType, $this, $sField, $sRelEntity, $aRelFields);
         $this->aAttributes[$sField] = [
@@ -915,12 +914,12 @@ class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function addRelOne($aRelation, $aRelFields = null) {
+    public function relOne($aRelation, $aRelFields = null) {
 
         $sRelEntity = reset($aRelation);
         $sField = key($aRelation);
 
-        return $this->addRelation(ArModule::RELATION_HAS_ONE, $sField, $sRelEntity, $aRelFields);
+        return $this->defineRelation(ArModule::RELATION_HAS_ONE, $sField, $sRelEntity, $aRelFields);
     }
 
     /**
@@ -931,12 +930,12 @@ class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function addRelMany($aRelation, $aRelFields = null) {
+    public function relMany($aRelation, $aRelFields = null) {
 
         $sRelEntity = reset($aRelation);
         $sField = key($aRelation);
 
-        return $this->addRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, $aRelFields);
+        return $this->defineRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, $aRelFields);
     }
 
     /**
@@ -949,7 +948,7 @@ class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function addRelManyVia($aRelation, $sJuncTable, $xJuncToRelation = null, $xJuncToMaster = null) {
+    public function relManyVia($aRelation, $sJuncTable, $xJuncToRelation = null, $xJuncToMaster = null) {
 
         $sRelEntity = reset($aRelation);
         $sField = key($aRelation);
@@ -968,7 +967,7 @@ class EntityRecord extends \Entity {
         }
 
         return $this
-            ->addRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, array($sRelKey => $sMasterKey))
+            ->defineRelation(ArModule::RELATION_HAS_MANY, $sField, $sRelEntity, array($sRelKey => $sMasterKey))
             ->viaTable($sJuncTable, $sJuncRelKey, $sJuncMasterKey);
     }
 
@@ -981,14 +980,14 @@ class EntityRecord extends \Entity {
      *
      * @return Relation
      */
-    public function addRelStat($sField, $sRelEntity, $aRelFields = null) {
+    public function relStat($sField, $sRelEntity, $aRelFields = null) {
 
         if (is_array($sField) && (is_array($sRelEntity))) {
             $aRelFields = $sRelEntity;
             $sRelEntity = reset($sField);
             $sField = key($sField);
         }
-        return $this->addRelation(ArModule::RELATION_HAS_STAT, $sField, $sRelEntity, $aRelFields);
+        return $this->defineRelation(ArModule::RELATION_HAS_STAT, $sField, $sRelEntity, $aRelFields);
     }
 
     /**
@@ -1120,17 +1119,21 @@ class EntityRecord extends \Entity {
     }
 
     /**
+     * Returns an array of fields to insert a new entity
+     *
      * @return array
      */
-    public function getInsertData() {
+    public function getInsertFields() {
         
         return $this->getFields(true);
     }
 
     /**
+     * Returns an array of fields to update entity
+     *
      * @return array
      */
-    public function getUpdateData() {
+    public function getUpdateFields() {
 
         return $this->getFields(true);
     }

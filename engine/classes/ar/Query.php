@@ -35,21 +35,6 @@ class Query extends Condition {
     protected $aGroupBy = [];
 
     /**
-     * @param $xData
-     *
-     * @return array
-     */
-    protected function _arrayPair($xData) {
-
-        if (is_array($xData)) {
-            $xVal = reset($xData);
-            $xKey = key($xData);
-            return array($xKey, $xVal);
-        }
-        return array(null, $xData);
-    }
-
-    /**
      * @param string $sName
      *
      * @return string
@@ -96,13 +81,30 @@ class Query extends Condition {
     }
 
     /**
+     * Retrieves alias and name from array
+     *
+     * @param array|string $xName
+     *
+     * @return array
+     */
+    protected function _aliasName($xName) {
+
+        if (is_array($xName)) {
+            list($sAlias, $sName) = F::Array_Pair($xName);
+        } else {
+            $sAlias = $sName = (string)$xName;
+        }
+        return [$sAlias, $sName];
+    }
+
+    /**
      * ->select('aaa.bbb', 'aaa.ccc'])
      * ->select(['b' => 'aaa.bbb'])
      * ->select(['aaa.b as b']))
      * ->select(['COUNT(aaa.b) as c']))
      * ->select(['c' => ['COUNT(aaa.b)]]))
      *
-     * @return Builder
+     * @return Query
      */
     public function select() {
 
@@ -115,7 +117,7 @@ class Query extends Condition {
     }
 
     /**
-     * @return Builder
+     * @return Query
      */
     public function addSelect() {
 
@@ -130,13 +132,12 @@ class Query extends Condition {
     }
 
     /**
-     * @param $xArg
+     * @param array|string $xArg
      */
     protected function _addColumn($xArg) {
 
         if (is_array($xArg)) {
-            $sExp = reset($xArg);
-            $sAlias = key($xArg);
+            list($sAlias, $sExp) = $this->_aliasName($xArg);
             if (is_numeric($sAlias) && !(is_string($sAlias) && strpos($sAlias, '.'))) {
                 $this->aColumns[$sExp] = array(
                     'type' => self::COLUMN_TYPE_EXPRESSION,
@@ -164,11 +165,15 @@ class Query extends Condition {
         }
     }
 
-
+    /**
+     * ->from(['t' => 'table_name'])
+     *
+     * @return Query
+     */
     public function from() {
 
         foreach(func_get_args() as $xTable) {
-            list($sAlias, $sTable) = $this->_arrayPair($xTable);
+            list($sAlias, $sTable) = $this->_aliasName($xTable);
             $this->aTables[] = array(
                 'name' => $sTable,
                 'alias' => $sAlias,
@@ -180,44 +185,62 @@ class Query extends Condition {
     /**
      * ->joinTable('LEFT JOIN', ['post' => 'p'], 'p.user_id = user.id');
      *
-     * @param $sJoin
-     * @param $sTable
-     * @param $sCondition
+     * @param string       $sJoin
+     * @param array|string $xTable
+     * @param array|string $sCondition
      *
-     * @return Builder
+     * @return Query
      */
-    public function joinTable($sJoin, $sTable, $sCondition) {
+    public function joinTable($sJoin, $xTable, $sCondition) {
 
-        list($sAlias, $sTable) = $this->_arrayPair($sTable);
+        list($sAlias, $xTable) = $this->_aliasName($xTable);
         $this->aJoinTables[] = array(
             'join' => $sJoin,
-            'name' => $sTable,
+            'name' => $xTable,
             'alias' => $sAlias,
             'on' => $sCondition,
         );
         return $this;
     }
 
-    public function innerJoin($sTable, $sCondition) {
+    /**
+     * @param array|string $xTable
+     * @param array|string $sCondition
+     *
+     * @return Query
+     */
+    public function innerJoin($xTable, $sCondition) {
 
-        return $this->joinTable('INNER JOIN', $sTable, $sCondition);
+        return $this->joinTable('INNER JOIN', $xTable, $sCondition);
     }
 
-    public function leftJoin($sTable, $sCondition) {
+    /**
+     * @param array|string $xTable
+     * @param array|string $sCondition
+     *
+     * @return Query
+     */
+    public function leftJoin($xTable, $sCondition) {
 
-        return $this->joinTable('LEFT JOIN', $sTable, $sCondition);
+        return $this->joinTable('LEFT JOIN', $xTable, $sCondition);
     }
 
-    public function rightJoin($sTable, $sCondition) {
+    /**
+     * @param array|string $xTable
+     * @param array|string $sCondition
+     *
+     * @return Query
+     */
+    public function rightJoin($xTable, $sCondition) {
 
-        return $this->joinTable('RIGHT JOIN', $sTable, $sCondition);
+        return $this->joinTable('RIGHT JOIN', $xTable, $sCondition);
     }
 
     /**
      * @param string $sExp
      * @param array  $aParams
      *
-     * @return Builder
+     * @return Query
      */
     public function whereSql($sExp, $aParams = []) {
 
@@ -229,7 +252,7 @@ class Query extends Condition {
      * @param string $sExp
      * @param array  $aParams
      *
-     * @return Builder
+     * @return Query
      */
     public function andWhereSql($sExp, $aParams = []) {
 
@@ -241,7 +264,7 @@ class Query extends Condition {
      * @param string $sExp
      * @param array  $aParams
      *
-     * @return Builder
+     * @return Query
      */
     public function orWhereSql($sExp, $aParams = []) {
 
@@ -258,7 +281,7 @@ class Query extends Condition {
      * @param mixed|null   $xValue
      * @param array        $aParams
      *
-     * @return Builder
+     * @return Query
      */
     public function where($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
@@ -278,7 +301,7 @@ class Query extends Condition {
      * @param mixed|null   $xValue
      * @param array        $aParams
      *
-     * @return Builder
+     * @return Query
      */
     public function andWhere($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
@@ -298,7 +321,7 @@ class Query extends Condition {
      * @param mixed|null   $xValue
      * @param array        $aParams
      *
-     * @return Builder
+     * @return Query
      */
     public function orWhere($xExp, $sOperator = null, $xValue = null, $aParams = []) {
 
@@ -310,7 +333,7 @@ class Query extends Condition {
     }
 
     /**
-     * @return Builder
+     * @return Query
      */
     public function andWhereBegin() {
 
@@ -319,7 +342,7 @@ class Query extends Condition {
     }
 
     /**
-     * @return Builder
+     * @return Query
      */
     public function orWhereBegin() {
 
@@ -328,7 +351,7 @@ class Query extends Condition {
     }
 
     /**
-     * @return Builder
+     * @return Query
      */
     public function whereEnd() {
 
@@ -339,7 +362,7 @@ class Query extends Condition {
     /**
      * @param $xFields
      *
-     * @return $this
+     * @return Query
      */
     public function groupBy($xFields) {
 
@@ -357,9 +380,9 @@ class Query extends Condition {
     }
 
     /**
-     * @param $xFields
+     * @param array|string $xFields
      *
-     * @return $this
+     * @return Query
      */
     public function orderBy($xFields) {
 
@@ -385,10 +408,10 @@ class Query extends Condition {
     }
 
     /**
-     * @param      $iOffset
+     * @param int  $iOffset
      * @param null $iLimit
      *
-     * @return $this
+     * @return Query
      */
     public function limit($iOffset, $iLimit = null) {
 
@@ -405,7 +428,7 @@ class Query extends Condition {
     /**
      * @param array $aBindParams
      *
-     * @return Builder
+     * @return Query
      */
     public function bind($aBindParams) {
 
@@ -504,7 +527,7 @@ class Query extends Condition {
             if (is_string($aJoinTable['on'])) {
                 $sJoinTable .= ' ON ' . $aJoinTable['on'];
             } elseif (is_array($aJoinTable['on'])) {
-                list($sField1, $sField2) = $this->_arrayPair($aJoinTable['on']);
+                list($sField1, $sField2) = F::Array_Pair($aJoinTable['on']);
                 if (!strpos($sField1, '.') && !strpos($sField2, '.')) {
                     $sAlias1 = ($aJoinTable['alias'] ? $aJoinTable['alias'] : $aJoinTable['name']);
                     $sField1 = $sAlias1 . '.' . $sField1;
@@ -609,7 +632,9 @@ class Query extends Condition {
         return self::getParams();
     }
 
-
+    /**
+     * @return array
+     */
     public function query() {
 
         $oMapper = new ArMapper(E::ModuleDatabase()->GetConnect());
@@ -618,6 +643,9 @@ class Query extends Condition {
         return $aResult;
     }
 
+    /**
+     * @return array
+     */
     public function queryRow() {
 
         $aResult = $this->query();
@@ -627,6 +655,9 @@ class Query extends Condition {
         return [];
     }
 
+    /**
+     * @return mixed
+     */
     public function queryScalar() {
 
         $aResult = $this->queryRow();

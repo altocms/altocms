@@ -21,7 +21,7 @@ use \E as E, \F as F, \C as C;
  * @package alto\engine\ar
  * @since   1.2
  */
-abstract class ArModule extends \Module {
+class ArModule extends \Module {
 
     /** Relation types */
     const RELATION_HAS_ONE  = 'rel_one';
@@ -50,24 +50,52 @@ abstract class ArModule extends \Module {
     }
 
     /**
+     * Returns instance of mapper class for the module
+     * 
      * @return ArMapper
      */
     public function getMapper() {
 
         if (!$this->oMapper) {
-            $this->oMapper = new ArMapper(E::ModuleDatabase()->GetConnect());
+            $sModuleClass = $this->getInstanceName();
+            if (!$sModuleClass) {
+                $sModuleClass = get_class($this);
+            }
+            $aInfo = E::GetClassInfo($sModuleClass, E::CI_MODULE);
+            if (isset($aInfo[E::CI_MODULE])) {
+                $sMapperClass = $sModuleClass . '_Mapper' . $aInfo[E::CI_MODULE];
+                $sMapperClass = E::ModulePlugin()->getLastOf('mapper', $sMapperClass);
+                $this->oMapper = new $sMapperClass(E::ModuleDatabase()->GetConnect());
+            } else {
+                $sMapperClass = 'ArMapper';
+            }
+            $this->oMapper = new $sMapperClass(E::ModuleDatabase()->GetConnect());
         }
         return $this->oMapper;
     }
 
+    /**
+     * SQL expression wrapper
+     * 
+     * @param $sSql
+     *
+     * @return Expression
+     */
     public static function Sql($sSql) {
 
         return new Expression($sSql);
     }
 
+    /**
+     * Cache tag for required entity
+     * 
+     * @param $oEntity
+     *
+     * @return mixed
+     */
     protected function _entityTag($oEntity) {
 
-        return strtolower(E::ModulePlugin()->getRootDelegater('entity', get_class($oEntity)));
+        return strtolower(E::ModulePlugin()->getFirstOf('entity', get_class($oEntity)));
     }
     
     /**
@@ -83,8 +111,8 @@ abstract class ArModule extends \Module {
 
         if ($xResult !== false) {
             // сбрасываем кеш
-            $sTag = $this->_entityTag($oEntity) . '_save';
-            E::ModuleCache()->CleanByTags([$sTag]);
+            $sTag = $this->_entityTag($oEntity);
+            E::ModuleCache()->CleanByTags([$sTag, $sTag . '_save']);
 
             if (is_int($xResult) && $xResult > 0) {
                 // есть автоинкремент, устанавливаем его
@@ -110,8 +138,8 @@ abstract class ArModule extends \Module {
 
         if ($xResult !== false) {
             // сбрасываем кеш
-            $sTag = $this->_entityTag($oEntity) . '_save';
-            E::ModuleCache()->CleanByTags([$sTag]);
+            $sTag = $this->_entityTag($oEntity);
+            E::ModuleCache()->CleanByTags([$sTag, $sTag . '_save']);
 
             return $oEntity;
         }
@@ -146,8 +174,8 @@ abstract class ArModule extends \Module {
         $xResult = $this->getMapper()->deleteEntity($oEntity);
         if ($xResult !== false) {
             // сбрасываем кеш
-            $sEntity = E::ModulePlugin()->GetRootDelegater('entity', get_class($oEntity));
-            E::ModuleCache()->CleanByTags([$sEntity . '_delete']);
+            $sTag = $this->_entityTag($oEntity);
+            E::ModuleCache()->CleanByTags([$sTag, $sTag . '_delete']);
 
             $oEntity->setRecordStatus(ArModule::RECORD_STATUS_DELETED);
             return $oEntity;
@@ -162,7 +190,10 @@ abstract class ArModule extends \Module {
      */
     protected function _getEntity($sEntityClass = null) {
 
-        $sModuleClass = get_called_class();
+        $sModuleClass = $this->getInstanceName();
+        if (!$sModuleClass) {
+            $sModuleClass = get_called_class();
+        }
         if (is_null($sEntityClass)) {
             $sEntityClass = E::GetPluginPrefix($sModuleClass)
                 . 'Module' . E::GetModuleName($sModuleClass) . '_Entity' . E::GetModuleName($sModuleClass);
@@ -212,6 +243,14 @@ abstract class ArModule extends \Module {
         }
         $oEntity->setModule($this);
         $oBuilder = new Builder($oEntity);
+        
+        $aFields = $oEntity->getQueryFields();
+        $sTableName = $oEntity->getTableName();
+        $sTableAlias = $oEntity->getTableAlias();
+        
+        $oBuilder
+            ->select($aFields)
+            ->from([$sTableAlias => $sTableName]);
 
         return $oEntity->find($oBuilder);
     }

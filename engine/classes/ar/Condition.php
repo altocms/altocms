@@ -114,7 +114,7 @@ class Condition extends \Entity {
                 // ->where(['foo', 123])
                 // ->where(['foo', '?d:foo'], [':foo' => 123])
                 foreach($xExp as $sKey => $sVal) {
-                    if (is_array($sVal)) {
+                    if (is_array($sVal) || substr($sVal, 0, 3) === '?a:') {
                         $aResult = array_merge($aResult, $this->_prepare(true, $sKey, 'in', $sVal));
                     } else {
                         $aResult = array_merge($aResult, $this->_prepare(true, $sKey, '=', $sVal));
@@ -129,7 +129,7 @@ class Condition extends \Entity {
                 );
             }
         } else {
-            if ($xValue instanceof ExpressionORM2) {
+            if ($xValue instanceof Expression) {
                 $aResult[] = array(
                     'type' => 'sql',
                     'expression' => $xExp . ' ' . $sOperator . ' ' . $xValue['text'],

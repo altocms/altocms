@@ -147,7 +147,7 @@ class ArMapper extends \Mapper {
     public function insertEntity($oEntity) {
 
         $sTableName = $this->oDb->escape(static::GetTableName($oEntity), true);
-        $aFields = $oEntity->getInsertData();
+        $aFields = $oEntity->getInsertFields();
         $aNames = array_keys($aFields);
         $aValues = array_values($aFields);
 
@@ -166,7 +166,7 @@ class ArMapper extends \Mapper {
     public function updateEntity($oEntity) {
 
         $sTableName = $this->oDb->escape(static::GetTableName($oEntity), true);
-        $aFields = $oEntity->getUpdateData();
+        $aFields = $oEntity->getUpdateFields();
 
         $aPrimaryKey = $oEntity->getPrimaryKeyValue(true);
         // Возможен составной ключ
