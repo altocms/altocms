@@ -56,20 +56,20 @@ class ModuleWidget extends Module {
      */
     protected function _getWidgetData($sWidgetId, $aWidgetData, $aWidgets) {
 
-        if (!empty($aWidgetData[Config::KEY_REPLACE])) {
-            unset($aWidgetData[Config::KEY_EXTENDS]);
+        if (!empty($aWidgetData[C::KEY_REPLACE])) {
+            unset($aWidgetData[C::KEY_EXTENDS]);
             return $aWidgetData;
         }
 
         $xExtends = true;
         $bReset = false;
-        if (!empty($aWidgetData[Config::KEY_EXTENDS])) {
-            $xExtends = $aWidgetData[Config::KEY_EXTENDS];
-            unset($aWidgetData[Config::KEY_EXTENDS]);
+        if (!empty($aWidgetData[C::KEY_EXTENDS])) {
+            $xExtends = $aWidgetData[C::KEY_EXTENDS];
+            unset($aWidgetData[C::KEY_EXTENDS]);
         }
-        if (!empty($aWidgetData[Config::KEY_RESET])) {
-            $bReset = $aWidgetData[Config::KEY_RESET];
-            unset($aWidgetData[Config::KEY_RESET]);
+        if (!empty($aWidgetData[C::KEY_RESET])) {
+            $bReset = $aWidgetData[C::KEY_RESET];
+            unset($aWidgetData[C::KEY_RESET]);
         }
         if ($xExtends) {
             if (($xExtends === true) && $sWidgetId && isset($aWidgets[$sWidgetId])) {
@@ -80,9 +80,9 @@ class ModuleWidget extends Module {
                 }
             } elseif(is_string($xExtends)) {
                 if ($bReset) {
-                    $aWidgetData = F::Array_Merge(Config::Get($xExtends), $aWidgetData);
+                    $aWidgetData = F::Array_Merge(C::Get($xExtends), $aWidgetData);
                 } else {
-                    $aWidgetData = F::Array_MergeCombo(Config::Get($xExtends), $aWidgetData);
+                    $aWidgetData = F::Array_MergeCombo(C::Get($xExtends), $aWidgetData);
                 }
             }
         }
@@ -97,13 +97,13 @@ class ModuleWidget extends Module {
     protected function _loadWidgetsList() {
 
         // Список виджетов из основного конфига
-        $aWidgets = (array)Config::Get('widgets');
+        $aWidgets = (array)C::Get('widgets');
 
         // Добавляем списки виджетов из конфигов плагинов
         $aPlugins = F::GetPluginsList();
         if ($aPlugins) {
             foreach($aPlugins as $sPlugin) {
-                if ($aPluginWidgets = Config::Get('plugin.' . $sPlugin . '.widgets', null, null, true)) {
+                if ($aPluginWidgets = C::Get('plugin.' . $sPlugin . '.widgets', null, null, true)) {
                     foreach ($aPluginWidgets as $xKey => $aWidgetData) {
                         // ID виджета может задаваться либо ключом элемента массива, либо параметром 'id'
                         if (isset($aWidgetData['id'])) {
@@ -176,8 +176,8 @@ class ModuleWidget extends Module {
         /** @var ModuleWidget_EntityWidget $oWidget */
         foreach ($aWidgets as $oWidget) {
             if ($oWidget->isDisplay()) {
-                if (R::AllowLocalPath($oWidget->GetIncludePaths(), $oWidget->GetExcludePaths())) {
-                    $this->aWidgets[$oWidget->GetId()] = $oWidget;
+                if (R::AllowLocalPath($oWidget->getIncludePaths(), $oWidget->getExcludePaths())) {
+                    $this->aWidgets[$oWidget->getId()] = $oWidget;
                 }
             }
         }
@@ -196,7 +196,7 @@ class ModuleWidget extends Module {
 
         $sName = ucfirst($sName);
         if (!$sPlugin) {
-            $aPathSeek = Config::Get('path.root.seek');
+            $aPathSeek = C::Get('path.root.seek');
             $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
             $sClass = 'Widget' . $sName;
         } else {

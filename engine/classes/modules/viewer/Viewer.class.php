@@ -281,26 +281,26 @@ class ModuleViewer extends Module {
 
         $this->bLocal = (bool)$bLocal;
 
-        if (($iTitleMax = Config::Get('view.html.title_max')) && ($iTitleMax > 0)) {
-            $this->iHtmlTitlesMax = Config::Get('view.html.title_max');
+        if (($iTitleMax = C::Get('view.html.title_max')) && ($iTitleMax > 0)) {
+            $this->iHtmlTitlesMax = C::Get('view.html.title_max');
         }
-        $this->sHtmlTitleSeparator = Config::Get('view.html.title_sep');
+        $this->sHtmlTitleSeparator = C::Get('view.html.title_sep');
 
         // * Заголовок HTML страницы
-        $this->SetHtmlTitle(Config::Get('view.name'));
+        $this->SetHtmlTitle(C::Get('view.name'));
 
         // * SEO ключевые слова страницы
-        $sValue = (Config::Get('view.keywords') ? Config::Get('view.keywords') : Config::Get('view.html.keywords'));
+        $sValue = (C::Get('view.keywords') ? C::Get('view.keywords') : C::Get('view.html.keywords'));
         $this->SetHtmlKeywords($sValue);
 
         // * SEO описание страницы
-        $sValue = (Config::Get('view.description') ? Config::Get('view.description') : Config::Get('view.html.description'));
+        $sValue = (C::Get('view.description') ? C::Get('view.description') : C::Get('view.html.description'));
         $this->SetHtmlDescription($sValue);
 
         // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
-        E::ModuleMessage()->IsInit();
+        E::ModuleMessage()->isInit();
 
-        $this->sCacheDir = Config::Get('path.runtime.dir');
+        $this->sCacheDir = C::Get('path.runtime.dir');
 
         $this->SetResponseHeader('X-Powered-By', 'Alto CMS');
         $this->SetResponseHeader('Content-Type', 'text/html; charset=utf-8');
@@ -315,7 +315,7 @@ class ModuleViewer extends Module {
      */
     public function CreateSmartyObject() {
 
-        return new Smarty();
+        return new \Smarty();
     }
 
     /**
@@ -362,50 +362,50 @@ class ModuleViewer extends Module {
         $this->oSmarty = $this->CreateSmartyObject();
 
         // * Устанавливаем необходимые параметры для Smarty
-        $this->oSmarty->compile_check = (bool)Config::Get('smarty.compile_check');
-        $this->oSmarty->force_compile = (bool)Config::Get('smarty.force_compile');
-        $this->oSmarty->merge_compiled_includes = (bool)Config::Get('smarty.merge_compiled_includes');
+        $this->oSmarty->compile_check = (bool)C::Get('smarty.compile_check');
+        $this->oSmarty->force_compile = (bool)C::Get('smarty.force_compile');
+        $this->oSmarty->merge_compiled_includes = (bool)C::Get('smarty.merge_compiled_includes');
 
         // * Подавляем NOTICE ошибки - в этом вся прелесть смарти )
         $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Папки расположения шаблонов по умолчанию
-        $aDirs = F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template')));
+        $aDirs = F::File_NormPath(F::Str2Array(C::Get('path.smarty.template')));
         if (sizeof($aDirs) == 1) {
             $sDir = $aDirs[0];
             $aDirs['themes'] = F::File_NormPath($sDir . '/themes');
             $aDirs['tpls'] = F::File_NormPath($sDir . '/tpls');
         }
         $this->oSmarty->setTemplateDir($aDirs);
-        if (Config::Get('smarty.dir.templates')) {
-            $this->oSmarty->addTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('smarty.dir.templates'))));
+        if (C::Get('smarty.dir.templates')) {
+            $this->oSmarty->addTemplateDir(F::File_NormPath(F::Str2Array(C::Get('smarty.dir.templates'))));
         }
 
         // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
-        $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));
+        $sCompilePath = F::File_NormPath(C::Get('path.smarty.compiled'));
         F::File_CheckDir($sCompilePath);
         $this->oSmarty->setCompileDir($sCompilePath);
-        $this->oSmarty->setCacheDir(Config::Get('path.smarty.cache'));
+        $this->oSmarty->setCacheDir(C::Get('path.smarty.cache'));
 
         // * Папки расположения пдагинов Smarty
-        $this->oSmarty->addPluginsDir(array(Config::Get('path.smarty.plug'), 'plugins'));
-        if (Config::Get('smarty.dir.plugins')) {
-            $this->oSmarty->addPluginsDir(F::File_NormPath(F::Str2Array(Config::Get('smarty.dir.plugins'))));
+        $this->oSmarty->addPluginsDir(array(C::Get('path.smarty.plug'), 'plugins'));
+        if (C::Get('smarty.dir.plugins')) {
+            $this->oSmarty->addPluginsDir(F::File_NormPath(F::Str2Array(C::Get('smarty.dir.plugins'))));
         }
 
         $this->oSmarty->default_template_handler_func = array($this, 'SmartyDefaultTemplateHandler');
 
         // * Параметры кеширования, если заданы
-        if (Config::Get('smarty.cache_lifetime')) {
+        if (C::Get('smarty.cache_lifetime')) {
             $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
-            $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
+            $this->oSmarty->cache_lifetime = F::ToSeconds(C::Get('smarty.cache_lifetime'));
         }
 
         // Settings for Smarty 3.1.16 and more
         $this->oSmarty->inheritance_merge_compiled_includes = false;
 
         F::IncludeFile('./plugs/resource.file.php');
-        $this->oSmarty->registerResource('file', new Smarty_Resource_File());
+        $this->oSmarty->registerResource('file', new \Smarty_Resource_File());
 
         // Mutes expected Smarty minor errors
         $this->oSmarty->muteExpectedErrors();
@@ -542,19 +542,19 @@ class ModuleViewer extends Module {
 
         // Load skin's config
         $aConfig = array();
-        Config::ResetLevel(Config::LEVEL_SKIN);
+        C::ResetLevel(C::LEVEL_SKIN);
 
-        $aSkinConfigPaths['sSkinConfigCommonPath'] = Config::Get('path.smarty.template') . '/settings/config/';
-        $aSkinConfigPaths['sSkinConfigAppPath']    = Config::Get('path.dir.app')
+        $aSkinConfigPaths['sSkinConfigCommonPath'] = C::Get('path.smarty.template') . '/settings/config/';
+        $aSkinConfigPaths['sSkinConfigAppPath']    = C::Get('path.dir.app')
             . F::File_LocalPath(
                 $aSkinConfigPaths['sSkinConfigCommonPath'],
-                Config::Get('path.dir.common')
+                C::Get('path.dir.common')
             )
         ;
         // Может загружаться основной конфиг скина, так и внешние секции конфига,
         // которые задаются ключом 'config_load'
         // (обычно это 'classes', 'assets', 'jevix', 'widgets', 'menu')
-        $aConfigNames = array('config') + F::Str2Array(Config::Get('config_load'));
+        $aConfigNames = array('config') + F::Str2Array(C::Get('config_load'));
 
         // Config section that are loaded for the current skin
         $aSkinConfigNames = array();
@@ -580,8 +580,8 @@ class ModuleViewer extends Module {
                         unset($aSubConfig['head']);
                     }
                     // загружаем конфиг, что позволяет сразу использовать значения
-                    // в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
-                    Config::Load($aSubConfig, false, null, null, $sFile);
+                    // в остальных конфигах скина (assets и кастомном config.php) через C::Get()
+                    C::Load($aSubConfig, false, null, null, $sFile);
                     if ($sConfigName != 'config' && !isset($aSkinConfigNames[$sConfigName])) {
                         $aSkinConfigNames[$sConfigName] = $sFile;
                     }
@@ -594,8 +594,8 @@ class ModuleViewer extends Module {
             C::Set('head.default', false);
         }
 
-        Config::ResetLevel(Config::LEVEL_SKIN_CUSTOM);
-        $aStorageConfig = Config::ReadStorageConfig(null, true);
+        C::ResetLevel(C::LEVEL_SKIN_CUSTOM);
+        $aStorageConfig = C::ReadStorageConfig(null, true);
 
         // Reload sections changed by user
         if ($aSkinConfigNames) {
@@ -612,7 +612,7 @@ class ModuleViewer extends Module {
 
         // Checks skin's config from users settings
         $sUserConfigKey = 'skin.' . $this->sViewSkin . '.config';
-        $aUserConfig = Config::Get($sUserConfigKey);
+        $aUserConfig = C::Get($sUserConfigKey);
         if ($aUserConfig) {
             if (!$aConfig) {
                 $aConfig = $aUserConfig;
@@ -622,19 +622,19 @@ class ModuleViewer extends Module {
         }
 
         if ($aConfig) {
-            Config::Load($aConfig, false, null, null, $sUserConfigKey);
+            C::Load($aConfig, false, null, null, $sUserConfigKey);
         }
 
         // Check skin theme and set one in config if it was changed
-        if ($this->GetConfigTheme() != Config::Get('view.theme')) {
-            Config::Set('view.theme', $this->GetConfigTheme());
+        if ($this->GetConfigTheme() != C::Get('view.theme')) {
+            C::Set('view.theme', $this->GetConfigTheme());
         }
 
         // Load lang files for skin
-        E::ModuleLang()->LoadLangFileTemplate(E::ModuleLang()->GetLang());
+        E::ModuleLang()->LoadLangFileTemplate(E::ModuleLang()->getLang());
 
         // Load template variables from config
-        if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
+        if (($aVars = C::Get('view.assign')) && is_array($aVars)) {
             $this->Assign($aVars);
         }
     }
@@ -659,16 +659,16 @@ class ModuleViewer extends Module {
             $this->_initSkin();
         } else {
             // Level could be changed after skin initialization
-            Config::SetLevel(Config::LEVEL_SKIN_CUSTOM);
+            C::SetLevel(C::LEVEL_SKIN_CUSTOM);
         }
 
         // init templator if not yet
         $this->_initTemplator();
 
         // Loads localized texts
-        $aLang = E::ModuleLang()->GetLangMsg();
+        $aLang = E::ModuleLang()->getLangMsg();
         // Old skin compatibility
-        $aLang['registration_password_notice'] = E::ModuleLang()->Get('registration_password_notice', array('min' => C::Val('module.security.password_len', 3)));
+        $aLang['registration_password_notice'] = E::ModuleLang()->get('registration_password_notice', array('min' => C::Val('module.security.password_len', 3)));
         $this->Assign('aLang', $aLang);
         //$this->Assign('oLang', E::ModuleLang()->Dictionary());
 
@@ -680,7 +680,7 @@ class ModuleViewer extends Module {
         $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
         if (!$oSkin || !$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
             // Для старых скинов загружаем объект доступа к конфигурации
-            $this->Assign('oConfig', Config::getInstance());
+            $this->Assign('oConfig', C::getInstance());
 
         }
 
@@ -791,7 +791,7 @@ class ModuleViewer extends Module {
      */
     public function GetLocalViewer() {
 
-        $sClass = E::ModulePlugin()->GetDelegate('module', __CLASS__);
+        $sClass = E::ModulePlugin()->getDelegate('module', __CLASS__);
 
         /** @var ModuleViewer $oViewerLocal */
         $oViewerLocal = new $sClass(Engine::getInstance());
@@ -836,7 +836,7 @@ class ModuleViewer extends Module {
 
         // * Загружаем роутинг с учетом правил rewrite
         $aRouter = array();
-        $aPages = Config::Get('router.page');
+        $aPages = C::Get('router.page');
 
         if (!$aPages || !is_array($aPages)) {
             throw new Exception('Router rules is underfined.');
@@ -927,7 +927,7 @@ class ModuleViewer extends Module {
         if ($sTemplate) {
             $this->_initRender();
 
-            $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
+            $sTemplate = E::ModulePlugin()->getDelegate('template', $sTemplate);
             if ($sTemplatePath = $this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
                 E::ModuleSecurity()->SetSecurityKey();
@@ -961,7 +961,7 @@ class ModuleViewer extends Module {
         $this->_initRender();
 
         // * Проверяем наличие делегата
-        $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
+        $sTemplate = E::ModulePlugin()->getDelegate('template', $sTemplate);
         if ($sTemplatePath = $this->TemplateExists($sTemplate, true)) {
             // Если задаются локальные параметры кеширования, то сохраняем общие
             $this->_tplSetOptions($aOptions);
@@ -1000,11 +1000,11 @@ class ModuleViewer extends Module {
     public function FetchWidget($sTemplate, $aVars = array(), $aOptions = array()) {
 
         // * Проверяем наличие делегата
-        $sDelegateTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
+        $sDelegateTemplate = E::ModulePlugin()->getDelegate('template', $sTemplate);
         $sRenderTemplate = '';
         if ($sDelegateTemplate == $sTemplate && !$this->TemplateExists($sTemplate)) {
             $sWidgetTemplate = 'widgets/widget.' . $sTemplate;
-            $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
+            $sWidgetTemplate = E::ModulePlugin()->getDelegate('template', $sWidgetTemplate);
             if ($sTemplatePath = $this->TemplateExists($sWidgetTemplate)) {
                 $sRenderTemplate = $sTemplatePath;
             }
@@ -1012,7 +1012,7 @@ class ModuleViewer extends Module {
             if (!$sRenderTemplate) {
                 // * LS-compatible *//
                 $sWidgetTemplate = 'blocks/block.' . $sTemplate;
-                $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
+                $sWidgetTemplate = E::ModulePlugin()->getDelegate('template', $sWidgetTemplate);
                 if ($sTemplatePath = $this->TemplateExists($sWidgetTemplate)) {
                     $sRenderTemplate = $sTemplatePath;
                 }
@@ -1146,9 +1146,9 @@ class ModuleViewer extends Module {
     public function GetConfigSkin($bSiteSkin = false) {
 
         if ($bSiteSkin) {
-            return Config::Get('view.skin', Config::LEVEL_CUSTOM);
+            return C::Get('view.skin', C::LEVEL_CUSTOM);
         } else {
-            return Config::Get('view.skin');
+            return C::Get('view.skin');
         }
     }
 
@@ -1162,9 +1162,9 @@ class ModuleViewer extends Module {
     public function GetConfigTheme($bSiteSkin = false) {
 
         if ($bSiteSkin) {
-            return Config::Get('view.theme', Config::LEVEL_CUSTOM);
+            return C::Get('view.theme', C::LEVEL_CUSTOM);
         } else {
-            return Config::Get('view.theme');
+            return C::Get('view.theme');
         }
     }
 
@@ -1178,9 +1178,9 @@ class ModuleViewer extends Module {
     public function GetTemplateDir($bSiteSkin = true) {
 
         if ($bSiteSkin) {
-            return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetConfigSkin($bSiteSkin));
+            return F::File_NormPath(C::Get('path.skins.dir') . '/' . $this->GetConfigSkin($bSiteSkin));
         } else {
-            return Config::Get('path.smarty.template');
+            return C::Get('path.smarty.template');
         }
     }
 
@@ -1372,7 +1372,7 @@ class ModuleViewer extends Module {
         } else {
             $sTheme = null;
         }
-        $sCheckDir = Config::Get('path.skin.dir');
+        $sCheckDir = C::Get('path.skin.dir');
         // Если проверяется не текущий скин, то корректируем путь
         if ($sSkin != $this->GetConfigSkin()) {
             $sCheckDir = str_replace('/' . $this->GetConfigSkin() . '/', '/' . $sSkin . '/', $sCheckDir);
@@ -1440,13 +1440,14 @@ class ModuleViewer extends Module {
     /**
      * Добавляет виджет для отображения
      *
-     * @param   string $sGroup     Группа виджетов
-     * @param   string $sName      Название виджета - Можно передать название виджета, тогда для обработки данных
-     *          будет вызван обработчик из /classes/widgets/, либо передать путь до шаблона, тогда будет выполнено
-     *          обычное подключение шаблона
-     * @param   array $aParams     Параметры виджета, которые будут переданы обработчику
-     * @param   int $iPriority    Приоритет, согласно которому сортируются виджеты
-     * @return  bool
+     * @param  string $sGroup     Группа виджетов
+     * @param  string $sName      Название виджета - Можно передать название виджета, тогда для обработки данных
+     *         будет вызван обработчик из /classes/widgets/, либо передать путь до шаблона, тогда будет выполнено
+     *         обычное подключение шаблона
+     * @param  array  $aParams     Параметры виджета, которые будут переданы обработчику
+     * @param  int    $iPriority    Приоритет, согласно которому сортируются виджеты
+     *
+     * @return bool
      */
     public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = null) {
 
@@ -1465,6 +1466,7 @@ class ModuleViewer extends Module {
             unset($aWidgetData['params']['id']);
         }
 
+        /** @var ModuleWidget_EntityWidget $oWidget */
         $oWidget = E::ModuleWidget()->MakeWidget($aWidgetData);
 
         // Если тип виджета определен, то добавляем его
@@ -1722,7 +1724,7 @@ class ModuleViewer extends Module {
         if ($aOldAssetsConfig = C::Get('head.default')) {
             E::ModuleViewerAsset()->AddAssetFiles($aOldAssetsConfig);
         } else {
-            E::ModuleViewerAsset()->AddAssetFiles(Config::Get('assets.default'));
+            E::ModuleViewerAsset()->AddAssetFiles(C::Get('assets.default'));
         }
 
         // Load editor's assets
@@ -1926,7 +1928,7 @@ class ModuleViewer extends Module {
 
         $sPath = R::GetPathWebCurrent();
 
-        $this->aFileRules = Config::Get('head.rules');
+        $this->aFileRules = C::Get('head.rules');
         foreach ((array)$this->aFileRules as $sName => $aRule) {
             if (!$aRule['path']) continue;
 
@@ -2053,12 +2055,12 @@ class ModuleViewer extends Module {
 
         $aCfg = array(
             'url' => array(
-                'root' => Config::Get('path.root.url'), // реальный рут сайта
+                'root' => C::Get('path.root.url'), // реальный рут сайта
                 'ajax' => R::Url('base'), // адрес для ajax-запросов
             ),
             'assets' => E::ModuleViewerAsset()->GetPreparedAssetLinks(),
-            'lang' => Config::Get('lang.current'),
-            'wysiwyg' => Config::Get('view.wysiwyg') ? true : false,
+            'lang' => C::Get('lang.current'),
+            'wysiwyg' => C::Get('view.wysiwyg') ? true : false,
         );
 
         $sScript = 'var ls = ls || { };' . PHP_EOL;
@@ -2227,10 +2229,10 @@ class ModuleViewer extends Module {
         if ($this->iHtmlTitlesMax && sizeof($aTitles) > $this->iHtmlTitlesMax) {
             $aTitles = array_splice($aTitles, 0, $this->iHtmlTitlesMax);
         }
-        if (Config::Get('view.html.title')) {
+        if (C::Get('view.html.title')) {
             // required part of the tag <title>
-            if (sizeof($aTitles) && (end($aTitles) != Config::Get('view.html.title'))) {
-                $aTitles[] = Config::Get('view.html.title');
+            if (sizeof($aTitles) && (end($aTitles) != C::Get('view.html.title'))) {
+                $aTitles[] = C::Get('view.html.title');
             }
         }
         $sHtmlTitle = join($this->sHtmlTitleSeparator, $aTitles);
@@ -2490,9 +2492,9 @@ class ModuleViewer extends Module {
      */
     public function ClearSmartyFiles() {
 
-        F::File_ClearDir(Config::Get('path.smarty.compiled'));
-        F::File_ClearDir(Config::Get('path.smarty.cache'));
-        F::File_ClearDir(Config::Get('path.tmp.dir') . '/templates/');
+        F::File_ClearDir(C::Get('path.smarty.compiled'));
+        F::File_ClearDir(C::Get('path.smarty.cache'));
+        F::File_ClearDir(C::Get('path.tmp.dir') . '/templates/');
     }
 
     public function ClearAssetsFiles() {
