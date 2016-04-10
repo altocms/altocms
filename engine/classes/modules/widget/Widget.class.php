@@ -20,13 +20,12 @@ class ModuleWidget extends Module {
     protected $aWidgets = array();
     protected $aConfig = array();
 
-    protected $sCurentPath;
-
     /**
      * Сопоставление заданных путей с текущим
      *
      * @param   string|array    $aPaths
      * @param   bool            $bDefault
+     *
      * @return  bool
      */
     protected function _checkPath($aPaths, $bDefault = true) {
@@ -42,7 +41,6 @@ class ModuleWidget extends Module {
      */
     public function Init() {
 
-        $this->sCurentPath = R::GetControllerPath();
     }
 
     /**
@@ -150,6 +148,7 @@ class ModuleWidget extends Module {
      * Создает сущность виджета по переданным свойствам
      *
      * @param   array                       $aWidgetData
+     *
      * @return  ModuleWidget_EntityWidget
      */
     public function MakeWidget($aWidgetData) {
@@ -163,6 +162,7 @@ class ModuleWidget extends Module {
      * Возвращает массив виджетов
      *
      * @param   bool    $bAll   - если true, то все виджеты, иначе - только те, что должны быть отображены
+     *
      * @return  array
      */
     public function GetWidgets($bAll = false) {
@@ -190,6 +190,7 @@ class ModuleWidget extends Module {
      * @param   string      $sName
      * @param   string|null $sPlugin
      * @param   bool        $bReturnClassName
+     * 
      * @return  string|bool
      */
     public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
