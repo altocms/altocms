@@ -1,56 +1,5 @@
 [
     {
-        "name": "wikimedia/composer-merge-plugin",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/composer-merge-plugin.git",
-            "reference": "0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/composer-merge-plugin/zipball/0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4",
-            "reference": "0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4",
-            "shasum": ""
-        },
-        "require": {
-            "composer-plugin-api": "^1.0",
-            "php": ">=5.3.2"
-        },
-        "require-dev": {
-            "composer/composer": "1.0.*@dev",
-            "jakub-onderka/php-parallel-lint": "~0.8",
-            "phpunit/phpunit": "~4.8|~5.0",
-            "squizlabs/php_codesniffer": "~2.1.0"
-        },
-        "time": "2016-03-08 17:11:37",
-        "type": "composer-plugin",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.3.x-dev"
-            },
-            "class": "Wikimedia\\Composer\\MergePlugin"
-        },
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "Wikimedia\\Composer\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Bryan Davis",
-                "email": "bd808@wikimedia.org"
-            }
-        ],
-        "description": "Composer plugin to merge multiple composer.json files"
-    },
-    {
         "name": "smarty/smarty",
         "version": "v3.1.28",
         "version_normalized": "3.1.28.0",
@@ -153,59 +102,6 @@
         "keywords": [
             "javascript",
             "minifier"
-        ]
-    },
-    {
-        "name": "xxtea/xxtea",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/xxtea/xxtea-php.git",
-            "reference": "3906dd28e4d18b6434095c5057f550d10d6c3324"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/xxtea/xxtea-php/zipball/3906dd28e4d18b6434095c5057f550d10d6c3324",
-            "reference": "3906dd28e4d18b6434095c5057f550d10d6c3324",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.2.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": ">=4.0.0"
-        },
-        "time": "2016-03-02 15:39:42",
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "files": [
-                "xxtea.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Ma Bingyao",
-                "email": "mabingyao@gmail.com",
-                "homepage": "https://github.com/xxtea/xxtea-php",
-                "role": "Developer"
-            }
-        ],
-        "description": "XXTEA is a fast and secure encryption algorithm. This is a XXTEA library for PHP.",
-        "homepage": "https://github.com/xxtea/xxtea-php",
-        "keywords": [
-            "crypt",
-            "cryptography",
-            "decrypt",
-            "encrypt",
-            "library",
-            "security",
-            "xxtea"
         ]
     },
     {
@@ -344,5 +240,58 @@
             }
         ],
         "description": "CSSTidy is a CSS minifier"
+    },
+    {
+        "name": "xxtea/xxtea",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/xxtea/xxtea-php.git",
+            "reference": "3906dd28e4d18b6434095c5057f550d10d6c3324"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/xxtea/xxtea-php/zipball/3906dd28e4d18b6434095c5057f550d10d6c3324",
+            "reference": "3906dd28e4d18b6434095c5057f550d10d6c3324",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": ">=4.0.0"
+        },
+        "time": "2016-03-02 15:39:42",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "xxtea.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ma Bingyao",
+                "email": "mabingyao@gmail.com",
+                "homepage": "https://github.com/xxtea/xxtea-php",
+                "role": "Developer"
+            }
+        ],
+        "description": "XXTEA is a fast and secure encryption algorithm. This is a XXTEA library for PHP.",
+        "homepage": "https://github.com/xxtea/xxtea-php",
+        "keywords": [
+            "crypt",
+            "cryptography",
+            "decrypt",
+            "encrypt",
+            "library",
+            "security",
+            "xxtea"
+        ]
     }
 ]
