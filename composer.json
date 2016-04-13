@@ -1,0 +1,30 @@
+{
+  "name": "altocms/altocms",
+  "version": "1.2.0-dev",
+  "type": "project",
+  "description": "Alto CMS",
+  "homepage": "https://altocms.com",
+  "require" : {
+    "php" : "^5.4 || ^7.0",
+    "ext-mbstring": "*",
+    "smarty/smarty": "3.1.28",
+    "phpmailer/phpmailer": "~5.2",
+    "qevix/qevix": "~0.4",
+    "tedivm/jshrink": "~1.1",
+    "cerdic/css-tidy": "~1.5",
+    "xxtea/xxtea": "dev-master",
+    "wikimedia/composer-merge-plugin": "dev-master"
+  },
+  "extra": {
+    "merge-plugin": {
+      "include": [
+        "engine/composer.json",
+        "app/plugins/composer.json"
+      ],
+      "recurse": true,
+      "replace": false,
+      "merge-dev": true,
+      "merge-extra": false
+    }
+  }
+}

@@ -16,7 +16,7 @@ RewriteRule ^(.*)$ ./index.php
 #RewriteRule ^(.*)$ /index.php
 
 # Deny access
-<Files "plugins.dat">
+<Files "composer.*">
     order allow,deny
     deny from all
 </Files>
