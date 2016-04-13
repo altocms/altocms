@@ -844,12 +844,7 @@ class ModulePlugin extends Module {
      */
     public function getDelegate($sType, $sFrom) {
 
-        if (isset($this->aDelegates[$sType][$sFrom]['delegate'])) {
-            return $this->aDelegates[$sType][$sFrom]['delegate'];
-        } elseif ($aInherit = $this->getLastInherit($sFrom)) {
-            return $aInherit['inherit'];
-        }
-        return $sFrom;
+        return $this->getLastOf($sType, $sFrom);
     }
 
     /**
@@ -1109,7 +1104,12 @@ class ModulePlugin extends Module {
      */
     public function getLastOf($sType, $sClass) {
 
-        return $this->getDelegate($sType, $sClass);
+        if (isset($this->aDelegates[$sType][$sClass]['delegate'])) {
+            return $this->aDelegates[$sType][$sClass]['delegate'];
+        } elseif ($aInherit = $this->getLastInherit($sClass)) {
+            return $aInherit['inherit'];
+        }
+        return $sClass;
     }
 
     /**

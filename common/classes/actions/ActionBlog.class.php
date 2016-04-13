@@ -1893,11 +1893,12 @@ class ActionBlog extends Action {
 
         $sTitle = E::ModuleLang()->Get('blog_user_request_title', array('blog_title' => $oBlog->getTitle()));
 
-        F::IncludeLib('XXTEA/encrypt.php');
+        //F::IncludeLib('XXTEA/encrypt.php');
 
         //  Формируем код подтверждения в URL
         $sCode = $oBlog->getId() . '_' . $oGuestUser->getId();
-        $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
+        //$sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
+        $sCode = F::Xxtea_Encode($sCode);
 
         $aPath = array(
             'accept' => R::GetPath('blog') . 'request/accept/?code=' . $sCode,
@@ -1939,11 +1940,12 @@ class ActionBlog extends Action {
 
         $sTitle = E::ModuleLang()->Get('blog_user_invite_title', array('blog_title' => $oBlog->getTitle()));
 
-        F::IncludeLib('XXTEA/encrypt.php');
+        //F::IncludeLib('XXTEA/encrypt.php');
 
         //  Формируем код подтверждения в URL
         $sCode = $oBlog->getId() . '_' . $oUser->getId();
-        $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
+        //$sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
+        $sCode = F::Xxtea_Encode($sCode);
 
         $aPath = array(
             'accept' => R::GetPath('blog') . 'invite/accept/?code=' . $sCode,
@@ -1987,10 +1989,11 @@ class ActionBlog extends Action {
      */
     protected function EventInviteBlog() {
 
-        F::IncludeLib('XXTEA/encrypt.php');
+        //F::IncludeLib('XXTEA/encrypt.php');
 
         // * Получаем код подтверждения из ревеста и дешефруем его
-        $sCode = xxtea_decrypt(base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.blog.encrypt'));
+        //$sCode = xxtea_decrypt(base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.blog.encrypt'));
+        $sCode = F::Xxtea_Decode(F::GetRequestStr('code'));
         if (!$sCode) {
             return $this->EventNotFound();
         }
@@ -2064,10 +2067,11 @@ class ActionBlog extends Action {
      */
     protected function EventRequestBlog() {
 
-        F::IncludeLib('XXTEA/encrypt.php');
+        //F::IncludeLib('XXTEA/encrypt.php');
 
         // * Получаем код подтверждения из ревеста и дешефруем его
-        $sCode = xxtea_decrypt(base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.blog.encrypt'));
+        //$sCode = xxtea_decrypt(base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.blog.encrypt'));
+        $sCode = F::Xxtea_Decode(F::GetRequestStr('code'));
         if (!$sCode) {
             return $this->EventNotFound();
         }

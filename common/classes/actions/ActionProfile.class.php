@@ -831,13 +831,14 @@ class ActionProfile extends Action {
      */
     public function EventFriendOffer() {
 
-        F::IncludeLib('XXTEA/encrypt.php');
+        //F::IncludeLib('XXTEA/encrypt.php');
         /**
          * Из реквеста дешефруем ID польователя
          */
-        $sUserId = xxtea_decrypt(
-            base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.talk.encrypt')
-        );
+        //$sUserId = xxtea_decrypt(
+        //    base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.talk.encrypt')
+        //);
+        $sUserId = F::Xxtea_Decode(F::GetRequestStr('code'));
         if (!$sUserId) {
             return $this->EventNotFound();
         }
@@ -1230,9 +1231,10 @@ class ActionProfile extends Action {
                 )
             );
 
-            F::IncludeLib('XXTEA/encrypt.php');
+            //F::IncludeLib('XXTEA/encrypt.php');
             $sCode = $this->oUserCurrent->getId() . '_' . $oUser->getId();
-            $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.talk.encrypt'))));
+            //$sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.talk.encrypt'))));
+            $sCode = F::Xxtea_Encode($sCode);
 
             $aPath = array(
                 'accept' => R::GetPath('profile') . 'friendoffer/accept/?code=' . $sCode,
