@@ -16,15 +16,16 @@ if (!defined('ALTO_DIR')) die('');
 defined('ALTO_CORE') || define('ALTO_CORE', ALTO_DIR);
 
 /**
- * Настройка путей для первичной загрузки
+ * Default paths for primary config
  */
-$config = array();
+$config = [];
 
-$config['path']['dir']['engine']        = ALTO_CORE . '/engine/';           // Путь к папке движка
-$config['path']['dir']['libs']          = ALTO_CORE . '/engine/libs/';      // Путь к библиотекам движка по умолчанию
-$config['path']['dir']['common']        = ALTO_CORE . '/common/';           // Путь к общим компонентам по умолчанию
-$config['path']['dir']['config']        = ALTO_CORE . '/common/config/';    // Путь к папке конфигурации по умолчанию
-$config['path']['dir']['app']           = ALTO_DIR . '/app/';               // Путь к папке приложения по умолчанию
+$config['path']['dir']['engine'] = ALTO_CORE . '/engine/';        // Path to engine
+$config['path']['dir']['libs']   = ALTO_CORE . '/engine/libs/';   // Path to library classes
+$config['path']['dir']['vendor'] = ALTO_CORE . '/vendor/';        // Path to vendor directory (for composer)
+$config['path']['dir']['common'] = ALTO_CORE . '/common/';        // Path to common components
+$config['path']['dir']['config'] = ALTO_CORE . '/common/config/'; // Path to main config directory
+$config['path']['dir']['app']    = ALTO_DIR . '/app/';            // Path to application directory
 
 return $config;
 

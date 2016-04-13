@@ -19,8 +19,8 @@ class Loader {
      */
     static public function Init($aConfig) {
 
-        // Регистрация автозагрузчика классов
-        spl_autoload_register('Loader::Autoload');
+        // Register autoloaders of classes
+        spl_autoload_register(get_called_class() . '::Autoload');
 
         Config::Load($aConfig);
         $sConfigDir = Config::Get('path.dir.config');
@@ -32,6 +32,11 @@ class Loader {
         $aConfigLoad = F::Str2Array(Config::Get('config_load'));
         if ($aConfigLoad) {
             self::_loadConfigSections($sConfigDir, $aConfigLoad);
+        }
+
+        $sVendorAutoloader = Config::Get('path.dir.vendor') . 'autoload.php';
+        if (is_file($sVendorAutoloader)) {
+            include($sVendorAutoloader);
         }
 
         // Includes all *.php files from {path.root.engine}/include/
@@ -61,11 +66,11 @@ class Loader {
 
         self::_checkRequiredDirs();
 
-        $aSeekDirClasses = array(
+        $aSeekDirClasses = [
             Config::Get('path.dir.app'),
             Config::Get('path.dir.common'),
             Config::Get('path.dir.engine'),
-        );
+        ];
         Config::Set('path.root.seek', $aSeekDirClasses);
 
         if (is_null(Config::Get('path.root.subdir'))) {
@@ -98,7 +103,7 @@ class Loader {
         }
         UserLocale::setLocale(
             Config::Get('lang.current'),
-            array('local' => Config::Get('i18n.locale'), 'timezone' => Config::Get('i18n.timezone'))
+            ['local' => Config::Get('i18n.locale'), 'timezone' => Config::Get('i18n.timezone')]
         );
         Config::Set('i18n', UserLocale::getLocale());
 
@@ -181,16 +186,16 @@ class Loader {
                                 // e.g "classes.php"
                                 $aConfigRoot = $aConfig;
                                 if (!isset($aConfigRoot[$sSectionName])) {
-                                    $aConfigRoot = array(
+                                    $aConfigRoot = [
                                         $sSectionName => $aConfigRoot,
-                                    );
+                                    ];
                                 }
-                                $aConfig = array();
+                                $aConfig = [];
                             } elseif (isset($aConfig[Config::KEY_ROOT])) {
                                 $aConfigRoot = $aConfig[Config::KEY_ROOT];
                                 unset($aConfig[Config::KEY_ROOT]);
                             } else {
-                                $aConfigRoot = array();
+                                $aConfigRoot = [];
                             }
 
                             if (!empty($aConfigRoot)) {
@@ -337,7 +342,7 @@ class Loader {
         $sFileName = 'Action' . ucfirst($sAction) . '.class.php';
 
         // Сначала проверяем файл экшена среди стандартных
-        $aSeekDirs = array(Config::Get('path.dir.app'), Config::Get('path.dir.common'));
+        $aSeekDirs = [Config::Get('path.dir.app'), Config::Get('path.dir.common')];
         if ($sActionFile = F::File_Exists('/classes/actions/' . $sFileName, $aSeekDirs)) {
             $sActionClass = 'Action' . ucfirst($sAction);
             $bOk = true;
@@ -413,7 +418,7 @@ class Loader {
             $aInfo = E::GetClassInfo($sClassName, E::CI_CLASSPATH | E::CI_INHERIT);
             if ($aInfo[E::CI_INHERIT]) {
                 $sInheritClass = $aInfo[E::CI_INHERIT];
-                $sParentClass = E::ModulePlugin()->GetParentInherit($sInheritClass);
+                $sParentClass = E::ModulePlugin()->getParentInherit($sInheritClass);
                 return self::_classAlias($sParentClass, $sClassName);
             } elseif ($aInfo[E::CI_CLASSPATH]) {
                 return self::_includeFile($aInfo[E::CI_CLASSPATH], $sClassName);
@@ -471,7 +476,7 @@ class Loader {
         return false;
     }
 
-    static protected $_aFailedClasses = array();
+    static protected $_aFailedClasses = [];
 
     static protected function _autoloadPSR($sClassName, $xPath = null) {
 
@@ -561,7 +566,7 @@ class Loader {
     /**
      * @var array Array of class aliases
      */
-    static protected $_aClassAliases = array();
+    static protected $_aClassAliases = [];
 
     /**
      * Creates an alias for a class
@@ -574,18 +579,14 @@ class Loader {
      */
     static protected function _classAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
 
-        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
-        } else {
-            $bResult = class_alias($sOriginal, $sAlias);
-        }
+        $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
 
         if (defined('DEBUG') && DEBUG) {
-            self::$_aClassAliases[$sAlias] = array(
+            self::$_aClassAliases[$sAlias] = [
                 'original' => $sOriginal,
                 'autoload' => $bAutoload,
                 'result' => $bResult,
-            );
+            ];
         }
 
         return $bResult;

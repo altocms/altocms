@@ -1,5 +1,6 @@
 .idea
 .gitmodules
+composer.lock
 uploads/*
 _tmp/*
 !.htaccess
@@ -12,3 +13,10 @@ app/config/jevix.php
 app/config/menu.php
 app/config/widgets.php
 app/plugins/*
+vendor/**/.gitignore
+vendor/**/.travis.yml
+vendor/*/*/test/*
+vendor/*/*/tests/*
+vendor/*/*/demo/*
+vendor/*/*/docs/*
+

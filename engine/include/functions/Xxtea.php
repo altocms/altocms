@@ -8,7 +8,7 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeLib('XXTEA/encrypt.php');
+//F::IncludeLib('XXTEA/encrypt.php');
 
 /**
  * Encryption/Decryption functions for Alto CMS

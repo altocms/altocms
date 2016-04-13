@@ -636,8 +636,12 @@ class AltoFunc_File {
         } elseif (!is_array($aDirs)) {
             return static::Exists((string)$aDirs . '/' . $sFile);
         } else {
-            foreach ($aDirs as $sDir) {
-                $sResult = static::Exists($sFile, (string)$sDir);
+            foreach ($aDirs as $xDir) {
+                if (is_array($xDir)) {
+                    $sResult = static::Exists($sFile, $xDir);
+                } else {
+                    $sResult = static::Exists((string)$xDir . '/' . $sFile);
+                }
                 if ($sResult) {
                     $xResult = $sResult;
                     break;
