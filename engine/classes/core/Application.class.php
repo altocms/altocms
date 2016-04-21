@@ -76,7 +76,7 @@ class Application extends LsObject {
             $_SERVER['REQUEST_URI'] = '/';
         }
 
-        if (is_file('./install/index.php') && !defined('ALTO_INSTALL') && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test')) {
+        if (!defined('ALTO_INSTALLATION') && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test') && is_file('./install/index.php')) {
             if (isset($_SERVER['REDIRECT_URL'])) {
                 $sUrl = trim($_SERVER['REDIRECT_URL'], '/');
             } else {

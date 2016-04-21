@@ -16,7 +16,7 @@
 error_reporting(E_ALL);
 
 define('ALTO_NO_LOADER', 1);
-define('ALTO_INSTALL', 1);
+define('ALTO_INSTALLATION', 1);
 define('ALTO_DIR', dirname(dirname(__FILE__)));
 
 require_once(ALTO_DIR . '/engine/loader.php');

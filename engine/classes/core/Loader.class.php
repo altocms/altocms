@@ -53,6 +53,11 @@ class Loader {
         // Load application config level (modules, local & plugins)
         self::_loadConfigFiles($sAppConfigDir, Config::LEVEL_APP);
 
+        // If config file exists in app dir then Alto was installed
+        if (F::File_Exists($sAppConfigDir . '/config.local.php') || F::File_Exists($sAppConfigDir . '/config.php')) {
+            define('ALTO_INSTALLATION', -1);
+        }
+
         // Load additional config files (the set could be changed in this point)
         $aConfigLoad = F::Str2Array(Config::Get('config_load'));
         if ($aConfigLoad) {

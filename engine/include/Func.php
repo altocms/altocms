@@ -45,7 +45,7 @@ class Func {
 
         static::$nFatalErrors = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
         static::_loadExtension('File');
-        if (!defined('ALTO_INSTALL')) {
+        if (!defined('ALTO_INSTALLATION') || ALTO_INSTALLATION === -1) {
             register_shutdown_function('F::done');
             set_error_handler('F::_errorHandler');
             set_exception_handler('F::_exceptionHandler');
