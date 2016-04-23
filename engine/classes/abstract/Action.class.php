@@ -411,6 +411,14 @@ abstract class Action extends LsObject {
         if ($this->GetDefaultEvent() === 'default' && method_exists($this, 'EventDefault')) {
             $this->AddEvent('default', 'EventDefault');
         }
+        if ($this->GetDefaultEvent() === 'default') {
+            if (method_exists($this, 'EventDefault')) {
+                $this->AddEvent('default', 'EventDefault');
+            } elseif (method_exists($this, 'EventIndex')) {
+                // LS-compatible
+                $this->AddEvent('default', 'EventIndex');
+            }
+        }
         $this->sCurrentEvent = R::GetActionEvent();
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
