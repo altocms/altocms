@@ -78,7 +78,9 @@ class Loader {
         ];
         Config::Set('path.root.seek', $aSeekDirClasses);
 
-        if (is_null(Config::Get('path.root.subdir'))) {
+        // if site has been installed into subdir ...
+        $sPathSubdir = Config::Get('path.root.subdir');
+        if (is_null($sPathSubdir)) {
             if (isset($_SERVER['DOCUMENT_ROOT'])) {
                 $sPathSubdir = '/' . F::File_LocalPath(ALTO_DIR, $_SERVER['DOCUMENT_ROOT']);
             } elseif ($iOffset = Config::Get('path.offset_request_url')) {
@@ -88,9 +90,18 @@ class Loader {
                 $sPathSubdir = '';
             }
             Config::Set('path.root.subdir', $sPathSubdir);
+        } else {
+            if ($sPathSubdir === '/') {
+                $sPathSubdir = '';
+            } elseif ($sPathSubdir[0] !== '/' || substr($sPathSubdir, -1) === '/') {
+                $sPathSubdir = '/' . trim($sPathSubdir, '/');
+                Config::Set('path.root.subdir', $sPathSubdir);
+            }
+        }
+        if ($sPathSubdir && is_null(Config::Get('path.offset_request_url'))) {
+            Config::Set('path.offset_request_url', substr_count($sPathSubdir, '/'));
         }
 
-        // Подгружаем конфиг из файлового кеша, если он есть
         Config::ResetLevel(Config::LEVEL_CUSTOM);
 
         // Load from cache, because database could not be used here

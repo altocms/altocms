@@ -73,7 +73,8 @@ $config['pagination']['pages']['count'] = 9;                  // количес�
 $config['path']['root']['url'] = F::UrlBase() . '/';
 $config['path']['root']['dir'] = ALTO_DIR . '/';
 
-$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
+//$config['path']['offset_request_url']   = 0;        // иногда помогает если сервер использует внутренние реврайты
+$config['path']['root']['subdir']       = '';         // Директория относительно корня домена
 
 /**
  * Параметры сервера для статики. По умолчанию совпадают с основным сервером
@@ -89,8 +90,7 @@ $config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
 $config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';         // путь к папке для временных файлов
 $config['path']['runtime']['dir']       = '___path.root.dir___/_run/';         // путь к папке для runtime-файлов
-//$config['path']['runtime']['url']       = '___path.root.url___/_run/';         // URL для runtime-файлов
-$config['path']['runtime']['url']       = '/_run/';         // URL для runtime-файлов
+$config['path']['runtime']['url']       = '___path.root.subdir___/_run/';         // URL для runtime-файлов
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
 $config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
