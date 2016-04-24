@@ -252,9 +252,11 @@ class ActionRss extends Action {
             // Creates RSS channel from the blog
             $oRssChannel = $oBlog->CreateRssChannel();
 
-            // Adds items into RSS channel
-            foreach ($aTopics as $oTopic) {
-                $oRssChannel->AddItem($oTopic->CreateRssItem());
+            if (is_array($aTopics)) {
+                // Adds items into RSS channel
+                foreach ($aTopics as $oTopic) {
+                    $oRssChannel->AddItem($oTopic->CreateRssItem());
+                }
             }
             $oRss->AddChannel($oRssChannel);
 
