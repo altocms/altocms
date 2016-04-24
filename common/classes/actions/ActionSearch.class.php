@@ -293,7 +293,7 @@ class ActionSearch extends Action {
                 } else {
                     $sWord = $sWord . '[\p{L}\p{Nd}]+';
                 }
-                $aWords[$iIndex] = $sWord;
+                $aWords[$iIndex] = preg_quote($sWord, '/');
             }
 
             if (count($aWords) == 1) {
