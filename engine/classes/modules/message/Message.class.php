@@ -57,7 +57,7 @@ class ModuleMessage extends Module {
      * Module initialization
      *
      */
-    public function Init() {
+    public function init() {
 
         if (!$this->isInit()) {
             // Load messages from session
@@ -77,18 +77,18 @@ class ModuleMessage extends Module {
      * (they will be shown in the next page)
      *
      */
-    public function Shutdown() {
+    public function shutdown() {
 
         // Save messages in session
-        if ($aMessages = $this->GetNoticeSession()) {
+        if ($aMessages = $this->getNoticeSession()) {
             E::ModuleSession()->Set('message_notice_session', $aMessages);
         }
-        if ($aMessages = $this->GetErrorSession()) {
+        if ($aMessages = $this->getErrorSession()) {
             E::ModuleSession()->Set('message_error_session', $aMessages);
         }
 
-        E::ModuleViewer()->Assign('aMsgNotice', $this->GetNotice());
-        E::ModuleViewer()->Assign('aMsgError', $this->GetError());
+        E::ModuleViewer()->assign('aMsgNotice', $this->getNotice());
+        E::ModuleViewer()->assign('aMsgError', $this->getError());
     }
 
     /**
@@ -98,7 +98,7 @@ class ModuleMessage extends Module {
      * @param string $sTitle      Title
      * @param bool   $bUseSession Save message in the session
      */
-    public function AddError($sMsg, $sTitle = null, $bUseSession = false) {
+    public function addError($sMsg, $sTitle = null, $bUseSession = false) {
 
         if (!$bUseSession) {
             $this->aMsgError[] = array('msg' => $sMsg, 'title' => $sTitle);
@@ -114,10 +114,10 @@ class ModuleMessage extends Module {
      * @param string $sTitle      Title
      * @param bool   $bUseSession Save message in the session
      */
-    public function AddErrorSingle($sMsg, $sTitle = null, $bUseSession = false) {
+    public function addErrorSingle($sMsg, $sTitle = null, $bUseSession = false) {
 
-        $this->ClearError();
-        $this->AddError($sMsg, $sTitle, $bUseSession);
+        $this->clearError();
+        $this->addError($sMsg, $sTitle, $bUseSession);
     }
 
     /**
@@ -127,7 +127,7 @@ class ModuleMessage extends Module {
      * @param string $sTitle      Title
      * @param bool   $bUseSession Save message in the session
      */
-    public function AddNotice($sMsg, $sTitle = null, $bUseSession = false) {
+    public function addNotice($sMsg, $sTitle = null, $bUseSession = false) {
 
         if (!$bUseSession) {
             $this->aMsgNotice[] = array('msg' => $sMsg, 'title' => $sTitle);
@@ -143,17 +143,17 @@ class ModuleMessage extends Module {
      * @param string $sTitle      Title
      * @param bool   $bUseSession Save message in the session
      */
-    public function AddNoticeSingle($sMsg, $sTitle = null, $bUseSession = false) {
+    public function addNoticeSingle($sMsg, $sTitle = null, $bUseSession = false) {
 
-        $this->ClearNotice();
-        $this->AddNotice($sMsg, $sTitle, $bUseSession);
+        $this->clearNotice();
+        $this->addNotice($sMsg, $sTitle, $bUseSession);
     }
 
     /**
      * Clear an array of error messages
      *
      */
-    public function ClearError() {
+    public function clearError() {
 
         $this->aMsgError = array();
         $this->aMsgErrorSession = array();
@@ -163,7 +163,7 @@ class ModuleMessage extends Module {
      * Clear an array of notice messages
      *
      */
-    public function ClearNotice() {
+    public function clearNotice() {
 
         $this->aMsgNotice = array();
         $this->aMsgNoticeSession = array();
@@ -174,7 +174,7 @@ class ModuleMessage extends Module {
      *
      * @return array
      */
-    public function GetError() {
+    public function getError() {
 
         return $this->aMsgError;
     }
@@ -184,7 +184,7 @@ class ModuleMessage extends Module {
      *
      * @return array
      */
-    public function GetNotice() {
+    public function getNotice() {
 
         return $this->aMsgNotice;
     }
@@ -194,7 +194,7 @@ class ModuleMessage extends Module {
      *
      * @return array
      */
-    public function GetErrorSession() {
+    public function getErrorSession() {
 
         return $this->aMsgErrorSession;
     }
@@ -203,7 +203,7 @@ class ModuleMessage extends Module {
      *
      * @return array
      */
-    public function GetNoticeSession() {
+    public function getNoticeSession() {
 
         return $this->aMsgNoticeSession;
     }
