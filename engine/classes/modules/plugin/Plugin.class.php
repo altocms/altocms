@@ -1225,6 +1225,10 @@ class ModulePlugin extends Module {
                 if (!$sPluginDir) {
                     $sPluginDir = basename($sPluginSrc);
                 }
+                // Old style compatible
+                if ($sPluginDir && preg_match('/^alto-plugin-([a-z]+)-[\d\.]+$/', $sPluginDir, $aM)) {
+                    $sPluginDir = $aM[1];
+                }
 
                 $sPluginPath = $this->getPluginsDir() . '/' . $sPluginDir . '/';
                 if (F::File_CopyDir($sPluginSrc, $sPluginPath)) {
