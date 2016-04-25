@@ -16,16 +16,16 @@ class ActionRss extends Action {
     /**
      * Инициализация
      */
-    public function Init() {
+    public function init() {
 
-        $this->SetDefaultEvent('index');
+        $this->setDefaultEvent('index');
         R::SetIsShowStats(false);
     }
 
     /**
      * Указывает браузеру правильный content type в случае вывода RSS-ленты
      */
-    protected function InitRss() {
+    protected function initRss() {
 
         header('Content-Type: application/rss+xml; charset=utf-8');
     }
@@ -33,27 +33,27 @@ class ActionRss extends Action {
     /**
      * Регистрация евентов
      */
-    protected function RegisterEvent() {
+    protected function registerEvent() {
 
-        $this->AddEventPreg('/^index$/', '/^newall$/', 'RssTopics');
-        $this->AddEventPreg('/^index$/', '/^new$/', 'RssTopics');
-        $this->AddEventPreg('/^index$/', '/^all$/', 'RssTopics');
-        $this->AddEvent('index', 'RssTopics');
-        $this->AddEvent('new', 'RssTopics');
-        $this->AddEvent('wall', 'RssWall');
-        $this->AddEvent('allcomments', 'RssComments');
-        $this->AddEventPreg('/^comments$/', '/^\d+$/', 'RssCommentsByTopic');
-        $this->AddEvent('tag', 'RssTopics');
-        $this->AddEvent('blog', 'RssBlog');
-        $this->AddEvent('personal_blog', 'RssPersonalBlog');
+        $this->addEventPreg('/^index$/', '/^newall$/', 'RssTopics');
+        $this->addEventPreg('/^index$/', '/^new$/', 'RssTopics');
+        $this->addEventPreg('/^index$/', '/^all$/', 'RssTopics');
+        $this->addEvent('index', 'RssTopics');
+        $this->addEvent('new', 'RssTopics');
+        $this->addEvent('wall', 'RssWall');
+        $this->addEvent('allcomments', 'RssComments');
+        $this->addEventPreg('/^comments$/', '/^\d+$/', 'RssCommentsByTopic');
+        $this->addEvent('tag', 'RssTopics');
+        $this->addEvent('blog', 'RssBlog');
+        $this->addEvent('personal_blog', 'RssPersonalBlog');
     }
 
     /**
      * Вывод RSS последних комментариев
      */
-    protected function RssWall() {
+    protected function rssWall() {
 
-        $aResult = E::ModuleWall()->GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('module.wall.per_page'));
+        $aResult = E::ModuleWall()->getWall(array(), array('date_add' => 'DESC'), 1, Config::Get('module.wall.per_page'));
         /** @var ModuleWall_EntityWall[] $aWall */
         $aWall = $aResult['collection'];
 
@@ -77,11 +77,11 @@ class ActionRss extends Action {
             // Adds items into RSS channel
             foreach ($aWall as $oItem) {
                 if ($oItem) {
-                    $oRssChannel->AddItem($oItem->CreateRssItem());
+                    $oRssChannel->addItem($oItem->createRssItem());
                 }
             }
         }
-        $oRss->AddChannel($oRssChannel);
+        $oRss->addChannel($oRssChannel);
 
         $this->_displayRss($oRss);
     }
@@ -91,12 +91,12 @@ class ActionRss extends Action {
      *
      * @return string
      */
-    protected function RssComments() {
+    protected function rssComments() {
 
-        $sEvent = $this->GetParam(0);
-        $aParams = $this->GetParams();
+        $sEvent = $this->getParam(0);
+        $aParams = $this->getParams();
         array_shift($aParams);
-        E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssComments'));
+        E::ModuleHook()->addHandler('action_after', array($this, 'ShowRssComments'));
         return R::Action('comments', $sEvent, $aParams);
     }
 
@@ -105,12 +105,12 @@ class ActionRss extends Action {
      *
      * @return string
      */
-    protected function RssCommentsByTopic() {
+    protected function rssCommentsByTopic() {
 
-        $sEvent = $this->GetParam(0);
-        $aParams = $this->GetParams();
+        $sEvent = $this->getParam(0);
+        $aParams = $this->getParams();
         array_shift($aParams);
-        E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssComments'));
+        E::ModuleHook()->addHandler('action_after', array($this, 'ShowRssComments'));
         return R::Action('blog', $sEvent . '.html', $aParams);
     }
 
@@ -118,7 +118,7 @@ class ActionRss extends Action {
      * Show rss comments by hook
      *
      */
-    public function ShowRssComments() {
+    public function showRssComments() {
 
         $aComments = E::ModuleViewer()->getTemplateVars('aComments');
         $this->_showRssItems($aComments);
@@ -129,12 +129,12 @@ class ActionRss extends Action {
      *
      * @return string
      */
-    protected function RssTopics() {
+    protected function rssTopics() {
 
-        $sEvent = $this->GetParam(0);
-        $aParams = $this->GetParams();
+        $sEvent = $this->getParam(0);
+        $aParams = $this->getParams();
         array_shift($aParams);
-        E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssTopics'));
+        E::ModuleHook()->addHandler('action_after', array($this, 'ShowRssTopics'));
         return R::Action($this->sCurrentEvent, $sEvent, $aParams);
     }
 
@@ -142,7 +142,7 @@ class ActionRss extends Action {
      * Show rss topics by hook
      *
      */
-    public function ShowRssTopics() {
+    public function showRssTopics() {
 
         $aTopics = E::ModuleViewer()->getTemplateVars('aTopics');
         $this->_showRssItems($aTopics);
@@ -166,8 +166,8 @@ class ActionRss extends Action {
         }
 
         $aRssChannelData = array(
-            'title' => E::ModuleViewer()->GetHtmlTitle(),
-            'description' => E::ModuleViewer()->GetHtmlDescription(),
+            'title' => E::ModuleViewer()->getHtmlTitle(),
+            'description' => E::ModuleViewer()->getHtmlDescription(),
             'link' => $sLink,
             'language' => C::Get('lang.current'),
             'managing_editor' => C::Get('general.rss_editor_mail'),
@@ -185,11 +185,11 @@ class ActionRss extends Action {
             // Adds items into RSS channel
             foreach ($aItems as $oItem) {
                 if ($oItem) {
-                    $oRssChannel->AddItem($oItem->CreateRssItem());
+                    $oRssChannel->addItem($oItem->createRssItem());
                 }
             }
         }
-        $oRss->AddChannel($oRssChannel);
+        $oRss->addChannel($oRssChannel);
 
         $this->_displayRss($oRss);
     }
@@ -197,12 +197,12 @@ class ActionRss extends Action {
     /**
      * Вывод RSS топиков из блога
      */
-    protected function RssBlog() {
+    protected function rssBlog() {
 
-        $sBlogUrl = $this->GetParam(0);
-        $aParams = $this->GetParams();
+        $sBlogUrl = $this->getParam(0);
+        $aParams = $this->getParams();
         array_shift($aParams);
-        E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssBlog'));
+        E::ModuleHook()->addHandler('action_after', array($this, 'ShowRssBlog'));
 
         if ($iMaxItems = intval(C::Get('module.topic.max_rss_count'))) {
             C::Set('module.topic.per_page', $iMaxItems);
@@ -214,19 +214,19 @@ class ActionRss extends Action {
     /**
      * @return null|string
      */
-    protected function RssPersonalBlog() {
+    protected function rssPersonalBlog() {
 
-        $sUserLogin = $this->GetParam(0);
-        $aParams = $this->GetParams();
+        $sUserLogin = $this->getParam(0);
+        $aParams = $this->getParams();
         array_shift($aParams);
 
         if ($iMaxItems = intval(C::Get('module.topic.max_rss_count'))) {
             C::Set('module.topic.per_page', $iMaxItems);
         }
 
-        $oUser = E::ModuleUser()->GetUserByLogin($sUserLogin);
-        if ($oUser && ($oBlog = E::ModuleBlog()->GetPersonalBlogByUserId($oUser->getId()))) {
-            E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssBlog'));
+        $oUser = E::ModuleUser()->getUserByLogin($sUserLogin);
+        if ($oUser && ($oBlog = E::ModuleBlog()->getPersonalBlogByUserId($oUser->getId()))) {
+            E::ModuleHook()->addHandler('action_after', array($this, 'ShowRssBlog'));
             return R::Action('blog', $oBlog->getId(), $aParams);
         } else {
             $this->_displayEmptyRss();
@@ -237,7 +237,7 @@ class ActionRss extends Action {
     /**
      *
      */
-    public function ShowRssBlog() {
+    public function showRssBlog() {
 
         /** @var ModuleTopic_EntityTopic[] $aTopics */
         $aTopics = E::ModuleViewer()->getTemplateVars('aTopics');
@@ -250,15 +250,15 @@ class ActionRss extends Action {
             $oRss = E::GetEntity('Rss');
 
             // Creates RSS channel from the blog
-            $oRssChannel = $oBlog->CreateRssChannel();
+            $oRssChannel = $oBlog->createRssChannel();
 
             if (is_array($aTopics)) {
                 // Adds items into RSS channel
                 foreach ($aTopics as $oTopic) {
-                    $oRssChannel->AddItem($oTopic->CreateRssItem());
+                    $oRssChannel->addItem($oTopic->createRssItem());
                 }
             }
-            $oRss->AddChannel($oRssChannel);
+            $oRss->addChannel($oRssChannel);
 
             $this->_displayRss($oRss);
         } else {
@@ -272,9 +272,9 @@ class ActionRss extends Action {
      */
     protected function _displayRss($oRss) {
 
-        E::ModuleViewer()->Assign('oRss', $oRss);
-        E::ModuleViewer()->SetResponseHeader('Content-type', 'text/xml; charset=utf-8');
-        E::ModuleViewer()->Display('actions/rss/action.rss.index.tpl');
+        E::ModuleViewer()->assign('oRss', $oRss);
+        E::ModuleViewer()->setResponseHeader('Content-type', 'text/xml; charset=utf-8');
+        E::ModuleViewer()->display('actions/rss/action.rss.index.tpl');
 
         exit;
     }
