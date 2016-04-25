@@ -189,7 +189,7 @@ class ActionAdmin extends Action {
 
         if ($this->IsPost('widgets')) {
             $aWidgets = F::Array_FlipIntKeys($this->GetPost('widgets'));
-            $aConfig = array();
+            $aConfig = [];
             foreach ($aDashboardWidgets as $aDashboardWidget) {
                 if (isset($aWidgets[$aDashboardWidget['name']])) {
                     $aConfig[$aDashboardWidget['key']] = 1;
@@ -241,7 +241,7 @@ class ActionAdmin extends Action {
 
         $aPlugins = E::ModulePlugin()->GetList(null, false);
         $aActivePlugins = E::ModulePlugin()->GetActivePlugins();
-        $aPluginList = array();
+        $aPluginList = [];
         foreach ($aActivePlugins as $aPlugin) {
             if (is_array($aPlugin)) {
                 $sPlugin = $aPlugin['id'];
@@ -446,7 +446,7 @@ class ActionAdmin extends Action {
             $aSections = explode('<h2>', strip_tags($sPhpinfo, '<h2><th><td>'));
             unset($aSections[0]);
 
-            $aPhpInfo = array();
+            $aPhpInfo = [];
             foreach ($aSections as $sSection) {
                 $n = substr($sSection, 0, strpos($sSection, '</h2>'));
                 preg_match_all(
@@ -549,7 +549,7 @@ class ActionAdmin extends Action {
     protected function _eventConfigLinks() {
 
         if ($sHomePage = $this->GetPost('submit_data_save')) {
-            $aConfig = array();
+            $aConfig = [];
             $sHomePageSelect = '';
             if ($sHomePage = $this->GetPost('homepage')) {
                 if ($sHomePage == 'page') {
@@ -674,7 +674,7 @@ class ActionAdmin extends Action {
         );
 
         if ($this->GetPost('submit_data_save')) {
-            $aConfig = array();
+            $aConfig = [];
             if ($this->GetPost('view--wysiwyg')) {
                 $aConfig['view.wysiwyg'] = true;
             } else {
@@ -756,7 +756,7 @@ class ActionAdmin extends Action {
      */
     protected function _eventConfigSave($aFields, $aData) {
 
-        $aConfig = array();
+        $aConfig = [];
         foreach ($aFields as $aParam) {
             if (isset($aParam['config'])) {
                 if (isset($aData[$aParam['config']])) {
@@ -813,7 +813,7 @@ class ActionAdmin extends Action {
     public function _eventWidgetsEdit($oWidget) {
 
         if ($this->GetPost()) {
-            $aConfig = array();
+            $aConfig = [];
             $sPrefix = 'widget.' . $oWidget->GetId() . '.config.';
             if ($xVal = $this->GetPost('widget_group')) {
                 $aConfig[$sPrefix . 'wgroup'] = $xVal;
@@ -850,7 +850,7 @@ class ActionAdmin extends Action {
     public function _eventWidgetsActivate($aWidgets) {
 
         if ($this->GetPost()) {
-            $aConfig = array();
+            $aConfig = [];
             foreach ($aWidgets as $sWidgetId) {
                 $sPrefix = 'widget.' . $sWidgetId . '.config.';
                 $aConfig[$sPrefix . 'active'] = true;
@@ -866,7 +866,7 @@ class ActionAdmin extends Action {
     public function _eventWidgetsDeactivate($aWidgets) {
 
         if ($this->GetPost()) {
-            $aConfig = array();
+            $aConfig = [];
             foreach ($aWidgets as $sWidgetId) {
                 $sPrefix = 'widget.' . $sWidgetId . '.config.';
                 $aConfig[$sPrefix . 'active'] = false;
@@ -1461,7 +1461,7 @@ class ActionAdmin extends Action {
 
         if ($this->GetParam(1) && !strstr($this->GetParam(1), 'page')) $sMode = $this->GetParam(1);
 
-        $aFilter = array();
+        $aFilter = [];
         if ($sMode && $sMode != 'all') {
             $aFilter['type'] = $sMode;
         }
@@ -1858,12 +1858,12 @@ class ActionAdmin extends Action {
         // * Передан ли номер страницы
         $nPage = $this->_getPageNum();
 
-        $aFilter = array();
+        $aFilter = [];
         $sData = E::ModuleSession()->Get('adm_userlist_filter');
         if ($sData) {
             $aFilter = @unserialize($sData);
             if (!is_array($aFilter)) {
-                $aFilter = array();
+                $aFilter = [];
             }
         }
 
@@ -2062,7 +2062,7 @@ class ActionAdmin extends Action {
 
     protected function _eventUsersFilter() {
 
-        $aFilter = array();
+        $aFilter = [];
 
         if (($sUserLogin = $this->GetPost('user_filter_login'))) {
             $aFilter['login'] = $sUserLogin;
@@ -2177,7 +2177,7 @@ class ActionAdmin extends Action {
         if (($sUsers = $this->GetPost('users_list'))) {
             $aUsers = explode(',', str_replace(' ', '', $sUsers));
         } else {
-            $aUsers = array();
+            $aUsers = [];
         }
 
         if ($aUsers) {
@@ -2239,7 +2239,7 @@ class ActionAdmin extends Action {
         if (($sUsers = $this->GetPost('users_list'))) {
             $aUsers = explode(',', str_replace(' ', '', $sUsers));
         } else {
-            $aUsers = array();
+            $aUsers = [];
         }
 
         if ($aUsers) {
@@ -2323,7 +2323,7 @@ class ActionAdmin extends Action {
         if (($sUsers = $this->GetPost('users_list'))) {
             $aUsers = explode(',', str_replace(' ', '', $sUsers));
         } else {
-            $aUsers = array();
+            $aUsers = [];
         }
         if ($aUsers) {
             foreach ($aUsers as $sUserLogin) {
@@ -2379,7 +2379,7 @@ class ActionAdmin extends Action {
             );
         } else {
             $sMode = 'all';
-            $aFilter = array();
+            $aFilter = [];
         }
         // Получаем список инвайтов
         $aResult = E::ModuleAdmin()->GetInvites($nPage, Config::Get('admin.items_per_page'), $aFilter);
@@ -2398,7 +2398,7 @@ class ActionAdmin extends Action {
 
         E::ModuleSecurity()->ValidateSendForm();
 
-        $aIds = array();
+        $aIds = [];
         foreach ($_POST as $sKey => $sVal) {
             if ((substr($sKey, 0, 7) == 'invite_') && ($nId = intval(substr($sKey, 7)))) {
                 $aIds[] = $nId;
@@ -2651,7 +2651,7 @@ class ActionAdmin extends Action {
 
     protected function _parseLog($sLogTxt) {
 
-        $aLogs = array();
+        $aLogs = [];
         if (preg_match_all('/\[LOG\:(?<id>[\d\-\.\,A-F]+)\]\[(?<date>[\d\-\s\:]+)\].*\[\[(?<text>.*)\]\]/siuU', $sLogTxt, $aM, PREG_PATTERN_ORDER)) {
             if (preg_last_error() == PREG_BACKTRACK_LIMIT_ERROR) {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.logs_too_long'), null);
@@ -2665,7 +2665,7 @@ class ActionAdmin extends Action {
                 array_unshift($aLogs, $aRec);
             }
         } else {
-            $aTmp = array();
+            $aTmp = [];
             // Текст кривой, поэтому будем так
             $aParts = explode('[LOG:', $sLogTxt);
             if ($aParts) {
@@ -2776,9 +2776,9 @@ class ActionAdmin extends Action {
         $this->_setTitle(E::ModuleLang()->Get('action.admin.reset_title'));
         $this->SetTemplateAction('tools/reset');
 
-        $aSettings = array();
+        $aSettings = [];
         if ($this->GetPost('adm_reset_submit')) {
-            $aConfig = array();
+            $aConfig = [];
             if ($this->GetPost('adm_cache_clear_data')) {
                 E::ModuleCache()->Clean();
                 $aSettings['adm_cache_clear_data'] = 1;
@@ -3029,7 +3029,7 @@ class ActionAdmin extends Action {
         if (!$aAllows) $aAllows = array(Config::Get('lang.current'));
         if (!$aAllows) $aAllows = array(Config::Get('lang.default'));
         if (!$aAllows) $aAllows = array('ru');
-        $aLangAllow = array();
+        $aLangAllow = [];
         if ($sLang = Config::Get('lang.current')) {
             $n = array_search($sLang, $aAllows);
             if ($n !== false && isset($aLanguages[$sLang])) {
@@ -3048,7 +3048,7 @@ class ActionAdmin extends Action {
         }
 
         if ($this->GetPost('submit_data_save')) {
-            $aConfig = array();
+            $aConfig = [];
 
             // добавление новых языков в список используемых
             $aAddLangs = $this->GetPost('lang_allow');
@@ -3490,7 +3490,7 @@ class ActionAdmin extends Action {
 
         $aAdmin = $this->GetPost('userrights_administrator');
         $aModer = $this->GetPost('userrights_moderator');
-        $aConfig = array();
+        $aConfig = [];
         $aConfig['rights.blogs.administrator'] = array(
             'control_users'  => (isset($aAdmin['control_users'])  && $aAdmin['control_users'])  ? true : false,
             'edit_blog'      => (isset($aAdmin['edit_blog'])      && $aAdmin['edit_blog'])      ? true : false,
@@ -3542,7 +3542,7 @@ class ActionAdmin extends Action {
 
         if (is_array(F::GetRequest('order')) && $oMenu) {
 
-            $aData = array();
+            $aData = [];
             //$aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.items"));
             foreach (F::GetRequest('order') as $aOrder) {
                 if (!($sId = (isset($aOrder['id']) ? $aOrder['id'] : false))) {
@@ -4156,7 +4156,7 @@ class ActionAdmin extends Action {
         }
 
         // * Получаем список
-        $aFilter = array();
+        $aFilter = [];
         $aTypes = E::ModuleTopic()->GetContentTypes($aFilter, false);
         E::ModuleViewer()->Assign('aTypes', $aTypes);
 
@@ -4728,7 +4728,7 @@ class ActionAdmin extends Action {
             } else {
                 $aKeys = (array)$sKeys;
             }
-            $aConfig = array();
+            $aConfig = [];
             foreach ($aKeys as $sKey) {
                 $sValue = $this->GetPost($sKey);
                 $aConfig[str_replace('--', '.', $sKey)] = $sValue;

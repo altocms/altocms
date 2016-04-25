@@ -36,15 +36,15 @@ class LS extends LsObject {
      */
     static public function E() {
 
-        return Engine::GetInstance();
+        return Engine::getInstance();
     }
 
     /**
      * Возвращает объект сущности
      * @see Engine::GetEntity
      *
-     * @param $sName    Название сущности
-     * @param array $aParams    Параметры для передачи в конструктор
+     * @param string $sName    Название сущности
+     * @param array  $aParams  Параметры для передачи в конструктор
      * @return Entity
      */
     static public function Ent($sName, $aParams = array()) {
@@ -54,11 +54,13 @@ class LS extends LsObject {
 
     /**
      * Возвращает объект маппера
+     * 
      * @see Engine::GetMapper
      *
-     * @param $sClassName Класс модуля маппера
+     * @param string $sClassName Класс модуля маппера
      * @param string|null $sName    Имя маппера
      * @param DbSimple_Mysql|null $oConnect    Объект коннекта к БД
+     * 
      * @return mixed
      */
     static public function Mpr($sClassName, $sName = null, $oConnect = null) {
@@ -93,8 +95,8 @@ class LS extends LsObject {
      * Вызов метода модуля
      * Например <pre>$LS->Module_Method()</pre>
      *
-     * @param $sName    Полное название метода, например <pre>Module_Method</pre>
-     * @param array $aArgs Список аргуметов метода
+     * @param string $sName Полное название метода, например <pre>Module_Method</pre>
+     * @param array  $aArgs Список аргуметов метода
      * @return mixed
      */
     public function __call($sName, $aArgs = array()) {
@@ -107,8 +109,8 @@ class LS extends LsObject {
      * Например <pre>LS::Module_Method()</pre>
      *
      * @static
-     * @param $sName    Полное название метода, например <pre>Module_Method</pre>
-     * @param array $aArgs Список аргуметов метода
+     * @param string $sName Полное название метода, например <pre>Module_Method</pre>
+     * @param array  $aArgs Список аргуметов метода
      * @return mixed
      */
     public static function __callStatic($sName, $aArgs = array()) {

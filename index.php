@@ -17,6 +17,6 @@ defined('ALTO_DIR') || define('ALTO_DIR', dirname(__FILE__));
 require_once(ALTO_DIR . '/engine/loader.php');
 
 // Creates and executes application
-App::Create()->Exec();
+App::create()->exec();
 
 // EOF

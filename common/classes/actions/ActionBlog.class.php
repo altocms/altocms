@@ -465,9 +465,9 @@ class ActionBlog extends Action {
         if (F::isPost('submit_blog_admin')) {
             E::ModuleSecurity()->ValidateSendForm();
 
-            $aUserRank = F::GetRequest('user_rank', array());
+            $aUserRank = F::GetRequest('user_rank', []);
             if (!is_array($aUserRank)) {
-                $aUserRank = array();
+                $aUserRank = [];
             }
             foreach ($aUserRank as $sUserId => $sRank) {
                 $sRank = (string)$sRank;
@@ -688,7 +688,7 @@ class ActionBlog extends Action {
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
             R::GetPath('blog') . $this->sTopicFilter,
-            in_array($this->sTopicFilter, array('discussed', 'top')) ? array('period' => $this->sTopicFilterPeriod) : array()
+            in_array($this->sTopicFilter, array('discussed', 'top')) ? array('period' => $this->sTopicFilterPeriod) : []
         );
 
         //  Вызов хуков
@@ -946,7 +946,7 @@ class ActionBlog extends Action {
      */
     protected function _getHeadTags($oTopic) {
 
-        $aHeadTags = array();
+        $aHeadTags = [];
         if (!$oTopic->getPublish()) {
             // Disable indexing of drafts
             $aHeadTags[] = array(
@@ -1456,7 +1456,7 @@ class ActionBlog extends Action {
 
         $idCommentLast = F::GetRequestStr('idCommentLast', null, 'post');
         $selfIdComment = F::GetRequestStr('selfIdComment', null, 'post');
-        $aComments = array();
+        $aComments = [];
 
         // * Если используется постраничность, возвращаем только добавленный комментарий
         if (F::GetRequest('bUsePaging', null, 'post') && $selfIdComment) {
@@ -1469,13 +1469,13 @@ class ActionBlog extends Action {
                     'oComment' => $oComment,
                 );
                 $sText = E::ModuleViewer()->Fetch(E::ModuleComment()->GetTemplateCommentByTarget($oTopic->getId(), 'topic'));
-                $aCmt = array();
+                $aCmt = [];
                 $aCmt[] = array(
                     'html' => $sText,
                     'obj'  => $oComment,
                 );
             } else {
-                $aCmt = array();
+                $aCmt = [];
             }
             $aReturn['comments'] = $aCmt;
             $aReturn['iMaxIdComment'] = $selfIdComment;
@@ -1656,7 +1656,7 @@ class ActionBlog extends Action {
         $aBlogUsers = $aBlogUsersResult['collection'];
         $aUsers = explode(',', $sUsers);
 
-        $aResult = array();
+        $aResult = [];
 
         // * Обрабатываем добавление по каждому из переданных логинов
         foreach ($aUsers as $sUser) {
@@ -2377,7 +2377,7 @@ class ActionBlog extends Action {
                         );
                         if ($aBlogUsersResult) {
                             /** @var ModuleUser_EntityUser[] $aBlogModerators */
-                            $aBlogModerators = array();
+                            $aBlogModerators = [];
                             /** @var ModuleBlog_EntityBlogUser $oCurrentBlogUser */
                             foreach ($aBlogUsersResult['collection'] as $oCurrentBlogUser) {
                                 $aBlogModerators[] = $oCurrentBlogUser->getUser();

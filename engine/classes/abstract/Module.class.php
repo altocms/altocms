@@ -24,12 +24,12 @@
 abstract class Module extends LsObject {
     
     const STATUS_INIT_BEFORE = 1;
-    const STATUS_INIT = 2;
+    const STATUS_INIT        = 2;
     const STATUS_DONE_BEFORE = 3;
-    const STATUS_DONE = 4;
+    const STATUS_DONE        = 4;
 
     /** @var int Статус модуля */
-    protected $nStatus = 0;
+    protected $iStatus = 0;
 
     /** @var bool Признак предзагрузки */
     protected $bPreloaded = false;
@@ -53,7 +53,7 @@ abstract class Module extends LsObject {
      * Абстрактный метод инициализации модуля, должен быть переопределен в модуле
      *
      */
-    abstract public function Init();
+    abstract public function init();
 
     /**
      * Returns array if entity IDs
@@ -127,7 +127,7 @@ abstract class Module extends LsObject {
      * Метод срабатывает при завершении работы ядра
      *
      */
-    public function Shutdown() {
+    public function shutdown() {
 
     }
 
@@ -136,9 +136,9 @@ abstract class Module extends LsObject {
      *
      * @param   int $nStatus
      */
-    public function SetStatus($nStatus) {
+    public function setStatus($nStatus) {
 
-        $this->nStatus = $nStatus;
+        $this->iStatus = $nStatus;
     }
 
     /**
@@ -146,17 +146,17 @@ abstract class Module extends LsObject {
      *
      * @return int
      */
-    public function GetStatus() {
+    public function getStatus() {
 
-        return $this->nStatus;
+        return $this->iStatus;
     }
 
-    public function SetPreloaded($bVal) {
+    public function setPreloaded($bVal) {
 
         $this->bPreloaded = (bool)$bVal;
     }
 
-    public function GetPreloaded() {
+    public function isPreloaded() {
 
         return $this->bPreloaded;
     }
@@ -166,12 +166,12 @@ abstract class Module extends LsObject {
      *
      * @param bool $bBefore
      */
-    public function SetInit($bBefore = false) {
+    public function setInit($bBefore = false) {
 
         if ($bBefore) {
-            $this->SetStatus(self::STATUS_INIT_BEFORE);
+            $this->setStatus(self::STATUS_INIT_BEFORE);
         } else {
-            $this->SetStatus(self::STATUS_INIT);
+            $this->setStatus(self::STATUS_INIT);
         }
     }
 
@@ -180,12 +180,12 @@ abstract class Module extends LsObject {
      *
      * @param bool $bBefore
      */
-    public function SetDone($bBefore = false) {
+    public function setDone($bBefore = false) {
 
         if ($bBefore) {
-            $this->SetStatus(self::STATUS_DONE_BEFORE);
+            $this->setStatus(self::STATUS_DONE_BEFORE);
         } else {
-            $this->SetStatus(self::STATUS_DONE);
+            $this->setStatus(self::STATUS_DONE);
         }
     }
 
@@ -196,7 +196,7 @@ abstract class Module extends LsObject {
      */
     public function InInitProgress() {
 
-        return $this->GetStatus() == self::STATUS_INIT_BEFORE;
+        return $this->getStatus() == self::STATUS_INIT_BEFORE;
     }
 
     /**
@@ -206,7 +206,7 @@ abstract class Module extends LsObject {
      */
     public function isInit() {
 
-        return $this->GetStatus() >= self::STATUS_INIT;
+        return $this->getStatus() >= self::STATUS_INIT;
     }
 
     /**
@@ -216,7 +216,7 @@ abstract class Module extends LsObject {
      */
     public function InShudownProgress() {
 
-        return $this->GetStatus() == self::STATUS_DONE_BEFORE;
+        return $this->getStatus() == self::STATUS_DONE_BEFORE;
     }
 
     /**
@@ -226,7 +226,7 @@ abstract class Module extends LsObject {
      */
     public function isDone() {
 
-        return $this->GetStatus() >= self::STATUS_DONE;
+        return $this->getStatus() >= self::STATUS_DONE;
     }
 
     /**
@@ -234,7 +234,7 @@ abstract class Module extends LsObject {
      *
      * @return bool
      */
-    public function LogError($sMsg) {
+    public function logError($sMsg) {
 
         return F::LogError(get_class($this) . ': ' . $sMsg);
     }
@@ -248,32 +248,32 @@ abstract class Module extends LsObject {
      *
      * @return array
      */
-    public function Structurize() {
+    public function structurize() {
 
         $iArgsNum = func_num_args();
-        $aAargs = func_get_args();
+        $aArgs = func_get_args();
         if ($iArgsNum == 0) {
             return array();
         } elseif ($iArgsNum == 1) {
-            return $aAargs[0];
+            return $aArgs[0];
         }
         $aResult = array();
-        $aEntities = $aAargs[0];
+        $aEntities = $aArgs[0];
         $oEntity = reset($aEntities);
-        unset($aAargs[0]);
-        if (sizeof($aAargs) == 1 && is_array($aAargs[1])) {
-            $aAargs = $aAargs[1];
+        unset($aArgs[0]);
+        if (sizeof($aArgs) == 1 && is_array($aArgs[1])) {
+            $aArgs = $aArgs[1];
         }
-        foreach($aAargs as $iIdx => $sPropKey) {
+        foreach($aArgs as $iIdx => $sPropKey) {
             if (!$oEntity->hasProp($sPropKey)) {
-                unset($aAargs[$iIdx]);
+                unset($aArgs[$iIdx]);
             }
         }
-        if ($aAargs) {
+        if ($aArgs) {
             /** @var Entity $oEntity */
             foreach($aEntities as $oEntity) {
                 $aItems =& $aResult;
-                foreach($aAargs as $sPropKey) {
+                foreach($aArgs as $sPropKey) {
                     $xKey = $oEntity->getProp($sPropKey);
                     if (!isset($aItems[$xKey])) {
                         $aItems[$xKey] = array();

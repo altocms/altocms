@@ -26,7 +26,7 @@ class Router extends LsObject {
      *
      * @var array
      */
-    protected $aConfigRoute = array();
+    protected $aConfigRoute = [];
 
     /**
      * Текущий экшен
@@ -83,17 +83,17 @@ class Router extends LsObject {
      *
      * @var array
      */
-    static protected $aParams = array();
+    static protected $aParams = [];
 
-    static protected $aRequestURI = array();
+    static protected $aRequestURI = [];
 
-    static protected $aActionPaths = array();
+    static protected $aActionPaths = [];
 
-    protected $aCurrentUrl = array();
+    protected $aCurrentUrl = [];
 
-    protected $aBackwardUrl = array();
+    protected $aBackwardUrl = [];
 
-    protected $aDefinedClasses = array();
+    protected $aDefinedClasses = [];
 
     /**
      * Объект текущего экшена
@@ -177,7 +177,7 @@ class Router extends LsObject {
         $this->ParseUrl();
         $this->DefineActionClass(); // Для возможности ДО инициализации модулей определить какой action/event запрошен
         $this->oEngine = E::getInstance();
-        $this->oEngine->Init();
+        $this->oEngine->init();
 
         // Подгружаем предыдущий URL, если он был
         $sData = E::ModuleSession()->GetCookie(static::BACKWARD_COOKIE);
@@ -204,7 +204,7 @@ class Router extends LsObject {
     public function Shutdown($bExit = true) {
 
         $this->AssignVars();
-        $this->oEngine->Shutdown();
+        $this->oEngine->shutdown();
         if (self::$bAutoDisplay) {
             E::ModuleViewer()->Display($this->oAction->GetTemplate());
         }
@@ -227,7 +227,7 @@ class Router extends LsObject {
         $aRequestUrl = $this->GetRequestArray($sReq);
 
         // Список доступных языков, которые могут быть указаны в URL
-        $aLangs = array();
+        $aLangs = [];
         // Только для мультиязычных сайтов
         if (Config::Get('lang.multilang')) {
             // Получаем список доступных языков
@@ -346,6 +346,7 @@ class Router extends LsObject {
                             $iHttpResponse = $iCode;
                         }
                     } else {
+                        $aMatches = [];
                         $sPattern = F::StrMatch($sRule, $sUrl, true, $aMatches);
                         if ($sPattern && isset($aMatches[1])) {
                             $sUrl = str_replace('*', $aMatches[1], $sTarget);
@@ -369,7 +370,7 @@ class Router extends LsObject {
      */
     protected function GetRequestArray($sReq) {
 
-        $aRequestUrl = ($sReq == '' || $sReq == '/') ? array() : explode('/', trim($sReq, '/'));
+        $aRequestUrl = ($sReq == '' || $sReq == '/') ? [] : explode('/', trim($sReq, '/'));
         for ($i = 0; $i < Config::Get('path.offset_request_url'); $i++) {
             array_shift($aRequestUrl);
         }
@@ -410,7 +411,7 @@ class Router extends LsObject {
                 if (isset($this->aConfigRoute['domains']['forward'][$sHost])) {
                     $aRequestUrl = array_merge(explode('/', $this->aConfigRoute['domains']['forward'][$sHost]), $aRequestUrl);
                 } else {
-                    $aMatches = array();
+                    $aMatches = [];
                     $sPattern = F::StrMatch($this->aConfigRoute['domains']['forward_keys'], $sHost, true, $aMatches);
                     if ($sPattern) {
                         $sNewUrl = $this->aConfigRoute['domains']['forward'][$sPattern];
@@ -459,7 +460,7 @@ class Router extends LsObject {
         }
 
         // STAGE 3: Internal rewriting (topic URLs etc.)
-        $aRequestUrl = (trim($sRequest, '/') == '') ? array() : explode('/', $sRequest);
+        $aRequestUrl = (trim($sRequest, '/') == '') ? [] : explode('/', $sRequest);
         if ($aRequestUrl) {
             $aRequestUrl = $this->RewriteInternal($aRequestUrl);
         }
@@ -484,15 +485,15 @@ class Router extends LsObject {
      */
     protected function RewriteInternal($aRequestUrl) {
 
-        $aRewrite = array();
+        $aRewrite = [];
         if ($sTopicUrlPattern = static::GetTopicUrlPattern()) {
-            $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
+            $aRewrite = array_merge($aRewrite, [$sTopicUrlPattern => 'blog/$1.html']);
         }
         if ($sUserUrlPattern = static::GetUserUrlPattern()) {
             if (strpos(static::GetUserUrlMask(), '%user_id%')) {
-                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/id-$1'));
+                $aRewrite = array_merge($aRewrite, [$sUserUrlPattern => 'profile/id-$1']);
             } elseif (strpos(static::GetUserUrlMask(), '%login%')) {
-                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
+                $aRewrite = array_merge($aRewrite, [$sUserUrlPattern => 'profile/login-$1']);
             }
         }
         // * Internal rewrite rules for REQUEST_URI
@@ -504,7 +505,7 @@ class Router extends LsObject {
                     break;
                 }
             }
-            return (trim($sReq, '/') == '') ? array() : explode('/', $sReq);
+            return (trim($sReq, '/') == '') ? [] : explode('/', $sReq);
         }
         return $aRequestUrl;
     }
@@ -607,7 +608,7 @@ class Router extends LsObject {
             // Если инициализация экшена прошла успешно,
             // то запускаем запрошенный ивент на исполнение.
             if ($sInitResult !== false) {
-                $xEventResult = $this->oAction->ExecEvent();
+                $xEventResult = $this->oAction->execEvent();
 
                 static::$sActionEventName = $this->oAction->GetCurrentEventName();
                 $this->oAction->EventShutdown();
@@ -750,7 +751,7 @@ class Router extends LsObject {
                 if ($aParams) $aParams = explode('/', $aParams);
             } else {
                 list($sAction, $sEvent) = explode('/', $sAction);
-                $aParams = array();
+                $aParams = [];
             }
         }
         static::$sAction = static::getInstance()->RewritePath($sAction);
@@ -990,6 +991,7 @@ class Router extends LsObject {
                 $this->aConfigRoute['domains']['backward'][$sPage] = $sResult;
                 return $sResult;
             }
+            $aMatches = [];
             $sPattern = F::StrMatch($this->aConfigRoute['domains']['backward_keys'], $sPage, true, $aMatches);
             if ($sPattern) {
                 $sResult = '//' . $this->aConfigRoute['domains']['backward'][$sPattern];
@@ -1022,20 +1024,20 @@ class Router extends LsObject {
                 if (isset($this->aConfigRoute['rewrite'][$sFrom])) {
                     if ($sTo) {
                         if ($this->aConfigRoute['rewrite'][$sFrom] == $sTo) {
-                            return array($sFrom, $sTo);
+                            return [$sFrom, $sTo];
                         }
                     } else {
-                        return array($sFrom, $this->aConfigRoute['rewrite'][$sFrom]);
+                        return [$sFrom, $this->aConfigRoute['rewrite'][$sFrom]];
                     }
                 }
             } elseif ($sTo) {
                 $sFrom = array_search($sTo, $this->aConfigRoute['rewrite'], true);
                 if ($sFrom) {
-                    return array($sFrom , $sTo);
+                    return [$sFrom , $sTo];
                 }
             }
         }
-        return array($sFrom, $sTo);
+        return [$sFrom, $sTo];
     }
 
     /**
@@ -1086,7 +1088,7 @@ class Router extends LsObject {
      */
     static public function Location($sLocation) {
 
-        static::getInstance()->oEngine->Shutdown();
+        static::getInstance()->oEngine->shutdown();
         if (substr($sLocation, 0, 1) !== '/') {
             // Проверка на "виртуальный" путь
             $sRelLocation = trim($sLocation, '/');
@@ -1273,7 +1275,7 @@ class Router extends LsObject {
         $sUrlPattern = static::GetTopicUrlMask();
         if ($sUrlPattern) {
             $sUrlPattern = preg_quote($sUrlPattern);
-            $aReplace = array(
+            $aReplace = [
                 '%year%'       => '\d{4}',
                 '%month%'      => '\d{2}',
                 '%day%'        => '\d{2}',
@@ -1285,7 +1287,7 @@ class Router extends LsObject {
                 '%topic_type%' => '[\w_\-]+',
                 '%topic_id%'   => '(\d+)',
                 '%topic_url%'  => '([\w\-]+)',
-            );
+            ];
             // brackets in the pattern may be only once
             if (strpos($sUrlPattern, '%topic_id%') !== false && strpos($sUrlPattern, '%topic_url%') !== false) {
                 // if both of masks are present then %topic_id% is main
@@ -1326,10 +1328,10 @@ class Router extends LsObject {
         $sUrlPattern = static::GetUserUrlMask();
         if ($sUrlPattern) {
             $sUrlPattern = preg_quote($sUrlPattern);
-            $aReplace = array(
+            $aReplace = [
                 '%login%' => '([\w_\-]+)',
                 '%user_id%' => '(\d+)',
-            );
+            ];
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
             if (substr($sUrlPattern, -1) == '/') {
                 $sUrlPattern .= '?';
@@ -1360,7 +1362,7 @@ class Router extends LsObject {
                         $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
                     } elseif($sPath == '/') {
                         $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
-                    } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
+                    } elseif (!in_array(substr($sPath, -1), ['/', '*'])) {
                         $aPaths[$nKey] = $sPath . '/*';
                     }
                 }
@@ -1407,7 +1409,7 @@ class Router extends LsObject {
                 // приводим к виду action=>array(events)
                 if (is_int($sAction) && !is_array($aEvents)) {
                     $sAction = (string)$aEvents;
-                    $aEvents = array();
+                    $aEvents = [];
                 }
                 if ($sAction == $sCurrentAction) {
                     if (!$aEvents) {

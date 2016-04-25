@@ -37,7 +37,7 @@ class ActionTalk extends Action {
      *
      * @var array
      */
-    protected $aUsersId = array();
+    protected $aUsersId = [];
 
     /**
      * Инициализация
@@ -483,10 +483,10 @@ class ActionTalk extends Action {
         // * Проверяем адресатов
         $sUsers = F::GetRequest('talk_users');
         $aUsers = explode(',', (string)$sUsers);
-        $aUsersNew = array();
+        $aUsersNew = [];
         $aUserInBlacklist = E::ModuleTalk()->GetBlacklistByTargetId($this->oUserCurrent->getId());
 
-        $this->aUsersId = array();
+        $this->aUsersId = [];
         foreach ($aUsers as $sUser) {
             $sUser = trim($sUser);
             if ($sUser == '' || strtolower($sUser) == strtolower($this->oUserCurrent->getLogin())) {
@@ -575,7 +575,7 @@ class ActionTalk extends Action {
         $oTalkUser->setCommentCountNew(0);
         E::ModuleTalk()->UpdateTalkUser($oTalkUser);
 
-        $aComments = array();
+        $aComments = [];
         $aCmts = $aReturn['comments'];
         if ($aCmts && is_array($aCmts)) {
             foreach ($aCmts as $aCmt) {
@@ -743,7 +743,7 @@ class ActionTalk extends Action {
         // * Получаем блекслист пользователя
         $aUserBlacklist = E::ModuleTalk()->GetBlacklistByUserId($this->oUserCurrent->getId());
 
-        $aResult = array();
+        $aResult = [];
 
         // * Обрабатываем добавление по каждому из переданных логинов
         foreach ($aUsers as $sUser) {

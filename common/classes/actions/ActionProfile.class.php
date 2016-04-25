@@ -363,7 +363,7 @@ class ActionProfile extends Action {
             array('target_type' => 'topic', 'user_id' => $this->oUserProfile->getId(), 'text' => $sTag),
             array('target_id' => 'desc'), $iPage, Config::Get('module.topic.per_page')
         );
-        $aTopicId = array();
+        $aTopicId = [];
         foreach ($aResult['collection'] as $oTag) {
             $aTopicId[] = $oTag->getTargetId();
         }

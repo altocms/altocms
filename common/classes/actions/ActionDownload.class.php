@@ -74,7 +74,7 @@ class ActionDownload extends Action {
             /*
             * Обновляем данные
             */
-            $aFileObj = array();
+            $aFileObj = [];
             $aFileObj['file_name'] = $oFile->getFileName();
             $aFileObj['file_url'] = $oFile->getFileUrl();
             $aFileObj['file_size'] = $oFile->getFileSize();

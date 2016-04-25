@@ -376,7 +376,7 @@ abstract class Action extends LsObject {
      * @param string $sEventName     Название евента
      * @param string $sEventFunction Какой метод ему соответствует
      */
-    protected function AddEvent($sEventName, $sEventFunction) {
+    protected function addEvent($sEventName, $sEventFunction) {
 
         $this->_addEventHandler(func_get_args(), self::MATCH_TYPE_STR);
     }
@@ -385,7 +385,7 @@ abstract class Action extends LsObject {
      * Добавляет евент в экшен, используя регулярное выражение для евента и параметров
      *
      */
-    protected function AddEventPreg() {
+    protected function addEventPreg() {
 
         $this->_addEventHandler(func_get_args(), self::MATCH_TYPE_REG);
     }
@@ -406,17 +406,17 @@ abstract class Action extends LsObject {
      *
      * @return mixed
      */
-    public function ExecEvent() {
+    public function execEvent() {
 
         if ($this->GetDefaultEvent() === 'default' && method_exists($this, 'EventDefault')) {
-            $this->AddEvent('default', 'EventDefault');
+            $this->addEvent('default', 'EventDefault');
         }
         if ($this->GetDefaultEvent() === 'default') {
             if (method_exists($this, 'EventDefault')) {
-                $this->AddEvent('default', 'EventDefault');
+                $this->addEvent('default', 'EventDefault');
             } elseif (method_exists($this, 'EventIndex')) {
                 // LS-compatible
-                $this->AddEvent('default', 'EventIndex');
+                $this->addEvent('default', 'EventIndex');
             }
         }
         $this->sCurrentEvent = R::GetActionEvent();

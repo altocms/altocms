@@ -260,7 +260,7 @@ class ActionAjax extends Action {
             $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', $iUserId);
 
             // Получим блоги
-            $aBlogsId = array();
+            $aBlogsId = [];
             foreach ($aResources['collection'] as $oResource) {
                 $aBlogsId[] = $oResource->getTargetId();
             }
@@ -412,7 +412,7 @@ class ActionAjax extends Action {
 
         // * Получаем список регионов
         $aResult = E::ModuleGeo()->GetRegions(array('country_id' => $oCountry->getId()), array('sort' => 'asc'), 1, $iLimit);
-        $aRegions = array();
+        $aRegions = [];
         foreach ($aResult['collection'] as $oObject) {
             $aRegions[] = array(
                 'id'   => $oObject->getId(),
@@ -443,7 +443,7 @@ class ActionAjax extends Action {
 
         // * Получаем города
         $aResult = E::ModuleGeo()->GetCities(array('region_id' => $oRegion->getId()), array('sort' => 'asc'), 1, $iLimit);
-        $aCities = array();
+        $aCities = [];
         foreach ($aResult['collection'] as $oObject) {
             $aCities[] = array(
                 'id'   => $oObject->getId(),
@@ -902,9 +902,9 @@ class ActionAjax extends Action {
         if ($oFavourite = E::ModuleFavourite()->GetFavourite(F::GetRequestStr('target_id'), F::GetRequestStr('target_type'), $this->oUserCurrent->getId())) {
             // * Обрабатываем теги
             $aTags = explode(',', trim(F::GetRequestStr('tags'), "\r\n\t\0\x0B ."));
-            $aTagsNew = array();
-            $aTagsNewLow = array();
-            $aTagsReturn = array();
+            $aTagsNew = [];
+            $aTagsNewLow = [];
+            $aTagsReturn = [];
             foreach ($aTags as $sTag) {
                 $sTag = trim($sTag);
                 if (F::CheckVal($sTag, 'text', 2, 50) && !in_array(mb_strtolower($sTag, 'UTF-8'), $aTagsNewLow)) {
@@ -1145,7 +1145,7 @@ class ActionAjax extends Action {
      */
     protected function EventStreamComment() {
 
-        $aVars = array();
+        $aVars = [];
         $iLimit = C::Get('widgets.stream.params.limit');
         if (empty($iLimit)) {
             $iLimit = 20;
@@ -1164,7 +1164,7 @@ class ActionAjax extends Action {
      */
     protected function EventStreamTopic() {
 
-        $aVars = array();
+        $aVars = [];
         if ($aTopics = E::ModuleTopic()->GetTopicsLast(Config::Get('widgets.stream.params.limit'))) {
             $aVars['aTopics'] = $aTopics['collection'];
             // LS-compatibility
@@ -1181,7 +1181,7 @@ class ActionAjax extends Action {
      */
     protected function EventStreamWall() {
 
-        $aVars = array();
+        $aVars = [];
         $aResult = E::ModuleWall()->GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('widgets.stream.params.limit'));
         if ($aResult['count'] != 0) {
             $aVars['aWall'] = $aResult['collection'];
@@ -1319,7 +1319,7 @@ class ActionAjax extends Action {
         if ($oType = $oTopic->getContentType()) {
             //получаем поля для данного типа
             if ($aFields = $oType->getFields()) {
-                $aValues = array();
+                $aValues = [];
 
                 // вставляем поля, если они прописаны для топика
                 foreach ($aFields as $oField) {
@@ -1428,7 +1428,7 @@ class ActionAjax extends Action {
         $sFile = null;
         // * Был выбран файл с компьютера и он успешно загрузился?
         if ($aUploadedFile = $this->GetUploadedFile('img_file')) {
-            $aOptions = array();
+            $aOptions = [];
             // Check options of uploaded image
             if ($nWidth = $this->GetPost('img_width')) {
                 if ($this->GetPost('img_width_unit') == 'percent') {
@@ -1478,7 +1478,7 @@ class ActionAjax extends Action {
         if (!($sValue = F::GetRequest('value', null, 'post')) || !is_string($sValue)) {
             return;
         }
-        $aItems = array();
+        $aItems = [];
 
         // * Формируем список тегов
         $aTags = E::ModuleTopic()->GetTopicTagsByLike($sValue, 10);
@@ -1499,7 +1499,7 @@ class ActionAjax extends Action {
         if (!($sValue = F::GetRequest('value', null, 'post')) || !is_string($sValue)) {
             return;
         }
-        $aItems = array();
+        $aItems = [];
 
         // * Формируем список пользователей
         /** @var ModuleUser_EntityUser[] $aUsers */

@@ -12,7 +12,7 @@
  * Class Decorator
  *
  * @mixin Module
- * @method Init
+ * @method init
  *
  * @package engine
  * @since 1.1
@@ -49,7 +49,7 @@ class Decorator extends LsObject {
     protected function _initHooks() {
 
         $this->oModuleHook = E::Module('Hook');
-        $this->oModuleHook->AddObserver($this->sHookPrefix, array($this, 'HookObserver'));
+        $this->oModuleHook->addObserver($this->sHookPrefix, array($this, 'HookObserver'));
     }
 
     /**
@@ -57,7 +57,7 @@ class Decorator extends LsObject {
      *
      * @param $sHookName
      */
-    public function HookObserver($sHookName) {
+    public function hookObserver($sHookName) {
 
         $this->aRegisteredHooks[$sHookName] = true;
     }
@@ -69,7 +69,7 @@ class Decorator extends LsObject {
      *
      * @return bool
      */
-    public function MethodExists($sMethodName) {
+    public function methodExists($sMethodName) {
 
         return method_exists($this->oComponent, $sMethodName);
     }
@@ -82,7 +82,7 @@ class Decorator extends LsObject {
      *
      * @return mixed
      */
-    public function CallMethod($sMethod, $aArgs) {
+    public function callMethod($sMethod, $aArgs) {
 
         $sHookMethod = $this->sHookPrefix . strtolower($sMethod);
         if ($this->bHookEnable) {
@@ -96,7 +96,7 @@ class Decorator extends LsObject {
                 case 'module':
                     $sHookName = $sHookMethod . '_before';
                     if (isset($this->aRegisteredHooks[$sHookName])) {
-                        $this->oModuleHook->Run($sHookName, $aArgs);
+                        $this->oModuleHook->run($sHookName, $aArgs);
                     }
                     break;
                 default:
@@ -148,7 +148,7 @@ class Decorator extends LsObject {
                     $sHookName = $sHookMethod . '_after';
                     if (isset($this->aRegisteredHooks[$sHookName])) {
                         $aHookParams = array('result' => &$xResult, 'params' => &$aArgs);
-                        $this->oModuleHook->Run($sHookName, $aHookParams);
+                        $this->oModuleHook->run($sHookName, $aHookParams);
                     }
                     break;
                 default:
@@ -169,7 +169,7 @@ class Decorator extends LsObject {
 
         $iTime = microtime(true);
 
-        $xResult = $this->CallMethod($sMethod, $aArgs);
+        $xResult = $this->callMethod($sMethod, $aArgs);
 
         $this->aStats['calls'][] = array(
             'time' => round(microtime(true) - $iTime, 6),
@@ -233,7 +233,7 @@ class Decorator extends LsObject {
      *
      * @return Decorator
      */
-    static function Create($oComponent, $bHookEnable = true) {
+    static function create($oComponent, $bHookEnable = true) {
 
         $sClassName = get_class($oComponent);
         if (!$bHookEnable || $sClassName == 'ModulePlugin' || $sClassName == 'ModuleHook') {

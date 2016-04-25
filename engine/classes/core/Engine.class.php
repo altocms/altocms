@@ -241,7 +241,7 @@ class Engine extends LsObject {
      * Инициализация ядра движка
      *
      */
-    public function Init() {
+    public function init() {
 
         if (self::$nStage >= self::STAGE_RUN) {
             return;
@@ -250,22 +250,22 @@ class Engine extends LsObject {
         self::$nStage = self::STAGE_INIT;
 
         // * Загружаем плагины
-        $this->LoadPlugins();
+        $this->_loadPlugins();
 
         // * Инициализируем хуки
-        $this->InitHooks();
+        $this->_initHooks();
 
         // * Загружаем модули автозагрузки
-        $this->LoadModules();
+        $this->_autoloadModules();
 
         // * Инициализируем загруженные модули
-        $this->InitModules();
+        $this->_initModules();
 
         // * Инициализируем загруженные плагины
-        $this->InitPlugins();
+        $this->_initPlugins();
 
         // * Запускаем хук для события завершения инициализации Engine
-        $this->GetModule('Hook')->Run('engine_init_complete');
+        $this->getModule('Hook')->Run('engine_init_complete');
 
         self::$nStage = self::STAGE_RUN;
     }
@@ -275,11 +275,11 @@ class Engine extends LsObject {
      * Завершает все модули.
      *
      */
-    public function Shutdown() {
+    public function shutdown() {
 
         if (self::$nStage < self::STAGE_SHUTDOWN) {
             self::$nStage = self::STAGE_SHUTDOWN;
-            $this->ShutdownModules();
+            $this->_shutdownModules();
             self::$nStage = self::STAGE_DONE;
         }
     }
@@ -287,7 +287,7 @@ class Engine extends LsObject {
     /**
      * @return int
      */
-    static public function GetStage() {
+    static public function getStage() {
 
         return self::$nStage;
     }
@@ -297,12 +297,12 @@ class Engine extends LsObject {
      *
      * @throws Exception
      */
-    protected function InitModules() {
+    protected function _initModules() {
 
         /** @var Decorator $oModule */
         foreach ($this->aModules as $oModule) {
             if (!$oModule->isInit()) {
-                $this->InitModule($oModule);
+                $this->_initModule($oModule);
             }
         }
     }
@@ -314,15 +314,15 @@ class Engine extends LsObject {
      *
      * @throws Exception
      */
-    protected function InitModule($oModule) {
+    protected function _initModule($oModule) {
 
         if ($oModule->InInitProgress()) {
             // Нельзя запускать инициализацию модуля в процессе его инициализации
             throw new Exception('Recursive initialization of module "' . get_class($oModule) . '"');
         }
-        $oModule->SetInit(true);
+        $oModule->setInit(true);
         $oModule->init();
-        $oModule->SetInit();
+        $oModule->setInit();
     }
 
     /**
@@ -335,7 +335,7 @@ class Engine extends LsObject {
     public function isInitModule($sModuleClass) {
 
         if ($sModuleClass !== 'ModulePlugin' && $sModuleClass !== 'ModuleHook') {
-            $sModuleClass = $this->GetModule('Plugin')->getLastOf('module', $sModuleClass);
+            $sModuleClass = $this->getModule('Plugin')->getLastOf('module', $sModuleClass);
         }
         if (isset($this->aModules[$sModuleClass]) && $this->aModules[$sModuleClass]->isInit()) {
             return true;
@@ -348,21 +348,21 @@ class Engine extends LsObject {
      *
      * @throws Exception
      */
-    protected function ShutdownModules() {
+    protected function _shutdownModules() {
 
         $aModules = $this->aModules;
         array_reverse($aModules);
         // Сначала shutdown модулей, загруженных в процессе работы
         /** @var Module $oModule */
         foreach ($aModules as $oModule) {
-            if (!$oModule->GetPreloaded()) {
-                $this->ShutdownModule($oModule);
+            if (!$oModule->isPreloaded()) {
+                $this->_shutdownModule($oModule);
             }
         }
         // Затем предзагруженные модули
         foreach ($aModules as $oModule) {
-            if ($oModule->GetPreloaded()) {
-                $this->ShutdownModule($oModule);
+            if ($oModule->isPreloaded()) {
+                $this->_shutdownModule($oModule);
             }
         }
     }
@@ -372,15 +372,15 @@ class Engine extends LsObject {
      *
      * @throws Exception
      */
-    protected function ShutdownModule($oModule) {
+    protected function _shutdownModule($oModule) {
 
         if ($oModule->InShudownProgress()) {
             // Нельзя запускать shutdown модуля в процессе его shutdown`a
             throw new Exception('Recursive shutdown of module "' . get_class($oModule) . '"');
         }
-        $oModule->SetDone(false);
-        $oModule->Shutdown();
-        $oModule->SetDone();
+        $oModule->setDone(false);
+        $oModule->shutdown();
+        $oModule->setDone();
     }
 
     /**
@@ -393,7 +393,7 @@ class Engine extends LsObject {
      *
      * @return Module
      */
-    public function LoadModule($sModuleClass, $bInit = false) {
+    public function loadModule($sModuleClass, $bInit = false) {
 
         $tm1 = microtime(true);
 
@@ -406,7 +406,7 @@ class Engine extends LsObject {
         $oModuleDecorator = Decorator::Create($oModule);
         $this->aModules[$sModuleClass] = $oModuleDecorator;
         if ($bInit || $sModuleClass === 'ModuleCache') {
-            $this->InitModule($oModuleDecorator);
+            $this->_initModule($oModuleDecorator);
         }
         $tm2 = microtime(true);
         $this->nTimeLoadModule += $tm2 - $tm1;
@@ -418,18 +418,18 @@ class Engine extends LsObject {
      * Загружает модули из авто-загрузки
      *
      */
-    protected function LoadModules() {
+    protected function _autoloadModules() {
 
         $aAutoloadModules = C::Get('module._autoLoad_');
         if (!empty($aAutoloadModules)) {
             foreach ($aAutoloadModules as $sModuleName) {
                 $sModuleClass = 'Module' . $sModuleName;
                 if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                    $sModuleClass = $this->GetModule('Plugin')->getLastOf('module', $sModuleClass);
+                    $sModuleClass = $this->getModule('Plugin')->getLastOf('module', $sModuleClass);
                 }
 
                 if (!isset($this->aModules[$sModuleClass])) {
-                    $this->LoadModule($sModuleClass);
+                    $this->loadModule($sModuleClass);
                     if (isset($this->aModules[$sModuleClass])) {
                         // Устанавливаем для модуля признак предзагрузки
                         $this->aModules[$sModuleClass]->SetPreloaded(true);
@@ -442,7 +442,7 @@ class Engine extends LsObject {
     /**
      * @return array
      */
-    public function GetLoadedModules() {
+    public function getLoadedModules() {
 
         return $this->aModules;
     }
@@ -451,7 +451,7 @@ class Engine extends LsObject {
      * Регистрирует хуки из /classes/hooks/
      *
      */
-    protected function InitHooks() {
+    protected function _initHooks() {
 
         $aPathSeek = array_reverse(Config::Get('path.root.seek'));
         $aHookFiles = array();
@@ -476,14 +476,14 @@ class Engine extends LsObject {
         }
 
         // * Подгружаем хуки активных плагинов
-        $this->InitPluginHooks();
+        $this->_initPluginHooks();
     }
 
     /**
      * Инициализация хуков активированных плагинов
      *
      */
-    protected function InitPluginHooks() {
+    protected function _initPluginHooks() {
 
         if ($aPluginList = F::GetPluginsList(false, false)) {
             $sPluginsDir = F::GetPluginsDir();
@@ -510,7 +510,7 @@ class Engine extends LsObject {
      * Загрузка плагинов и делегирование
      *
      */
-    protected function LoadPlugins() {
+    protected function _loadPlugins() {
 
         if ($aPluginList = F::GetPluginsList()) {
             foreach ($aPluginList as $sPluginName) {
@@ -527,7 +527,7 @@ class Engine extends LsObject {
      * Инициализация активированных(загруженных) плагинов
      *
      */
-    protected function InitPlugins() {
+    protected function _initPlugins() {
 
         /** @var Plugin $oPlugin */
         foreach ($this->aPlugins as $oPlugin) {
@@ -540,7 +540,7 @@ class Engine extends LsObject {
      *
      * @return array
      */
-    public function GetPlugins() {
+    public function getPlugins() {
 
         return $this->aPlugins;
     }
@@ -556,7 +556,7 @@ class Engine extends LsObject {
      */
     public function _CallModule($sName, &$aArgs) {
 
-        list($oModule, $sModuleName, $sMethod) = $this->GetModuleMethod($sName);
+        list($oModule, $sModuleName, $sMethod) = $this->getModuleMethod($sName);
         $aArgsRef = array();
         foreach ($aArgs as $iKey => $xVal) {
             $aArgsRef[] =& $aArgs[$iKey];
@@ -584,7 +584,7 @@ class Engine extends LsObject {
      * @return array
      * @throws Exception
      */
-    public function GetModuleMethod($sCallName) {
+    public function getModuleMethod($sCallName) {
 
         if (isset($this->aModulesMap[$sCallName])) {
             list($sModuleClass, $sModuleName, $sMethod) = $this->aModulesMap[$sCallName];
@@ -625,7 +625,7 @@ class Engine extends LsObject {
 
             // * Получаем делегат модуля (в случае наличия такового)
             if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                $sModuleClass = $this->GetModule('Plugin')->getLastOf('module', $sModuleClass);
+                $sModuleClass = $this->getModule('Plugin')->getLastOf('module', $sModuleClass);
             }
             $this->aModulesMap[$sCallName] = array($sModuleClass, $sModuleName, $sMethod);
         }
@@ -633,7 +633,7 @@ class Engine extends LsObject {
         if (isset($this->aModules[$sModuleClass])) {
             $oModule = $this->aModules[$sModuleClass];
         } else {
-            $oModule = $this->LoadModule($sModuleClass, true);
+            $oModule = $this->loadModule($sModuleClass, true);
         }
 
         return array($oModule, $sModuleName, $sMethod);
@@ -647,7 +647,7 @@ class Engine extends LsObject {
      * @return object|null
      * @throws Exception
      */
-    public function GetModule($sModule) {
+    public function getModule($sModule) {
 
         if (isset($this->aModules[$sModule])) {
             return $this->aModules[$sModule];
@@ -663,7 +663,7 @@ class Engine extends LsObject {
             $sModuleName = $sModule;
         }
         if ($sModuleName) {
-            $aData = $this->GetModuleMethod($sModuleName);
+            $aData = $this->getModuleMethod($sModuleName);
             $oModule = $aData[0];
             $this->aModules[$sModule] = $oModule->setInstanceName($sModuleName);
 
@@ -681,7 +681,7 @@ class Engine extends LsObject {
         /**
          * Подсчитываем время выполнения
          */
-        $nTimeInit = $this->GetTimeInit();
+        $nTimeInit = $this->getTimeInit();
         $nTimeFull = microtime(true) - $nTimeInit;
         if (!empty($_SERVER['REQUEST_TIME_FLOAT'])) {
             $nExecTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
@@ -691,8 +691,8 @@ class Engine extends LsObject {
             $nExecTime = 0;
         }
         return array(
-            'sql' => $this->GetModule('Database')->GetStats(),
-            'cache' => $this->GetModule('Cache')->GetStats(),
+            'sql' => $this->getModule('Database')->GetStats(),
+            'cache' => $this->getModule('Cache')->GetStats(),
             'engine' => array(
                 'time_load_module' => number_format(round($this->nTimeLoadModule, 3), 3),
                 'full_time' => number_format(round($nTimeFull, 3), 3),
@@ -708,7 +708,7 @@ class Engine extends LsObject {
      *
      * @return int
      */
-    public function GetTimeInit() {
+    public function getTimeInit() {
 
         return $this->nTimeInit;
     }
@@ -859,9 +859,7 @@ class Engine extends LsObject {
     public static function GetEntity($sName, $aParams = array()) {
 
         $sClass = static::GetEntityClass($sName);
-        if ($sClass === 'ModuleModule_EntityEntity') {
-            $s=1;
-        }
+
         /** @var Entity $oEntity */
         $oEntity = new $sClass($aParams);
         $oEntity->init();
@@ -1314,7 +1312,7 @@ class Engine extends LsObject {
      */
     public static function Module($sModuleName) {
 
-        return Engine::getInstance()->GetModule($sModuleName);
+        return Engine::getInstance()->getModule($sModuleName);
     }
 
     /**
@@ -1408,7 +1406,7 @@ class Engine extends LsObject {
 
     public static function GetActivePlugins() {
 
-        return static::getInstance()->GetPlugins();
+        return static::getInstance()->getPlugins();
     }
 }
 

@@ -131,7 +131,7 @@ class ActionPeople extends Action {
             array('country_id' => $oCountry->getId(), 'target_type' => 'user'), $iPage,
             Config::Get('module.user.per_page')
         );
-        $aUsersId = array();
+        $aUsersId = [];
         foreach ($aResult['collection'] as $oTarget) {
             $aUsersId[] = $oTarget->getTargetId();
         }
@@ -171,7 +171,7 @@ class ActionPeople extends Action {
         $aResult = E::ModuleGeo()->GetTargets(
             array('city_id' => $oCity->getId(), 'target_type' => 'user'), $iPage, Config::Get('module.user.per_page')
         );
-        $aUsersId = array();
+        $aUsersId = [];
         foreach ($aResult['collection'] as $oTarget) {
             $aUsersId[] = $oTarget->getTargetId();
         }

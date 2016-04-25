@@ -73,7 +73,7 @@ class ActionComments extends Action {
 
         // * Получаем список комментов
         $aResult = E::ModuleComment()->GetCommentsAll(
-            'topic', $iPage, Config::Get('module.comment.per_page'), array(), $aCloseBlogs
+            'topic', $iPage, Config::Get('module.comment.per_page'), [], $aCloseBlogs
         );
         $aComments = $aResult['collection'];
 

@@ -430,7 +430,7 @@ class Loader {
             return true;
         }
 
-        if (class_exists('Engine', false) && (E::GetStage() >= E::STAGE_INIT)) {
+        if (class_exists('Engine', false) && (E::getStage() >= E::STAGE_INIT)) {
             $aInfo = E::GetClassInfo($sClassName, E::CI_CLASSPATH | E::CI_INHERIT);
             if ($aInfo[E::CI_INHERIT]) {
                 $sInheritClass = $aInfo[E::CI_INHERIT];

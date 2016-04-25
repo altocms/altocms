@@ -399,7 +399,7 @@ class ActionSettings extends Action {
 
                     // * Обрабатываем дополнительные поля, type = ''
                     $aFields = E::ModuleUser()->GetUserFields('');
-                    $aData = array();
+                    $aData = [];
                     foreach ($aFields as $iId => $aField) {
                         if (isset($_REQUEST['profile_user_field_' . $iId])) {
                             $aData[$iId] = F::GetRequestStr('profile_user_field_' . $iId);

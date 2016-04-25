@@ -51,7 +51,7 @@ class ActionContent extends Action {
      */
     protected $oContentType = null;
 
-    protected $aBlogTypes = array();
+    protected $aBlogTypes = [];
 
     protected $bPersonalBlogEnabled = false;
 
@@ -122,14 +122,14 @@ class ActionContent extends Action {
      *
      * @return array
      */
-    protected function _getAllowBlogs($aFilter = array()) {
+    protected function _getAllowBlogs($aFilter = []) {
 
         $oUser = (isset($aFilter['user']) ? $aFilter['user'] : null);
         $sContentTypeName = (isset($aFilter['content_type']) ? $aFilter['content_type'] : null);
 
         $aBlogs = E::ModuleBlog()->GetBlogsAllowByUser($oUser);
 
-        $aAllowBlogs = array();
+        $aAllowBlogs = [];
         // Добавим персональный блог пользователю
         // Если персональные блоги отключены, то $oPersonalBlog будет равно null и добавлять
         // его в список догступных блогов не стоит, иначе будет ошибка при итерации по
@@ -332,10 +332,10 @@ class ActionContent extends Action {
         $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
 
         // * Варианты ответов
-        if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && F::GetRequest('topic_field_answers', array())) {
+        if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && F::GetRequest('topic_field_answers', [])) {
             $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            $aAnswers = F::GetRequest('topic_field_answers', array());
+            $aAnswers = F::GetRequest('topic_field_answers', []);
             foreach ($aAnswers as $sAnswer) {
                 $sAnswer = trim((string)$sAnswer);
                 if ($sAnswer) {
@@ -530,7 +530,7 @@ class ActionContent extends Action {
             $_REQUEST['topic_field_tags'] = $oTopic->getTags();
 
             $_REQUEST['topic_field_question'] = $oTopic->getQuestionTitle();
-            $_REQUEST['topic_field_answers'] = array();
+            $_REQUEST['topic_field_answers'] = [];
             $_REQUEST['topic_show_photoset'] = $oTopic->getShowPhotoset();
             $aAnswers = $oTopic->getQuestionAnswers();
             foreach ($aAnswers as $aAnswer) {
@@ -677,11 +677,11 @@ class ActionContent extends Action {
 
         // * Изменяем вопрос/ответы, только если еще никто не голосовал
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question')
-            && F::GetRequest('topic_field_answers', array()) && ($oTopic->getQuestionCountVote() == 0)
+            && F::GetRequest('topic_field_answers', []) && ($oTopic->getQuestionCountVote() == 0)
         ) {
             $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            $aAnswers = F::GetRequest('topic_field_answers', array());
+            $aAnswers = F::GetRequest('topic_field_answers', []);
             foreach ($aAnswers as $sAnswer) {
                 $sAnswer = trim((string)$sAnswer);
                 if ($sAnswer) {
@@ -1053,7 +1053,7 @@ class ActionContent extends Action {
 
         // * Получаем список фото
         $aPhotos = $oTopic->getPhotosetPhotos($iLastId, Config::Get('module.topic.photoset.per_page'));
-        $aResult = array();
+        $aResult = [];
         if (count($aPhotos)) {
             // * Формируем данные для ajax ответа
             foreach ($aPhotos as $oPhoto) {

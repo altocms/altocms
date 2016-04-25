@@ -85,7 +85,7 @@ class ActionUploader extends Action {
             }
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -205,7 +205,7 @@ class ActionUploader extends Action {
      *
      * @return ModuleMresource_EntityMresource|bool
      */
-    public function UploadImageAfterResize($sFile, $sTarget, $sTargetId, $aSize = array()) {
+    public function UploadImageAfterResize($sFile, $sTarget, $sTargetId, $aSize = []) {
 
         if ($sTargetId == '0') {
             if (!E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) {

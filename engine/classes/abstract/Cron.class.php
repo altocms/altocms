@@ -53,7 +53,7 @@ class Cron extends LsObject {
         /**
          * Инициализируем ядро
          */
-        $this->oEngine->Init();
+        $this->oEngine->init();
 
         if (!empty($sLockFile)) {
             $this->oLockFile = fopen($sLockFile, 'a');

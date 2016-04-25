@@ -198,7 +198,7 @@ class ActionStream extends Action {
          */
         $aEvents = E::ModuleStream()->Read(null, $iFromId);
 
-        $aVars = array();
+        $aVars = [];
 
         $aVars['aStreamEvents'] = $aEvents;
         $aVars['sDateLast'] = F::GetRequestStr('sDateLast');

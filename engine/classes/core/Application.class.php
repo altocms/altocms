@@ -31,7 +31,7 @@ class Application extends LsObject {
 
     public function __destruct() {
 
-        $this->Done();
+        $this->done();
     }
 
     /**
@@ -50,10 +50,10 @@ class Application extends LsObject {
      *
      * @return Application
      */
-    static public function Create($aParams = array()) {
+    static public function create($aParams = array()) {
 
         $oApp = static::getInstance();
-        $oApp->Init($aParams);
+        $oApp->init($aParams);
 
         return $oApp;
     }
@@ -63,7 +63,7 @@ class Application extends LsObject {
      *
      * @param array $aParams
      */
-    public function Init($aParams = array()) {
+    public function init($aParams = array()) {
 
         $this->aParams = $aParams;
 
@@ -101,15 +101,15 @@ class Application extends LsObject {
     /**
      * Executes application
      */
-    public function Exec() {
+    public function exec() {
 
-        R::getInstance()->Exec();
+        R::getInstance()->exec();
     }
 
     /**
      * @return array
      */
-    public function GetParams() {
+    public function getParams() {
 
         return $this->aParams;
     }
@@ -117,7 +117,7 @@ class Application extends LsObject {
     /**
      * Done application
      */
-    public function Done() {
+    public function done() {
 
     }
 

@@ -82,7 +82,7 @@ abstract class Plugin extends LsObject {
      * Передает информацию о делегатах в модуль ModulePlugin
      * Вызывается Engine перед инициализацией плагина
      *
-     * @see Engine::LoadPlugins
+     * @see Engine::_loadPlugins
      */
     final function Delegate() {
 
