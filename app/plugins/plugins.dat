@@ -1,2 +1,9 @@
-;2015-05-21 15:34:55
-simplerating simplerating ;Простая рейтинговая система
+;2015-11-29 00:17:26
+;ls ls ;LS Compatibility
+;alto_api alto/api ;REST API
+dev dev ;Plugin for developers
+;simplerating simplerating ;Простая рейтинговая система
+;seopack seopack ;SEOPack
+;orm
+test
+company
