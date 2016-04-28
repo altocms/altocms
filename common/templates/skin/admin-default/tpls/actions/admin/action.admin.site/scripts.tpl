@@ -2,24 +2,24 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}site-scripts/add/" class="btn btn-primary tip-top"
+        <a href="{R::GetLink("admin")}site-scripts/add/" class="btn btn-primary tip-top"
            title="{$aLang.action.admin.scripts_add}"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}site-scripts/list/all/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{R::GetLink("admin")}site-scripts/list/all/">
             {$aLang.action.admin.scripts_sub_all}
         </a>
-        <a class="btn btn-default {if $sMode=='active'}active{/if}" href="{router page='admin'}site-scripts/list/active/">
+        <a class="btn btn-default {if $sMode=='active'}active{/if}" href="{R::GetLink("admin")}site-scripts/list/active/">
             {$aLang.action.admin.scripts_sub_active}
         </a>
-        <a class="btn btn-default {if $sMode=='inactive'}active{/if}" href="{router page='admin'}site-scripts/list/inactive/">
+        <a class="btn btn-default {if $sMode=='inactive'}active{/if}" href="{R::GetLink("admin")}site-scripts/list/inactive/">
             {$aLang.action.admin.scripts_sub_inactive}
         </a>
     </div>
 {/block}
 
 {block name="content-body"}
-    <form action="{router page='admin'}site-scripts/" method="post" id="form_scripts_list" class="uniform">
+    <form action="{R::GetLink("admin")}site-scripts/" method="post" id="form_scripts_list" class="uniform">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">
@@ -72,7 +72,7 @@
                                 </div>
                             </td>
                             <td class="center">
-                                <a href="{router page='admin'}site-scripts/edit/{$sScriptId}/"
+                                <a href="{R::GetLink("admin")}site-scripts/edit/{$sScriptId}/"
                                    title="{$aLang.action.admin.scripts_edit}">
                                     <i class="icon icon-note"></i></a>
                             </td>

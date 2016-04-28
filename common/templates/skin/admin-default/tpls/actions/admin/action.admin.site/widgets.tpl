@@ -7,7 +7,7 @@
 {/block}
 
 {block name="content-body"}
-    <form action="{router page='admin'}site-widgets/" method="post" id="form_widgets_list" class="uniform">
+    <form action="{R::GetLink("admin")}site-widgets/" method="post" id="form_widgets_list" class="uniform">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="widget_action" value="">
 
@@ -84,7 +84,7 @@
                                 </div>
                             </td>
                             <td class="center">
-                                <a href="{router page="admin"}site-widgets/edit/{$oWidget->GetId()}"><i
+                                <a href="{R::GetLink("admin")}site-widgets/edit/{$oWidget->GetId()}"><i
                                             class="icon icon-note"></i></a>
                             </td>
                         </tr>

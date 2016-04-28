@@ -8,7 +8,7 @@
     <div class="text-center page-header">
         <h3>{$aLang.registration_invite}</h3>
     </div>
-    <form action="{router page='registration'}invite/" method="POST">
+    <form action="{R::GetLink("registration")}invite/" method="POST">
         <div class="form-group">
             <label>{$aLang.registration_invite_code}</label>
             <input type="text" name="invite_code" class="form-control"/>

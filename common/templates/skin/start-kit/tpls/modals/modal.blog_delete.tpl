@@ -9,7 +9,7 @@
                 </h4>
             </header>
 
-            <form action="{router page='blog'}delete/{$oBlog->getId()}/" method="POST">
+            <form action="{R::GetLink("blog")}delete/{$oBlog->getId()}/" method="POST">
                 <div class="modal-body">
                     {if E::IsAdmin()}
                         <div class="form-group">

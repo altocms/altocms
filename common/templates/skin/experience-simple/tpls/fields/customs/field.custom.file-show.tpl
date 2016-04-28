@@ -7,7 +7,7 @@
         <p>
             <strong>{$oField->getFieldName()}</strong>:
 
-            <a href="{router page="download"}file/{$oTopic->getTopicId()}/{$oField->getFieldId()}/?security_ls_key={$ALTO_SECURITY_KEY}">{$oFile->getFileName()|escape:'html'}</a>
+            <a href="{R::GetLink("download")}file/{$oTopic->getTopicId()}/{$oField->getFieldId()}/?security_ls_key={$ALTO_SECURITY_KEY}">{$oFile->getFileName()|escape:'html'}</a>
             {$oFile->getSizeFormat()}
             <span class="small muted">, ({$aLang.content_count_downloads}: {$oFile->getFileDownloads()})</span>
         </p>

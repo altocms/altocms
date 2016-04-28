@@ -15,7 +15,7 @@
                     </button>
                 {/if}
 
-                <form action="{router page='search'}topics/" class="navbar-search pull-right visible-lg">
+                <form action="{R::GetLink("search")}topics/" class="navbar-search pull-right visible-lg">
                     <input type="text" placeholder="{$aLang.search}" maxlength="255" name="q" class="form-control">
                 </form>
             </div>

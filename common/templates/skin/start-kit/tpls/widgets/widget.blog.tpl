@@ -14,7 +14,7 @@
                         ·
                         {$oBlog->getCountTopic()} {$oBlog->getCountTopic()|declension:$aLang.topic_declension:$sLang}
                         ·
-                        <a href="{router page='rss'}blog/{$oBlog->getUrl()}/" class="rss">RSS</a>
+                        <a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/" class="rss">RSS</a>
                     </small>
 
                     {if E::IsUser() AND E::UserId() != $oBlog->getOwnerId()}

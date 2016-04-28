@@ -9,7 +9,7 @@
                     <span><i class="fa fa-user"></i></span><span>{$aLang.user_menu_profile}</span>
                 </a></li>
             <li>
-                <a href="{router page='talk'}">
+                <a href="{R::GetLink("talk")}">
                     <span><i class="fa fa-envelope"></i></span><span>{$aLang.user_privat_messages}</span>
                 </a>
             </li>
@@ -19,13 +19,13 @@
                 </a>
             </li>
             <li>
-                <a href="{router page='settings'}profile/">
+                <a href="{R::GetLink("settings")}profile/">
                     <span><i class="fa fa-cog"></i></span><span>{$aLang.user_settings}</span>
                 </a>
             </li>
             <li class="divider"></li>
             <li>
-                <a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">
+                <a href="{R::GetLink("login")}exit/?security_key={$ALTO_SECURITY_KEY}">
                     <span><i class="fa fa-sign-out"></i></span><span>{$aLang.exit}</span>
                 </a>
             </li>

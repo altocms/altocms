@@ -31,7 +31,7 @@ class WidgetActivityFriends extends Widget {
             // * Получаем и прогружаем необходимые переменные в шаблон
             $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
             if ($aFriends) {
-                E::ModuleViewer()->Assign('aStreamFriends', $aFriends['collection']);
+                E::ModuleViewer()->assign('aStreamFriends', $aFriends['collection']);
             }
         }
     }

@@ -21,7 +21,7 @@
 
     {hook run='login_begin'}
 
-    <form action="{router page='login'}" method="post" class="js-form-login">
+    <form action="{R::GetLink("login")}" method="post" class="js-form-login">
         {hook run='form_login_begin'}
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="return-path" class="{$_aRequest['return-path']}"/>
@@ -51,14 +51,14 @@
             {$aLang.user_login_submit}
         </button>
 
-        <a class="btn btn-default" href="{router page='registration'}">{$aLang.user_registration}</a>
-        <a class="btn btn-default" href="{router page='login'}reminder/">{$aLang.user_password_reminder}</a>
+        <a class="btn btn-default" href="{R::GetLink("registration")}">{$aLang.user_registration}</a>
+        <a class="btn btn-default" href="{R::GetLink("login")}reminder/">{$aLang.user_password_reminder}</a>
 
     </form>
 
     {if Config::Get('general.reg.invite')}
         <br/>
-        <form action="{router page='registration'}invite/" method="POST">
+        <form action="{R::GetLink("registration")}invite/" method="POST">
             <div class="text-center page-header">
                 <h3>{$aLang.registration_invite}</h3>
             </div>

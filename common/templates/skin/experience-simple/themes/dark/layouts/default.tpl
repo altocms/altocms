@@ -34,7 +34,7 @@
 
 
         <link href="{asset file="images/favicon.ico" theme=true}?v1" rel="shortcut icon"/>
-        <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/" title="{Config::Get('view.name')}"/>
+        <link rel="search" type="application/opensearchdescription+xml" href="{R::GetLink("search")}opensearch/" title="{Config::Get('view.name')}"/>
 
         {if $aHtmlRssAlternate}
             <link rel="alternate" type="application/rss+xml" href="{$aHtmlRssAlternate.url}" title="{$aHtmlRssAlternate.title}">

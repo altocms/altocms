@@ -52,7 +52,7 @@ class ModuleBlog_EntityBlogType extends Entity {
             'type_code',                        // поле
             'string', 'min' => 2, 'max' => 10,  // проверка на значение
             'allowEmpty' => false,              // может ли быть пустым
-            'label' => E::ModuleLang()->Get('action.admin.blogtypes_typecode'),
+            'label' => E::ModuleLang()->get('action.admin.blogtypes_typecode'),
             'on' => array('add'),               // сценарий
         );
     }
@@ -68,7 +68,7 @@ class ModuleBlog_EntityBlogType extends Entity {
             $sValue = $this->getProp($sPropKey, null);
         }
         if (is_null($sValue)) {
-            $sValue = E::ModuleLang()->Get(str_replace('%%type_code%%', $this->getTypeCode(), $sLangKey));
+            $sValue = E::ModuleLang()->get(str_replace('%%type_code%%', $this->getTypeCode(), $sLangKey));
             if (!$sValue) {
                 $sValue = $sDefault;
             }

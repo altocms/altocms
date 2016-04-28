@@ -8,24 +8,24 @@
  *-------------------------------------------------------
  */
 
-return array(
-    'alias'  => array(
+return [
+    'alias'  => [
         'R' => 'Router',
         'C' => 'Config',
         'E' => 'Engine',
         'App' => 'Application',
-    ),
-    'class'  => array(
+    ],
+    'class'  => [
         'LsObject' => '___path.dir.engine___/classes/abstract/LsObject.class.php',
         'Jevix' => '___path.dir.libs___/Jevix/jevix.class.php',
         'Qevix' => '___path.dir.libs___/php-qevix-0.4/qevix.php',
-    ),
-    'prefix' => array(
+    ],
+    'prefix' => [
         'DbSimple_' => '___path.dir.libs___/DbSimple3/lib/',
-    ),
-    'namespace' => array(
+    ],
+    'namespace' => [
         'alto\engine\ar' => '___path.dir.engine___/classes/ar/',
-    ),
-);
+    ],
+];
 
 // EOF

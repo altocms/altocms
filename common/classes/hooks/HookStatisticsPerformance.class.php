@@ -75,8 +75,8 @@ class HookStatisticsPerformance extends Hook {
 
         $bIsShowStatsPerformance = R::GetIsShowStats();
         if ($bIsShowStatsPerformance) {
-            E::ModuleViewer()->Assign('aStatsPerformance', $aStats);
-            E::ModuleViewer()->Assign('bIsShowStatsPerformance', $bIsShowStatsPerformance);
+            E::ModuleViewer()->assign('aStatsPerformance', $aStats);
+            E::ModuleViewer()->assign('bIsShowStatsPerformance', $bIsShowStatsPerformance);
 
             // * В ответ рендерим шаблон статистики
             if (!E::ModuleViewer()->TemplateExists($sTemplate)) {

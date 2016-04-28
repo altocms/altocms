@@ -5,12 +5,12 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{R::GetLink("admin")}content-blogs/list/">
             {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
         {foreach $aBlogTypes as $oBlogType}
             <a class="btn btn-default {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
-               href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">
+               href="{R::GetLink("admin")}content-blogs/list/{$oBlogType->GetTypeCode()}/">
                 {$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>
             </a>
         {/foreach}
@@ -43,7 +43,7 @@
                         <tr>
                             <td class="number">{$oBlog->GetId()}</td>
                             <td>
-                                <a href="{router page='admin'}users-list/profile/{$oBlog->GetOwner()->GetId()}/">{$oBlog->GetOwner()->getDisplayName()}</a>
+                                <a href="{R::GetLink("admin")}users-list/profile/{$oBlog->GetOwner()->GetId()}/">{$oBlog->GetOwner()->getDisplayName()}</a>
                             </td>
                             <td class="name">
                                 <a href="{$oBlog->GetUrlFull()}">{$oBlog->GetTitle()}</a>
@@ -62,7 +62,7 @@
                                 {if $oBlog->GetType()=='personal'}
                                     <i class="icon icon-note opacity50"></i>
                                 {else}
-                                    <a href="{router page='blog'}edit/{$oBlog->GetId()}/"
+                                    <a href="{R::GetLink("blog")}edit/{$oBlog->GetId()}/"
                                        title="{$aLang.action.admin.blog_edit}">
                                         <i class="icon icon-note"></i></a>
                                 {/if}

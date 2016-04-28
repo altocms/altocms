@@ -17,7 +17,7 @@
  * Модуль системных сообщений
  * Позволяет показывать пользователю сообщения двух видов - об ошибке и об успешном действии.
  * <pre>
- * E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'),E::ModuleLang()->Get('error'));
+ * E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'),E::ModuleLang()->get('error'));
  * </pre>
  *
  * @package engine.modules

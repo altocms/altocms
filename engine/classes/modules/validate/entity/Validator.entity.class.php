@@ -118,7 +118,7 @@ abstract class ModuleValidate_EntityValidator extends Entity {
             } else {
                 $sMsgFieldCustomId = $sMsgFieldCustom . 'Id';
                 if (property_exists($this, $sMsgFieldCustomId) and !is_null($this->$sMsgFieldCustomId)) {
-                    $sMsgDefault = E::ModuleLang()->Get($this->$sMsgFieldCustomId, array(), false);
+                    $sMsgDefault = E::ModuleLang()->get($this->$sMsgFieldCustomId, array(), false);
                 }
             }
         }

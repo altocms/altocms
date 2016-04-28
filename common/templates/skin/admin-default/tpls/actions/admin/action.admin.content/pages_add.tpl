@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}content-pages/" class="btn btn-default"><i class="icon icon-action-undo"></i></a>
+        <a href="{R::GetLink("admin")}content-pages/" class="btn btn-default"><i class="icon icon-action-undo"></i></a>
     </div>
 {/block}
 

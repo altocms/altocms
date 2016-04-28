@@ -2,9 +2,9 @@
 
 {block name="content-bar"}
     <div class="btn-group span6 span12">
-        <a href="{router page="admin"}{$sEvent}/all/" class="btn btn-default {if $sMode=='all'}active{/if}">All</a>
-        <a href="{router page="admin"}{$sEvent}/adm/" class="btn btn-default {if $sMode=='adm'}active{/if}">Admin</a>
-        <a href="{router page="admin"}{$sEvent}/site/" class="btn btn-default {if $sMode=='site'}active{/if}">Site</a>
+        <a href="{R::GetLink("admin")}{$sEvent}/all/" class="btn btn-default {if $sMode=='all'}active{/if}">All</a>
+        <a href="{R::GetLink("admin")}{$sEvent}/adm/" class="btn btn-default {if $sMode=='adm'}active{/if}">Admin</a>
+        <a href="{R::GetLink("admin")}{$sEvent}/site/" class="btn btn-default {if $sMode=='site'}active{/if}">Site</a>
     </div>
 {/block}
 

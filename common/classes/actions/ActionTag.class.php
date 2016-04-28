@@ -70,16 +70,16 @@ class ActionTag extends Action {
         // * Makes pages
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('tag') . htmlspecialchars($sTag)
+            R::GetLink('tag') . htmlspecialchars($sTag)
         );
 
         // * Loads variables to template
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aTopics', $aTopics);
-        E::ModuleViewer()->Assign('sTag', $sTag);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('tag_title'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aTopics', $aTopics);
+        E::ModuleViewer()->assign('sTag', $sTag);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('tag_title'));
         E::ModuleViewer()->AddHtmlTitle($sTag);
-        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'tag/' . $sTag . '/', $sTag);
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetLink('rss') . 'tag/' . $sTag . '/', $sTag);
 
         // * Sets template for display
         $this->SetTemplateAction('index');
@@ -93,7 +93,7 @@ class ActionTag extends Action {
         /**
          * Загружаем в шаблон необходимые переменные
          */
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 }
 

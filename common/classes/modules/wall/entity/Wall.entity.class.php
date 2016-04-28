@@ -62,7 +62,7 @@ class ModuleWall_EntityWall extends Entity {
                 return true;
             }
         }
-        return E::ModuleLang()->Get('wall_add_time_limit');
+        return E::ModuleLang()->get('wall_add_time_limit');
     }
 
     /**
@@ -86,7 +86,7 @@ class ModuleWall_EntityWall extends Entity {
                 return true;
             }
         }
-        return E::ModuleLang()->Get('wall_add_pid_error');
+        return E::ModuleLang()->get('wall_add_pid_error');
     }
 
     /**

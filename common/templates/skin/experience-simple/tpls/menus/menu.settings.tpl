@@ -2,10 +2,10 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
     <ul>
-        <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='profile'}active{/if}" href="{router page='settings'}profile/">{$aLang.settings_menu_profile}</a></li>
-        <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='account'}active{/if}" href="{router page='settings'}account/">{$aLang.settings_menu_account}</a></li>
+        <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='profile'}active{/if}" href="{R::GetLink("settings")}profile/">{$aLang.settings_menu_profile}</a></li>
+        <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='account'}active{/if}" href="{R::GetLink("settings")}account/">{$aLang.settings_menu_account}</a></li>
         <li>
-            <a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='tuning'}active{/if}" href="{router page='settings'}tuning/">
+            <a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='tuning'}active{/if}" href="{R::GetLink("settings")}tuning/">
                 <span class="visible-xs hidden-md hidden-sm hidden-lg">{$aLang.settings_menu_tuning_short}</span>
                 <span class="hidden-xs visible-md visible-sm visible-lg">{$aLang.settings_menu_tuning}</span>
 
@@ -13,7 +13,7 @@
         </li>
 
         {if Config::Get('general.reg.invite')}
-            <li><a class="link link-light-gray link-lead link-clear {if $sMenuItemSelect=='invite'}active{/if}" href="{router page='settings'}invite/">{$aLang.settings_menu_invite}</a></li>
+            <li><a class="link link-light-gray link-lead link-clear {if $sMenuItemSelect=='invite'}active{/if}" href="{R::GetLink("settings")}invite/">{$aLang.settings_menu_invite}</a></li>
         {/if}
 
         {hook run='menu_settings_settings_item'}

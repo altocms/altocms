@@ -31,7 +31,7 @@
                 {foreach from=$aAllowedContentTypes item=oContentType}
                     {if $oContentType->isAccessible()}
                         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect==$oContentType->getContentUrl()}active{/if}"
-                           href="{router page='content'}{$oContentType->getContentUrl()}/add/">
+                           href="{R::GetLink("content")}{$oContentType->getContentUrl()}/add/">
                             {$oContentType->getContentTitle()|escape:'html'}
                         </a></li>
                     {/if}
@@ -39,7 +39,7 @@
             {/if}
             {if $iUserCurrentCountTopicDraft}
                 <li><a class="link link-light-gray link-lead link-clear pull-right marr0"
-                   href="{router page='content'}drafts/">{$aLang.topic_menu_drafts} ({$iUserCurrentCountTopicDraft})
+                   href="{R::GetLink("content")}drafts/">{$aLang.topic_menu_drafts} ({$iUserCurrentCountTopicDraft})
                 </a></li>
             {/if}
             {hook run='menu_create_topic_item'}

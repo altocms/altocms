@@ -51,7 +51,7 @@
                 {*{if !$bPreview}*}
                     {*<span class="pull-right topic-top-controls">*}
                         {*{if E::IsAdmin() OR E::UserId()==$oTopic->getUserId() OR E::UserId()==$oBlog->getOwnerId() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator()}*}
-                            {*<a href="{router page='content'}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="small link link-lead link-dark link-clear">*}
+                            {*<a href="{R::GetLink("content")}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="small link link-lead link-dark link-clear">*}
                                 {*<i class="fa fa-pencil"></i>*}
                                 {*&nbsp;{$aLang.topic_edit}*}
                             {*</a>*}
@@ -138,7 +138,7 @@
                 {if !$bPreview}
                     <li class="pull-right topic-controls">
                         {if E::IsAdmin() OR E::UserId()==$oTopic->getUserId() OR E::UserId()==$oBlog->getOwnerId() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator()}
-                            <a href="{router page='content'}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="small link link-lead link-dark link-clear">
+                            <a href="{R::GetLink("content")}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="small link link-lead link-dark link-clear">
                                 <i class="fa fa-pencil"></i>
                                 {*&nbsp;{$aLang.topic_edit}*}
                             </a>

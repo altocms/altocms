@@ -66,7 +66,7 @@
     </div>
 
     <div class="panel-footer">
-        <a href="{router page='tag'}" class="link link-dual link-lead link-clear">
+        <a href="{R::GetLink("tag")}" class="link link-dual link-lead link-clear">
             <i class="fa fa-tags"></i>{$aLang.widget_tags_all}
         </a>
     </div>

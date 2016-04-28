@@ -11,7 +11,7 @@
                         · {date_format date=$oComment->getDate() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
                     </time>
                 </p>
-                <a href="{if Config::Get('module.comment.nested_per_page')}{router page='comments'}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}"
+                <a href="{if Config::Get('module.comment.nested_per_page')}{R::GetLink("comments")}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}"
                    class="stream-topic">{$oTopic->getTitle()|escape:'html'}</a>
                 <span class="stream-topic text-danger">{$oTopic->getCountComment()}</span>
             </li>
@@ -22,6 +22,6 @@
 {/if}
 
 <footer class="small text-muted">
-    <a href="{router page='comments'}">{$aLang.widget_stream_comments_all}</a> ·
-    <a href="{router page='rss'}allcomments/">RSS</a>
+    <a href="{R::GetLink("comments")}">{$aLang.widget_stream_comments_all}</a> ·
+    <a href="{R::GetLink("rss")}allcomments/">RSS</a>
 </footer>

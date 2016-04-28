@@ -32,7 +32,7 @@ class WidgetStream extends Widget {
 
             // * Формируем результат в виде шаблона и возвращаем
             $sTextResult = $this->Fetch('stream_comments.tpl', $aVars);
-            E::ModuleViewer()->Assign('sStreamComments', $sTextResult);
+            E::ModuleViewer()->assign('sStreamComments', $sTextResult);
         }
         */
     }

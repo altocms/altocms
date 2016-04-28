@@ -10,7 +10,7 @@
                 <ul class="list-unstyled list-inline tag-cloud word-wrap">
                     {foreach $aCityList as $oCity}
                         <li><a class="tag-size-{$oCity->getSize()}"
-                               href="{router page='people'}city/{$oCity->getId()}/">{$oCity->getName()|escape:'html'}</a>
+                               href="{R::GetLink("people")}city/{$oCity->getId()}/">{$oCity->getName()|escape:'html'}</a>
                         </li>
                     {/foreach}
                 </ul>

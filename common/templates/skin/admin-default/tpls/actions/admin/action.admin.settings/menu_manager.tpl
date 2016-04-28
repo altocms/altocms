@@ -22,7 +22,7 @@
                             <td class="menumanager_id">{$oMenu->getId()|escape:"html"}</td>
                             <td class="menumanager_description">{$oMenu->getDescription()|escape:"html"}</td>
                             <td class="menumanager_actions">
-                                <a href="{router page='admin'}settings-menumanager/edit/{$oMenu->getId()}/"
+                                <a href="{R::GetLink("admin")}settings-menumanager/edit/{$oMenu->getId()}/"
                                    title="{$aLang.action.admin.menu_manager_edit}"
                                    class="icon icon-note"></a>
                             </td>

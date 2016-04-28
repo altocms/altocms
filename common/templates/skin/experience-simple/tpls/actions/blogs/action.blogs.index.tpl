@@ -28,8 +28,8 @@
         </div>
 
         <div class="panel-footer">
-            <a class="link link-light-gray link-lead link-clear {if Router::GetActionEvent()!='personal'}active{/if}" href="{router page='blogs'}">{$aLang.all_blogs}</a>
-            <a class="link link-light-gray link-lead link-clear {if Router::GetActionEvent()=='personal'}active{/if}" href="{router page='blogs'}personal">{$aLang.my_blogs}</a>
+            <a class="link link-light-gray link-lead link-clear {if Router::GetActionEvent()!='personal'}active{/if}" href="{R::GetLink("blogs")}">{$aLang.all_blogs}</a>
+            <a class="link link-light-gray link-lead link-clear {if Router::GetActionEvent()=='personal'}active{/if}" href="{R::GetLink("blogs")}personal">{$aLang.my_blogs}</a>
             {*<a class="link link-light-gray link-lead link-clear" href="#">Мои</a>*}
         </div>
 
@@ -40,7 +40,7 @@
     <div class="content-inner-panel">
         <div id="blogs-list-search" style="display:none;"></div>
         <div id="blogs-list-original">
-            {*{router page='blogs' assign=sBlogsRootPage}*}
+            {*{R::GetLink("blogs") assign=sBlogsRootPage}*}
             {include file='commons/common.blog_list.tpl' bBlogsUseOrder=true} {*sBlogsRootPage=$sBlogsRootPage*}
         </div>
     </div>

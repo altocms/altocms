@@ -31,7 +31,7 @@
                     <tr>
                         <td class="number">{$oTopic->getId()}</td>
                         <td>
-                            <a href="{router page='admin'}users-list/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getDisplayName()}</a>
+                            <a href="{R::GetLink("admin")}users-list/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getDisplayName()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oTopic->getUrl()}">{$oTopic->getTitle()}</a>
@@ -63,7 +63,7 @@
     $(function(){
         $('.js-topic-delete').click(function(){
             ls.modal.confirm(ls.lang.get('topic_delete_confirm_title'), ls.lang.get('topic_delete_confirm_text'), function() {
-                document.location = '{router page='content'}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}';
+                document.location = '{R::GetLink("content")}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}';
             });
             return false;
         });

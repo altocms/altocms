@@ -39,7 +39,7 @@ class ActionPeople extends Action {
     public function Init() {
 
         // Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('people'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('people'));
 
         if (!E::ModuleSession()->GetCookie('view') && F::GetRequestStr('view')) {
             E::ModuleSession()->DelCookie('view');
@@ -82,7 +82,7 @@ class ActionPeople extends Action {
         if (is_string($sTitle) && mb_strlen($sTitle, 'utf-8')) {
             $sTitle = str_replace(array('_', '%'), array('\_', '\%'), $sTitle);
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return;
         }
 
@@ -102,7 +102,7 @@ class ActionPeople extends Action {
         $aVars = array(
             'aUsersList'     => $aResult['collection'],
             'oUserCurrent'   => E::ModuleUser()->GetUserCurrent(),
-            'sUserListEmpty' => E::ModuleLang()->Get('user_search_empty'),
+            'sUserListEmpty' => E::ModuleLang()->get('user_search_empty'),
         );
         E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('commons/common.user_list.tpl', $aVars));
     }
@@ -140,14 +140,14 @@ class ActionPeople extends Action {
         // Формируем постраничность
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.user.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('people') . $this->sCurrentEvent . '/' . $oCountry->getId()
+            R::GetLink('people') . $this->sCurrentEvent . '/' . $oCountry->getId()
         );
         // Загружаем переменные в шаблон
         if ($aUsersCountry) {
-            E::ModuleViewer()->Assign('aPaging', $aPaging);
+            E::ModuleViewer()->assign('aPaging', $aPaging);
         }
-        E::ModuleViewer()->Assign('oCountry', $oCountry);
-        E::ModuleViewer()->Assign('aUsersCountry', $aUsersCountry);
+        E::ModuleViewer()->assign('oCountry', $oCountry);
+        E::ModuleViewer()->assign('aUsersCountry', $aUsersCountry);
     }
 
     /**
@@ -180,15 +180,15 @@ class ActionPeople extends Action {
         // Формируем постраничность
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.user.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('people') . $this->sCurrentEvent . '/' . $oCity->getId()
+            R::GetLink('people') . $this->sCurrentEvent . '/' . $oCity->getId()
         );
 
         // Загружаем переменные в шаблон
         if ($aUsersCity) {
-            E::ModuleViewer()->Assign('aPaging', $aPaging);
+            E::ModuleViewer()->assign('aPaging', $aPaging);
         }
-        E::ModuleViewer()->Assign('oCity', $oCity);
-        E::ModuleViewer()->Assign('aUsersCity', $aUsersCity);
+        E::ModuleViewer()->assign('oCity', $oCity);
+        E::ModuleViewer()->assign('aUsersCity', $aUsersCity);
     }
 
     /**
@@ -201,7 +201,7 @@ class ActionPeople extends Action {
 
         // Последние по визиту на сайт
         $aUsersLast = E::ModuleUser()->GetUsersByDateLast(C::Get('module.user.per_page'));
-        E::ModuleViewer()->Assign('aUsersLast', $aUsersLast);
+        E::ModuleViewer()->assign('aUsersLast', $aUsersLast);
 
         // Получаем статистику
         $this->GetStats();
@@ -217,7 +217,7 @@ class ActionPeople extends Action {
 
         // Последние по регистрации
         $aUsersRegister = E::ModuleUser()->GetUsersByDateRegister(C::Get('module.user.per_page'));
-        E::ModuleViewer()->Assign('aUsersRegister', $aUsersRegister);
+        E::ModuleViewer()->assign('aUsersRegister', $aUsersRegister);
 
         // Получаем статистику
         $this->GetStats();
@@ -257,19 +257,19 @@ class ActionPeople extends Action {
         // Формируем постраничность
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.user.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('people') . 'index', array('order' => $sOrder, 'order_way' => $sOrderWay)
+            R::GetLink('people') . 'index', array('order' => $sOrder, 'order_way' => $sOrderWay)
         );
 
         // Получаем алфавитный указатель на список пользователей
         $aPrefixUser = E::ModuleUser()->GetGroupPrefixUser(1);
 
         // Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aUsersRating', $aUsers);
-        E::ModuleViewer()->Assign('aPrefixUser', $aPrefixUser);
-        E::ModuleViewer()->Assign("sUsersOrder", htmlspecialchars($sOrder));
-        E::ModuleViewer()->Assign("sUsersOrderWay", htmlspecialchars($sOrderWay));
-        E::ModuleViewer()->Assign("sUsersOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aUsersRating', $aUsers);
+        E::ModuleViewer()->assign('aPrefixUser', $aPrefixUser);
+        E::ModuleViewer()->assign("sUsersOrder", htmlspecialchars($sOrder));
+        E::ModuleViewer()->assign("sUsersOrderWay", htmlspecialchars($sOrderWay));
+        E::ModuleViewer()->assign("sUsersOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
 
         // Устанавливаем шаблон вывода
         $this->SetTemplateAction('index');
@@ -285,7 +285,7 @@ class ActionPeople extends Action {
         $aStat = E::ModuleUser()->GetStatUsers();
 
         // Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('aStat', $aStat);
+        E::ModuleViewer()->assign('aStat', $aStat);
     }
 
     /**
@@ -295,8 +295,8 @@ class ActionPeople extends Action {
     public function EventShutdown() {
 
         // Загружаем в шаблон необходимые переменные
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
-        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->assign('sMenuItemSelect', $this->sMenuItemSelect);
     }
 }
 

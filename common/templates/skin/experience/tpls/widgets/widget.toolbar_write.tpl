@@ -10,7 +10,7 @@
                 {foreach from=$aContentTypes item=oContentType}
                     {if $oContentType->isAccessible()}
                         <li>
-                            <a href="{router page='content'}{$oContentType->getContentUrl()}/add/">
+                            <a href="{R::GetLink("content")}{$oContentType->getContentUrl()}/add/">
                                 <span><i class="fa fa-file-o"></i></span>
                                 <span>{$oContentType->getContentTitle()|escape:'html'}</span>
 
@@ -19,13 +19,13 @@
                     {/if}
                 {/foreach}
                 <li>
-                    <a href="{router page='blog'}add">
+                    <a href="{R::GetLink("blog")}add">
                         <span><i class="fa fa-comment-o"></i></span>
                         <span>{$aLang.block_create_blog}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{router page='talk'}add">
+                    <a href="{R::GetLink("talk")}add">
                         <span><i class="fa fa-envelope-o"></i></span>
                         <span>{$aLang.block_create_talk}</span>
                     </a>
@@ -34,7 +34,7 @@
                 {if $iUserCurrentCountTopicDraft}
                     <li class="divider"></li>
                     <li>
-                        <a href="{router page='content'}drafts/"
+                        <a href="{R::GetLink("content")}drafts/"
                            class="write-item-link">
                             <span><i class="fa fa-bars"></i></span>
                             <span>{$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}</span>

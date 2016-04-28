@@ -31,7 +31,7 @@
                <a href="{$oBlog->getUrlFull()}">{E::ModuleLang()->Get('infobox_blog_url')}</a>
             </td>
             <td class="text-right">
-               <a href="{router page='rss'}blog/{$oBlog->getUrl()}/"
+               <a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/"
                   class="link link-light-gray link-clear link-lead" >
                   <i class="fa fa-rss"></i>&nbsp;RSS
                </a>

@@ -8,7 +8,7 @@
 
         <div class="widget-content" id="block_talk_search_content"
              {if $_aRequest.submit_talk_filter}style="display:block;" {/if}>
-            <form action="{router page='talk'}" method="GET" name="talk_filter_form">
+            <form action="{R::GetLink("talk")}" method="GET" name="talk_filter_form">
                 <div class="form-group">
                     <label for="talk_filter_addressee">{$aLang.talk_filter_label_addressee}</label>
                     <input type="text" id="talk_filter_addressee" name="addressee" value="{$_aRequest.addressee}"

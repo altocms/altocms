@@ -25,7 +25,7 @@
     {$aHtmlHeadFiles.css}
 
     <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v1" rel="shortcut icon">
-    <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
+    <link rel="search" type="application/opensearchdescription+xml" href="{R::GetLink("search")}opensearch/"
           title="{Config::Get('view.name')}"/>
 
 {if $aHtmlRssAlternate}
@@ -132,7 +132,7 @@
                 <li><a href="{$oUserCurrent->getUserUrl()}"><i class="icon icon-user"></i> {$aLang.user_menu_profile}
                     </a></li>
                 <li><a href="/settings/profile/"><i class="icon icon-settings"></i> {$aLang.settings_menu}</a></li>
-                <li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-lock"></i> {$aLang.exit}</a></li>
+                <li><a href="{R::GetLink("login")}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-lock"></i> {$aLang.exit}</a></li>
             </ul>
         </li>
     </ul>
@@ -145,7 +145,7 @@
         </li -->
 
         <li>
-            <a href="{router page='talk'}">
+            <a href="{R::GetLink("talk")}">
                 <i class="icon icon-envelope"></i>
                 {$aLang.user_privat_messages}
                 {if $iUserCurrentCountTalkNew}
@@ -155,7 +155,7 @@
         </li>
 
         <li>
-            <a href="{router page='feed'}track/">
+            <a href="{R::GetLink("feed")}track/">
                 <i class="icon icon-bell"></i> {$aLang.subscribe_menu} {if $iUserCurrentCountTrack}<span
                         class="badge badge-important">{$iUserCurrentCountTrack}</span>{/if}
             </a>

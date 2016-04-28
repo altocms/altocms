@@ -23,7 +23,7 @@
             </div>
 
             <footer>
-                <a href="{router page='blogs'}" class="small">{$aLang.widget_blogs_all}</a>
+                <a href="{R::GetLink("blogs")}" class="small">{$aLang.widget_blogs_all}</a>
             </footer>
         </div>
 

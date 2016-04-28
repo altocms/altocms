@@ -19,13 +19,13 @@
  *      'place' - место размещения (только для js)
  *      'prepare' - файл готовится, но не включается в HTML
  */
-$config['default']['js'] = array(
+$config['default']['js'] = [
     /* Vendor libs */
-    '___path.frontend.dir___/libs/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
-    //'___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery-1.11.3.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/html5shiv.min.js' => ['browser' => 'lt IE 9'],
+    //'___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => ['name' => 'jquery', 'asset' => 'mini'],
+    '___path.frontend.dir___/libs/vendor/jquery-1.11.3.min.js' => ['name' => 'jquery', 'asset' => 'mini'],
+    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => ['asset' => 'mini'],
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => ['name' => 'jquery-ui', 'asset' => 'mini'],
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',
     '___path.frontend.dir___/libs/vendor/jquery.browser.js',
@@ -47,85 +47,85 @@ $config['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/nprogress/nprogress.js',
     '___path.frontend.dir___/libs/vendor/syslabel/syslabel.js',
     '___path.frontend.dir___/libs/vendor/prettyphoto/js/jquery.prettyphoto.js',
-    '___path.frontend.dir___/libs/vendor/rowgrid/jquery.row-grid.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery.pulse/jquery.pulse.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/rowgrid/jquery.row-grid.min.js' => ['asset' => 'mini'],
+    '___path.frontend.dir___/libs/vendor/jquery.pulse/jquery.pulse.min.js' => ['asset' => 'mini'],
 
     '___path.frontend.dir___/libs/vendor/parsley/parsley.js',
     '___path.frontend.dir___/libs/vendor/parsley/i18n/messages.ru.js',
-    //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
+    //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => ['asset' => 'mini'],
     '___path.frontend.dir___/libs/vendor/bootbox/bootbox.js',
 
     //'___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
 
     /* swfupload */
-    '___path.frontend.dir___/libs/vendor/swfobject/plugin/swfupload.js' => array(
+    '___path.frontend.dir___/libs/vendor/swfobject/plugin/swfupload.js' => [
         'name'    => 'swfobject/plugin/swfupload.js',
         'prepare' => true
-    ),
-    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.js'        => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.js'        => [
         'name'    => 'swfupload/swfupload.js',
         'prepare' => true
-    ),
-    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.swf'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.swf'       => [
         'name'     => 'swfupload/swfupload.swf',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false
-    ),
+    ],
 
     /* markitUp */
     /*
-    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => array(
+    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/markitup/',
         'name'     => 'markitup',
-    ),
+    ],
     */
 
     /* tinyMCE */
     /*
-    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => array(
+    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'name'     => 'tinymce_4',
         'compress' => false,
         'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => [
         'dir_from'  => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'   => true,
         'compress'  => false,
         'merge'     => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false,
-    ),
+    ],
     */
-    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => array(
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => [
         'dir_from'  => '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/',
         'prepare'   => true,
         'merge'    => false,
-    ),
+    ],
 
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',
     '___path.frontend.dir___/libs/js/core/modal.js',
     '___path.frontend.dir___/libs/js/core/hook.js',
 
-    '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
+    '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => ['name' => 'bootstrap'],
 
     /* Engine */
     '___path.frontend.dir___/libs/js/engine/favourite.js',
@@ -162,14 +162,14 @@ $config['default']['js'] = array(
     '___path.frontend.dir___/libs/js/engine/altoPopover.js',
     '___path.frontend.dir___/libs/vendor/masonry.pkgd.js',
     '___path.frontend.dir___/libs/vendor/imagesloaded.pkgd.js',
-);
+];
 
 //потенциально проблемные файлы выводим в футере
-$config['footer']['js'] = array(
+$config['footer']['js'] = [
     '//yandex.st/share/share.js',
-);
+];
 
-$config['default']['css'] = array(
+$config['default']['css'] = [
     // Framework styles
     '___path.frontend.dir___/libs/css/reset.css',
     '___path.frontend.dir___/libs/css/helpers.css',
@@ -186,48 +186,48 @@ $config['default']['css'] = array(
     '___path.frontend.dir___/libs/vendor/nprogress/nprogress.css',
     '___path.frontend.dir___/libs/vendor/syslabel/syslabel.css',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
-);
+];
 
 /* *** Editor markitUp *** */
-$config['editor']['markitup']['js'] = array(
-    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => array(
+$config['editor']['markitup']['js'] = [
+    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/markitup/',
         'name'     => 'markitup',
-    ),
-);
+    ],
+];
 
 /* *** Editor tinyMCE *** */
-$config['editor']['tinymce']['js'] = array(
-    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => array(
+$config['editor']['tinymce']['js'] = [
+    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'name'     => 'tinymce_4',
         'compress' => false,
         'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => [
         'dir_from'  => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'   => true,
         'compress'  => false,
         'merge'     => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false,
-    ),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
+    ],
+    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => [
         'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false,
-    ),
-);
+    ],
+];
 
 // EOF

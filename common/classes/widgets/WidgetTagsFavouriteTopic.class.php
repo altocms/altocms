@@ -38,7 +38,7 @@ class WidgetTagsFavouriteTopic extends Widget {
             E::ModuleTools()->MakeCloud($aTags);
 
             // * Устанавливаем шаблон вывода
-            E::ModuleViewer()->Assign('aFavouriteTopicTags', $aTags);
+            E::ModuleViewer()->assign('aFavouriteTopicTags', $aTags);
 
             // * Получаем список тегов пользователя
             $aTags = E::ModuleFavourite()->GetGroupTags($oUser->getId(), 'topic', true, 70);
@@ -47,8 +47,8 @@ class WidgetTagsFavouriteTopic extends Widget {
             E::ModuleTools()->MakeCloud($aTags);
 
             // * Устанавливаем шаблон вывода
-            E::ModuleViewer()->Assign('aFavouriteTopicUserTags', $aTags);
-            E::ModuleViewer()->Assign('oFavouriteUser', $oUser);
+            E::ModuleViewer()->assign('aFavouriteTopicUserTags', $aTags);
+            E::ModuleViewer()->assign('oFavouriteUser', $oUser);
         }
     }
 }

@@ -9,7 +9,7 @@
                     <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
                     {if $oTopic->CanEditedBy(E::User())}
                         <li>
-                            <a href="{router page='content'}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="actions-edit">
+                            <a href="{R::GetLink("content")}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="actions-edit">
                                 {$aLang.topic_edit}
                             </a>
                         </li>

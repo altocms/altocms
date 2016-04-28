@@ -8,7 +8,7 @@ New email: <b>{$oChangemail->getMailTo()}</b><br/>
 
 <br/>
 To confirm the email change, please click here:
-<a href="{router page='profile'}changemail/confirm-to/{$oChangemail->getCodeTo()}/">{router page='profile'}changemail/confirm-to/{$oChangemail->getCodeTo()}/</a>
+<a href="{R::GetLink("profile")}changemail/confirm-to/{$oChangemail->getCodeTo()}/">{R::GetLink("profile")}changemail/confirm-to/{$oChangemail->getCodeTo()}/</a>
 
 <br/><br/>
 Best regards, site administration <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

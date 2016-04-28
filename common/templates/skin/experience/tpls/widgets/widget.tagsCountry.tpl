@@ -13,7 +13,7 @@
                     {foreach $aCountryList as $oCountry}
                         <li>
                             <a class="link link-light-gray"
-                               href="{router page='people'}country/{$oCountry->getId()}/">
+                               href="{R::GetLink("people")}country/{$oCountry->getId()}/">
                             <span class="tag-size tag-size-{$oCountry->getSize()}">
                                 {$oCountry->getName()|escape:'html'}
                             </span>

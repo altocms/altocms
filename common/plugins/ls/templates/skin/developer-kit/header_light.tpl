@@ -24,7 +24,7 @@
 	{/if}
 	
 	<link href="{Config::Get('path.static.skin')}/images/favicon.ico?v1" rel="shortcut icon" />
-	<link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/" title="{Config::Get('view.name')}" />
+	<link rel="search" type="application/opensearchdescription+xml" href="{R::GetLink("search")}opensearch/" title="{Config::Get('view.name')}" />
 
 	
 	{if $bRefreshToHome}

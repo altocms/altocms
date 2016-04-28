@@ -53,10 +53,10 @@ $config['view']['html']['title_sep']   = ' / ';   // разделитель дл
 $config['view']['skill_length'] = 2;// Длинна представления силы пользователя 0, 1, 2 или 3 знака после запятой. Округление идёт в большую сторону.
 $config['view']['rating_length'] = 2;// Длинна представления рейтинга пользователя 0, 1, или 2 знака после запятой. Округление идёт в большую сторону.
 
-$config['view']['set_editors'] = array(
+$config['view']['set_editors'] = [
     'default' => 'markitup',    // default simple editor
     'wysiwyg' => 'tinymce',     // wysiwyg editor
-);
+];
 /**
  * Настройка пагинации
  */
@@ -176,23 +176,23 @@ $config['sys']['cache']['use']    = false;
 /*
  * Доступные типы (виды) кеширования
  */
-$config['sys']['cache']['backends'] = array(
+$config['sys']['cache']['backends'] = [
     'file'   => 'File',         // файловое кеширование
     'memory' => 'Memcached',    // используется Memcached
     'xcache' => 'Xcache',       // используется XCache
     'tmp'    => 'Tmp',          // используется временное хранилище в памяти
-);
+];
 
 /*
  * Разрешить принудительное кеширование в модулях. Если разрешено, то в модулях можно программно задать
  * принудительное кеширование, даже если тип кеширования задан false
  *
  * Возможные значения:
- *  - array(...)    - разрешено принудительное кеширование заданных видов
- *  - true          - разрешено принудительное кеширование любого вида
- *  - false         - запрещено принудительное кеширование
+ *  - [...]    - разрешено принудительное кеширование заданных видов
+ *  - true     - разрешено принудительное кеширование любого вида
+ *  - false    - запрещено принудительное кеширование
  */
-$config['sys']['cache']['force']    = array('file', 'tmp');
+$config['sys']['cache']['force']    = ['file', 'tmp'];
 
 /*
  * Тип кеширования:
@@ -242,10 +242,10 @@ $config['sys']['logs']['count_for_rotate'] = 99;            // максимал�
  *   'exclude_private'  - исключать IP частных сетей
  *   'default'          - если IP так и не определен
  */
-$config['sys']['ip']['trusted']         = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
-$config['sys']['ip']['non_trusted']     = array();
+$config['sys']['ip']['trusted']         = ['REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA'];
+$config['sys']['ip']['non_trusted']     = [];
 $config['sys']['ip']['backward']        = true;
-$config['sys']['ip']['exclude']         = array('127.0.0.1', 'fe80::1', '::1');
+$config['sys']['ip']['exclude']         = ['127.0.0.1', 'fe80::1', '::1'];
 $config['sys']['ip']['exclude_server']  = true;
 $config['sys']['ip']['exclude_private'] = true;
 $config['sys']['ip']['default']         = '127.0.0.1';
@@ -265,12 +265,12 @@ $config['memcache']['compression'] = true;
  * Общие настройки
  */
 $config['general']['close']['mode']     = false; // использовать закрытый режим работы сайта, сайт будет доступен только авторизованным пользователям
-$config['general']['close']['actions']  = array('login', 'registration', 'captcha'); // enabled actions in closed mode
+$config['general']['close']['actions']  = ['login', 'registration', 'captcha']; // enabled actions in closed mode
 $config['general']['rss_editor_mail']   = '___sys.mail.from_email___'; // мыло редактора РСС
 $config['general']['reg']['invite']     = false; // использовать режим регистрации по приглашению или нет. Если использовать, то регистрация будет доступна ТОЛЬКО по приглашениям!
 $config['general']['reg']['activation'] = false; // использовать активацию при регистрации или нет
 
-$config['general']['show']['stats'] = array(1); // Показывать статистику: false - никому, true - всем, array(1) - список ID юзеров, крму показывать
+$config['general']['show']['stats'] = [1]; // Показывать статистику: false - никому, true - всем, [1] - список ID юзеров, крму показывать
 
 /**
  * Настройки ACL(Access Control List — список контроля доступа)
@@ -305,7 +305,7 @@ $config['module']['blog']['personal_good']   = -5;                  // Рейт�
 $config['module']['blog']['collective_good'] = -3;                  // рейтинг топика в коллективных блогах ниже которого он считается плохим
 $config['module']['blog']['index_good']      =  8;                  // Рейтинг топика выше которого(включительно) он попадает на главную
 $config['module']['blog']['encrypt']         = 'alto';              // Ключ XXTEA шифрования идентификаторов в ссылках приглашения в блоги
-$config['module']['blog']['avatar_size'] = array(100,64,48,24,0);   // Список размеров аватаров у блога. 0 - исходный размер ** Old templates compatibility
+$config['module']['blog']['avatar_size'] = [100,64,48,24,0];   // Список размеров аватаров у блога. 0 - исходный размер ** Old templates compatibility
 
 // Модуль Topic
 $config['module']['topic']['new_time']   = 60*60*24*1;              // Время в секундах в течении которого топик считается новым
@@ -316,119 +316,112 @@ $config['module']['topic']['max_length'] = 15000;                   // Макс�
 $config['module']['topic']['link_max_length'] = 500;                // Максимальное количество символов в одном топике-ссылке
 $config['module']['topic']['question_max_length'] = 500;            // Максимальное количество символов в одном топике-опросе
 $config['module']['topic']['allow_empty_tags'] = true;              // Разрешать или нет не заполнять теги
-//$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
-//$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
 $config['module']['topic']['draft_link'] = false;                   // разрешить показывать черновик по прямой ссылке
 $config['module']['topic']['on_duplicate_url'] = 1;                 // 0 - игнорировать; 1 - добавлять порядковый номер;
 
 // Модуль Uploader
-/*
- * Obsolete from Alto CMS 1.1.0
- */
-//$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
-//$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
 
 // Default options for file uploading
-$config['module']['uploader']['files']['default'] = array(
+$config['module']['uploader']['files']['default'] = [
     'file_maxsize'    => '5Mb', // максимальный размер загружаемого файла
-    'file_extensions' => array( //расширения файлов, которые можно прикреплять к топикам
+    'file_extensions' => [ //расширения файлов, которые можно прикреплять к топикам
         'zip','rar','gz','mp3',
         'doc', 'docx', 'xls', 'xlsx', 'pdf','djv','djvu',
         'gif', 'png', 'jpg', 'jpeg',
-    ),
-    'upload'          => array( // параметры сохранения при загрузке
+    ],
+    'upload'          => [ // параметры сохранения при загрузке
         'return_url' => true,   // возвращает URL загруженного файла
-    ),
-);
+    ],
+];
 
 $config['module']['uploader']['images']['default'] = array(
     '$extends$' => '___module.uploader.files.default___',
-    'image_extensions' => array('gif', 'png', 'jpg', 'jpeg'),
+    'image_extensions' => ['gif', 'png', 'jpg', 'jpeg'],
     'max_width'  => 8000, // максимальная ширина загружаемых изображений в пикселях
     'max_height' => 6000, // максимальная высота загружаемых изображений в пикселях
     'url_maxsize' => '2Mb', // максимальный размер изображения для загрузки по URL
-    'original' => array(
+    'original' => [
         'save' => false,            // надо ли сохрагять оригинальное изображение
         'suffix' => '-original',    // суффикс оригинального изображения
-    ),
+    ],
     // параметры сохранения при загрузке
     'transform' => array(
         'max_width'  => 800,        // максимальная ширина сохраняемого изображения
         'max_height' => 600,        // максимальная высота сохраняемого изображения
         'bg_color'  => '#ffffff',   // цвет фона при преобразовании изображений
-        'watermark' => array(
+        'watermark' => [
             'enable' => false,
-            'image' => array(
+            'image' => [
                 'path' => '___path.static.dir___/___path.uploads.root___',
                 'file' => 'altocms.png',
                 'topleft' => false,
                 'position' => '0,0',
-            ),
-        ),
-        '@mime(jpeg)' => array(
+            ],
+        ],
+        '@mime(jpeg)' => [
             'quality' => 80,
-        ),
-        '@mime(gif)'  => array(
+        ],
+        '@mime(gif)'  => [
             'animation' => false,
-        ),
-        '@mime(png)'  => array(
+        ],
+        '@mime(png)'  => [
             //'save_as' => 'jpg',
-        ),
+        ],
     ),
 );
 
 $config['module']['uploader']['images']['profile_avatar'] = array(
     '$extends$' => '___module.uploader.images.default___',
-    'size' => array('large' => '96x96crop', 'medium' => '64x64crop', 'small' => '32x32crop'),
+    'size' => ['large' => '96x96crop', 'medium' => '64x64crop', 'small' => '32x32crop'],
     'transform' => array(
         'max_width'  => 250,        // максимальная ширина сохраняемой аватары
         'max_height' => 250,        // максимальная высота сохраняемой аватары
         'aspect_ratio' => '1',      // соотношение ширины и высоты
-        'watermark' => array(
+        'watermark' => [
             'enable' => false,
-        ),
-        '@mime(gif)'  => array(
+        ],
+        '@mime(gif)'  => [
             'animation' => true,
-        ),
+        ],
     ),
 );
 
-$config['module']['uploader']['images']['profile_photo'] = array(
+$config['module']['uploader']['images']['profile_photo'] = [
     '$extends$' => '___module.uploader.images.default___',
-    'transform' => array(
+    'transform' => [
         'aspect_ratio' => '1',      // соотношение ширины и высоты
-    )
-);
+    ]
+];
 
-$config['module']['uploader']['images']['topic'] = array(
+$config['module']['uploader']['images']['topic'] = [
     '$extends$' => '___module.uploader.images.default___',
-    'transform' => array(
-        'watermark' => array(
+    'transform' => [
+        'watermark' => [
             'enable' => false,
-        ),
-    ),
-);
+        ],
+    ],
+];
 
-$config['module']['uploader']['images']['photoset'] = array(
+$config['module']['uploader']['images']['photoset'] = [
     '$extends$' => '___module.uploader.images.default___',
-    'transform' => array(
-        'watermark' => array(
+    'transform' => [
+        'watermark' => [
             'enable' => true,
-        ),
-    ),
-);
+        ],
+    ],
+];
 
-$config['module']['uploader']['images']['video'] = array(
+$config['module']['uploader']['images']['video'] = [
     '$extends$' => '___module.uploader.images.default___',
-    'transform' => array(
+    'transform' => [
         'max_width'  => 640,        // максимальная ширина фрейма
         'max_height' => 360,        // максимальная высота фрейма
         'aspect_ratio' => '16:9',   // соотношение ширины и высоты фрейма
-        'watermark' => array(
+        'watermark' => [
             'enable' => false,
-        ),
-    ),
-);
+        ],
+    ],
+];
 
 
 // Модуль Image
@@ -465,12 +458,12 @@ $config['module']['user']['friend_on_profile']    = 15;         // Ограни�
 $config['module']['user']['friend_notice']['delete'] = false;   // Отправить talk-сообщение в случае удаления пользователя из друзей
 $config['module']['user']['friend_notice']['accept'] = false;   // Отправить talk-сообщение в случае одобрения заявки на добавление в друзья
 $config['module']['user']['friend_notice']['reject'] = false;   // Отправить talk-сообщение в случае отклонения заявки на добавление в друзья
-$config['module']['user']['avatar_size'] = array(100,64,48,24,0); // ** Old templates compatibility
+$config['module']['user']['avatar_size'] = [100,64,48,24,0]; // ** Old templates compatibility
 
 $config['module']['user']['login']['min_size'] = 3;             // Минимальное количество символов в логине
 $config['module']['user']['login']['max_size'] = 30;            // Максимальное количество символов в логине
 $config['module']['user']['login']['charset'] = '0-9a-z_\-';    // Допустимые в логине пользователя символы
-$config['module']['user']['login']['disabled'] = array('admin', 'administrator', 'moderator', 'new');  // недопустимые имена логинов
+$config['module']['user']['login']['disabled'] = ['admin', 'administrator', 'moderator', 'new'];  // недопустимые имена логинов
 
 $config['module']['user']['display_name'] = '%%login%%';        // Допустимые подстановки - %%login%%, %%profilename%%
 
@@ -501,7 +494,7 @@ $config['module']['comment']['max_tree'] = 7;           // Максимальн�
 $config['module']['comment']['use_nested'] = false;     // Использовать или нет nested set при выборке комментов, увеличивает производительность при большом числе комментариев + позволяет делать постраничное разбиение комментов
 $config['module']['comment']['nested_per_page'] = 0;    // Число комментов на одну страницу в топике, актуально только при use_nested = true
 $config['module']['comment']['nested_page_reverse'] = true;     // Определяет порядок вывода страниц. true - последние комментарии на первой странице, false - последние комментарии на последней странице
-$config['module']['comment']['favourite_target_allow'] = array('topic'); // Список типов комментов, которые разрешено добавлять в избранное
+$config['module']['comment']['favourite_target_allow'] = ['topic']; // Список типов комментов, которые разрешено добавлять в избранное
 $config['module']['comment']['edit']['enable'] = '500 minutes';   // В течение какого времени можно редактировать комментарии (true - бессрочно)
 $config['module']['comment']['edit']['rest_time'] = true;       // Показывать ли оставшееся время для редактирования комментария
 $config['module']['comment']['min_length'] = 2;             // Min length of comments
@@ -555,7 +548,7 @@ $config['module']['topic']['photoset']['count_photos_max'] = 30;    // макс�
 $config['module']['topic']['photoset']['per_page'] = 20;            // число фоток для одновременной загрузки
 
 // Какие модули должны быть загружены на старте
-$config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');
+$config['module']['_autoLoad_'] = ['Hook','Cache','Security','Session','User'];
 
 /**
  * Настройки модуля API
@@ -571,7 +564,7 @@ $config['module']['text']['parser'] = 'Qevix';  // Text parser class: Jevix or Q
 $config['module']['text']['char']['@'] = true;  // Convert @user into link to profile
 
 // All cyrillic symbols
-$config['module']['text']['translit'] = array(
+$config['module']['text']['translit'] = [
     'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'ѓ' => 'g', 'ґ' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo',
     'є' => 'ye', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'j', 'j' => 'j', 'i' => 'i', 'ї' => 'yi',
     'к' => 'k', 'ќ' => 'k', 'л' => 'l', 'љ' => 'lj', 'м' => 'm', 'н' => 'n', 'њ' => 'nj', 'о' => 'o', 'п' => 'p',
@@ -584,7 +577,7 @@ $config['module']['text']['translit'] = array(
     'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ў' => 'U', 'Ф' => 'F', 'Х' => 'KH', 'Ц' => 'CZ', 'Ч' => 'CH',
     'Џ' => 'DH', 'Ш' => 'SH', 'Щ' => 'SHH', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'E', 'Ю' => 'YU', 'Я' => 'YA',
     'Ѣ' => 'YE', 'Ѳ' => 'FH', 'Ѵ' => 'YH', 'Ѫ' => 'О',
-);
+];
 
 
 /**
@@ -621,20 +614,20 @@ $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
 // Redirection
 $config['router']['redirect'] = array(
     //'http://*' => 'https://*', // simple matching, redirect from HTTP to HTTPS
-    //'http://site.com/perm-path/*.html' => array('http://site.com/temp-path/*.html', 302), // redirect with code 302
+    //'http://site.com/perm-path/*.html' => ['http://site.com/temp-path/*.html', 302], // redirect with code 302
     //'[~(.+/)blabla/(\d+).html$~]' => '$1$2.html', // regular expression in brackets
 );
 
 // Domain mapping
-$config['router']['domain'] = array(
+$config['router']['domain'] = [
     //'*.site.com' => 'blog/*',
     //'public.site.com' => 'blog/public',
-);
+];
 
 // Rewrite rules
-$config['router']['rewrite'] = array(
+$config['router']['rewrite'] = [
     //'secret-admin' => 'admin',
-);
+];
 
 // Правила реврайта для REQUEST_URI
 // Регулярные выражения необходимо заключать в квадратные скобки
@@ -720,12 +713,12 @@ $config['security']['user_session_key']  = 'user_key';
  * Локализация
  */
 // * Языковые настройки
-$config['lang']['allow'] = array('ru', 'en');                               // какие языки доступны на сайте; если не задано или задан только один язык, то настройки мультиязычности игнорируются
+$config['lang']['allow'] = ['ru', 'en'];                               // какие языки доступны на сайте; если не задано или задан только один язык, то настройки мультиязычности игнорируются
 /*
-$config['lang']['aliases'] = array(                                         // набор алиасов для совместимости LS
+$config['lang']['aliases'] = [                                         // набор алиасов для совместимости LS
     'ru' => 'russian',
     'en' => 'english',
-);
+];
 */
 
 // Настройки мультиязычного сайта
@@ -738,20 +731,20 @@ $config['lang']['default'] = 'ru';                                          // �
 $config['lang']['current'] = 'ru';                                          // основной язык сайта
 
 // Массив текстовок, которые необходимо прогружать на страницу в виде JS хеша, позволяет использовать текстовки внутри js
-$config['lang']['load_to_js'] = array(
+$config['lang']['load_to_js'] = [
     'text_yes',
     'text_no',
     'text_confirm',
     'text_cancel',
     'topic_delete_confirm_title',
     'topic_delete_confirm_text',
-);
+];
 
 // пути до языковых файлов
-$config['lang']['paths']    = array(
+$config['lang']['paths']    = [
     '___path.dir.common___/templates/language',
     '___path.dir.app___/templates/language',
-);
+];
 
 /**
  * Установка локали и временной зоны
@@ -764,14 +757,14 @@ $config['lang']['paths']    = array(
  *
  * Значения конфиг-файлов загружаются в секцию, соответствующую имени файла
  */
-$config['config_load'] = array(
+$config['config_load'] = [
     'classes',      // Определения классов
     'assets',       // Наборы подключаемых css- и js-файлов
     'jevix',        // Настройки типографа текста Jevix
     'qevix',        // Настройки типографа текста Qevix
     'widgets',      // Виджеты
     'menu',         // Меню
-);
+];
 
 /**
  * Настройки автокомплита пользователей

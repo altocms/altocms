@@ -2,12 +2,12 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-mresources/list/all/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{R::GetLink("admin")}content-mresources/list/all/">
             {$aLang.target_type_all}
         </a>
         {foreach $aTargetTypes as $sTargetType}
             <a class="btn btn-default {if $sMode==$sTargetType}active{/if}"
-               href="{router page='admin'}content-mresources/list/{$sTargetType}/">
+               href="{R::GetLink("admin")}content-mresources/list/{$sTargetType}/">
                 {if (strpos($sTargetType, 'single-image-uploader') === 0)}
                     {$sTargetTypeTitle = str_replace('single-image-uploader', $aLang['target_type_single-image-uploader'], $sTargetType)}
                 {else}

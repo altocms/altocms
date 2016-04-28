@@ -28,7 +28,7 @@ class ActionRegistration extends Action {
         //  Проверяем аторизован ли юзер
         if (E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('registration_is_authorization'), E::ModuleLang()->Get('attention')
+                E::ModuleLang()->get('registration_is_authorization'), E::ModuleLang()->get('attention')
             );
             return R::Action('error');
         }
@@ -41,7 +41,7 @@ class ActionRegistration extends Action {
         }
         $this->SetDefaultEvent('index');
         //  Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('registration'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('registration'));
     }
 
     /**
@@ -184,7 +184,7 @@ class ActionRegistration extends Action {
                 if (Config::Get('general.reg.activation')) {
                     // * Отправляем на мыло письмо о подтверждении регистрации
                     E::ModuleNotify()->SendRegistrationActivate($oUser, F::GetRequestStr('password'));
-                    E::ModuleViewer()->AssignAjax('sUrlRedirect', R::GetPath('registration') . 'confirm/');
+                    E::ModuleViewer()->AssignAjax('sUrlRedirect', R::GetLink('registration') . 'confirm/');
                 } else {
                     E::ModuleNotify()->SendRegistration($oUser, F::GetRequestStr('password'));
                     $oUser = E::ModuleUser()->GetUserById($oUser->getId());
@@ -199,10 +199,10 @@ class ActionRegistration extends Action {
                         $sUrl = F::GetRequestStr('return-path');
                     }
                     E::ModuleViewer()->AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
-                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('registration_ok'));
+                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('registration_ok'));
                 }
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
                 return;
             }
         } else {
@@ -252,7 +252,7 @@ class ActionRegistration extends Action {
         // * User is already activated
         if ($oUser && $oUser->isActivated()) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('registration_activate_error_reactivate'), E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('registration_activate_error_reactivate'), E::ModuleLang()->get('error')
             );
             return R::Action('error');
         }
@@ -260,7 +260,7 @@ class ActionRegistration extends Action {
         // * Если что то не то
         if ($bError) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('registration_activate_error_code'), E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('registration_activate_error_code'), E::ModuleLang()->get('error')
             );
             return R::Action('error');
         }
@@ -268,11 +268,11 @@ class ActionRegistration extends Action {
         // * Активируем
         if ($this->_activateUser($oUser)) {
             $this->DropInviteRegister();
-            E::ModuleViewer()->Assign('bRefreshToHome', true);
+            E::ModuleViewer()->assign('bRefreshToHome', true);
             E::ModuleUser()->Authorization($oUser, false);
             return;
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return R::Action('error');
         }
     }
@@ -313,7 +313,7 @@ class ActionRegistration extends Action {
                 }
                 return R::Action('registration');
             } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('registration_invite_code_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('registration_invite_code_error'), E::ModuleLang()->get('error'));
             }
         }
     }

@@ -48,8 +48,8 @@ class WidgetUserfeedBlogs extends Widget {
             /**
              * Выводим в шаблон
              */
-            E::ModuleViewer()->Assign('aUserfeedSubscribedBlogs', $aUserSubscribes['blogs']);
-            E::ModuleViewer()->Assign('aUserfeedBlogs', $aBlogs);
+            E::ModuleViewer()->assign('aUserfeedSubscribedBlogs', $aUserSubscribes['blogs']);
+            E::ModuleViewer()->assign('aUserfeedBlogs', $aBlogs);
         }
     }
 }

@@ -157,9 +157,9 @@ class ActionRss extends Action {
 
         $aParts = explode('/', trim(R::Url('path'), '/'), 2);
         if (isset($aParts[1])) {
-            $sLink = R::GetPath('/' . $aParts[1]);
+            $sLink = R::GetLink('/' . $aParts[1]);
         } else {
-            $sLink = R::GetPath('/');
+            $sLink = R::GetLink('/');
         }
         if ($sQuery = R::Url('query')) {
             $sLink .= '?' . $sQuery;

@@ -21,7 +21,7 @@ class ActionHomepage extends Action {
      */
     public function EventDefault() {
 
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', 'homepage');
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', 'homepage');
         $sHomepage = Config::Get('router.config.homepage');
         if ($sHomepage) {
             $sHomepageSelect = Config::Get('router.config.homepage_select');

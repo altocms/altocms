@@ -47,9 +47,9 @@ class ActionStream extends Action {
         } else {
             $this->SetDefaultEvent('all');
         }
-        E::ModuleViewer()->Assign('aStreamEventTypes', E::ModuleStream()->GetEventTypes());
+        E::ModuleViewer()->assign('aStreamEventTypes', E::ModuleStream()->GetEventTypes());
 
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', 'stream');
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', 'stream');
         /**
          * Загружаем в шаблон JS текстовки
          */
@@ -105,14 +105,14 @@ class ActionStream extends Action {
          * Читаем события
          */
         $aEvents = E::ModuleStream()->Read();
-        E::ModuleViewer()->Assign(
+        E::ModuleViewer()->assign(
             'bDisableGetMoreButton',
             E::ModuleStream()->GetCountByReaderId($this->oUserCurrent->getId()) < Config::Get('module.stream.count_default')
         );
-        E::ModuleViewer()->Assign('aStreamEvents', $aEvents);
+        E::ModuleViewer()->assign('aStreamEvents', $aEvents);
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            E::ModuleViewer()->Assign('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->assign('iStreamLastId', $oEvenLast->getId());
         }
     }
 
@@ -127,13 +127,13 @@ class ActionStream extends Action {
          * Читаем события
          */
         $aEvents = E::ModuleStream()->ReadAll();
-        E::ModuleViewer()->Assign(
+        E::ModuleViewer()->assign(
             'bDisableGetMoreButton', E::ModuleStream()->GetCountAll() < Config::Get('module.stream.count_default')
         );
-        E::ModuleViewer()->Assign('aStreamEvents', $aEvents);
+        E::ModuleViewer()->assign('aStreamEvents', $aEvents);
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            E::ModuleViewer()->Assign('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->assign('iStreamLastId', $oEvenLast->getId());
         }
     }
 
@@ -153,13 +153,13 @@ class ActionStream extends Action {
             parent::EventNotFound();
         }
         if (!F::GetRequest('type')) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         }
         /**
          * Активируем/деактивируем тип
          */
         E::ModuleStream()->SwitchUserEventType($this->oUserCurrent->getId(), F::GetRequestStr('type'));
-        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('stream_subscribes_updated'), E::ModuleLang()->Get('attention'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->get('stream_subscribes_updated'), E::ModuleLang()->get('attention'));
     }
 
     /*
@@ -190,7 +190,7 @@ class ActionStream extends Action {
          */
         $iFromId = F::GetRequestStr('iLastId');
         if (!$iFromId) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -233,7 +233,7 @@ class ActionStream extends Action {
          */
         $iFromId = F::GetRequestStr('iLastId');
         if (!$iFromId) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -276,11 +276,11 @@ class ActionStream extends Action {
          */
         $iFromId = F::GetRequestStr('iLastId');
         if (!$iFromId) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         if (!($oUser = E::ModuleUser()->GetUserById(F::GetRequestStr('iUserId')))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -322,17 +322,17 @@ class ActionStream extends Action {
          * Проверяем существование пользователя
          */
         if (!E::ModuleUser()->GetUserById(F::GetRequestStr('id'))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         }
         if ($this->oUserCurrent->getId() == F::GetRequestStr('id')) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('stream_error_subscribe_to_yourself'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('stream_error_subscribe_to_yourself'), E::ModuleLang()->get('error'));
             return;
         }
         /**
          * Подписываем на пользователя
          */
         E::ModuleStream()->SubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
-        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('stream_subscribes_updated'), E::ModuleLang()->Get('attention'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->get('stream_subscribes_updated'), E::ModuleLang()->get('attention'));
     }
 
     /**
@@ -352,7 +352,7 @@ class ActionStream extends Action {
         }
         $sUserLogin = $this->GetPost('login');
         if (!$sUserLogin) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -361,13 +361,13 @@ class ActionStream extends Action {
         $oUser = E::ModuleUser()->GetUserByLogin($sUserLogin);
         if (!$oUser) {
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get('user_not_found', array('login' => htmlspecialchars(F::GetRequestStr('login')))),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_not_found', array('login' => htmlspecialchars(F::GetRequestStr('login')))),
+                E::ModuleLang()->get('error')
             );
             return;
         }
         if ($this->oUserCurrent->getId() == $oUser->getId()) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('stream_error_subscribe_to_yourself'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('stream_error_subscribe_to_yourself'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -378,7 +378,7 @@ class ActionStream extends Action {
         E::ModuleViewer()->AssignAjax('user_login', $oUser->getLogin());
         E::ModuleViewer()->AssignAjax('user_web_path', $oUser->getUserWebPath());
         E::ModuleViewer()->AssignAjax('user_avatar_48', $oUser->getAvatarUrl(48));
-        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('userfeed_subscribes_updated'), E::ModuleLang()->Get('attention'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->get('userfeed_subscribes_updated'), E::ModuleLang()->get('attention'));
     }
 
     /**
@@ -400,13 +400,13 @@ class ActionStream extends Action {
          * Пользователь с таким ID существует?
          */
         if (!E::ModuleUser()->GetUserById(F::GetRequestStr('id'))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         }
         /**
          * Отписываем
          */
         E::ModuleStream()->UnsubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
-        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('stream_subscribes_updated'), E::ModuleLang()->Get('attention'));
+        E::ModuleMessage()->AddNotice(E::ModuleLang()->get('stream_subscribes_updated'), E::ModuleLang()->get('attention'));
     }
 
     /**
@@ -417,7 +417,7 @@ class ActionStream extends Action {
         /**
          * Загружаем в шаблон необходимые переменные
          */
-        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->assign('sMenuItemSelect', $this->sMenuItemSelect);
     }
 
 }

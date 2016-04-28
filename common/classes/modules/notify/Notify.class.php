@@ -101,7 +101,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'comment_new.tpl',
-            E::ModuleLang()->Get('notify_subject_comment_new'),
+            E::ModuleLang()->get('notify_subject_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oTopic'       => $oTopic,
@@ -134,7 +134,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'comment_reply.tpl',
-            E::ModuleLang()->Get('notify_subject_comment_reply'),
+            E::ModuleLang()->get('notify_subject_comment_reply'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oTopic'       => $oTopic,
@@ -167,7 +167,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'topic_new.tpl',
-            E::ModuleLang()->Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
+            E::ModuleLang()->get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
             array(
                  'oUserTo'    => $oUserTo,
                  'oTopic'     => $oTopic,
@@ -189,7 +189,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'reactivation.tpl',
-            E::ModuleLang()->Get('notify_subject_reactvation'),
+            E::ModuleLang()->get('notify_subject_reactvation'),
             array(
                  'oUser' => $oUser,
             ), null, true
@@ -209,7 +209,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'registration_activate.tpl',
-            E::ModuleLang()->Get('notify_subject_registration_activate'),
+            E::ModuleLang()->get('notify_subject_registration_activate'),
             array(
                  'oUser'     => $oUser,
                  'sPassword' => $sPassword,
@@ -230,7 +230,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'registration.tpl',
-            E::ModuleLang()->Get('notify_subject_registration'),
+            E::ModuleLang()->get('notify_subject_registration'),
             array(
                  'oUser'     => $oUser,
                  'sPassword' => $sPassword,
@@ -252,7 +252,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $sMailTo,
             'invite.tpl',
-            E::ModuleLang()->Get('notify_subject_invite'),
+            E::ModuleLang()->get('notify_subject_invite'),
             array(
                  'sMailTo'   => $sMailTo,
                  'oUserFrom' => $oUserFrom,
@@ -280,7 +280,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'talk_new.tpl',
-            E::ModuleLang()->Get('notify_subject_talk_new'),
+            E::ModuleLang()->get('notify_subject_talk_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -312,7 +312,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'talk_comment_new.tpl',
-            E::ModuleLang()->Get('notify_subject_talk_comment_new'),
+            E::ModuleLang()->get('notify_subject_talk_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oUserFrom'    => $oUserFrom,
@@ -342,7 +342,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'user_friend_new.tpl',
-            E::ModuleLang()->Get('notify_subject_user_friend_new'),
+            E::ModuleLang()->get('notify_subject_user_friend_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -367,7 +367,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'blog_invite_new.tpl',
-            E::ModuleLang()->Get('notify_subject_blog_invite_new'),
+            E::ModuleLang()->get('notify_subject_blog_invite_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -393,7 +393,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'blog_request_new.tpl',
-            E::ModuleLang()->Get('notify_subject_blog_request_new'),
+            E::ModuleLang()->get('notify_subject_blog_request_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -416,7 +416,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'reminder_code.tpl',
-            E::ModuleLang()->Get('notify_subject_reminder_code'),
+            E::ModuleLang()->get('notify_subject_reminder_code'),
             array(
                  'oUser'     => $oUser,
                  'oReminder' => $oReminder,
@@ -437,7 +437,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'reminder_password.tpl',
-            E::ModuleLang()->Get('notify_subject_reminder_password'),
+            E::ModuleLang()->get('notify_subject_reminder_password'),
             array(
                  'oUser'        => $oUser,
                  'sNewPassword' => $sNewPassword,
@@ -459,7 +459,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oWallParent->getUser(),
             'wall_reply.tpl',
-            E::ModuleLang()->Get('notify_subject_wall_reply'),
+            E::ModuleLang()->get('notify_subject_wall_reply'),
             array(
                  'oWallParent' => $oWallParent,
                  'oUserTo'     => $oWallParent->getUser(),
@@ -483,7 +483,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oWall->getWallUser(),
             'wall_new.tpl',
-            E::ModuleLang()->Get('notify_subject_wall_new'),
+            E::ModuleLang()->get('notify_subject_wall_new'),
             array(
                  'oUserTo'   => $oWall->getWallUser(),
                  'oWall'     => $oWall,

@@ -114,7 +114,7 @@ class ActionApi extends Action {
             E::ModuleMessage()->AddErrorSingle('error');
             E::ModuleViewer()->AssignAjax('result', json_encode(array('error' => $aError)));
         } else {
-            E::ModuleViewer()->Assign('result', json_encode(array('error' => $aError)));
+            E::ModuleViewer()->assign('result', json_encode(array('error' => $aError)));
         }
 
         E::ModuleApi()->SetLastError(NULL);
@@ -323,7 +323,7 @@ class ActionApi extends Action {
         if ($this->bIsAjax) {
             E::ModuleViewer()->AssignAjax('result', $sResult);
         } else {
-            E::ModuleViewer()->Assign('result', $sResult);
+            E::ModuleViewer()->assign('result', $sResult);
         }
 
         return FALSE;

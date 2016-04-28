@@ -8,27 +8,27 @@
 return array(
     'default' => array(
         // Разрешённые теги
-        'cfgAllowTags' => array(
+        'cfgAllowTags' => [
             // вызов метода с параметрами
-            array(
-                array('p', 'ls', 'cut', 'a', 'img', 'i', 'b', 'u', 's', 'small', 'video', 'em', 'strong', 'nobr', 'li',
+            [
+                ['p', 'ls', 'cut', 'a', 'img', 'i', 'b', 'u', 's', 'small', 'video', 'em', 'strong', 'nobr', 'li',
                       'ol', 'ul', 'sup', 'abbr', 'sub', 'acronym', 'h4', 'h5', 'h6', 'br', 'hr', 'pre', 'code',
                       'codeline', 'object', 'param', 'embed', 'blockquote', 'iframe', 'table', 'tbody', 'thead', 'th',
-                      'tr', 'td', 'div'),
-            ),
-        ),
+                      'tr', 'td', 'div'],
+            ],
+        ],
         // Коротие теги типа
-        'cfgSetTagShort' => array(
-            array(
-                array('br', 'img', 'hr', 'cut', 'ls')
-            ),
-        ),
+        'cfgSetTagShort' => [
+            [
+                ['br', 'img', 'hr', 'cut', 'ls']
+            ],
+        ],
         // Преформатированные теги
-        'cfgSetTagPreformatted'     => array(
-            array(
-                array('pre', 'code', 'codeline', 'video')
-            ),
-        ),
+        'cfgSetTagPreformatted'     => [
+            [
+                ['pre', 'code', 'codeline', 'video']
+            ],
+        ],
         // Разрешённые параметры тегов
         'cfgAllowTagParams' => array(
             // вызов метода
@@ -39,7 +39,7 @@ return array(
                       'data-rel',
                       'data-src',
                       'alt'    => '#text',
-                      'align'  => array('right', 'left', 'center', 'middle'),
+                      'align'  => ['right', 'left', 'center', 'middle'],
                       'width'  => '#regexp(\d+(%|px)?)',
                       'height' => '#int',
                       'hspace' => '#int',
@@ -48,40 +48,40 @@ return array(
                 )
             ),
             // следующий вызов метода
-            array(
+            [
                 'a',
-                array('title',
+                ['title',
                       'href',
                       'rel' => '#text',
                       'name' => '#text',
-                      'target' => array('_blank'),
-                      'class' => array('ls-user', 'topic-photoset-item'),
+                      'target' => ['_blank'],
+                      'class' => ['ls-user', 'topic-photoset-item'],
                       'data-alto-role' => '#text',
                       'data-api' => '#text',
-                )
-            ),
+                ]
+            ],
             // и т.д.
-            array(
+            [
                 'cut',
-                array('name')
-            ),
-            array(
+                ['name']
+            ],
+            [
                 'object',
-                array('width' => '#int', 'height' => '#int', 'type'  => '#text',
-                      'data'  => array('#domain' => array(
+                ['width' => '#int', 'height' => '#int', 'type'  => '#text',
+                      'data'  => ['#domain' => [
                               'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com',
-                          )),
-                )
-            ),
-            array(
+                          ]],
+                ]
+            ],
+            [
                 'param',
-                array('name' => '#text', 'value' => '#text')
-            ),
-            array(
+                ['name' => '#text', 'value' => '#text']
+            ],
+            [
                 'embed',
-                array('src' => array('#domain' => array(
+                ['src' => ['#domain' => [
                             'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'static.googleusercontent.com',
-                        )),
+                        ]],
                     'type'              => '#text',
                     'allowscriptaccess' => '#text',
                     'allowfullscreen'   => '#text',
@@ -89,184 +89,184 @@ return array(
                     'height'            => '#int',
                     'flashvars'         => '#text',
                     'wmode'             => '#text',
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'acronym',
-                array('title')
-            ),
-            array(
+                ['title']
+            ],
+            [
                 'abbr',
-                array('title')
-            ),
-            array(
+                ['title']
+            ],
+            [
                 'iframe',
-                array('width' => '#int',
+                ['width' => '#int',
                       'height' => '#int',
-                      'src'   => array('#domain' => array(
+                      'src'   => ['#domain' => [
                           'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'vk.com', 'vkontakte.ru',
                           'slideshare.net', 'mixcloud.com', 'soundcloud.com', 'maps.google.ru', 'issuu.com',
-                      )))
-            ),
-            array(
+                      ]]]
+            ],
+            [
                 'ls',
-                array('user' => '#text')
-            ),
-            array(
+                ['user' => '#text']
+            ],
+            [
                 'th',
-                array('colspan' => '#int', 'rowspan' => '#int', 'height'  => '#int', 'width' => '#int',
-                      'align' => array('right', 'left', 'center', 'justify'),
-                )
-            ),
-            array(
+                ['colspan' => '#int', 'rowspan' => '#int', 'height'  => '#int', 'width' => '#int',
+                      'align' => ['right', 'left', 'center', 'justify'],
+                ]
+            ],
+            [
                 'td',
-                array('colspan' => '#int', 'rowspan' => '#int', 'height'  => '#int', 'width' => '#int',
-                      'align' => array('right', 'left', 'center', 'justify'),
-                )
-            ),
-            array(
+                ['colspan' => '#int', 'rowspan' => '#int', 'height'  => '#int', 'width' => '#int',
+                      'align' => ['right', 'left', 'center', 'justify'],
+                ]
+            ],
+            [
                 'table',
-                array('border' => '#int', 'cellpadding' => '#int', 'cellspacing' => '#int', 'height' => '#int', 'width' => '#int',
-                      'align'  => array('right', 'left', 'center'),
-                )
-            ),
-            array(
+                ['border' => '#int', 'cellpadding' => '#int', 'cellspacing' => '#int', 'height' => '#int', 'width' => '#int',
+                      'align'  => ['right', 'left', 'center'],
+                ]
+            ],
+            [
                 'div',
-                array('class'=> array('alto-photoset', 'alto-photoset js-topic-photoset-list', 'spoiler', 'spoiler-title', 'spoiler-slider', 'spoiler-text'), 'data-width')
-            ),
+                ['class'=> ['alto-photoset', 'alto-photoset js-topic-photoset-list', 'spoiler', 'spoiler-title', 'spoiler-slider', 'spoiler-text'], 'data-width']
+            ],
         ),
         // Параметры тегов являющиеся обязательными
-        'cfgSetTagParamsRequired' => array(
-            array(
+        'cfgSetTagParamsRequired' => [
+            [
                 'img',
                 'src'
-            ),
-        ),
+            ],
+        ],
         // Теги которые необходимо вырезать из текста вместе с контентом
-        'cfgSetTagCutWithContent' => array(
-            array(
-                array('script', 'style')
-            ),
-        ),
+        'cfgSetTagCutWithContent' => [
+            [
+                ['script', 'style']
+            ],
+        ],
         // Вложенные теги
-        'cfgSetTagChilds' => array(
-            array(
+        'cfgSetTagChilds' => [
+            [
                 'ul',
-                array('li'),
+                ['li'],
                 false,
                 true
-            ),
-            array(
+            ],
+            [
                 'ol',
-                array('li'),
+                ['li'],
                 false,
                 true
-            ),
-            array(
+            ],
+            [
                 'object',
                 'param',
                 false,
                 true
-            ),
-            array(
+            ],
+            [
                 'object',
                 'embed',
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'table',
-                array('tr', 'tbody', 'thead'),
+                ['tr', 'tbody', 'thead'],
                 false,
                 true
-            ),
-            array(
+            ],
+            [
                 'tbody',
-                array('tr', 'td'),
+                ['tr', 'td'],
                 false,
                 true
-            ),
-            array(
+            ],
+            [
                 'thead',
-                array('tr', 'th'),
+                ['tr', 'th'],
                 false,
                 true
-            ),
-            array(
+            ],
+            [
                 'tr',
-                array('td', 'th'),
+                ['td', 'th'],
                 false,
                 true
-            ),
-        ),
+            ],
+        ],
         // Если нужно оставлять пустые не короткие теги
-        'cfgSetTagIsEmpty' => array(
-            array(
-                array('param', 'embed', 'a', 'iframe')
-            ),
-        ),
+        'cfgSetTagIsEmpty' => [
+            [
+                ['param', 'embed', 'a', 'iframe']
+            ],
+        ],
         // Не нужна авто-расстановка <br>
-        'cfgSetTagNoAutoBr' => array(
-            array(
-                array('ul', 'ol', 'object', 'table', 'tr', 'tbody', 'thead')
-            )
-        ),
+        'cfgSetTagNoAutoBr' => [
+            [
+                ['ul', 'ol', 'object', 'table', 'tr', 'tbody', 'thead']
+            ]
+        ],
         // Теги с обязательными параметрами
-        'cfgSetTagParamDefault' => array(
-            array(
+        'cfgSetTagParamDefault' => [
+            [
                 'embed',
                 'wmode',
                 'opaque',
                 true
-            ),
-        ),
+            ],
+        ],
         // Отключение авто-добавления <br>
-        'cfgSetAutoBrMode' => array(
-            array(
+        'cfgSetAutoBrMode' => [
+            [
                 true
-            )
-        ),
+            ]
+        ],
         // Автозамена
         'cfgSetAutoReplace' => array(
-            array('+/-', '(c)', '(с)', '(C)', '(С)', '(r)', '(R)'),
-            array('±', '©', '©', '©', '©', '®', '®'),
+            ['+/-', '(c)', '(с)', '(C)', '(С)', '(r)', '(R)'],
+            ['±', '©', '©', '©', '©', '®', '®'],
         ),
         // Список допустимых протоколов для ссылок
-        'cfgSetLinkProtocolAllow' => array(
-            array(
-                array('http', 'https', 'ftp')
-            )
-        ),
-        'cfgSetTagNoTypography' => array(
-            array(
-                array('code', 'video', 'object')
-            ),
-        ),
+        'cfgSetLinkProtocolAllow' => [
+            [
+                ['http', 'https', 'ftp']
+            ]
+        ],
+        'cfgSetTagNoTypography' => [
+            [
+                ['code', 'video', 'object']
+            ],
+        ],
         // Теги, после которых необходимо пропускать одну пробельную строку
-        'cfgSetTagBlockType' => array(
-            array(
-                array('h4', 'h5', 'h6', 'ol', 'ul', 'blockquote', 'pre', 'table', 'iframe', 'p')
-            )
-        ),
+        'cfgSetTagBlockType' => [
+            [
+                ['h4', 'h5', 'h6', 'ol', 'ul', 'blockquote', 'pre', 'table', 'iframe', 'p']
+            ]
+        ],
     ),
 
     // настройки для обработки текста в результатах поиска
-    'search'  => array(
+    'search'  => [
         // Разрешённые теги
-        'cfgAllowTags' => array(
+        'cfgAllowTags' => [
             // вызов метода с параметрами
-            array(
-                array('span'),
-            ),
-        ),
+            [
+                ['span'],
+            ],
+        ],
         // Разрешённые параметры тегов
-        'cfgAllowTagParams' => array(
-            array(
+        'cfgAllowTagParams' => [
+            [
                 'span',
-                array('class' => '#text')
-            ),
-        ),
-    ),
+                ['class' => '#text']
+            ],
+        ],
+    ],
 );
 
 // EOF

@@ -6,10 +6,10 @@
 
     <ul class="nav nav-tabs">
     <li class="nav-tabs-add">
-        <a href="{router page='admin'}users-invites/new/"><i class="icon icon-plus"></i></a>
+        <a href="{R::GetLink("admin")}users-invites/new/"><i class="icon icon-plus"></i></a>
     </li>
     <li {if $sMode=='list' || $sMode==''}class="active"{/if}>
-        <a href="{router page='admin'}users-invites/list/">All invites <span class="badge">{$iCount}</span></a>
+        <a href="{R::GetLink("admin")}users-invites/list/">All invites <span class="badge">{$iCount}</span></a>
     </li>
 </ul>
 
@@ -89,12 +89,12 @@ admin.sort = function(sort, order) {
         <td> {$aInvite.invite_id} &nbsp;</td>
         <td> {$aInvite.invite_code} &nbsp;</td>
         <td>
-            <a href="{router page='admin'}users-list/profile/{$aInvite.from_login}/" class="link">{$aInvite.from_login}</a>
+            <a href="{R::GetLink("admin")}users-list/profile/{$aInvite.from_login}/" class="link">{$aInvite.from_login}</a>
         </td>
         <td class="center;">{$aInvite.invite_date_add}</td>
         <td>
             {if $aInvite.to_login}
-            <a href="{router page='admin'}users-list/profile/{$aInvite.to_login}/" class="link">{$aInvite.to_login}</a>
+            <a href="{R::GetLink("admin")}users-list/profile/{$aInvite.to_login}/" class="link">{$aInvite.to_login}</a>
             {else}
             &nbsp;
             {/if}

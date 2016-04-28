@@ -77,7 +77,7 @@ class ActionError extends Action {
          */
         if (array_key_exists($this->sCurrentEvent, $this->aHttpErrors)) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('system_error_' . $this->sCurrentEvent), $this->sCurrentEvent
+                E::ModuleLang()->get('system_error_' . $this->sCurrentEvent), $this->sCurrentEvent
             );
             $aHttpError = $this->aHttpErrors[$this->sCurrentEvent];
             if (isset($aHttpError['header'])) {
@@ -88,7 +88,7 @@ class ActionError extends Action {
         /**
          * Устанавливаем title страницы
          */
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('error'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('error'));
         $this->SetTemplateAction('index');
     }
 }

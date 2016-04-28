@@ -91,7 +91,7 @@
                                                 {*</dl>*}
 
                                                 <a href="{$oBlog->getUrlFull()}">{$aLang.blog_read}</a>
-                                                <a href="{router page='rss'}blog/{$oBlog->getUrl()}/">RSS</a>'></i>
+                                                <a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/">RSS</a>'></i>
                             {*{/if}*}
                         </div>
                     </td>

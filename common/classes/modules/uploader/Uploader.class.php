@@ -1197,11 +1197,11 @@ class ModuleUploader extends Module {
         }
 
         if ($sTargetType == 'profile_avatar') {
-            return R::GetPath('settings');
+            return R::GetLink('settings');
         }
 
         if ($sTargetType == 'profile_photo') {
-            return R::GetPath('settings');
+            return R::GetLink('settings');
         }
 
         if ($sTargetType == 'blog_avatar') {

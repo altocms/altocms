@@ -3,7 +3,7 @@
 {block name="content-bar"}
     {if count($aTypes)>0}
         <div class="btn-group">
-            <a href="{router page='admin'}settings-contenttypes/add/" class="btn btn-primary tip-top"
+            <a href="{R::GetLink("admin")}settings-contenttypes/add/" class="btn btn-primary tip-top"
                title="{$aLang.action.admin.contenttypes_add}"><i class="icon icon-plus"></i></a>
         </div>
     {/if}
@@ -81,9 +81,9 @@
                                 </span>
                             </td>
                             <td class="center">
-                                <a href="{router page='admin'}settings-contenttypes/edit/{$oContentType->getContentId()}/">
+                                <a href="{R::GetLink("admin")}settings-contenttypes/edit/{$oContentType->getContentId()}/">
                                     <i class="icon icon-note tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
-                                <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_key={$ALTO_SECURITY_KEY}">
+                                <a href="{R::GetLink("admin")}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_key={$ALTO_SECURITY_KEY}">
                                     {if $oContentType->getContentActive()}
                                         <i class="icon icon-ban tip-top" title="{$aLang.action.admin.contenttypes_turn_off}"></i>
                                     {else}

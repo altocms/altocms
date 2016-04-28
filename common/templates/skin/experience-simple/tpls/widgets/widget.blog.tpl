@@ -31,7 +31,7 @@
             </div>
 
             <div class="panel-footer">
-                <a href="{router page='rss'}blog/{$oBlog->getUrl()}/" class="link link-dual link-lead link-clear"><i class="fa fa-rss"></i>&nbsp;RSS</a>
+                <a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/" class="link link-dual link-lead link-clear"><i class="fa fa-rss"></i>&nbsp;RSS</a>
                 {if E::IsUser() AND E::UserId() != $oBlog->getOwnerId()}
                         <a href="#" class="link link-dual link-lead pull-right link-clear {if $oBlog->getUserIsJoin()}active{/if}"
                            id="blog-join" data-only-text="1"

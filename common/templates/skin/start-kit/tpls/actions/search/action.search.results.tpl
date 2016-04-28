@@ -8,7 +8,7 @@
     <div class="panel panel-default panel-search raised">
 
         <div class="panel-body">
-            <form action="{router page='search'}" class="search">
+            <form action="{R::GetLink("search")}" class="search">
                 {hook run='search_form_begin'}
                 <input type="text" value="{$aReq.q|escape:'html'}" placeholder="{$aLang.search}" maxlength="255" name="q"
                        class="form-control">
@@ -19,7 +19,7 @@
             <ul class="nav nav-pills">
                 {foreach $aRes.aCounts as $sType=>$iCount}
                     <li {if $aReq.sType == $sType}class="active"{/if}>
-                        <a href="{router page='search'}{$sType}/?q={$aReq.q|escape:'html'}" data-search-type="{$sType}" class="js-search-link">
+                        <a href="{R::GetLink("search")}{$sType}/?q={$aReq.q|escape:'html'}" data-search-type="{$sType}" class="js-search-link">
                             {if $sType=="topics"}
                                 {$aLang.search_found_topics}
                             {elseif $sType=="comments"}

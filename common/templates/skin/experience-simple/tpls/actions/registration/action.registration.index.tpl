@@ -54,7 +54,7 @@
 <div class="row">
     <div class="col-xs-20 col-xs-offset-2 col-sm-12 col-sm-offset-6  col-md-10 col-md-offset-7  col-lg-10 col-lg-offset-7">
 
-    <form action="{router page='registration'}" method="post" id="registration-form" class="js-form-registration">
+    <form action="{R::GetLink("registration")}" method="post" id="registration-form" class="js-form-registration">
 
         {hook run='form_registration_begin' isPopup=true}
 
@@ -114,11 +114,11 @@
         <br/>
         <br/>
 
-        <a class="btn btn-light btn-normal corner-no" href="{router page='login'}">{$aLang.user_login_submit}</a>
+        <a class="btn btn-light btn-normal corner-no" href="{R::GetLink("login")}">{$aLang.user_login_submit}</a>
         <button type="submit" name="submit_register" id="registration-form-submit" class="btn btn-blue btn-normal corner-no js-form-registration-submit" disabled="disabled">
             {$aLang.registration_submit}
         </button>
-        <a class="btn btn-light btn-normal corner-no" href="{router page='login'}reminder/">{$aLang.user_password_reminder}</a>
+        <a class="btn btn-light btn-normal corner-no" href="{R::GetLink("login")}reminder/">{$aLang.user_password_reminder}</a>
 
     </form>
 

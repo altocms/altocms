@@ -17,7 +17,7 @@
 
     <div class="row">
         <div class="col-xs-20 col-xs-offset-2 col-sm-12 col-sm-offset-6  col-md-10 col-md-offset-7  col-lg-10 col-lg-offset-7">
-            <form action="{router page='login'}reactivation/" method="POST" class="js-form-reactivation">
+            <form action="{R::GetLink("login")}reactivation/" method="POST" class="js-form-reactivation">
                 <div class="form-group">
 
                     <div class="form-group has-feedback">

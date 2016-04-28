@@ -3,7 +3,7 @@
 
         <header class="widget-header">
             <h3 class="widget-title">
-                <a href="{router page='comments'}" title="{$aLang.widget_stream_comments_all}">{$aLang.widget_stream}</a>
+                <a href="{R::GetLink("comments")}" title="{$aLang.widget_stream_comments_all}">{$aLang.widget_stream}</a>
             </h3>
         </header>
 

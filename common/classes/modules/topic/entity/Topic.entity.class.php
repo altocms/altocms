@@ -56,25 +56,25 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->aValidateRules[] = array(
             'topic_title', 'string', 'max' => 200, 'min' => 2,
             'allowEmpty' => false,
-            'label' => E::ModuleLang()->Get('topic_create_title'),
+            'label' => E::ModuleLang()->get('topic_create_title'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'question_title', 'string', 'max' => 200, 'min' => 2,
             'allowEmpty' => true,
-            'label' => E::ModuleLang()->Get('topic_create_question_title'),
+            'label' => E::ModuleLang()->get('topic_create_question_title'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'topic_text_source', 'string', 'max' => Config::Get('module.topic.max_length'), 'min' => 2,
             'allowEmpty' => false,
-            'label' => E::ModuleLang()->Get('topic_create_text'),
+            'label' => E::ModuleLang()->get('topic_create_text'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'topic_tags', 'tags', 'count' => 15,
             'allowEmpty' => Config::Get('module.topic.allow_empty_tags'),
-            'label' => E::ModuleLang()->Get('topic_create_tags'),
+            'label' => E::ModuleLang()->get('topic_create_tags'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
@@ -92,7 +92,7 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->aValidateRules[] = array(
             'link_url', 'url',
             'allowEmpty' => true,
-            'label' => E::ModuleLang()->Get('topic_link_create_url'),
+            'label' => E::ModuleLang()->get('topic_link_create_url'),
             'on' => array('topic'),
         );
     }
@@ -120,7 +120,7 @@ class ModuleTopic_EntityTopic extends Entity {
         if (E::ModuleTopic()->IsAllowTopicType($sValue)) {
             return true;
         }
-        return E::ModuleLang()->Get('topic_create_type_error');
+        return E::ModuleLang()->get('topic_create_type_error');
     }
 
     /**
@@ -138,7 +138,7 @@ class ModuleTopic_EntityTopic extends Entity {
             if (($iId = $this->getId()) && ($oTopicEquivalent->getId() == $iId)) {
                 return true;
             }
-            return E::ModuleLang()->Get('topic_create_text_error_unique');
+            return E::ModuleLang()->get('topic_create_text_error_unique');
         }
         return true;
     }
@@ -607,7 +607,7 @@ class ModuleTopic_EntityTopic extends Entity {
         if (!$sUrlMask) {
             // формирование URL по умолчанию в LS-стиле
             if ($this->getBlog()->getType() == 'personal') {
-                $sUrl = R::GetPath('blog') . $this->getId() . '.html';
+                $sUrl = R::GetLink('blog') . $this->getId() . '.html';
             } else {
                 $sUrl = $this->getBlog()->getLink() . $this->getId() . '.html';
             }
@@ -688,7 +688,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlShort() {
 
-        return R::GetPath('t') . $this->getId() . '/';
+        return R::GetLink('t') . $this->getId() . '/';
     }
 
     /**
@@ -698,7 +698,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlEdit() {
 
-        return R::GetPath('content') . 'edit/' . $this->getId() . '/';
+        return R::GetLink('content') . 'edit/' . $this->getId() . '/';
     }
 
     /**

@@ -13,13 +13,13 @@ $(function(){
         <a href="#" class="btn btn-primary js-admin-user-add"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
+        <a class="btn btn-default {if $sMode=='list'}active{/if}" href="{R::GetLink("admin")}users-list/list/">
             {$aLang.action.admin.all_users} <span class="badge badge-up">{$nCountUsers}</span>
         </a>
-        <a class="btn btn-default {if $sMode=='admins'}active{/if}" href="{router page='admin'}users-list/admins/">
+        <a class="btn btn-default {if $sMode=='admins'}active{/if}" href="{R::GetLink("admin")}users-list/admins/">
             {$aLang.action.admin.admins} <span class="badge badge-up">{$nCountAdmins}</span>
         </a>
-        <a class="btn btn-default {if $sMode=='moderators'}active{/if}" href="{router page='admin'}users-list/moderators/">
+        <a class="btn btn-default {if $sMode=='moderators'}active{/if}" href="{R::GetLink("admin")}users-list/moderators/">
             {$aLang.action.admin.moderators} <span class="badge badge-up">{$nCountModerators}</span>
         </a>
     </div>
@@ -55,7 +55,7 @@ $(function(){
             </div>
 
             <div class="accordion-body {if !$aFilter}collapse{/if} collapse-save" id="admin_form_seek">
-                <form method="post" action="{router page='admin'}users-list/" class="well well-small" id="user_filter_form">
+                <form method="post" action="{R::GetLink("admin")}users-list/" class="well well-small" id="user_filter_form">
                     <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                     <div class="control-group {if $aFilter.login}success{/if}">
@@ -211,7 +211,7 @@ $(function(){
             </div>
 
             <div class="accordion-body collapse" id="admin_user_setadmin">
-                <form method="post" action="{router page='admin'}users-list/">
+                <form method="post" action="{R::GetLink("admin")}users-list/">
 
                     <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
@@ -248,7 +248,7 @@ $(function(){
             </div>
 
             <div class="accordion-body collapse" id="admin_user_setmoderator">
-                <form method="post" action="{router page='admin'}users-list/">
+                <form method="post" action="{R::GetLink("admin")}users-list/">
 
                     <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 

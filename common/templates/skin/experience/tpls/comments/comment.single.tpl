@@ -72,7 +72,7 @@
                         {/if}
                         <li class="comment-anchor">
                             <a class="link link-light-gray link-lead link-clear"
-                               href="{if Config::Get('module.comment.nested_per_page')}{router page='comments'}{else}#comment{/if}{$oComment->getId()}">
+                               href="{if Config::Get('module.comment.nested_per_page')}{R::GetLink("comments")}{else}#comment{/if}{$oComment->getId()}">
                                 <i class="fa fa-anchor"></i>
                             </a>
                         </li>

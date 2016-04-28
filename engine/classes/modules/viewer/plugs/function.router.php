@@ -29,7 +29,7 @@ function smarty_function_router($aParams, &$oSmarty) {
         return '';
     }
 
-    if (!$sPath = R::GetPath($aParams['page'])) {
+    if (!$sPath = R::GetLink($aParams['page'])) {
         trigger_error("Router: unknown 'page' given", E_USER_WARNING);
         return '';
     }

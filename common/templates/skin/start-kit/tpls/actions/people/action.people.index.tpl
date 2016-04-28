@@ -25,7 +25,7 @@
         </form>
         <div id="users-list-search" style="display:none;"></div>
         <div id="users-list-original">
-            {router page='people' assign=sUsersRootPage}
+            {R::GetLink("people") assign=sUsersRootPage}
             {include file='commons/common.user_list.tpl' aUsersList=$aUsersRating bUsersUseOrder=true sUsersRootPage=$sUsersRootPage}
         </div>
     </div>

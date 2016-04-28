@@ -27,7 +27,7 @@
              {if E::IsUser() AND ($oBlog->CanEditedBy(E::User()) OR $oBlog->CanAdminBy(E::User()) OR $oBlog->CanDeletedBy(E::User()))}
                  <span class="pull-right blog-top-controls">
                     {if $oBlog->CanAdminBy(E::User())}
-                    <a href="{router page='blog'}admin/{$oBlog->getId()}/"
+                    <a href="{R::GetLink("blog")}admin/{$oBlog->getId()}/"
                        title="{$aLang.blog_menu_admin}"
                        class="small link link-lead link-dark link-clear">
                         {*{$aLang.blog_menu_admin}*}
@@ -35,7 +35,7 @@
                     </a>
                     {/if}
                     {if $oBlog->CanEditedBy(E::User())}
-                    <a href="{router page='blog'}edit/{$oBlog->getId()}/"
+                    <a href="{R::GetLink("blog")}edit/{$oBlog->getId()}/"
                        title="{$aLang.blog_menu_edit}"
                        class="small link link-lead link-dark link-clear">
                         {*{$aLang.blog_menu_edit}*}
@@ -166,7 +166,7 @@
          </div>
          <div class="panel-footer">
              <ul>
-                 <li><a href="{router page='rss'}blog/{$oBlog->getUrl()}/"
+                 <li><a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/"
                         class="link link-light-gray link-clear link-lead" >
                          <i class="fa fa-rss"></i>&nbsp;RSS
                      </a></li>

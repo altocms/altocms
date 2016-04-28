@@ -7,7 +7,7 @@
            title="{$aLang.action.admin.user_field_add}"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a href="{router page='admin'}info-dashboard/" class="btn btn-default {if $sMenuItem=='index'}active{/if}">
+        <a href="{R::GetLink("admin")}info-dashboard/" class="btn btn-default {if $sMenuItem=='index'}active{/if}">
             {$aLang.action.admin.dashboard_main}
         </a>
         {hook run='admin_dashboard_left_items'}

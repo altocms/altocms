@@ -74,7 +74,7 @@ function smarty_function_date_format($aParams, &$oSmarty) {
         E::ModuleLang()->SetLang($aParams['lang']);
     }
 
-    $aMonth = E::ModuleLang()->Get('month_array');
+    $aMonth = E::ModuleLang()->get('month_array');
     $iDate = (preg_match("/^\d+$/", $sDate)) ? $sDate : strtotime($sDate);
     $iDate += $iDiff;
 
@@ -83,7 +83,7 @@ function smarty_function_date_format($aParams, &$oSmarty) {
      */
     if (isset($aParams['now'])) {
         if ($iDate + $aParams['now'] > $iNow) {
-            return E::ModuleLang()->Get('date_now');
+            return E::ModuleLang()->get('date_now');
         }
     }
 
@@ -98,10 +98,10 @@ function smarty_function_date_format($aParams, &$oSmarty) {
             return ($iTimeDelta != 0)
                 ? smarty_modifier_declension(
                     $iTimeDelta,
-                    E::ModuleLang()->Get('date_minutes_back', array('minutes' => $iTimeDelta)),
+                    E::ModuleLang()->get('date_minutes_back', array('minutes' => $iTimeDelta)),
                     E::ModuleLang()->GetLang()
                 )
-                : E::ModuleLang()->Get('date_minutes_back_less');
+                : E::ModuleLang()->get('date_minutes_back_less');
         }
     }
 
@@ -116,10 +116,10 @@ function smarty_function_date_format($aParams, &$oSmarty) {
             return ($iTimeDelta != 0)
                 ? smarty_modifier_declension(
                     $iTimeDelta,
-                    E::ModuleLang()->Get('date_hours_back', array('hours' => $iTimeDelta)),
+                    E::ModuleLang()->get('date_hours_back', array('hours' => $iTimeDelta)),
                     E::ModuleLang()->GetLang()
                 )
-                : E::ModuleLang()->Get('date_hours_back_less');
+                : E::ModuleLang()->get('date_hours_back_less');
         }
     }
 
@@ -132,19 +132,19 @@ function smarty_function_date_format($aParams, &$oSmarty) {
              * Если дата совпадает с сегодняшней
              */
             case date('Y-m-d'):
-                $sDay = E::ModuleLang()->Get('date_today');
+                $sDay = E::ModuleLang()->get('date_today');
                 break;
             /**
              * Если дата совпадает со вчерашней
              */
             case date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 1, date("Y"))):
-                $sDay = E::ModuleLang()->Get('date_yesterday');
+                $sDay = E::ModuleLang()->get('date_yesterday');
                 break;
             /**
              * Если дата совпадает с завтрашней
              */
             case date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))):
-                $sDay = E::ModuleLang()->Get('date_tomorrow');
+                $sDay = E::ModuleLang()->get('date_tomorrow');
                 break;
 
             default:

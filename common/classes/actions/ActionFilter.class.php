@@ -105,13 +105,13 @@ class ActionFilter extends Action {
          */
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('filter') . $this->sCurrentEvent
+            R::GetLink('filter') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aTopics', $aTopics);
         $this->SetTemplateAction('index');
     }
 
@@ -120,9 +120,9 @@ class ActionFilter extends Action {
      *
      */
     public function EventShutdown() {
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
-        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
-        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
     }
 }
 

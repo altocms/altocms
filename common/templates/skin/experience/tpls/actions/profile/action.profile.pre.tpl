@@ -65,12 +65,12 @@
                             <td>{$aLang.profile_place}</td>
                             <td>
                                 {if $oGeoTarget->getCountryId()}
-                                    <a href="{router page='people'}country/{$oGeoTarget->getCountryId()}/"
+                                    <a href="{R::GetLink("people")}country/{$oGeoTarget->getCountryId()}/"
                                        class="link link-blue link-lead">{$oUserProfile->getProfileCountry()|escape:'html'}</a>{if $oGeoTarget->getCityId()},{/if}
                                 {/if}
 
                                 {if $oGeoTarget->getCityId()}
-                                    <a href="{router page='people'}city/{$oGeoTarget->getCityId()}/"
+                                    <a href="{R::GetLink("people")}city/{$oGeoTarget->getCityId()}/"
                                        class="link link-blue link-lead">{$oUserProfile->getProfileCity()|escape:'html'}</a>
                                 {/if}
                             </td>
@@ -159,7 +159,7 @@
             </li>
             {include file='actions/profile/action.profile.friend_item.tpl' oUserFriend=$oUserProfile->getUserFriend()}
             <li>
-                <a href="{router page='talk'}add/?talk_users={$oUserProfile->getLogin()}"
+                <a href="{R::GetLink("talk")}add/?talk_users={$oUserProfile->getLogin()}"
                    class="link link-light-gray link-clear link-lead">{$aLang.send_message}</a>
             </li>
         {else}

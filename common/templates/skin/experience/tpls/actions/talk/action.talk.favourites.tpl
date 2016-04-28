@@ -59,9 +59,9 @@
                     </td>
                     <td>
                         {if $oTalkUserAuthor->getCommentCountNew() OR !$oTalkUserAuthor->getDateLast()}
-                            <a class="link link-lead link-clear" href="{router page='talk'}read/{$oTalk->getId()}/"><strong>{$oTalk->getTitle()|escape:'html'}</strong></a>
+                            <a class="link link-lead link-clear" href="{R::GetLink("talk")}read/{$oTalk->getId()}/"><strong>{$oTalk->getTitle()|escape:'html'}</strong></a>
                         {else}
-                            <a class="link link-lead link-clear" href="{router page='talk'}read/{$oTalk->getId()}/">{$oTalk->getTitle()|escape:'html'}</a>
+                            <a class="link link-lead link-clear" href="{R::GetLink("talk")}read/{$oTalk->getId()}/">{$oTalk->getTitle()|escape:'html'}</a>
                         {/if}
                         &nbsp;
                         {if $oTalk->getCountComment()}

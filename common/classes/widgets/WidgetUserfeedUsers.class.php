@@ -33,8 +33,8 @@ class WidgetUserfeedUsers extends Widget {
              */
             $aUserSubscribes = E::ModuleUserfeed()->GetUserSubscribes($oUserCurrent->getId());
             $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
-            E::ModuleViewer()->Assign('aUserfeedSubscribedUsers', $aUserSubscribes['users']);
-            E::ModuleViewer()->Assign('aUserfeedFriends', $aFriends['collection']);
+            E::ModuleViewer()->assign('aUserfeedSubscribedUsers', $aUserSubscribes['users']);
+            E::ModuleViewer()->assign('aUserfeedFriends', $aFriends['collection']);
         }
     }
 }

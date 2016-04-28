@@ -17,7 +17,7 @@
                         {if !Config::Get('general.reg.invite')}
                             <li><a href="#" data-toggle="tab" data-target=".js-pane-registration" class="js-tab-registration link link-lead link-blue link-clear">{$aLang.registration}</a></li>
                         {else}
-                            <li><a class="link link-lead link-blue link-clear" href="{router page='registration'}">{$aLang.registration}</a></li>
+                            <li><a class="link link-lead link-blue link-clear" href="{R::GetLink("registration")}">{$aLang.registration}</a></li>
                         {/if}
                         <li>
                             <a href="#" data-toggle="tab" data-target=".js-pane-reminder" class="js-tab-reminder link link-lead link-blue link-clear">{$aLang.password_reminder}</a>
@@ -31,7 +31,7 @@
                         <div class="tab-pane active js-pane-login">
                             {hook run='pane_login_begin'}
 
-                            <form action="{router page='login'}" method="post" class="js-form-login">
+                            <form action="{R::GetLink("login")}" method="post" class="js-form-login">
                                 {hook run='form_login_begin'}
 
                                 <div class="form-group">
@@ -71,7 +71,7 @@
                         {if !Config::Get('general.reg.invite')}
                         <div class="tab-pane js-pane-registration">
                             {hook run='pane_registration_begin' isPopup=true}
-                            <form action="{router page='registration'}" method="post" class="js-form-registration">
+                            <form action="{R::GetLink("registration")}" method="post" class="js-form-registration">
 
                                 {hook run='form_registration_begin' isPopup=true}
 
@@ -147,7 +147,7 @@
 
                         <div class="tab-pane js-pane-reminder">
                             {hook run='pane_reminder_begin' isPopup=true}
-                            <form action="{router page='login'}reminder/" method="POST" class="js-form-reminder">
+                            <form action="{R::GetLink("login")}reminder/" method="POST" class="js-form-reminder">
                                 {hook run='form_reminder_begin' isPopup=true}
 
                                 <div class="form-group has-feedback">
@@ -185,7 +185,7 @@
 
                 var m = $('#modal-auth');
                 if (m.data('first') != 1) {
-                    $('.captcha-image').attr('src', "{router page='captcha'}?n="+Math.random());
+                    $('.captcha-image').attr('src', "{R::GetLink("captcha")}?n="+Math.random());
                     m.attr('data-first', 1);
                 }
             };

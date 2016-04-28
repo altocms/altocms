@@ -33,9 +33,9 @@ class WidgetStreamConfig extends Widget {
             $aUserSubscribes = E::ModuleStream()->GetUserSubscribes($oUserCurrent->getId());
             $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
 
-            E::ModuleViewer()->Assign('aStreamTypesList', $aTypesList);
-            E::ModuleViewer()->Assign('aStreamSubscribedUsers', $aUserSubscribes);
-            E::ModuleViewer()->Assign('aStreamFriends', $aFriends['collection']);
+            E::ModuleViewer()->assign('aStreamTypesList', $aTypesList);
+            E::ModuleViewer()->assign('aStreamSubscribedUsers', $aUserSubscribes);
+            E::ModuleViewer()->assign('aStreamFriends', $aFriends['collection']);
         }
     }
 }

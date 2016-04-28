@@ -13,4 +13,4 @@
 <br/>
 <br/>
 <a href="{$oBlog->getUrlFull()}">{$aLang.infobox_blog_url}</a><br/>
-<a href="{router page='rss'}blog/{$oBlog->getUrl()}/">{$aLang.infobox_blog_rss}</a><br/>
+<a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/">{$aLang.infobox_blog_rss}</a><br/>

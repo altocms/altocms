@@ -12,7 +12,7 @@
         <div id="navbar-content">
             <ul class="main nav navbar-nav">
                 {*<li class="{if $sMenuSubItemSelect=='good'}active{/if}">*}
-                    {*<a href="{router page='index'}">{$aLang.menu_homepage}</a>*}
+                    {*<a href="{R::GetLink("index")}">{$aLang.menu_homepage}</a>*}
                 {*</li>*}
                 {if $menu}
                     {if in_array($menu,$aMenuContainers)}{$aMenuFetch.$menu}{else}{include file="menus/menu.$menu.tpl"}{/if}

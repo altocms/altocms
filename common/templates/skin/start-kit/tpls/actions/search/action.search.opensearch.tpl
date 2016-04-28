@@ -2,7 +2,7 @@
 	<ShortName>{Config::Get('view.name')}</ShortName>
 	<Description>{$sHtmlTitle}</Description>
 	<Contact>{$sAdminMail}</Contact>
-	<Url type="text/html" template="{router page='search'}topics/?q={literal}{searchTerms}{/literal}" />
+	<Url type="text/html" template="{R::GetLink("search")}topics/?q={literal}{searchTerms}{/literal}" />
 	<LongName>{$sHtmlDescription}</LongName>
 	<Image height="64" width="64" type="{Config::Get('path.root.url')}{{asset file='assets/images/logo-64x64.png'}|ltrim:'/'}"></Image>
 	<Image height="16" width="16" type="{Config::Get('path.root.url')}{{asset file='assets/images/favicon.ico'}|ltrim:'/'}"></Image>

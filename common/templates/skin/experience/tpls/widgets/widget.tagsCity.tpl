@@ -13,7 +13,7 @@
                     {foreach $aCityList as $oCity}
                         <li>
                             <a class="link link-light-gray"
-                               href="{router page='people'}city/{$oCity->getId()}/">
+                               href="{R::GetLink("people")}city/{$oCity->getId()}/">
                             <span class="tag-size tag-size-{$oCity->getSize()}">
                                 {$oCity->getName()|escape:'html'}
                             </span>

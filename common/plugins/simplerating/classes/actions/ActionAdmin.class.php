@@ -26,9 +26,9 @@ class PluginSimplerating_ActionAdmin extends PluginSimplerating_Inherit_ActionAd
 
         $this->sMainMenuItem = 'settings';
 
-        E::ModuleViewer()->Assign('sPageTitle', E::ModuleLang()->Get('plugin.simplerating.admin_title'));
-        E::ModuleViewer()->Assign('sMainMenuItem', 'settings');
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('plugin.simplerating.admin_title'));
+        E::ModuleViewer()->assign('sPageTitle', E::ModuleLang()->get('plugin.simplerating.admin_title'));
+        E::ModuleViewer()->assign('sMainMenuItem', 'settings');
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('plugin.simplerating.admin_title'));
         $this->SetTemplateAction('settings/rating');
 
         if (getRequest('submit_rating')) {

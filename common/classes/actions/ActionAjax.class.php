@@ -117,7 +117,7 @@ class ActionAjax extends Action {
         } else {
             // Только пользователь может смотреть своё дерево изображений
             if (!E::IsUser()) {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
                 return;
             }
             $iUserId = E::UserId();
@@ -371,12 +371,12 @@ class ActionAjax extends Action {
 
         // * Если блог существует и он не персональный
         if (!is_string(F::GetRequest('iBlogId'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return;
         }
 
         if (!($oBlog = E::ModuleBlog()->GetBlogById(F::GetRequest('iBlogId'))) /* || $oBlog->getType()=='personal'*/) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return;
         }
 
@@ -406,7 +406,7 @@ class ActionAjax extends Action {
 
         // * Находим страну
         if (!($oCountry = E::ModuleGeo()->GetGeoObject('country', $iCountryId))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return;
         }
 
@@ -437,7 +437,7 @@ class ActionAjax extends Action {
 
         // * Находим регион
         if (!($oRegion = E::ModuleGeo()->GetGeoObject('region', $iRegionId))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return;
         }
 
@@ -463,43 +463,43 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Комментарий существует?
         if (!($oComment = E::ModuleComment()->GetCommentById(F::GetRequestStr('idComment', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_noexists'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_noexists'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Голосует автор комментария?
         if ($oComment->getUserId() == $this->oUserCurrent->getId()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_self'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_self'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Пользователь уже голосовал?
         if ($oTopicCommentVote = E::ModuleVote()->GetVote($oComment->getId(), 'comment', $this->oUserCurrent->getId())) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_already'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_already'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Время голосования истекло?
         if (strtotime($oComment->getDate()) <= time() - Config::Get('acl.vote.comment.limit_time')) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_time'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_time'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Пользователь имеет право голоса?
         switch (E::ModuleACL()->CanVoteComment($this->oUserCurrent, $oComment)) {
             case ModuleACL::CAN_VOTE_COMMENT_ERROR_BAN:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_banned'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_banned'), E::ModuleLang()->get('attention'));
                 return;
                 break;
 
             case ModuleACL::CAN_VOTE_COMMENT_FALSE:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_acl'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_acl'), E::ModuleLang()->get('attention'));
                 return;
                 break;
         }
@@ -507,7 +507,7 @@ class ActionAjax extends Action {
         // * Как именно голосует пользователь
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_value'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error_value'), E::ModuleLang()->get('attention'));
             return;
         }
 
@@ -532,13 +532,13 @@ class ActionAjax extends Action {
         $oComment->setCountVote($oComment->getCountVote() + 1);
 
         if (E::ModuleVote()->AddVote($oTopicCommentVote) && E::ModuleComment()->UpdateComment($oComment)) {
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('comment_vote_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('comment_vote_ok'), E::ModuleLang()->get('attention'));
             E::ModuleViewer()->AssignAjax('iRating', $oComment->getRating());
 
             // * Добавляем событие в ленту
             E::ModuleStream()->Write($oTopicCommentVote->getVoterId(), 'vote_comment', $oComment->getId());
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_vote_error'), E::ModuleLang()->get('error'));
             return;
         }
     }
@@ -551,55 +551,55 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Топик существует?
         if (!($oTopic = E::ModuleTopic()->GetTopicById(F::GetRequestStr('idTopic', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Голосует автор топика?
         if ($oTopic->getUserId() == $this->oUserCurrent->getId()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_self'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_vote_error_self'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Пользователь уже голосовал?
         if ($oTopicVote = E::ModuleVote()->GetVote($oTopic->getId(), 'topic', $this->oUserCurrent->getId())) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_already'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_vote_error_already'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Время голосования истекло?
         if (strtotime($oTopic->getDateAdd()) <= time() - Config::Get('acl.vote.topic.limit_time')) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_time'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_vote_error_time'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Как проголосовал пользователь
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1', '0'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Права на голосование
         switch (E::ModuleACL()->CanVoteTopic($this->oUserCurrent, $oTopic)) {
             case ModuleACL::CAN_VOTE_TOPIC_ERROR_BAN:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_banned'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_vote_error_banned'), E::ModuleLang()->get('attention'));
                 return;
                 break;
 
             case ModuleACL::CAN_VOTE_TOPIC_FALSE:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_acl'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_vote_error_acl'), E::ModuleLang()->get('attention'));
                 return;
                 break;
 
             case ModuleACL::CAN_VOTE_TOPIC_NOT_IS_PUBLISHED:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_is_not_published'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_vote_error_is_not_published'), E::ModuleLang()->get('attention'));
                 return;
                 break;
         }
@@ -633,16 +633,16 @@ class ActionAjax extends Action {
         }
         if (E::ModuleVote()->AddVote($oTopicVote) && E::ModuleTopic()->UpdateTopic($oTopic)) {
             if ($iValue) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_vote_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_vote_ok'), E::ModuleLang()->get('attention'));
             } else {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_vote_ok_abstain'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_vote_ok_abstain'), E::ModuleLang()->get('attention'));
             }
             E::ModuleViewer()->AssignAjax('iRating', $oTopic->getRating());
 
             // * Добавляем событие в ленту
             E::ModuleStream()->Write($oTopicVote->getVoterId(), 'vote_topic', $oTopic->getId());
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
     }
@@ -655,25 +655,25 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Блог существует?
         if (!($oBlog = E::ModuleBlog()->GetBlogById(F::GetRequestStr('idBlog', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Голосует за свой блог?
         if ($oBlog->getOwnerId() == $this->oUserCurrent->getId()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_self'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('blog_vote_error_self'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Уже голосовал?
         if ($oBlogVote = E::ModuleVote()->GetVote($oBlog->getId(), 'blog', $this->oUserCurrent->getId())) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_already'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('blog_vote_error_already'), E::ModuleLang()->get('attention'));
             return;
         }
 
@@ -704,31 +704,31 @@ class ActionAjax extends Action {
                     if (E::ModuleVote()->AddVote($oBlogVote) && E::ModuleBlog()->UpdateBlog($oBlog)) {
                         E::ModuleViewer()->AssignAjax('iCountVote', $oBlog->getCountVote());
                         E::ModuleViewer()->AssignAjax('iRating', $oBlog->getRating());
-                        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('blog_vote_ok'), E::ModuleLang()->Get('attention'));
+                        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('blog_vote_ok'), E::ModuleLang()->get('attention'));
 
                         // * Добавляем событие в ленту
                         E::ModuleStream()->Write($oBlogVote->getVoterId(), 'vote_blog', $oBlog->getId());
                     } else {
-                        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
+                        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('attention'));
                         return;
                     }
                 } else {
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('attention'));
                     return;
                 }
                 break;
             case ModuleACL::CAN_VOTE_BLOG_ERROR_CLOSE:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_close'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('blog_vote_error_close'), E::ModuleLang()->get('attention'));
                 return;
                 break;
             case ModuleACL::CAN_VOTE_BLOG_ERROR_BAN:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_banned'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('blog_vote_error_banned'), E::ModuleLang()->get('attention'));
                 return;
                 break;
 
             default:
             case ModuleACL::CAN_VOTE_BLOG_FALSE:
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_acl'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('blog_vote_error_acl'), E::ModuleLang()->get('attention'));
                 return;
                 break;
         }
@@ -742,38 +742,38 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Пользователь существует?
         if (!($oUser = E::ModuleUser()->GetUserById(F::GetRequestStr('idUser', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Голосует за себя?
         if ($oUser->getId() == $this->oUserCurrent->getId()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_self'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('user_vote_error_self'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Уже голосовал?
         if ($oUserVote = E::ModuleVote()->GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId())) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_already'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('user_vote_error_already'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Имеет право на голосование?
         if (!E::ModuleACL()->CanVoteUser($this->oUserCurrent, $oUser)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_acl'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('user_vote_error_acl'), E::ModuleLang()->get('attention'));
             return;
         }
 
         // * Как проголосовал
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('attention'));
             return;
         }
 
@@ -798,7 +798,7 @@ class ActionAjax extends Action {
         $oUser->setCountVote($oUser->getCountVote() + 1);
 
         if (E::ModuleVote()->AddVote($oUserVote) && E::ModuleUser()->Update($oUser)) {
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('user_vote_ok'), E::ModuleLang()->get('attention'));
             E::ModuleViewer()->AssignAjax('iRating', number_format($oUser->getRating(), Config::Get('view.skill_length')));
             E::ModuleViewer()->AssignAjax('iSkill', number_format($oUser->getSkill(), Config::Get('view.rating_length')));
             E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
@@ -806,7 +806,7 @@ class ActionAjax extends Action {
             // * Добавляем событие в ленту
             E::ModuleStream()->Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
     }
@@ -827,7 +827,7 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
@@ -837,26 +837,26 @@ class ActionAjax extends Action {
 
         // * Топик существует?
         if (!($oTopic = E::ModuleTopic()->GetTopicById($idTopic))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // *  У топика существует опрос?
         if (!$oTopic->getQuestionAnswers()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Уже голосовал?
         if ($oTopicQuestionVote = E::ModuleTopic()->GetTopicQuestionVote($oTopic->getId(), $this->oUserCurrent->getId())) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_question_vote_already'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_question_vote_already'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Вариант ответа
         $aAnswer = $oTopic->getQuestionAnswers();
         if (!isset($aAnswer[$idAnswer]) && $idAnswer != -1) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
@@ -877,11 +877,11 @@ class ActionAjax extends Action {
         $oTopicQuestionVote->setAnswer($idAnswer);
 
         if (E::ModuleTopic()->AddTopicQuestionVote($oTopicQuestionVote) && E::ModuleTopic()->UpdateTopic($oTopic)) {
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_question_vote_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_question_vote_ok'), E::ModuleLang()->get('attention'));
             $aVars = array('oTopic' => $oTopic);
             E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('fields/field.poll-show.tpl', $aVars));
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
     }
@@ -894,7 +894,7 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
@@ -928,7 +928,7 @@ class ActionAjax extends Action {
             E::ModuleFavourite()->UpdateFavourite($oFavourite);
             return;
         }
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
     }
 
     /**
@@ -939,26 +939,26 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Можно только добавить или удалить из избранного
         $iType = F::GetRequestStr('type', null, 'post');
         if (!in_array($iType, array('1', '0'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Топик существует?
         if (!($oTopic = E::ModuleTopic()->GetTopicById(F::GetRequestStr('idTopic', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Пропускаем топик из черновиков
         if (!$oTopic->getPublish()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('error_favorite_topic_is_draft'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('error_favorite_topic_is_draft'), E::ModuleLang()->get('error'));
             return;
         }
 
@@ -976,30 +976,30 @@ class ActionAjax extends Action {
             );
             $oTopic->setCountFavourite($oTopic->getCountFavourite() + 1);
             if (E::ModuleTopic()->AddFavouriteTopic($oFavouriteTopicNew) && E::ModuleTopic()->UpdateTopic($oTopic)) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_favourite_add_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_favourite_add_ok'), E::ModuleLang()->get('attention'));
                 E::ModuleViewer()->AssignAjax('bState', true);
                 E::ModuleViewer()->AssignAjax('iCount', $oTopic->getCountFavourite());
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
         }
         if (!$oFavouriteTopic && !$iType) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_favourite_add_no'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_favourite_add_no'), E::ModuleLang()->get('error'));
             return;
         }
         if ($oFavouriteTopic && $iType) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_favourite_add_already'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_favourite_add_already'), E::ModuleLang()->get('error'));
             return;
         }
         if ($oFavouriteTopic && !$iType) {
             $oTopic->setCountFavourite($oTopic->getCountFavourite() - 1);
             if (E::ModuleTopic()->DeleteFavouriteTopic($oFavouriteTopic) && E::ModuleTopic()->UpdateTopic($oTopic)) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_favourite_del_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_favourite_del_ok'), E::ModuleLang()->get('attention'));
                 E::ModuleViewer()->AssignAjax('bState', false);
                 E::ModuleViewer()->AssignAjax('iCount', $oTopic->getCountFavourite());
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
         }
@@ -1013,20 +1013,20 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Можно только добавить или удалить из избранного
         $iType = F::GetRequestStr('type', null, 'post');
         if (!in_array($iType, array('1', '0'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
 
         // * Комментарий существует?
         if (!($oComment = E::ModuleComment()->GetCommentById(F::GetRequestStr('idComment', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         // * Комментарий уже в избранном?
@@ -1044,33 +1044,33 @@ class ActionAjax extends Action {
             $oComment->setCountFavourite($oComment->getCountFavourite() + 1);
             if (E::ModuleComment()->AddFavouriteComment($oFavouriteCommentNew) && E::ModuleComment()->UpdateComment($oComment)) {
                 E::ModuleMessage()->AddNoticeSingle(
-                    E::ModuleLang()->Get('comment_favourite_add_ok'), E::ModuleLang()->Get('attention')
+                    E::ModuleLang()->get('comment_favourite_add_ok'), E::ModuleLang()->get('attention')
                 );
                 E::ModuleViewer()->AssignAjax('bState', true);
                 E::ModuleViewer()->AssignAjax('iCount', $oComment->getCountFavourite());
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
         }
         if (!$oFavouriteComment && !$iType) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_favourite_add_no'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_favourite_add_no'), E::ModuleLang()->get('error'));
             return;
         }
         if ($oFavouriteComment && $iType) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_favourite_add_already'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('comment_favourite_add_already'), E::ModuleLang()->get('error'));
             return;
         }
         if ($oFavouriteComment && !$iType) {
             $oComment->setCountFavourite($oComment->getCountFavourite() - 1);
             if (E::ModuleComment()->DeleteFavouriteComment($oFavouriteComment) && E::ModuleComment()->UpdateComment($oComment)) {
                 E::ModuleMessage()->AddNoticeSingle(
-                    E::ModuleLang()->Get('comment_favourite_del_ok'), E::ModuleLang()->Get('attention')
+                    E::ModuleLang()->get('comment_favourite_del_ok'), E::ModuleLang()->get('attention')
                 );
                 E::ModuleViewer()->AssignAjax('bState', false);
                 E::ModuleViewer()->AssignAjax('iCount', $oComment->getCountFavourite());
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
         }
@@ -1084,18 +1084,18 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         // * Можно только добавить или удалить из избранного
         $iType = F::GetRequestStr('type', null, 'post');
         if (!in_array($iType, array('1', '0'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         // *    Сообщение существует?
         if (!($oTalk = E::ModuleTalk()->GetTalkById(F::GetRequestStr('idTalk', null, 'post')))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         // * Сообщение уже в избранном?
@@ -1111,27 +1111,27 @@ class ActionAjax extends Action {
                 )
             );
             if (E::ModuleTalk()->AddFavouriteTalk($oFavouriteTalkNew)) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('talk_favourite_add_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('talk_favourite_add_ok'), E::ModuleLang()->get('attention'));
                 E::ModuleViewer()->AssignAjax('bState', true);
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
         }
         if (!$oFavouriteTalk && !$iType) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_favourite_add_no'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('talk_favourite_add_no'), E::ModuleLang()->get('error'));
             return;
         }
         if ($oFavouriteTalk && $iType) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_favourite_add_already'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('talk_favourite_add_already'), E::ModuleLang()->get('error'));
             return;
         }
         if ($oFavouriteTalk && !$iType) {
             if (E::ModuleTalk()->DeleteFavouriteTalk($oFavouriteTalk)) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('talk_favourite_del_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('talk_favourite_del_ok'), E::ModuleLang()->get('attention'));
                 E::ModuleViewer()->AssignAjax('bState', false);
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
         }
@@ -1206,7 +1206,7 @@ class ActionAjax extends Action {
             $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
             E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
     }
@@ -1220,7 +1220,7 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         // * Получаем список блогов и формируем ответ
@@ -1230,7 +1230,7 @@ class ActionAjax extends Action {
             $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
             E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('widget_blogs_self_error'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('widget_blogs_self_error'), E::ModuleLang()->get('attention'));
             return;
         }
     }
@@ -1244,7 +1244,7 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         // * Получаем список блогов и формируем ответ
@@ -1255,7 +1255,7 @@ class ActionAjax extends Action {
             $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
             E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('widget_blogs_join_error'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('widget_blogs_join_error'), E::ModuleLang()->get('attention'));
             return;
         }
     }
@@ -1273,12 +1273,12 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         // * Допустимый тип топика?
         if (!E::ModuleTopic()->IsAllowTopicType($sType = F::GetRequestStr('topic_type'))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_create_type_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_create_type_error'), E::ModuleLang()->get('error'));
             return;
         }
 
@@ -1422,7 +1422,7 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         $sFile = null;
@@ -1441,11 +1441,11 @@ class ActionAjax extends Action {
             }
             $sFile = E::ModuleTopic()->UploadTopicImageFile($aUploadedFile, $this->oUserCurrent, $aOptions);
             if (!$sFile) {
-                $sMessage = E::ModuleLang()->Get('uploadimg_file_error');
+                $sMessage = E::ModuleLang()->get('uploadimg_file_error');
                 if (E::ModuleUploader()->GetError()) {
                     $sMessage .= ' (' . E::ModuleUploader()->GetErrorMsg() . ')';
                 }
-                E::ModuleMessage()->AddErrorSingle($sMessage, E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle($sMessage, E::ModuleLang()->get('error'));
                 return;
             }
         } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
@@ -1456,7 +1456,7 @@ class ActionAjax extends Action {
                 $sFile = E::ModuleTopic()->UploadTopicImageUrl($sUrl, $this->oUserCurrent);
             }
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('uploadimg_file_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('uploadimg_file_error'));
             return;
         }
         // * Если файл успешно загружен, формируем HTML вставки и возвращаем в ajax ответе
@@ -1464,7 +1464,7 @@ class ActionAjax extends Action {
             $sText = E::ModuleImg()->BuildHTML($sFile, $_REQUEST);
             E::ModuleViewer()->AssignAjax('sText', $sText);
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleUploader()->GetErrorMsg(), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleUploader()->GetErrorMsg(), E::ModuleLang()->get('error'));
         }
     }
 
@@ -1522,36 +1522,36 @@ class ActionAjax extends Action {
         // * Комментарий существует?
         $idComment = F::GetRequestStr('idComment', null, 'post');
         if (!($oComment = E::ModuleComment()->GetCommentById($idComment))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         // * Есть права на удаление комментария?
         if (!$oComment->isDeletable()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
             return;
         }
         // * Устанавливаем пометку о том, что комментарий удален
         $oComment->setDelete(($oComment->getDelete() + 1) % 2);
         E::ModuleHook()->Run('comment_delete_before', array('oComment' => $oComment));
         if (!E::ModuleComment()->UpdateCommentStatus($oComment)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         E::ModuleHook()->Run('comment_delete_after', array('oComment' => $oComment));
 
         // * Формируем текст ответа
         if ($bState = (bool)$oComment->getDelete()) {
-            $sMsg = E::ModuleLang()->Get('comment_delete_ok');
-            $sTextToggle = E::ModuleLang()->Get('comment_repair');
+            $sMsg = E::ModuleLang()->get('comment_delete_ok');
+            $sTextToggle = E::ModuleLang()->get('comment_repair');
         } else {
-            $sMsg = E::ModuleLang()->Get('comment_repair_ok');
-            $sTextToggle = E::ModuleLang()->Get('comment_delete');
+            $sMsg = E::ModuleLang()->get('comment_repair_ok');
+            $sTextToggle = E::ModuleLang()->get('comment_delete');
         }
         // * Обновление события в ленте активности
         E::ModuleStream()->Write($oComment->getUserId(), 'add_comment', $oComment->getId(), !$oComment->getDelete());
 
         // * Показываем сообщение и передаем переменные в ajax ответ
-        E::ModuleMessage()->AddNoticeSingle($sMsg, E::ModuleLang()->Get('attention'));
+        E::ModuleMessage()->AddNoticeSingle($sMsg, E::ModuleLang()->get('attention'));
         E::ModuleViewer()->AssignAjax('bState', $bState);
         E::ModuleViewer()->AssignAjax('sTextToggle', $sTextToggle);
     }

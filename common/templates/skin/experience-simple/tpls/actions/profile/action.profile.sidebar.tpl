@@ -114,18 +114,18 @@
                 {if E::UserId() == $oUserProfile->getId()}
                 <li {if $sAction=='talk'}class="active"{/if}>
                     {if $iUserCurrentCountTalkNew}
-                    <a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                    <a class="link link-lead link-dual link-clear" href="{R::GetLink("talk")}">
                         <i class="fa fa-envelope"></i>{$aLang.talk_menu_inbox}
                         <span class="badge pull-right"> {$iUserCurrentCountTalkNew}</span>
                     </a>
                     {else}
-                    <a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                    <a class="link link-lead link-dual link-clear" href="{R::GetLink("talk")}">
                         <i class="fa fa-envelope-o"></i>{$aLang.talk_menu_inbox}
                     </a>
                     {/if}
                 </li>
                 <li {if $sAction=='settings'}class="active"{/if}>
-                    <a class="link link-lead link-dual link-clear" href="{router page='settings'}">
+                    <a class="link link-lead link-dual link-clear" href="{R::GetLink("settings")}">
                         <i class="fa fa-cogs"></i>{$aLang.settings_menu}
                     </a>
                 </li>
@@ -136,7 +136,7 @@
         </div>
     </div>
     <div class="panel-footer">
-        <a href="{router page='rss'}personal_blog/{$oUserProfile->getLogin()}/" class="link link-dual link-lead link-clear">
+        <a href="{R::GetLink("rss")}personal_blog/{$oUserProfile->getLogin()}/" class="link link-dual link-lead link-clear">
             <i class="fa fa-rss"></i>RSS
         </a>
     </div>

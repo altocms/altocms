@@ -49,7 +49,7 @@ class PluginEstheme_ActionEstheme extends ActionPlugin {
             $this->_processConfig($aProcessData, FALSE);
         }
 
-        E::ModuleViewer()->Assign('sCSSDownloadPath', $sCSSDownloadPath);
+        E::ModuleViewer()->assign('sCSSDownloadPath', $sCSSDownloadPath);
 
     }
 

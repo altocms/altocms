@@ -211,7 +211,7 @@ class ModuleLang extends Module {
         foreach ($this->aLangMsgJs as $sName) {
             $aLangMsg[$sName] = $this->Get($sName, array(), false);
         }
-        E::ModuleViewer()->Assign('aLangJs', $aLangMsg);
+        E::ModuleViewer()->assign('aLangJs', $aLangMsg);
     }
 
     /**

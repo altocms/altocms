@@ -82,7 +82,7 @@
                     <td class="table-talk-content" {if !$oTalk->getCountComment()}colspan="2"{/if}>
                         <div>
                             {strip}
-                                <a href="{router page='talk'}read/{$oTalk->getId()}/" class="js-title-talk link link-lead link-clear"
+                                <a href="{R::GetLink("talk")}read/{$oTalk->getId()}/" class="js-title-talk link link-lead link-clear"
                                    title="{$oTalk->getTextLast()|strip_tags|truncate:100:'...'|escape:'html'}">
                                     {if E::UserId()==$oTalk->getUserIdLast()}
                                         <span class="text-success small"><i class="fa fa-sign-in"></i></span>

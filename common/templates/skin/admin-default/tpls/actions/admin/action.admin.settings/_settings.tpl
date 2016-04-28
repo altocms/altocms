@@ -5,22 +5,22 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a href="{router page='admin'}settings-site/params/" class="btn btn-default {if $sMode=='params'}active{/if}">
+        <a href="{R::GetLink("admin")}settings-site/params/" class="btn btn-default {if $sMode=='params'}active{/if}">
             {$aLang.action.admin.settings_base}
         </a>
-        <a href="{router page='admin'}settings-site/edit/" class="btn btn-default {if $sMode=='edit'}active{/if}">
+        <a href="{R::GetLink("admin")}settings-site/edit/" class="btn btn-default {if $sMode=='edit'}active{/if}">
             {$aLang.action.admin.settings_edit}
         </a>
-        <a href="{router page='admin'}settings-site/links/" class="btn btn-default {if $sMode=='links'}active{/if}">
+        <a href="{R::GetLink("admin")}settings-site/links/" class="btn btn-default {if $sMode=='links'}active{/if}">
             {$aLang.action.admin.settings_links}
         </a>
-        <a href="{router page='admin'}settings-site/sys/" class="btn btn-default {if $sMode=='sys'}active{/if}">
+        <a href="{R::GetLink("admin")}settings-site/sys/" class="btn btn-default {if $sMode=='sys'}active{/if}">
             {$aLang.action.admin.settings_sys}
         </a>
-        <a href="{router page='admin'}settings-site/cssjs/" class="btn btn-default {if $sMode=='cssjs'}active{/if}">
+        <a href="{R::GetLink("admin")}settings-site/cssjs/" class="btn btn-default {if $sMode=='cssjs'}active{/if}">
             {$aLang.action.admin.settings_cssjs}
         </a>
-        <!-- a href="{router page='admin'}settings-site/acl/" class="btn btn-default {if $sMode=='acl'}active{/if}">
+        <!-- a href="{R::GetLink("admin")}settings-site/acl/" class="btn btn-default {if $sMode=='acl'}active{/if}">
                 {$aLang.action.admin.settings_acl}
             </a -->
     </div>

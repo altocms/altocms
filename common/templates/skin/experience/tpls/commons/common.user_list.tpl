@@ -46,7 +46,7 @@
             <tr class="first-row">
                 <td class="action-icon action-mail">
                     {if $oUserCurrent &&  $oUserList && $oUserList->getId() != $oUserCurrent->getId()}
-                    <a href="{router page='talk'}add/?talk_users={$oUserList->getLogin()}"
+                    <a href="{R::GetLink("talk")}add/?talk_users={$oUserList->getLogin()}"
                        data-toggle="tooltip" data-placement="right" data-original-title="{$aLang.send_message}">
                         <i class="fa fa-envelope"></i>
                     </a>
@@ -127,14 +127,14 @@
                     {if $oGeoTarget}
                         {if $oGeoTarget->getCountryId()}
                             <a class="link link-lead link-blue"
-                               href="{router page='people'}country/{$oGeoTarget->getCountryId()}/">
+                               href="{R::GetLink("people")}country/{$oGeoTarget->getCountryId()}/">
                             {$oUserList->getProfileCountry()|escape:'html'}
                             </a>{if $oGeoTarget->getCityId()},{/if}
                         {/if}
 
                         {if $oGeoTarget->getCityId()}
                             <a class="link link-lead link-blue"
-                               href="{router page='people'}city/{$oGeoTarget->getCityId()}/">
+                               href="{R::GetLink("people")}city/{$oGeoTarget->getCityId()}/">
                                 {$oUserList->getProfileCity()|escape:'html'}
                             </a>
                         {/if}

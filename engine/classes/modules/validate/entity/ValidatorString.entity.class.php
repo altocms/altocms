@@ -77,7 +77,7 @@ class ModuleValidate_EntityValidatorString extends ModuleValidate_EntityValidato
 
         if (is_array($sValue)) {
             return $this->getMessage(
-                E::ModuleLang()->Get('validate_string_too_short', null, false), 'msgTooShort', array('min' => $this->min)
+                E::ModuleLang()->get('validate_string_too_short', null, false), 'msgTooShort', array('min' => $this->min)
             );
         }
         if ($this->allowEmpty && $this->isEmpty($sValue)) {
@@ -88,17 +88,17 @@ class ModuleValidate_EntityValidatorString extends ModuleValidate_EntityValidato
 
         if ($this->min !== null && $iLength < $this->min) {
             return $this->getMessage(
-                E::ModuleLang()->Get('validate_string_too_short', null, false), 'msgTooShort', array('min' => $this->min)
+                E::ModuleLang()->get('validate_string_too_short', null, false), 'msgTooShort', array('min' => $this->min)
             );
         }
         if ($this->max !== null && $iLength > $this->max) {
             return $this->getMessage(
-                E::ModuleLang()->Get('validate_string_too_long', null, false), 'msgTooLong', array('max' => $this->max)
+                E::ModuleLang()->get('validate_string_too_long', null, false), 'msgTooLong', array('max' => $this->max)
             );
         }
         if ($this->is !== null && $iLength !== $this->is) {
             return $this->getMessage(
-                E::ModuleLang()->Get('validate_string_no_lenght', null, false), 'msg', array('length' => $this->is)
+                E::ModuleLang()->get('validate_string_no_lenght', null, false), 'msg', array('length' => $this->is)
             );
         }
         return true;

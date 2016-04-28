@@ -56,13 +56,13 @@ class ModuleValidate_EntityValidatorRequired extends ModuleValidate_EntityValida
                 || $this->strict && $sValue !== $this->requiredValue
             ) {
                 return $this->getMessage(
-                    E::ModuleLang()->Get('validate_required_must_be', null, false), 'msg',
+                    E::ModuleLang()->get('validate_required_must_be', null, false), 'msg',
                     array('value' => $this->requiredValue)
                 );
             }
         } else {
             if ($this->isEmpty($sValue, true)) {
-                return $this->getMessage(E::ModuleLang()->Get('validate_required_cannot_blank', null, false), 'msg');
+                return $this->getMessage(E::ModuleLang()->get('validate_required_cannot_blank', null, false), 'msg');
             }
         }
         return true;

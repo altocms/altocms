@@ -5,7 +5,7 @@
     {include file='menus/menu.settings.tpl'}
 
     {hook run='settings_tuning_begin'}
-    <form action="{router page='settings'}tuning/" method="POST" enctype="multipart/form-data" class="wrapper-content">
+    <form action="{R::GetLink("settings")}tuning/" method="POST" enctype="multipart/form-data" class="wrapper-content">
         {hook run='form_settings_tuning_begin'}
 
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>

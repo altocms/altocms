@@ -86,7 +86,7 @@ class ActionPage extends Action {
             E::ModuleViewer()->SetHtmlDescription($this->oCurrentPage->getSeoDescription());
         }
 
-        E::ModuleViewer()->Assign('oPage', $this->oCurrentPage);
+        E::ModuleViewer()->assign('oPage', $this->oCurrentPage);
 
         // * Устанавливаем шаблон для вывода
         $this->SetTemplateAction('show');

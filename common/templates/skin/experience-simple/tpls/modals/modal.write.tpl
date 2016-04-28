@@ -16,31 +16,31 @@
                         {foreach from=$aContentTypes item=oContentType}
                             {if $oContentType->isAccessible()}
                                 <li class="write-item-type-topic">
-                                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/" class="content-logo link link-lead link-dark link-clear">
+                                    <a href="{R::GetLink("content")}{$oContentType->getContentUrl()}/add/" class="content-logo link link-lead link-dark link-clear">
                                         <i class="fa fa-file-text-o"></i>
                                     </a>
-                                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/" class="write-item-link link link-lead link-dark link-clear">{$oContentType->getContentTitle()|escape:'html'}</a>
+                                    <a href="{R::GetLink("content")}{$oContentType->getContentUrl()}/add/" class="write-item-link link link-lead link-dark link-clear">{$oContentType->getContentTitle()|escape:'html'}</a>
                                 </li>
                             {/if}
                         {/foreach}
                         <li class="write-item-type-blog">
-                            <a href="{router page='blog'}add" class="content-logo link link-lead link-dark link-clear">
+                            <a href="{R::GetLink("blog")}add" class="content-logo link link-lead link-dark link-clear">
                                 <i class="fa fa-folder-o"></i>
                             </a>
-                            <a href="{router page='blog'}add" class="write-item-link link link-lead link-dark link-clear">{$aLang.block_create_blog}</a>
+                            <a href="{R::GetLink("blog")}add" class="write-item-link link link-lead link-dark link-clear">{$aLang.block_create_blog}</a>
                         </li>
                         <li class="write-item-type-message">
-                            <a href="{router page='talk'}add" class="content-logo link link-lead link-dark link-clear">
+                            <a href="{R::GetLink("talk")}add" class="content-logo link link-lead link-dark link-clear">
                                 <i class="fa fa-envelope-o"></i>
                             </a>
-                            <a href="{router page='talk'}add" class="write-item-link link link-lead link-dark link-clear">{$aLang.block_create_talk}</a>
+                            <a href="{R::GetLink("talk")}add" class="write-item-link link link-lead link-dark link-clear">{$aLang.block_create_talk}</a>
                         </li>
                         {*{if $iUserCurrentCountTopicDraft}*}
                             <li class="write-item-type-draft">
-                                <a href="{router page='content'}drafts/" class="content-logo link link-lead link-dark link-clear">
+                                <a href="{R::GetLink("content")}drafts/" class="content-logo link link-lead link-dark link-clear">
                                     <i class="fa fa-file-text"></i>
                                 </a>
-                                <a href="{router page='content'}drafts/" class="write-item-link link link-lead link-dark link-clear">
+                                <a href="{R::GetLink("content")}drafts/" class="write-item-link link link-lead link-dark link-clear">
                                     {$aLang.topic_menu_draft} ({$iUserCurrentCountTopicDraft})
                                 </a>
                             </li>

@@ -2,18 +2,18 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary active tip-top"
+        <a href="{R::GetLink("admin")}site-plugins/add/" class="btn btn-primary active tip-top"
            title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus"></i></a>
     </div>
 
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}site-plugins/list/all/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{R::GetLink("admin")}site-plugins/list/all/">
             {$aLang.action.admin.all_plugins}
         </a>
-        <a class="btn btn-default {if $sMode=='active'}active{/if}" href="{router page='admin'}site-plugins/list/active/">
+        <a class="btn btn-default {if $sMode=='active'}active{/if}" href="{R::GetLink("admin")}site-plugins/list/active/">
             {$aLang.action.admin.active_plugins}
         </a>
-        <a class="btn btn-default {if $sMode=='inactive'}active{/if}" href="{router page='admin'}site-plugins/list/inactive/">
+        <a class="btn btn-default {if $sMode=='inactive'}active{/if}" href="{R::GetLink("admin")}site-plugins/list/inactive/">
             {$aLang.action.admin.inactive_plugins}
         </a>
     </div>

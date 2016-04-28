@@ -6,7 +6,7 @@
  */
 
 // Разрешенные для использования типы меню
-$config['allowed'] = array(
+$config['allowed'] = [
     'main',     // Главное меню сайта
     'login',    // Авторизация на сайте
     'user',     // Меню пользователя
@@ -18,418 +18,418 @@ $config['allowed'] = array(
     'profile_images',  // Меню изображений в профиле пользователя
     'footer_site_menu',  // Вторая колонка, меню сайта
     'footer_info',  // Третья колонка, информация
-);
+];
 
 // Editable top menus
-$config['editable'] = array('main', 'user', 'topics', 'login', 'footer_site_menu', 'footer_info');
+$config['editable'] = ['main', 'user', 'topics', 'login', 'footer_site_menu', 'footer_info'];
 
 // Настройки подменю, созданных в админке
-$config['submenu'] = array(
+$config['submenu'] = [
     'class' => '',
-    'options' => array(),
-);
+    'options' => [],
+];
 
 /**
  * Главное меню сайта
  * Приложение, шаблоны и плагины переопределяют и расширяют эти настройки
  */
-$config['data']['main'] = array(
-    'init'        => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['main'] = [
+    'init'        => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_main_description}}',
-    'list'        => array(
-        'index'          => array(
+    'list'        => [
+        'index'          => [
             'text'        => '{{topic_title}}',
             'link'        => '___path.root.url___',
             'description' => '{{menu_main_index_description}}',
-            'active'      => array('compare_action' => array('index', 'blog')),
-        ),
-        'blogs'          => array(
+            'active'      => ['compare_action' => ['index', 'blog']],
+        ],
+        'blogs'          => [
             'text'        => '{{blogs}}',
             'link'        => '___path.root.url___/blogs/',
             'description' => '{{menu_main_blogs_description}}',
-            'active'      => array('compare_action' => array('blogs')),
-        ),
-        'people'         => array(
+            'active'      => ['compare_action' => ['blogs']],
+        ],
+        'people'         => [
             'text'        => '{{people}}',
             'link'        => '___path.root.url___/people/',
             'description' => '{{menu_main_people_description}}',
-            'active'      => array('compare_action' => array('people')),
-        ),
-        'stream'         => array(
+            'active'      => ['compare_action' => ['people']],
+        ],
+        'stream'         => [
             'text'        => '{{stream_menu}}',
             'link'        => '___path.root.url___/stream/',
             'description' => '{{menu_main_stream_description}}',
-            'active'      => array('compare_action' => array('stream')),
-        ),
+            'active'      => ['compare_action' => ['stream']],
+        ],
         'main_menu_item' => '',
-    )
-);
+    ]
+];
 
 /**
  *  Вход и регистрация
  */
-$config['data']['login'] = array(
-    'init' => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['login'] = [
+    'init' => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_login_submenu_description}}',
-    'list' => array(
+    'list' => [
         'userbar_item' => '',
-        'login'        => array(
+        'login'        => [
             'text'    => '{{user_login_submit}}',
             'link'    => '___path.root.url___/login/',
-        ),
-        'registration' => array(
+        ],
+        'registration' => [
             'text'    => '{{registration_submit}}',
             'link'    => '___path.root.url___/registration/',
-        ),
-    )
-);
+        ],
+    ]
+];
 
 /**
  *  Меню пользователя
  */
-$config['data']['user'] = array(
-    'init' => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['user'] = [
+    'init' => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_user_description}}',
-    'list' => array(
-        'talk'    => array(
+    'list' => [
+        'talk'    => [
             'text'   => '{{user_privat_messages_new}}',
             'link' => '___path.root.url___/talk/',
-            'show'    => array('new_talk'),
-        ),
-        'userbar' => array(
+            'show'    => ['new_talk'],
+        ],
+        'userbar' => [
             'text'   => '{{menu_empty_user_name}}',
             'link'    => '___path.root.url___',
             'submenu' => 'userbar',
-        ),
-    )
-);
+        ],
+    ]
+];
 
 /**
  *  Подменю пользователя
  */
-$config['data']['userbar'] = array(
-    'init'  => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['userbar'] = [
+    'init'  => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_user_submenu_description}}',
-    'list'  => array(
+    'list'  => [
         'pre' => false,
-        'user'         => array(
+        'user'         => [
             'text' => '{{user_menu_profile}}',
             'link' => '___path.root.url___',
-        ),
-        'create'  => array(
+        ],
+        'create'  => [
             'text'    => '{{block_create}}',
             'link'    => '#',
-            'options' => array(
-                'data'  => array(
+            'options' => [
+                'data'  => [
                     'toggle'       => 'modal',
                     'target'       => '#modal-write',
-                ),
-            ),
-        ),
-        'talk'         => array(
+                ],
+            ],
+        ],
+        'talk'         => [
             'text'    => '{{user_privat_messages}}',
             'link'    => '___path.root.url___/talk/',
-        ),
-        'wall'         => array(
+        ],
+        'wall'         => [
             'text' => '{{user_menu_profile_wall}}',
             'link' => '___path.root.url___/wall/',
-        ),
-        'publication'  => array(
+        ],
+        'publication'  => [
             'text' => '{{user_menu_publication}}',
             'link' => '___path.root.url___',
-        ),
-        'favourites'   => array(
+        ],
+        'favourites'   => [
             'text' => '{{user_menu_profile_favourites}}',
             'link' => '___path.root.url___',
-        ),
-        'settings'     => array(
+        ],
+        'settings'     => [
             'text' => '{{user_settings}}',
             'link' => '___path.root.url___/settings/',
-        ),
+        ],
         'userbar_item' => '',
-        'logout'       => array(
+        'logout'       => [
             'text' => '{{exit}}',
             'link' => '___path.root.url___/login/exit/?security_key=',
-        ),
-    )
-);
+        ],
+    ]
+];
 
 
 /**
  *  Меню топиков
  */
-$config['data']['topics'] = array(
-    'init' => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['topics'] = [
+    'init' => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_topics_submenu_description}}',
-    'list' => array(
-        'good'                 => array(
+    'list' => [
+        'good'                 => [
             'text'    => '{{blog_menu_all_good}}',
             'link'    => '___path.root.url___',
-            'active'  => array('topic_kind' => array('good')),
-        ),
-        'new'                  => array(
+            'active'  => ['topic_kind' => ['good']],
+        ],
+        'new'                  => [
             'text'    => '{{blog_menu_all_new}}',
             'link'    => '___path.root.url___/index/new/',
-            'active'  => array('topic_kind' => array('new')),
-            'display' => array('new_topics_count'),
-        ),
+            'active'  => ['topic_kind' => ['new']],
+            'display' => ['new_topics_count'],
+        ],
 
-        'newall'               => array(
+        'newall'               => [
             'text'    => '{{blog_menu_all_new}}',
             'link'    => '___path.root.url___/index/newall/',
-            'active'  => array('topic_kind' => array('newall')),
-            'display' => array('no_new_topics'),
-        ),
+            'active'  => ['topic_kind' => ['newall']],
+            'display' => ['no_new_topics'],
+        ],
 
-        'feed'                 => array(
+        'feed'                 => [
             'text'    => '{{userfeed_title}}',
             'link'    => '___path.root.url___/feed/',
-            'active'  => array('compare_action' => array('feed')),
-        ),
+            'active'  => ['compare_action' => ['feed']],
+        ],
 
-        'discussed'            => array(
+        'discussed'            => [
             'text'    => '{{blog_menu_all_discussed}}',
             'link'    => '___path.root.url___/index/discussed/',
-            'active'  => array('topic_kind' => array('discussed')),
+            'active'  => ['topic_kind' => ['discussed']],
             'submenu' => 'discussed',
-        ),
+        ],
 
         'menu_blog_index_item' => '',
-    )
-);
+    ]
+];
 
 /**
  *  Подменю обсуждаемых
  */
-$config['data']['discussed'] = array(
-    'init'  => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
-    'list'  => array(
-        '24h' => array(
+$config['data']['discussed'] = [
+    'init'  => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
+    'list'  => [
+        '24h' => [
             'text'   => '{{blog_menu_top_period_24h}}',
             'link'   => '___path.root.url___/index/discussed/?period=1',
-            'active' => array('compare_get_param' => array('period', 1)),
-        ),
-        '7d'  => array(
+            'active' => ['compare_get_param' => ['period', 1]],
+        ],
+        '7d'  => [
             'text'   => '{{blog_menu_top_period_7d}}',
             'link'   => '___path.root.url___/index/discussed/?period=7',
-            'active' => array('compare_get_param' => array('period', 7)),
-        ),
-        '30d' => array(
+            'active' => ['compare_get_param' => ['period', 7]],
+        ],
+        '30d' => [
             'text'   => '{{blog_menu_top_period_30d}}',
             'link'   => '___path.root.url___/index/discussed/?period=30',
-            'active' => array('compare_get_param' => array('period', 30)),
-        ),
-        'all' => array(
+            'active' => ['compare_get_param' => ['period', 30]],
+        ],
+        'all' => [
             'text'   => '{{blog_menu_top_period_all}}',
             'link'   => '___path.root.url___/index/discussed/?period=all',
-            'active' => array('compare_get_param' => array('period', 'all')),
-        ),
+            'active' => ['compare_get_param' => ['period', 'all']],
+        ],
 
-    )
-);
+    ]
+];
 
 /**
  *  Меню управления добавлением изображений
  */
-$config['data']['image_insert'] = array(
-    'init' => array(
+$config['data']['image_insert'] = [
+    'init' => [
         'cache' => false,
-        'fill' => array(
-            'list' => array('*'),
-            'insert_image' => array()
-        ),
-    ),
-    'actions' => array('ajax' => array(
+        'fill' => [
+            'list' => ['*'],
+            'insert_image' => []
+        ],
+    ],
+    'actions' => ['ajax' => [
         'image-manager-load-images',
         'image-manager-load-tree',
-    )),
+    ]],
     'description' => '{{menu_image_insert_description}}',
-    'list' => array(
-        'insert_from_pc' => array(
-            'text'    => array(
+    'list' => [
+        'insert_from_pc' => [
+            'text'    => [
                 '{{insertimg_from_pc}}'
-            ),
+            ],
             'link'   => '#',
             'active'  => true,
-            'options' => array(
+            'options' => [
                 'class'       => 'category-show active',
                 'link_class'  => '',
-                'link_data'   => array(
+                'link_data'   => [
                     'category' => 'insert-from-pc',
-                ),
-            ),
-        ),
-        'insert_from_link' => array(
-            'text'    => array(
+                ],
+            ],
+        ],
+        'insert_from_link' => [
+            'text'    => [
                 '{{insertimg_from_link}}'
-            ),
+            ],
             'link'   => '#',
-            'options' => array(
+            'options' => [
                 'class'       => 'category-show active',
                 'link_class'  => '',
-                'link_data'   => array(
+                'link_data'   => [
                     'category' => 'insert-from-link',
-                ),
-            ),
-        ),
+                ],
+            ],
+        ],
         'menu_image_insert_item' => '',
-    )
-);
+    ]
+];
 /**
  *  Меню управления добавлением изображений
  */
-$config['data']['profile_images'] = array(
-    'init' => array(
+$config['data']['profile_images'] = [
+    'init' => [
         'cache' => false,
-        'fill' => array(
-            'list' => array('*'),
-            'insert_image' => array()
-        ),
-    ),
-    'actions' => array('ajax' => array(
+        'fill' => [
+            'list' => ['*'],
+            'insert_image' => []
+        ],
+    ],
+    'actions' => ['ajax' => [
         'image-manager-load-images',
         'image-manager-load-tree',
-    )),
+    ]],
     'protect' => true,
     'description' => '{{user_menu_publication_photos}}',
-    'list' => array(
+    'list' => [
         'menu_image_insert_item' => '',
-    )
-);
+    ]
+];
 
 /**
  * Меню подвала
  */
 // Первая колонка, авторизация на сайте
-$config['data']['footer_user_auth'] = array(
-    'init'        => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['footer_user_auth'] = [
+    'init'        => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_footer_user_auth_description}}',
-    'list'        => array(
-        'login'        => array(
+    'list'        => [
+        'login'        => [
             'text' => '{{user_login_submit}}',
             'link' => '___path.root.url___/login/',
-        ),
-        'registration' => array(
+        ],
+        'registration' => [
             'text' => '{{registration_submit}}',
             'link' => '___path.root.url___/registration/',
-        ),
-    )
-);
+        ],
+    ]
+];
 // Первая колонка меню подвала, действия пользователя
-$config['data']['footer_user_actions'] = array(
-    'init'        => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['footer_user_actions'] = [
+    'init'        => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_footer_user_actions_description}}',
-    'list'        => array(
-        'profile'               => array(
+    'list'        => [
+        'profile'               => [
             'text' => '{{user_menu_profile}}',
             'link' => '___path.root.url___/',
-        ),
-        'settings'              => array(
+        ],
+        'settings'              => [
             'text' => '{{user_settings}}',
             'link' => '___path.root.url___/settings/',
-        ),
-        'create'                => array(
+        ],
+        'create'                => [
             'text'    => '{{block_create}}',
             'link'    => '#',
-            'options' => array(
-                'data' => array(
+            'options' => [
+                'data' => [
                     'toggle' => 'modal',
                     'target' => '#modal-write',
-                ),
-            ),
-        ),
+                ],
+            ],
+        ],
         'footer_menu_user_item' => '',
-        'logout'                => array(
+        'logout'                => [
             'text' => '{{exit}}',
             'link' => '___path.root.url___/login/exit/?security_key=',
-        ),
-    )
-);
+        ],
+    ]
+];
 // Вторая колонка, меню сайта
-$config['data']['footer_site_menu'] = array(
-    'init'        => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['footer_site_menu'] = [
+    'init'        => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_footer_site_menu}}',
-    'list'        => array(
-        'topic'                     => array(
+    'list'        => [
+        'topic'                     => [
             'text' => '{{topic_title}}',
             'link' => '___path.root.url___/',
-        ),
-        'blogs'                     => array(
+        ],
+        'blogs'                     => [
             'text' => '{{blogs}}',
             'link' => '___path.root.url___/blogs/',
-        ),
-        'people'                    => array(
+        ],
+        'people'                    => [
             'text' => '{{people}}',
             'link' => '___path.root.url___/people/',
-        ),
-        'stream_menu'               => array(
+        ],
+        'stream_menu'               => [
             'text' => '{{stream_menu}}',
             'link' => '___path.root.url___/stream/',
-        ),
+        ],
         'footer_menu_navigate_item' => '',
-    )
-);
+    ]
+];
 // Третья колонка, информация
-$config['data']['footer_info'] = array(
-    'init'        => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
+$config['data']['footer_info'] = [
+    'init'        => [
+        'fill' => [
+            'list' => ['*'],
+        ],
+    ],
     'description' => '{{menu_footer_info}}',
-    'list'        => array(
-        'about'                    => array(
+    'list'        => [
+        'about'                    => [
             'text' => '{{footer_menu_project_about}}',
             'link' => '#',
-        ),
-        'rules'                    => array(
+        ],
+        'rules'                    => [
             'text' => '{{footer_menu_project_rules}}',
             'link' => '#',
-        ),
-        'advert'                   => array(
+        ],
+        'advert'                   => [
             'text' => '{{footer_menu_project_advert}}',
             'link' => '#',
-        ),
-        'help'                     => array(
+        ],
+        'help'                     => [
             'text' => '{{footer_menu_project_help}}',
             'link' => '#',
-        ),
+        ],
         'footer_menu_project_item' => '',
-    )
-);
+    ]
+];

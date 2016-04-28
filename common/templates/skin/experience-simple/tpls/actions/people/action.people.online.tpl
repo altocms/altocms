@@ -15,7 +15,7 @@
     <div id="users-list-search" style="display:none;"></div>
 
     <div id="users-list-original">
-        {include file='commons/common.user_list.tpl' aUsersList=$aUsersLast bUsersUseOrder=true sUsersRootPage="{router page='people'}new/" bUsersUseOrder=false}
+        {include file='commons/common.user_list.tpl' aUsersList=$aUsersLast bUsersUseOrder=true sUsersRootPage="{R::GetLink("people")}new/" bUsersUseOrder=false}
     </div>
 
 {/block}

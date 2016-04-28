@@ -467,7 +467,7 @@ class ModuleBlog_EntityBlog extends Entity {
         if ($this->getType() == 'personal') {
             return $this->getOwner()->getProfileUrl() . 'created/topics/';
         } else {
-            return R::GetPath('blog/' . $this->getUrl());
+            return R::GetLink('blog/' . $this->getUrl());
         }
     }
 

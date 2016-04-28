@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="panel-footer">
-        <a href="{router page='blogs'}" class="link link-dual link-lead link-clear">
+        <a href="{R::GetLink("blogs")}" class="link link-dual link-lead link-clear">
             <i class="fa fa-comments-o"></i>{$aLang.all_blogs}
         </a>
     </div>

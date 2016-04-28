@@ -80,13 +80,13 @@ class ModuleValidate_EntityValidatorEmail extends ModuleValidate_EntityValidator
     public function validate($sValue) {
 
         if (is_array($sValue)) {
-            return $this->getMessage(E::ModuleLang()->Get('validate_email_not_valid', null, false), 'msg');
+            return $this->getMessage(E::ModuleLang()->get('validate_email_not_valid', null, false), 'msg');
         }
         if ($this->allowEmpty && $this->isEmpty($sValue)) {
             return true;
         }
         if (!$this->validateValue($sValue)) {
-            return $this->getMessage(E::ModuleLang()->Get('validate_email_not_valid', null, false), 'msg');
+            return $this->getMessage(E::ModuleLang()->get('validate_email_not_valid', null, false), 'msg');
         }
         return true;
     }

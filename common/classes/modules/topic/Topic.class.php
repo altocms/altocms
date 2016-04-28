@@ -1217,8 +1217,8 @@ class ModuleTopic extends Module {
                 if ($oBlog) {
                     if (!in_array($oBlog->getType(), $aAllowBlogTypes) && !in_array($oBlog->getId(), $aClosedBlogs)) {
                         $oTopic->setTitle('...');
-                        $oTopic->setText(E::ModuleLang()->Get('acl_cannot_show_content'));
-                        $oTopic->setTextShort(E::ModuleLang()->Get('acl_cannot_show_content'));
+                        $oTopic->setText(E::ModuleLang()->get('acl_cannot_show_content'));
+                        $oTopic->setTextShort(E::ModuleLang()->get('acl_cannot_show_content'));
                     }
                 }
             }
@@ -2900,10 +2900,10 @@ class ModuleTopic extends Module {
                                         }
                                     } else {
                                         $sTypes = implode(', ', $aFileExtensions);
-                                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('topic_field_file_upload_err_type', array('types' => $sTypes)), null, true);
+                                        E::ModuleMessage()->AddError(E::ModuleLang()->get('topic_field_file_upload_err_type', array('types' => $sTypes)), null, true);
                                     }
                                 } else {
-                                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('topic_field_file_upload_err_size', array('size' => $iMaxFileSize)), null, true);
+                                    E::ModuleMessage()->AddError(E::ModuleLang()->get('topic_field_file_upload_err_size', array('size' => $iMaxFileSize)), null, true);
                                 }
                                 F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                             }

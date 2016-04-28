@@ -68,9 +68,9 @@ class PluginEstheme_ActionAdmin extends PluginEstheme_Inherit_ActionAdmin {
 
         $this->sMainMenuItem = 'tools';
 
-        E::ModuleViewer()->Assign('sPageTitle', E::ModuleLang()->Get('plugin.estheme.admin_title'));
-        E::ModuleViewer()->Assign('sMainMenuItem', 'tools');
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('plugin.estheme.admin_title'));
+        E::ModuleViewer()->assign('sPageTitle', E::ModuleLang()->get('plugin.estheme.admin_title'));
+        E::ModuleViewer()->assign('sMainMenuItem', 'tools');
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('plugin.estheme.admin_title'));
 
         $this->SetTemplateAction('tools/estheme');
 

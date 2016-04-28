@@ -6,7 +6,7 @@
         <div class="panel-header">
             <i class="fa fa-tags"></i>
             <a class="link link-lead link-clear link-dark"
-               href="{router page='comments'}">{$aLang.topic_favourite_tags_block}</a>
+               href="{R::GetLink("comments")}">{$aLang.topic_favourite_tags_block}</a>
         </div>
         <div class="panel-navigation">
             <ul>

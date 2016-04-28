@@ -19,7 +19,7 @@
             </div>
 
             {hook run='search_begin'}
-            <form action="{router page='search'}topics/" class="search">
+            <form action="{R::GetLink("search")}topics/" class="search">
                 {hook run='search_form_begin'}
                 <div class="form-group">
                     <input type="text" placeholder="{$aLang.search}" maxlength="255" name="q" class="form-control" value="{$aReq.q|escape:'html'}">

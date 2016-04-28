@@ -827,7 +827,7 @@ class ModuleMresource extends Module {
                 $aResult[] = E::GetEntity('Mresource_MresourceCategory', array(
                     'id' => $aRow['ttype'],
                     'count' => $aRow['count'],
-                    'label' => E::ModuleLang()->Get('aim_target_type_' . $aRow['ttype']),
+                    'label' => E::ModuleLang()->get('aim_target_type_' . $aRow['ttype']),
                 ));
             }
         }
@@ -859,13 +859,13 @@ class ModuleMresource extends Module {
                return E::GetEntity('Mresource_MresourceCategory', array(
                    'id' => 'current',
                    'count' => count($aResourcesId),
-                   'label' => E::ModuleLang()->Get('aim_target_type_current'),
+                   'label' => E::ModuleLang()->get('aim_target_type_current'),
                ));
            } else {
                return E::GetEntity('Mresource_MresourceCategory', array(
                    'id' => 'tmp',
                    'count' => count($aResourcesId),
-                   'label' => E::ModuleLang()->Get('target_type_tmp'),
+                   'label' => E::ModuleLang()->get('target_type_tmp'),
                ));
            }
         }
@@ -938,7 +938,7 @@ class ModuleMresource extends Module {
             return E::GetEntity('Mresource_MresourceCategory', array(
                 'id' => 'talks',
                 'count' => count($aTalkInfo),
-                'label' => E::ModuleLang()->Get('aim_target_type_talks'),
+                'label' => E::ModuleLang()->get('aim_target_type_talks'),
             ));
         }
 
@@ -995,7 +995,7 @@ class ModuleMresource extends Module {
             return E::GetEntity('Mresource_MresourceCategory', array(
                 'id' => 'comments',
                 'count' => $aImagesInCommentsCount,
-                'label' => E::ModuleLang()->Get('aim_target_type_comments'),
+                'label' => E::ModuleLang()->get('aim_target_type_comments'),
             ));
         }
 
@@ -1015,7 +1015,7 @@ class ModuleMresource extends Module {
                 $aResult[] = E::GetEntity('Mresource_MresourceCategory', array(
                     'id' => $aRow['ttype'],
                     'count' => $aRow['count'],
-                    'label' => E::ModuleLang()->Get('aim_target_type_' . $aRow['ttype']),
+                    'label' => E::ModuleLang()->get('aim_target_type_' . $aRow['ttype']),
                 ));
             }
         }
@@ -1051,14 +1051,14 @@ class ModuleMresource extends Module {
         if ($aData) {
             foreach ($aData as $xIndex => $aRow) {
                 $sLabelKey = 'target_type_' . $aRow['id'];
-                if (($sLabel = E::ModuleLang()->Get($sLabelKey)) == mb_strtoupper($sLabelKey)) {
+                if (($sLabel = E::ModuleLang()->get($sLabelKey)) == mb_strtoupper($sLabelKey)) {
                     /** @var ModuleTopic_EntityContentType $oContentType */
                     $oContentType = E::ModuleTopic()->GetContentTypeByUrl($aRow['id']);
                     if ($oContentType) {
                         $sLabel = $oContentType->getContentTitleDecl();
                     }
                 }
-                $aData[$xIndex]['label'] = E::ModuleLang()->Get($sLabel);
+                $aData[$xIndex]['label'] = E::ModuleLang()->get($sLabel);
             }
             $aResult = E::GetEntityRows('Mresource_MresourceCategory', $aData);
         } else {

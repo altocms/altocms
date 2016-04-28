@@ -58,8 +58,8 @@ class PluginSimplerating_HookRating extends Hook {
         /** @var ModuleVote_EntityVote $oVote */
         $oVote = $aData['oVote'];
 
-        E::ModuleViewer()->Assign('oUserProfile', $oUserProfile);
-        E::ModuleViewer()->Assign('oVote', $oVote);
+        E::ModuleViewer()->assign('oUserProfile', $oUserProfile);
+        E::ModuleViewer()->assign('oVote', $oVote);
         $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/profile.header.inject.tpl');
 
         return $sHtml;
@@ -78,10 +78,10 @@ class PluginSimplerating_HookRating extends Hook {
         $sUsersOrder = $aData['sUsersOrder'];
 
 
-        E::ModuleViewer()->Assign('bUsersUseOrder', $bUsersUseOrder);
-        E::ModuleViewer()->Assign('sUsersRootPage', $sUsersRootPage);
-        E::ModuleViewer()->Assign('sUsersOrderWay', $sUsersOrderWay);
-        E::ModuleViewer()->Assign('sUsersOrder', $sUsersOrder);
+        E::ModuleViewer()->assign('bUsersUseOrder', $bUsersUseOrder);
+        E::ModuleViewer()->assign('sUsersRootPage', $sUsersRootPage);
+        E::ModuleViewer()->assign('sUsersOrderWay', $sUsersOrderWay);
+        E::ModuleViewer()->assign('sUsersOrder', $sUsersOrder);
 
         $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.header.inject.tpl');
 
@@ -97,7 +97,7 @@ class PluginSimplerating_HookRating extends Hook {
 
         $oUserList = $aData['oUserList'];
 
-        E::ModuleViewer()->Assign('oUserList', $oUserList);
+        E::ModuleViewer()->assign('oUserList', $oUserList);
 
         $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.line.inject.tpl');
 
@@ -113,7 +113,7 @@ class PluginSimplerating_HookRating extends Hook {
 
         $oUserList = $aData['oUserList'];
 
-        E::ModuleViewer()->Assign('oUserList', $oUserList);
+        E::ModuleViewer()->assign('oUserList', $oUserList);
 
         $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.linexxs.inject.tpl');
 
@@ -128,7 +128,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogInfoboxRatingValueInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        E::ModuleViewer()->Assign('oBlog', $oBlog);
+        E::ModuleViewer()->assign('oBlog', $oBlog);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.infobox.rating.value.inject.tpl');
 
@@ -148,11 +148,11 @@ class PluginSimplerating_HookRating extends Hook {
         $sBlogOrderWay = $aData['sBlogOrderWay'];
 
 
-        E::ModuleViewer()->Assign('bBlogsUseOrder', $bBlogsUseOrder);
-        E::ModuleViewer()->Assign('sBlogsRootPage', $sBlogsRootPage);
-        E::ModuleViewer()->Assign('sBlogOrder', $sBlogOrder);
-        E::ModuleViewer()->Assign('sBlogOrderWayNext', $sBlogOrderWayNext);
-        E::ModuleViewer()->Assign('sBlogOrderWay', $sBlogOrderWay);
+        E::ModuleViewer()->assign('bBlogsUseOrder', $bBlogsUseOrder);
+        E::ModuleViewer()->assign('sBlogsRootPage', $sBlogsRootPage);
+        E::ModuleViewer()->assign('sBlogOrder', $sBlogOrder);
+        E::ModuleViewer()->assign('sBlogOrderWayNext', $sBlogOrderWayNext);
+        E::ModuleViewer()->assign('sBlogOrderWay', $sBlogOrderWay);
 
         $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.header.inject.tpl');
 
@@ -168,7 +168,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogListLineInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        E::ModuleViewer()->Assign('oBlog', $oBlog);
+        E::ModuleViewer()->assign('oBlog', $oBlog);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.line.inject.tpl');
 
@@ -182,7 +182,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogListLineXssInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        E::ModuleViewer()->Assign('oBlog', $oBlog);
+        E::ModuleViewer()->assign('oBlog', $oBlog);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.linexxs.inject.tpl');
 
@@ -196,7 +196,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogHeaderInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        E::ModuleViewer()->Assign('oBlog', $oBlog);
+        E::ModuleViewer()->assign('oBlog', $oBlog);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.header.inject.tpl');
 
@@ -210,7 +210,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogStatInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        E::ModuleViewer()->Assign('oBlog', $oBlog);
+        E::ModuleViewer()->assign('oBlog', $oBlog);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.info.inject.tpl');
 
@@ -224,7 +224,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookCommentListInfoInject($aData) {
 
         $oComment = $aData['oComment'];
-        E::ModuleViewer()->Assign('oComment', $oComment);
+        E::ModuleViewer()->assign('oComment', $oComment);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/comment/comment.list.info.inject.tpl');
 
@@ -238,7 +238,7 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookCommentInfoInject($aData) {
 
         $oComment = $aData['oComment'];
-        E::ModuleViewer()->Assign('oComment', $oComment);
+        E::ModuleViewer()->assign('oComment', $oComment);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/comment/comment.info.inject.tpl');
 
@@ -258,10 +258,10 @@ class PluginSimplerating_HookRating extends Hook {
         $bTopicList = isset($aData['bTopicList']) ? $aData['bTopicList'] : FALSE;
         $bSidebar = isset($aData['bSidebar']) ? $aData['bSidebar'] : FALSE;
 
-        E::ModuleViewer()->Assign('oTopic', $oTopic);
-        E::ModuleViewer()->Assign('oVote', $oVote);
-        E::ModuleViewer()->Assign('bTopicList', $bTopicList);
-        E::ModuleViewer()->Assign('bSidebar', $bSidebar);
+        E::ModuleViewer()->assign('oTopic', $oTopic);
+        E::ModuleViewer()->assign('oVote', $oVote);
+        E::ModuleViewer()->assign('bTopicList', $bTopicList);
+        E::ModuleViewer()->assign('bSidebar', $bSidebar);
 
         return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/topic/topic.show.info.inject.tpl');
 

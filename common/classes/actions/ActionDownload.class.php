@@ -96,7 +96,7 @@ class ActionDownload extends Action {
 
 
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('content_download_file_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('content_download_file_error'));
             return R::Action('error');
         }
 

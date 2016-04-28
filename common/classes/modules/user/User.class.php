@@ -511,18 +511,18 @@ class ModuleUser extends \alto\engine\ar\ArModule {
     public function Shutdown() {
 
         if ($this->oUserCurrent) {
-            E::ModuleViewer()->Assign(
+            E::ModuleViewer()->assign(
                 'iUserCurrentCountTrack', E::ModuleUserfeed()->GetCountTrackNew($this->oUserCurrent->getId())
             );
-            E::ModuleViewer()->Assign('iUserCurrentCountTalkNew', E::ModuleTalk()->GetCountTalkNew($this->oUserCurrent->getId()));
-            E::ModuleViewer()->Assign(
+            E::ModuleViewer()->assign('iUserCurrentCountTalkNew', E::ModuleTalk()->GetCountTalkNew($this->oUserCurrent->getId()));
+            E::ModuleViewer()->assign(
                 'iUserCurrentCountTopicDraft', E::ModuleTopic()->GetCountDraftTopicsByUserId($this->oUserCurrent->getId())
             );
         }
-        E::ModuleViewer()->Assign('oUserCurrent', $this->oUserCurrent);
-        E::ModuleViewer()->Assign('aContentTypes', E::ModuleTopic()->GetContentTypes(array('content_active' => 1)));
+        E::ModuleViewer()->assign('oUserCurrent', $this->oUserCurrent);
+        E::ModuleViewer()->assign('aContentTypes', E::ModuleTopic()->GetContentTypes(array('content_active' => 1)));
         if ($this->oUserCurrent) {
-            E::ModuleViewer()->Assign('aAllowedContentTypes', E::ModuleTopic()->GetAllowContentTypeByUserId($this->oUserCurrent));
+            E::ModuleViewer()->assign('aAllowedContentTypes', E::ModuleTopic()->GetAllowContentTypeByUserId($this->oUserCurrent));
         }
 
     }
@@ -2145,7 +2145,7 @@ class ModuleUser extends \alto\engine\ar\ArModule {
                 E::ModuleNotify()->Send(
                     $oChangemail->getMailTo(),
                     'user_changemail_to.tpl',
-                    E::ModuleLang()->Get('notify_subject_user_changemail'),
+                    E::ModuleLang()->get('notify_subject_user_changemail'),
                     array(
                          'oUser'       => $oUser,
                          'oChangemail' => $oChangemail,
@@ -2159,7 +2159,7 @@ class ModuleUser extends \alto\engine\ar\ArModule {
                 E::ModuleNotify()->Send(
                     $oUser,
                     'user_changemail_from.tpl',
-                    E::ModuleLang()->Get('notify_subject_user_changemail'),
+                    E::ModuleLang()->get('notify_subject_user_changemail'),
                     array(
                          'oUser'       => $oUser,
                          'oChangemail' => $oChangemail,

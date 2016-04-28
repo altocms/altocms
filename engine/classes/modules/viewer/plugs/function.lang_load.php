@@ -32,7 +32,7 @@ function smarty_function_lang_load($params, &$smarty) {
 
     $aLangMsg = array();
     foreach ($aLangName as $sName) {
-        $aLangMsg[$sName] = E::ModuleLang()->Get(trim($sName), array(), false);
+        $aLangMsg[$sName] = E::ModuleLang()->get(trim($sName), array(), false);
     }
 
     if (!isset($params['json']) || $params['json'] !== false) {

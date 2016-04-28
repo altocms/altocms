@@ -14,13 +14,13 @@
         <a href="#" class="btn btn-primary js-admin-user-invite"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all'}active{/if}" href="{router page='admin'}users-invites/all/">
+        <a class="btn btn-default {if $sMode=='all'}active{/if}" href="{R::GetLink("admin")}users-invites/all/">
             {$aLang.action.admin.invites_all} <span class="badge badge-up">{$aCounts.all}</span>
         </a>
-        <a class="btn btn-default {if $sMode=='used'}active{/if}" href="{router page='admin'}users-invites/used/">
+        <a class="btn btn-default {if $sMode=='used'}active{/if}" href="{R::GetLink("admin")}users-invites/used/">
             {$aLang.action.admin.invites_used} <span class="badge badge-up">{$aCounts.used}</span>
         </a>
-        <a class="btn btn-default {if $sMode=='unused'}active{/if}" href="{router page='admin'}users-invites/unused/">
+        <a class="btn btn-default {if $sMode=='unused'}active{/if}" href="{R::GetLink("admin")}users-invites/unused/">
             {$aLang.action.admin.invites_unused} <span class="badge badge-up">{$aCounts.unused}</span>
         </a>
     </div>
@@ -71,12 +71,12 @@
         <td> {$aInvite.invite_id} &nbsp;</td>
         <td> {$aInvite.invite_code} &nbsp;</td>
         <td>
-            <a href="{router page='admin'}users-list/profile/{$aInvite.user_from_id}/" class="link">{$aInvite.from_login}</a>
+            <a href="{R::GetLink("admin")}users-list/profile/{$aInvite.user_from_id}/" class="link">{$aInvite.from_login}</a>
         </td>
         <td class="center;">{$aInvite.invite_date_add}</td>
         <td>
             {if $aInvite.to_login}
-            <a href="{router page='admin'}users-list/profile/{$aInvite.user_to_id}/" class="link">{$aInvite.to_login}</a>
+            <a href="{R::GetLink("admin")}users-list/profile/{$aInvite.user_to_id}/" class="link">{$aInvite.to_login}</a>
             {else}
             &nbsp;
             {/if}

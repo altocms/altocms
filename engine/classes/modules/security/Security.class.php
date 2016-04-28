@@ -120,7 +120,7 @@ class ModuleSecurity extends Module {
         $sSecurityKey = $this->_generateSecurityKey();
 
         E::ModuleSession()->Set($this->sSecurityKeyName, $sSecurityKey);
-        E::ModuleViewer()->Assign($this->sSecurityKeyName, $sSecurityKey);
+        E::ModuleViewer()->assign($this->sSecurityKeyName, $sSecurityKey);
 
         return $sSecurityKey;
     }

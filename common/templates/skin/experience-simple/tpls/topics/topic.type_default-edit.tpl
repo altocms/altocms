@@ -40,20 +40,20 @@
                         <select name="blog_id" id="blog_id" onchange="location = this.options[this.selectedIndex].value;" class="form-control">
                         {foreach from=$aContentTypes item=oContentTypeItem}
                             {if $oContentTypeItem->isAccessible()}
-                                <option value="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/" {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
+                                <option value="{R::GetLink("content")}{$oContentTypeItem->getContentUrl()}/add/" {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
                                     {$oContentTypeItem->getContentTitle()|escape:'html'}
                                 </option>
                             {/if}
                         {/foreach}
-                            <option value="{router page='blog'}add">
+                            <option value="{R::GetLink("blog")}add">
                                 {$aLang.block_create_blog}
                             </option>
-                            <option value="{router page='talk'}add">
+                            <option value="{R::GetLink("talk")}add">
                                 {$aLang.block_create_talk}
                             </option>
                             {hook run='write_item' isPopup=true}
                             {if $iUserCurrentCountTopicDraft}
-                                <option value="{router page='content'}drafts/" {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
+                                <option value="{R::GetLink("content")}drafts/" {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
                                     {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
                                 </option>
                             {/if}
@@ -64,26 +64,26 @@
                         {foreach from=$aContentTypes item=oContentTypeItem}
                             {if $oContentTypeItem->isAccessible()}
                                 <li {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
-                                    <a href="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/">
+                                    <a href="{R::GetLink("content")}{$oContentTypeItem->getContentUrl()}/add/">
                                         {$oContentTypeItem->getContentTitle()|escape:'html'}
                                     </a>
                                 </li>
                             {/if}
                         {/foreach}
                         <li>
-                            <a href="{router page='blog'}add">
+                            <a href="{R::GetLink("blog")}add">
                                 {$aLang.block_create_blog}
                             </a>
                         </li>
                         <li>
-                            <a href="{router page='talk'}add">
+                            <a href="{R::GetLink("talk")}add">
                                 {$aLang.block_create_talk}
                             </a>
                         </li>
                         {hook run='write_item' isPopup=true}
                         {if $iUserCurrentCountTopicDraft}
                             <li {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
-                                <a href="{router page='content'}drafts/"
+                                <a href="{R::GetLink("content")}drafts/"
                                    class="write-item-link">
                                     {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
                                 </a>

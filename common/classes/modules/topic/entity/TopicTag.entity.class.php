@@ -156,7 +156,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      */
     public function getLink() {
 
-        $sLink = R::GetPath('tag') . F::UrlEncode($this->getText(), true) . '/';
+        $sLink = R::GetLink('tag') . F::UrlEncode($this->getText(), true) . '/';
         return $sLink;
     }
 

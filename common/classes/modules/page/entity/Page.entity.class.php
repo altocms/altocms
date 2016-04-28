@@ -52,7 +52,7 @@ class ModulePage_EntityPage extends Entity {
 
         $sResult = $this->getProp('_page_link');
         if (!$sResult) {
-            $sResult = F::File_LocalUrl(R::GetPath('page') . '/' . $this->getUrlFull());
+            $sResult = F::File_LocalUrl(R::GetLink('page') . '/' . $this->getUrlFull());
             $this->setProp('_page_link', $sResult);
         }
         return $sResult;

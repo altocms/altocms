@@ -37,7 +37,7 @@
         <h3>{$aLang.registration}</h3>
     </div>
     {hook run='registration_begin'}
-    <form action="{router page='registration'}" method="post" id="registration-form" class="js-form-registration">
+    <form action="{R::GetLink("registration")}" method="post" id="registration-form" class="js-form-registration">
         {hook run='form_registration_begin' isPopup=false}
 
         <div class="form-group">
@@ -90,11 +90,11 @@
 
         {hook run='form_registration_end' isPopup=false}
 
-        <a class="btn btn-default" href="{router page='login'}">{$aLang.user_login_submit}</a>
+        <a class="btn btn-default" href="{R::GetLink("login")}">{$aLang.user_login_submit}</a>
         <button type="submit" name="submit_register" class="btn btn-success js-form-registration-submit" id="registration-form-submit" disabled="disabled">
             {$aLang.registration_submit}
         </button>
-        <a class="btn btn-default" href="{router page='login'}reminder/">{$aLang.user_password_reminder}</a>
+        <a class="btn btn-default" href="{R::GetLink("login")}reminder/">{$aLang.user_password_reminder}</a>
     </form>
     {hook run='registration_end'}
 

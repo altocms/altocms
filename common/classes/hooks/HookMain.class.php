@@ -67,7 +67,7 @@ class HookMain extends Hook {
         if (is_dir(rtrim(Config::Get('path.root.dir'), '/') . '/install')
             && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test')
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('install_directory_exists'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('install_directory_exists'));
             R::Action('error');
         }
 
@@ -108,8 +108,8 @@ class HookMain extends Hook {
                         //вставляем поля, если они прописаны для топика
                         foreach ($aFields as $oField) {
                             if ($oTopic->getField($oField->getFieldId()) || $oField->getFieldType() == 'photoset') {
-                                E::ModuleViewer()->Assign('oField', $oField);
-                                E::ModuleViewer()->Assign('oTopic', $oTopic);
+                                E::ModuleViewer()->assign('oField', $oField);
+                                E::ModuleViewer()->assign('oTopic', $oTopic);
                                 if (E::ModuleViewer()->TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')) {
                                     $sReturn .= E::ModuleViewer()->Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
                                 }

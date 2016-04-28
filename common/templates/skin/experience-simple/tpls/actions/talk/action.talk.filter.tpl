@@ -3,7 +3,7 @@
 
  <div class="widget-content" id="block_talk_search_content"
       {if !$_aRequest.submit_talk_filter}style="display:none;"{/if}>
-     <form action="{router page='talk'}" method="GET" name="talk_filter_form">
+     <form action="{R::GetLink("talk")}" method="GET" name="talk_filter_form">
          <div class="form-group">
              <div class="input-group">
                  <span class="input-group-addon">{$aLang.talk_filter_label_sender}</span>

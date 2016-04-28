@@ -29,11 +29,11 @@ class WidgetActivityUsers extends Widget {
         if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             // * Получаем и прогружаем необходимые переменные в шаблон
             $aUserSubscribes = E::ModuleStream()->GetUserSubscribes($oUserCurrent->getId());
-            E::ModuleViewer()->Assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
+            E::ModuleViewer()->assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
 
             // issue#449, список друзей пользователя не передавался в шаблон
             $aStreamFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
-            E::ModuleViewer()->Assign('aStreamFriends', $aStreamFriends['collection']);
+            E::ModuleViewer()->assign('aStreamFriends', $aStreamFriends['collection']);
         }
 
     }

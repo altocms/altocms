@@ -35,7 +35,7 @@ class WidgetTagsCountry extends Widget {
         /**
          * Выводим в шаблон
          */
-        E::ModuleViewer()->Assign('aCountryList', $aCountries);
+        E::ModuleViewer()->assign('aCountryList', $aCountries);
     }
 }
 

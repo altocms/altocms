@@ -131,11 +131,11 @@
         <td class="adm_var">{$aLang.profile_place}:</td>
         <td>
             {if $oUserProfile->getProfileCountry()}
-                <a href="{router page='people'}country/{$oUserProfile->getProfileCountry()|escape:'html'}/">{$oUserProfile->getProfileCountry()|escape:'html'}</a>{if $oUserProfile->getProfileCity()}
+                <a href="{R::GetLink("people")}country/{$oUserProfile->getProfileCountry()|escape:'html'}/">{$oUserProfile->getProfileCountry()|escape:'html'}</a>{if $oUserProfile->getProfileCity()}
                 ,{/if}
             {/if}
             {if $oUserProfile->getProfileCity()}
-                <a href="{router page='people'}city/{$oUserProfile->getProfileCity()|escape:'html'}/">{$oUserProfile->getProfileCity()|escape:'html'}</a>
+                <a href="{R::GetLink("people")}city/{$oUserProfile->getProfileCity()|escape:'html'}/">{$oUserProfile->getProfileCity()|escape:'html'}</a>
             {/if}
         </td>
     </tr>
@@ -224,7 +224,7 @@
                     <a href="{$oUserFriend->getProfileUrl()}">{$oUserFriend->getDisplayName()}</a>{if !$oUserFriend@last}, {/if}
                 {/foreach}
                 {if count($aUsersFriend) > 10}
-                    <br/><a href="{router page='profile'}{$oUserProfile->getLogin()}/friends/">{$aLang.action.admin.user_show_all}</a>
+                    <br/><a href="{R::GetLink("profile")}{$oUserProfile->getLogin()}/friends/">{$aLang.action.admin.user_show_all}</a>
             {/if}
             {else}
                 {$aLang.action.admin.word_no}
@@ -268,7 +268,7 @@
         <td>
             {if $aBlogsOwner}
                 {foreach from=$aBlogsOwner item=oBlog name=blog_owner}
-                    <a href="{router page='blog'}{$oBlog->getUrl()}/">{$oBlog->getTitle()|escape:'html'}</a>{if !$smarty.foreach.blog_owner.last}
+                    <a href="{R::GetLink("blog")}{$oBlog->getUrl()}/">{$oBlog->getTitle()|escape:'html'}</a>{if !$smarty.foreach.blog_owner.last}
                     , {/if}
                 {/foreach}
                 {else}
@@ -345,7 +345,7 @@
             {if $aLastTopicList}
                 (
                 {foreach from=$aLastTopicList item=oTopic name=topic_user}
-                    <a href="{router page='blog'}{$oTopic->getId()}.html">{$oTopic->getTitle()|escape:'html'}</a>{if !$smarty.foreach.topic_user.last}
+                    <a href="{R::GetLink("blog")}{$oTopic->getId()}.html">{$oTopic->getTitle()|escape:'html'}</a>{if !$smarty.foreach.topic_user.last}
                     , {else}  ...{/if}
                 {/foreach}
                 )

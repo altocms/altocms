@@ -883,7 +883,7 @@ class ModuleViewer extends Module {
             throw new Exception('Router rules is underfined.');
         }
         foreach ($aPages as $sPage => $aAction) {
-            $aRouter[$sPage] = R::GetPath($sPage);
+            $aRouter[$sPage] = R::GetLink($sPage);
         }
         $this->assign('aRouter', $aRouter);
 

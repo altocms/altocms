@@ -50,7 +50,7 @@ class ActionSettings extends Action {
 
         // * Проверяем авторизован ли юзер
         if (!E::ModuleUser()->IsAuthorization()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
             return R::Action('error');
         }
 
@@ -59,7 +59,7 @@ class ActionSettings extends Action {
         $this->SetDefaultEvent('profile');
 
         // * Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('settings_menu'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('settings_menu'));
     }
 
     /**
@@ -87,11 +87,11 @@ class ActionSettings extends Action {
         $this->sMenuItemSelect = 'settings';
         $this->sMenuSubItemSelect = 'tuning';
 
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('settings_menu_tuning'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('settings_menu_tuning'));
         $aTimezoneList = array('-12', '-11', '-10', '-9.5', '-9', '-8', '-7', '-6', '-5', '-4.5', '-4', '-3.5', '-3',
                                '-2', '-1', '0', '1', '2', '3', '3.5', '4', '4.5', '5', '5.5', '5.75', '6', '6.5', '7',
                                '8', '8.75', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.75', '13', '14');
-        E::ModuleViewer()->Assign('aTimezoneList', $aTimezoneList);
+        E::ModuleViewer()->assign('aTimezoneList', $aTimezoneList);
         /**
          * Если отправили форму с настройками - сохраняем
          */
@@ -112,10 +112,10 @@ class ActionSettings extends Action {
             // * Запускаем выполнение хуков
             E::ModuleHook()->Run('settings_tuning_save_before', array('oUser' => $this->oUserCurrent));
             if (E::ModuleUser()->Update($this->oUserCurrent)) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('settings_tuning_submit_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('settings_tuning_submit_ok'));
                 E::ModuleHook()->Run('settings_tuning_save_after', array('oUser' => $this->oUserCurrent));
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             }
         } else {
             if (is_null($this->oUserCurrent->getSettingsTimezone())) {
@@ -141,7 +141,7 @@ class ActionSettings extends Action {
 
         $this->sMenuItemSelect = 'invite';
         $this->sMenuSubItemSelect = '';
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('settings_menu_invite'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('settings_menu_invite'));
         /**
          * Если отправили форму
          */
@@ -153,14 +153,14 @@ class ActionSettings extends Action {
              * Есть права на отправку инфайтов?
              */
             if (!E::ModuleACL()->CanSendInvite($this->oUserCurrent) && !$this->oUserCurrent->isAdministrator()) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('settings_invite_available_no'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('settings_invite_available_no'), E::ModuleLang()->get('error'));
                 $bError = true;
             }
             /**
              * Емайл корректен?
              */
             if (!F::CheckVal(F::GetRequestStr('invite_mail'), 'mail')) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('settings_invite_mail_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('settings_invite_mail_error'), E::ModuleLang()->get('error'));
                 $bError = true;
             }
             /**
@@ -173,13 +173,13 @@ class ActionSettings extends Action {
             if (!$bError) {
                 $oInvite = E::ModuleUser()->GenerateInvite($this->oUserCurrent);
                 E::ModuleNotify()->SendInvite($this->oUserCurrent, F::GetRequestStr('invite_mail'), $oInvite);
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('settings_invite_submit_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('settings_invite_submit_ok'));
                 E::ModuleHook()->Run('settings_invate_send_after', array('oUser' => $this->oUserCurrent));
             }
         }
 
-        E::ModuleViewer()->Assign('iCountInviteAvailable', E::ModuleUser()->GetCountInviteAvailable($this->oUserCurrent));
-        E::ModuleViewer()->Assign('iCountInviteUsed', E::ModuleUser()->GetCountInviteUsed($this->oUserCurrent->getId()));
+        E::ModuleViewer()->assign('iCountInviteAvailable', E::ModuleUser()->GetCountInviteAvailable($this->oUserCurrent));
+        E::ModuleViewer()->assign('iCountInviteUsed', E::ModuleUser()->GetCountInviteUsed($this->oUserCurrent->getId()));
     }
 
     /**
@@ -189,7 +189,7 @@ class ActionSettings extends Action {
         /**
          * Устанавливаем title страницы
          */
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('settings_menu_profile'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('settings_menu_profile'));
         $this->sMenuSubItemSelect = 'account';
         /**
          * Если нажали кнопку "Сохранить"
@@ -206,12 +206,12 @@ class ActionSettings extends Action {
                     && $oUserMail->getId() != $this->oUserCurrent->getId()
                 ) {
                     E::ModuleMessage()->AddError(
-                        E::ModuleLang()->Get('settings_profile_mail_error_used'), E::ModuleLang()->Get('error')
+                        E::ModuleLang()->get('settings_profile_mail_error_used'), E::ModuleLang()->get('error')
                     );
                     $bError = true;
                 }
             } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('settings_profile_mail_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('settings_profile_mail_error'), E::ModuleLang()->get('error'));
                 $bError = true;
             }
             /**
@@ -231,20 +231,20 @@ class ActionSettings extends Action {
                         } else {
                             $bError = true;
                             E::ModuleMessage()->AddError(
-                                E::ModuleLang()->Get('settings_profile_password_current_error'), E::ModuleLang()->Get('error')
+                                E::ModuleLang()->get('settings_profile_password_current_error'), E::ModuleLang()->get('error')
                             );
                         }
                     } else {
                         $bError = true;
                         E::ModuleMessage()->AddError(
-                            E::ModuleLang()->Get('settings_profile_password_confirm_error'), E::ModuleLang()->Get('error')
+                            E::ModuleLang()->get('settings_profile_password_confirm_error'), E::ModuleLang()->get('error')
                         );
                     }
                 } else {
                     $bError = true;
                     E::ModuleMessage()->AddError(
-                        E::ModuleLang()->Get('settings_profile_password_new_error', array('num' => $nMinLen)),
-                        E::ModuleLang()->Get('error')
+                        E::ModuleLang()->get('settings_profile_password_new_error', array('num' => $nMinLen)),
+                        E::ModuleLang()->get('error')
                     );
                 }
             }
@@ -263,23 +263,23 @@ class ActionSettings extends Action {
              */
             if (!$bError) {
                 if (E::ModuleUser()->Update($this->oUserCurrent)) {
-                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('settings_account_submit_ok'));
+                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('settings_account_submit_ok'));
                     /**
                      * Подтверждение смены емайла
                      */
                     if (F::GetRequestStr('mail') && F::GetRequestStr('mail') != $this->oUserCurrent->getMail()) {
                         if ($oChangemail = E::ModuleUser()->MakeUserChangemail($this->oUserCurrent, F::GetRequestStr('mail'))) {
                             if ($oChangemail->getMailFrom()) {
-                                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('settings_profile_mail_change_from_notice'));
+                                E::ModuleMessage()->AddNotice(E::ModuleLang()->get('settings_profile_mail_change_from_notice'));
                             } else {
-                                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('settings_profile_mail_change_to_notice'));
+                                E::ModuleMessage()->AddNotice(E::ModuleLang()->get('settings_profile_mail_change_to_notice'));
                             }
                         }
                     }
 
                     E::ModuleHook()->Run('settings_account_save_after', array('oUser' => $this->oUserCurrent));
                 } else {
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
                 }
             }
         }
@@ -292,9 +292,9 @@ class ActionSettings extends Action {
     protected function EventProfile() {
 
         // * Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('settings_menu_profile'));
-        E::ModuleViewer()->Assign('aUserFields', E::ModuleUser()->GetUserFields(''));
-        E::ModuleViewer()->Assign('aUserFieldsContact', E::ModuleUser()->GetUserFields(array('contact', 'social')));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('settings_menu_profile'));
+        E::ModuleViewer()->assign('aUserFields', E::ModuleUser()->GetUserFields(''));
+        E::ModuleViewer()->assign('aUserFieldsContact', E::ModuleUser()->GetUserFields(array('contact', 'social')));
 
         // * Загружаем в шаблон JS текстовки
         E::ModuleLang()->AddLangJs(
@@ -427,33 +427,33 @@ class ActionSettings extends Action {
                             }
                         }
                     }
-                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('settings_profile_submit_ok'));
+                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('settings_profile_submit_ok'));
                     E::ModuleHook()->Run('settings_profile_save_after', array('oUser' => $this->oUserCurrent));
                 } else {
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
                 }
             }
         }
 
         // * Загружаем гео-объект привязки
         $oGeoTarget = E::ModuleGeo()->GetTargetByTarget('user', $this->oUserCurrent->getId());
-        E::ModuleViewer()->Assign('oGeoTarget', $oGeoTarget);
+        E::ModuleViewer()->assign('oGeoTarget', $oGeoTarget);
 
         // * Загружаем в шаблон список стран, регионов, городов
         $aCountries = E::ModuleGeo()->GetCountries(array(), array('sort' => 'asc'), 1, 300);
-        E::ModuleViewer()->Assign('aGeoCountries', $aCountries['collection']);
+        E::ModuleViewer()->assign('aGeoCountries', $aCountries['collection']);
         if ($oGeoTarget) {
             if ($oGeoTarget->getCountryId()) {
                 $aRegions = E::ModuleGeo()->GetRegions(
                     array('country_id' => $oGeoTarget->getCountryId()), array('sort' => 'asc'), 1, 500
                 );
-                E::ModuleViewer()->Assign('aGeoRegions', $aRegions['collection']);
+                E::ModuleViewer()->assign('aGeoRegions', $aRegions['collection']);
             }
             if ($oGeoTarget->getRegionId()) {
                 $aCities = E::ModuleGeo()->GetCities(
                     array('region_id' => $oGeoTarget->getRegionId()), array('sort' => 'asc'), 1, 500
                 );
-                E::ModuleViewer()->Assign('aGeoCities', $aCities['collection']);
+                E::ModuleViewer()->assign('aGeoCities', $aCities['collection']);
             }
         }
         E::ModuleLang()->AddLangJs(
@@ -479,7 +479,7 @@ class ActionSettings extends Action {
 
         // * Проверяем есть ли название блога
         if (!F::CheckVal(F::GetRequestStr('blog_title'), 'text', 2, 200)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_title_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('blog_create_title_error'), E::ModuleLang()->get('error'));
             $bOk = false;
         } else {
 
@@ -487,7 +487,7 @@ class ActionSettings extends Action {
             if ($oBlogExists = E::ModuleBlog()->GetBlogByTitle(F::GetRequestStr('blog_title'))) {
                 if (!$oBlog || $oBlog->getId() != $oBlogExists->getId()) {
                     E::ModuleMessage()->AddError(
-                        E::ModuleLang()->Get('blog_create_title_error_unique'), E::ModuleLang()->Get('error')
+                        E::ModuleLang()->get('blog_create_title_error_unique'), E::ModuleLang()->get('error')
                     );
                     $bOk = false;
                 }
@@ -512,27 +512,27 @@ class ActionSettings extends Action {
         /** @var ModuleMresource_EntityMresourceCategory[] $aUserImagesInfo */
         $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($iUserId);
 
-        E::ModuleViewer()->Assign('oUserProfile', E::User());
-        E::ModuleViewer()->Assign('aProfileStats', $aProfileStats);
-        E::ModuleViewer()->Assign('aUserImagesInfo', $aUserImagesInfo);
+        E::ModuleViewer()->assign('oUserProfile', E::User());
+        E::ModuleViewer()->assign('aProfileStats', $aProfileStats);
+        E::ModuleViewer()->assign('aUserImagesInfo', $aUserImagesInfo);
 
         // Old style skin compatibility
-        E::ModuleViewer()->Assign('iCountTopicUser', $aProfileStats['count_topics']);
-        E::ModuleViewer()->Assign('iCountCommentUser', $aProfileStats['count_comments']);
-        E::ModuleViewer()->Assign('iCountTopicFavourite', $aProfileStats['favourite_topics']);
-        E::ModuleViewer()->Assign('iCountCommentFavourite', $aProfileStats['favourite_comments']);
-        E::ModuleViewer()->Assign('iCountNoteUser', $aProfileStats['count_usernotes']);
-        E::ModuleViewer()->Assign('iCountWallUser', $aProfileStats['count_wallrecords']);
+        E::ModuleViewer()->assign('iCountTopicUser', $aProfileStats['count_topics']);
+        E::ModuleViewer()->assign('iCountCommentUser', $aProfileStats['count_comments']);
+        E::ModuleViewer()->assign('iCountTopicFavourite', $aProfileStats['favourite_topics']);
+        E::ModuleViewer()->assign('iCountCommentFavourite', $aProfileStats['favourite_comments']);
+        E::ModuleViewer()->assign('iCountNoteUser', $aProfileStats['count_usernotes']);
+        E::ModuleViewer()->assign('iCountWallUser', $aProfileStats['count_wallrecords']);
 
-        E::ModuleViewer()->Assign('iPhotoCount', $aProfileStats['count_images']);
-        E::ModuleViewer()->Assign('iCountCreated', $aProfileStats['count_created']);
+        E::ModuleViewer()->assign('iPhotoCount', $aProfileStats['count_images']);
+        E::ModuleViewer()->assign('iCountCreated', $aProfileStats['count_created']);
 
-        E::ModuleViewer()->Assign('iCountFavourite', $aProfileStats['count_favourites']);
-        E::ModuleViewer()->Assign('iCountFriendsUser', $aProfileStats['count_friends']);
+        E::ModuleViewer()->assign('iCountFavourite', $aProfileStats['count_favourites']);
+        E::ModuleViewer()->assign('iCountFriendsUser', $aProfileStats['count_friends']);
 
         // * Загружаем в шаблон необходимые переменные
-        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
-        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
 
         E::ModuleHook()->Run('action_shutdown_settings');
     }

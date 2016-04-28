@@ -128,14 +128,14 @@ class ActionProfile extends Action {
          * Читаем события
          */
         $aEvents = E::ModuleStream()->ReadByUserId($this->oUserProfile->getId());
-        E::ModuleViewer()->Assign(
+        E::ModuleViewer()->assign(
             'bDisableGetMoreButton',
             E::ModuleStream()->GetCountByUserId($this->oUserProfile->getId()) < Config::Get('module.stream.count_default')
         );
-        E::ModuleViewer()->Assign('aStreamEvents', $aEvents);
+        E::ModuleViewer()->assign('aStreamEvents', $aEvents);
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
-            E::ModuleViewer()->Assign('iStreamLastId', $oEvenLast->getId());
+            E::ModuleViewer()->assign('iStreamLastId', $oEvenLast->getId());
         }
         $this->SetTemplateAction('stream');
     }
@@ -169,10 +169,10 @@ class ActionProfile extends Action {
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aFriends', $aFriends);
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aFriends', $aFriends);
         E::ModuleViewer()->AddHtmlTitle(
-            E::ModuleLang()->Get('user_menu_profile_friends') . ' ' . $this->oUserProfile->getLogin()
+            E::ModuleLang()->get('user_menu_profile_friends') . ' ' . $this->oUserProfile->getLogin()
         );
 
         $this->SetTemplateAction('friends');
@@ -216,12 +216,12 @@ class ActionProfile extends Action {
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aTopics', $aTopics);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_publication_blog'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aTopics', $aTopics);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_publication_blog'));
         E::ModuleViewer()->SetHtmlRssAlternate(
-            R::GetPath('rss') . 'personal_blog/' . $this->oUserProfile->getLogin() . '/',
+            R::GetLink('rss') . 'personal_blog/' . $this->oUserProfile->getLogin() . '/',
             $this->oUserProfile->getLogin()
         );
         /**
@@ -260,10 +260,10 @@ class ActionProfile extends Action {
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aComments', $aComments);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_publication_comment'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aComments', $aComments);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_publication_comment'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -282,8 +282,8 @@ class ActionProfile extends Action {
         }
         $this->sMenuSubItemSelect = 'photos';
 
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('insertimg_images'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('insertimg_images'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -329,10 +329,10 @@ class ActionProfile extends Action {
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aTopics', $aTopics);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile_favourites'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aTopics', $aTopics);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile_favourites'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -376,11 +376,11 @@ class ActionProfile extends Action {
         );
 
         // * Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aTopics', $aTopics);
-        E::ModuleViewer()->Assign('sFavouriteTag', htmlspecialchars($sTag));
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile_favourites'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aTopics', $aTopics);
+        E::ModuleViewer()->assign('sFavouriteTag', htmlspecialchars($sTag));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile_favourites'));
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('favourite_topics');
@@ -417,10 +417,10 @@ class ActionProfile extends Action {
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aComments', $aComments);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile_favourites_comments'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aComments', $aComments);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile_favourites_comments'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -477,11 +477,11 @@ class ActionProfile extends Action {
         if (Config::Get('general.reg.invite')) {
             // * Получаем список тех кого пригласил юзер
             $aUsersInvite = E::ModuleUser()->GetUsersInvite($this->oUserProfile->getId());
-            E::ModuleViewer()->Assign('aUsersInvite', $aUsersInvite);
+            E::ModuleViewer()->assign('aUsersInvite', $aUsersInvite);
 
             // * Получаем того юзера, кто пригласил текущего
             $oUserInviteFrom = E::ModuleUser()->GetUserInviteFrom($this->oUserProfile->getId());
-            E::ModuleViewer()->Assign('oUserInviteFrom', $oUserInviteFrom);
+            E::ModuleViewer()->assign('oUserInviteFrom', $oUserInviteFrom);
         }
         // * Получаем список юзеров блога
         $aBlogUsers = $this->_filterBlogUsers(
@@ -505,14 +505,14 @@ class ActionProfile extends Action {
         E::ModuleHook()->Run('profile_whois_show', array("oUserProfile" => $this->oUserProfile));
 
         // * Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('aBlogUsers', $aBlogUsers);
-        E::ModuleViewer()->Assign('aBlogModerators', $aBlogModerators);
-        E::ModuleViewer()->Assign('aBlogAdministrators', $aBlogAdministrators);
-        E::ModuleViewer()->Assign('aBlogsOwner', $aBlogsOwner);
-        E::ModuleViewer()->Assign('aUsersFriend', $aUsersFriend['collection']);
-        E::ModuleViewer()->Assign('aUserFields', $aUserFields);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile_whois'));
+        E::ModuleViewer()->assign('aBlogUsers', $aBlogUsers);
+        E::ModuleViewer()->assign('aBlogModerators', $aBlogModerators);
+        E::ModuleViewer()->assign('aBlogAdministrators', $aBlogAdministrators);
+        E::ModuleViewer()->assign('aBlogsOwner', $aBlogsOwner);
+        E::ModuleViewer()->assign('aUsersFriend', $aUsersFriend['collection']);
+        E::ModuleViewer()->assign('aUserFields', $aUserFields);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile_whois'));
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('info');
@@ -542,11 +542,11 @@ class ActionProfile extends Action {
             array('wall_user_id' => $this->oUserProfile->getId(), 'pid' => 0), array('id' => 'desc'), 1,
             Config::Get('module.wall.per_page')
         );
-        E::ModuleViewer()->Assign('aWallItems', $aWallItems['collection']);
-        E::ModuleViewer()->Assign('iCountWall', $aWallItems['count']);
+        E::ModuleViewer()->assign('aWallItems', $aWallItems['collection']);
+        E::ModuleViewer()->assign('iCountWall', $aWallItems['count']);
 
         // LS-compatible
-        E::ModuleViewer()->Assign('aWall', $aWallItems['collection']);
+        E::ModuleViewer()->assign('aWall', $aWallItems['collection']);
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('wall');
@@ -597,10 +597,10 @@ class ActionProfile extends Action {
                 // * Добавляем событие в ленту
                 E::ModuleStream()->Write($oWall->getUserId(), 'add_wall', $oWall->getId());
             } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('wall_add_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('wall_add_error'), E::ModuleLang()->get('error'));
             }
         } else {
-            E::ModuleMessage()->AddError($oWall->_getValidateError(), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError($oWall->_getValidateError(), E::ModuleLang()->get('error'));
         }
     }
 
@@ -663,20 +663,20 @@ class ActionProfile extends Action {
         } elseif (is_numeric(F::GetRequest('iIdMore'))) {
             $aFilter['id_more'] = F::GetRequest('iIdMore');
         } else {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('error'));
             return;
         }
 
         // * Получаем сообщения и формируем ответ
         $aWallItems = E::ModuleWall()->GetWall($aFilter, array('id' => 'desc'), 1, Config::Get('module.wall.per_page'));
-        E::ModuleViewer()->Assign('aWallItems', $aWallItems['collection']);
+        E::ModuleViewer()->assign('aWallItems', $aWallItems['collection']);
         // LS-compatible
-        E::ModuleViewer()->Assign('aWall', $aWallItems['collection']);
+        E::ModuleViewer()->assign('aWall', $aWallItems['collection']);
 
-        E::ModuleViewer()->Assign(
+        E::ModuleViewer()->assign(
             'oUserCurrent', $this->oUserCurrent
         ); // хак, т.к. к этому моменту текущий юзер не загружен в шаблон
-        E::ModuleViewer()->Assign('aLang', E::ModuleLang()->GetLangMsg());
+        E::ModuleViewer()->assign('aLang', E::ModuleLang()->GetLangMsg());
 
         E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('actions/profile/action.profile.wall_items.tpl'));
         E::ModuleViewer()->AssignAjax('iCountWall', $aWallItems['count']);
@@ -709,14 +709,14 @@ class ActionProfile extends Action {
         } elseif (is_numeric(F::GetRequest('iIdMore'))) {
             $aFilter['id_more'] = F::GetRequest('iIdMore');
         } else {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('error'));
             return;
         }
 
         // * Получаем сообщения и формируем ответ. Необходимо вернуть все ответы, но ставим "разумное" ограничение
         $aWall = E::ModuleWall()->GetWall($aFilter, array('id' => 'asc'), 1, 300);
-        E::ModuleViewer()->Assign('aLang', E::ModuleLang()->GetLangMsg());
-        E::ModuleViewer()->Assign('aReplyWall', $aWall['collection']);
+        E::ModuleViewer()->assign('aLang', E::ModuleLang()->GetLangMsg());
+        E::ModuleViewer()->assign('aReplyWall', $aWall['collection']);
         E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('actions/profile/action.profile.wall_items_reply.tpl'));
         E::ModuleViewer()->AssignAjax('iCountWall', $aWall['count']);
         E::ModuleViewer()->AssignAjax('iCountWallReturn', count($aWall['collection']));
@@ -752,10 +752,10 @@ class ActionProfile extends Action {
             if (E::ModuleUser()->SaveNote($oNote)) {
                 E::ModuleViewer()->AssignAjax('sText', nl2br($oNote->getText()));
             } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('user_note_save_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('user_note_save_error'), E::ModuleLang()->get('error'));
             }
         } else {
-            E::ModuleMessage()->AddError($oNote->_getValidateError(), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError($oNote->_getValidateError(), E::ModuleLang()->get('error'));
         }
     }
 
@@ -816,10 +816,10 @@ class ActionProfile extends Action {
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aNotes', $aNotes);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_profile_notes'));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aNotes', $aNotes);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('user_menu_profile_notes'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -859,8 +859,8 @@ class ActionProfile extends Action {
          * либо из e-mail письма-уведомления
          */
         if (!$oUser = E::ModuleUser()->GetUserById($sUserId)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('user_not_found'), E::ModuleLang()->Get('error'), true);
-            R::Location(R::GetPath('talk'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('user_not_found'), E::ModuleLang()->get('error'), true);
+            R::Location(R::GetLink('talk'));
             return;
         }
         /**
@@ -876,9 +876,9 @@ class ActionProfile extends Action {
             )
         ) {
             $sMessage = ($oFriend)
-                ? E::ModuleLang()->Get('user_friend_offer_already_done')
-                : E::ModuleLang()->Get('user_friend_offer_not_found');
-            E::ModuleMessage()->AddError($sMessage, E::ModuleLang()->Get('error'), true);
+                ? E::ModuleLang()->get('user_friend_offer_already_done')
+                : E::ModuleLang()->get('user_friend_offer_not_found');
+            E::ModuleMessage()->AddError($sMessage, E::ModuleLang()->get('error'), true);
 
             R::Location('talk');
             return;
@@ -894,15 +894,15 @@ class ActionProfile extends Action {
 
         if (E::ModuleUser()->UpdateFriend($oFriend)) {
             $sMessage = ($sAction == 'accept')
-                ? E::ModuleLang()->Get('user_friend_add_ok')
-                : E::ModuleLang()->Get('user_friend_offer_reject');
+                ? E::ModuleLang()->get('user_friend_add_ok')
+                : E::ModuleLang()->get('user_friend_offer_reject');
 
-            E::ModuleMessage()->AddNoticeSingle($sMessage, E::ModuleLang()->Get('attention'), true);
+            E::ModuleMessage()->AddNoticeSingle($sMessage, E::ModuleLang()->get('attention'), true);
             $this->NoticeFriendOffer($oUser, $sAction);
         } else {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('system_error'),
-                E::ModuleLang()->Get('error'),
+                E::ModuleLang()->get('system_error'),
+                E::ModuleLang()->get('error'),
                 true
             );
         }
@@ -923,8 +923,8 @@ class ActionProfile extends Action {
          */
         if (!E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('need_authorization'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('need_authorization'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -934,8 +934,8 @@ class ActionProfile extends Action {
          */
         if ($this->oUserCurrent->getId() == $sUserId) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_add_self'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_add_self'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -944,8 +944,8 @@ class ActionProfile extends Action {
          */
         if (!$oUser = E::ModuleUser()->GetUserById($sUserId)) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_not_found'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_not_found'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -970,7 +970,7 @@ class ActionProfile extends Action {
              */
             $oFriend->setStatusByUserId(ModuleUser::USER_FRIEND_ACCEPT, $this->oUserCurrent->getId());
             if (E::ModuleUser()->UpdateFriend($oFriend)) {
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_friend_add_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('user_friend_add_ok'), E::ModuleLang()->get('attention'));
                 $this->NoticeFriendOffer($oUser, 'accept');
                 /**
                  * Добавляем событие в ленту
@@ -989,16 +989,16 @@ class ActionProfile extends Action {
 
             } else {
                 E::ModuleMessage()->AddErrorSingle(
-                    E::ModuleLang()->Get('system_error'),
-                    E::ModuleLang()->Get('error')
+                    E::ModuleLang()->get('system_error'),
+                    E::ModuleLang()->get('error')
                 );
             }
             return;
         }
 
         E::ModuleMessage()->AddErrorSingle(
-            E::ModuleLang()->Get('system_error'),
-            E::ModuleLang()->Get('error')
+            E::ModuleLang()->get('system_error'),
+            E::ModuleLang()->get('error')
         );
         return;
     }
@@ -1025,8 +1025,8 @@ class ActionProfile extends Action {
             return false;
         }
 
-        $sTitle = E::ModuleLang()->Get("user_friend_{$sAction}_notice_title");
-        $sText = E::ModuleLang()->Get(
+        $sTitle = E::ModuleLang()->get("user_friend_{$sAction}_notice_title");
+        $sText = E::ModuleLang()->get(
             "user_friend_{$sAction}_notice_text",
             array(
                  'login' => $this->oUserCurrent->getLogin(),
@@ -1051,8 +1051,8 @@ class ActionProfile extends Action {
          */
         if (!E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('need_authorization'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('need_authorization'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1062,8 +1062,8 @@ class ActionProfile extends Action {
          */
         if ($this->oUserCurrent->getId() == $sUserId) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_add_self'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_add_self'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1072,8 +1072,8 @@ class ActionProfile extends Action {
          */
         if (!$oUser = E::ModuleUser()->GetUserById($sUserId)) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_not_found'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_not_found'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1095,8 +1095,8 @@ class ActionProfile extends Action {
          */
         if ($oFriend->getFriendStatus() == ModuleUser::USER_FRIEND_OFFER + ModuleUser::USER_FRIEND_ACCEPT) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_already_exist'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_already_exist'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1108,8 +1108,8 @@ class ActionProfile extends Action {
             && $oFriend->getStatusTo() == ModuleUser::USER_FRIEND_REJECT
         ) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_offer_reject'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_offer_reject'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1136,7 +1136,7 @@ class ActionProfile extends Action {
                      */
                     E::ModuleStream()->Write($oFriend->getUserFrom(), 'add_friend', $oFriend->getUserTo());
                     E::ModuleStream()->Write($oFriend->getUserTo(), 'add_friend', $oFriend->getUserFrom());
-                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_friend_add_ok'), E::ModuleLang()->Get('attention'));
+                    E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('user_friend_add_ok'), E::ModuleLang()->get('attention'));
 
                     $oViewerLocal = $this->GetViewerLocal();
                     $oViewerLocal->Assign('oUserFriend', $oFriend);
@@ -1146,15 +1146,15 @@ class ActionProfile extends Action {
 
                 } else {
                     E::ModuleMessage()->AddErrorSingle(
-                        E::ModuleLang()->Get('system_error'),
-                        E::ModuleLang()->Get('error')
+                        E::ModuleLang()->get('system_error'),
+                        E::ModuleLang()->get('error')
                     );
                 }
                 return;
             } else {
                 E::ModuleMessage()->AddErrorSingle(
-                    E::ModuleLang()->Get('user_friend_add_deleted'),
-                    E::ModuleLang()->Get('error')
+                    E::ModuleLang()->get('user_friend_add_deleted'),
+                    E::ModuleLang()->get('error')
                 );
                 return;
             }
@@ -1197,7 +1197,7 @@ class ActionProfile extends Action {
          * Ограничения на добавления в друзья, т.к. приглашение отправляется в личку, то и ограничиваем по ней
          */
         if (!E::ModuleACL()->CanSendTalkTime($this->oUserCurrent)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_friend_add_time_limit'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('user_friend_add_time_limit'), E::ModuleLang()->get('error'));
             return false;
         }
         /**
@@ -1221,9 +1221,9 @@ class ActionProfile extends Action {
             : !E::ModuleUser()->AddFriend($oFriendNew);
 
         if (!$bStateError) {
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_friend_offer_send'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('user_friend_offer_send'), E::ModuleLang()->get('attention'));
 
-            $sTitle = E::ModuleLang()->Get(
+            $sTitle = E::ModuleLang()->get(
                 'user_friend_offer_title',
                 array(
                      'login'  => $this->oUserCurrent->getLogin(),
@@ -1237,11 +1237,11 @@ class ActionProfile extends Action {
             $sCode = F::Xxtea_Encode($sCode);
 
             $aPath = array(
-                'accept' => R::GetPath('profile') . 'friendoffer/accept/?code=' . $sCode,
-                'reject' => R::GetPath('profile') . 'friendoffer/reject/?code=' . $sCode
+                'accept' => R::GetLink('profile') . 'friendoffer/accept/?code=' . $sCode,
+                'reject' => R::GetLink('profile') . 'friendoffer/reject/?code=' . $sCode
             );
 
-            $sText = E::ModuleLang()->Get(
+            $sText = E::ModuleLang()->get(
                 'user_friend_offer_text',
                 array(
                      'login'       => $this->oUserCurrent->getLogin(),
@@ -1256,14 +1256,14 @@ class ActionProfile extends Action {
              */
             E::ModuleNotify()->SendUserFriendNew(
                 $oUser, $this->oUserCurrent, $sUserText,
-                R::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
+                R::GetLink('talk') . 'read/' . $oTalk->getId() . '/'
             );
             /**
              * Удаляем отправляющего юзера из переписки
              */
             E::ModuleTalk()->DeleteTalkUserByArray($oTalk->getId(), $this->oUserCurrent->getId());
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         }
 
         /**
@@ -1290,8 +1290,8 @@ class ActionProfile extends Action {
          */
         if (!E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('need_authorization'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('need_authorization'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1301,8 +1301,8 @@ class ActionProfile extends Action {
          */
         if ($this->oUserCurrent->getId() == $sUserId) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_add_self'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_add_self'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1311,8 +1311,8 @@ class ActionProfile extends Action {
          */
         if (!$oUser = E::ModuleUser()->GetUserById($sUserId)) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_del_no'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_del_no'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1327,8 +1327,8 @@ class ActionProfile extends Action {
                                       ModuleUser::USER_FRIEND_ACCEPT + ModuleUser::USER_FRIEND_ACCEPT);
         if (!$oFriend || !in_array($oFriend->getFriendStatus(), $aAllowedFriendStatus)) {
             E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('user_friend_del_no'),
-                E::ModuleLang()->Get('error')
+                E::ModuleLang()->get('user_friend_del_no'),
+                E::ModuleLang()->get('error')
             );
             return;
         }
@@ -1336,7 +1336,7 @@ class ActionProfile extends Action {
          * Удаляем из друзей
          */
         if (E::ModuleUser()->DeleteFriend($oFriend)) {
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_friend_del_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('user_friend_del_ok'), E::ModuleLang()->get('attention'));
 
             $oViewerLocal = $this->GetViewerLocal();
             $oViewerLocal->Assign('oUserFriend', $oFriend);
@@ -1346,14 +1346,14 @@ class ActionProfile extends Action {
              * Отправляем пользователю сообщение об удалении дружеской связи
              */
             if (Config::Get('module.user.friend_notice.delete')) {
-                $sText = E::ModuleLang()->Get(
+                $sText = E::ModuleLang()->get(
                     'user_friend_del_notice_text',
                     array(
                          'login' => $this->oUserCurrent->getLogin(),
                     )
                 );
                 $oTalk = E::ModuleTalk()->SendTalk(
-                    E::ModuleLang()->Get('user_friend_del_notice_title'),
+                    E::ModuleLang()->get('user_friend_del_notice_title'),
                     $sText, $this->oUserCurrent,
                     array($oUser), false, false
                 );
@@ -1361,7 +1361,7 @@ class ActionProfile extends Action {
             }
             return;
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
     }
@@ -1389,7 +1389,7 @@ class ActionProfile extends Action {
         E::ModuleNotify()->Send(
             $oChangemail->getMailTo(),
             'user_changemail_to.tpl',
-            E::ModuleLang()->Get('notify_subject_user_changemail'),
+            E::ModuleLang()->get('notify_subject_user_changemail'),
             array(
                  'oUser'       => $oUser,
                  'oChangemail' => $oChangemail,
@@ -1398,9 +1398,9 @@ class ActionProfile extends Action {
             true
         );
 
-        E::ModuleViewer()->Assign('sText', E::ModuleLang()->Get('settings_profile_mail_change_to_notice'));
+        E::ModuleViewer()->assign('sText', E::ModuleLang()->get('settings_profile_mail_change_to_notice'));
         // Исправление ошибки смены email {@link https://github.com/altocms/altocms/issues/260}
-        E::ModuleViewer()->Assign('oUserProfile', $oUser);
+        E::ModuleViewer()->assign('oUserProfile', $oUser);
         $this->SetTemplateAction('changemail_confirm');
     }
 
@@ -1434,13 +1434,13 @@ class ActionProfile extends Action {
             );
         }
 
-        E::ModuleViewer()->Assign(
-            'sText', E::ModuleLang()->Get(
+        E::ModuleViewer()->assign(
+            'sText', E::ModuleLang()->get(
                 'settings_profile_mail_change_ok', array('mail' => htmlspecialchars($oChangemail->getMailTo()))
             )
         );
         // Исправление ошибки смены email {@link https://github.com/altocms/altocms/issues/260}
-        E::ModuleViewer()->Assign('oUserProfile', $oUser);
+        E::ModuleViewer()->assign('oUserProfile', $oUser);
         $this->SetTemplateAction('changemail_confirm');
     }
 
@@ -1462,38 +1462,38 @@ class ActionProfile extends Action {
         //$aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($iProfileUserId);
 
         // * Загружаем в шаблон необходимые переменные
-        E::ModuleViewer()->Assign('oUserProfile', $this->oUserProfile);
-        E::ModuleViewer()->Assign('aProfileStats', $aProfileStats);
+        E::ModuleViewer()->assign('oUserProfile', $this->oUserProfile);
+        E::ModuleViewer()->assign('aProfileStats', $aProfileStats);
         // unused
-        //E::ModuleViewer()->Assign('aUserImagesInfo', $aUserImagesInfo);
+        //E::ModuleViewer()->assign('aUserImagesInfo', $aUserImagesInfo);
 
         // * Заметка текущего пользователя о юзере
         if (E::User()) {
-            E::ModuleViewer()->Assign('oUserNote', $this->oUserProfile->getUserNote());
+            E::ModuleViewer()->assign('oUserNote', $this->oUserProfile->getUserNote());
         }
 
-        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
 
-        E::ModuleViewer()->Assign('USER_FRIEND_NULL', ModuleUser::USER_FRIEND_NULL);
-        E::ModuleViewer()->Assign('USER_FRIEND_OFFER', ModuleUser::USER_FRIEND_OFFER);
-        E::ModuleViewer()->Assign('USER_FRIEND_ACCEPT', ModuleUser::USER_FRIEND_ACCEPT);
-        E::ModuleViewer()->Assign('USER_FRIEND_REJECT', ModuleUser::USER_FRIEND_REJECT);
-        E::ModuleViewer()->Assign('USER_FRIEND_DELETE', ModuleUser::USER_FRIEND_DELETE);
+        E::ModuleViewer()->assign('USER_FRIEND_NULL', ModuleUser::USER_FRIEND_NULL);
+        E::ModuleViewer()->assign('USER_FRIEND_OFFER', ModuleUser::USER_FRIEND_OFFER);
+        E::ModuleViewer()->assign('USER_FRIEND_ACCEPT', ModuleUser::USER_FRIEND_ACCEPT);
+        E::ModuleViewer()->assign('USER_FRIEND_REJECT', ModuleUser::USER_FRIEND_REJECT);
+        E::ModuleViewer()->assign('USER_FRIEND_DELETE', ModuleUser::USER_FRIEND_DELETE);
 
         // Old style skin compatibility
-        E::ModuleViewer()->Assign('iCountTopicUser', $aProfileStats['count_topics']);
-        E::ModuleViewer()->Assign('iCountCommentUser', $aProfileStats['count_comments']);
-        E::ModuleViewer()->Assign('iCountTopicFavourite', $aProfileStats['favourite_topics']);
-        E::ModuleViewer()->Assign('iCountCommentFavourite', $aProfileStats['favourite_comments']);
-        E::ModuleViewer()->Assign('iCountNoteUser', $aProfileStats['count_usernotes']);
-        E::ModuleViewer()->Assign('iCountWallUser', $aProfileStats['count_wallrecords']);
+        E::ModuleViewer()->assign('iCountTopicUser', $aProfileStats['count_topics']);
+        E::ModuleViewer()->assign('iCountCommentUser', $aProfileStats['count_comments']);
+        E::ModuleViewer()->assign('iCountTopicFavourite', $aProfileStats['favourite_topics']);
+        E::ModuleViewer()->assign('iCountCommentFavourite', $aProfileStats['favourite_comments']);
+        E::ModuleViewer()->assign('iCountNoteUser', $aProfileStats['count_usernotes']);
+        E::ModuleViewer()->assign('iCountWallUser', $aProfileStats['count_wallrecords']);
 
-        E::ModuleViewer()->Assign('iPhotoCount', $aProfileStats['count_images']);
-        E::ModuleViewer()->Assign('iCountCreated', $aProfileStats['count_created']);
+        E::ModuleViewer()->assign('iPhotoCount', $aProfileStats['count_images']);
+        E::ModuleViewer()->assign('iCountCreated', $aProfileStats['count_created']);
 
-        E::ModuleViewer()->Assign('iCountFavourite', $aProfileStats['count_favourites']);
-        E::ModuleViewer()->Assign('iCountFriendsUser', $aProfileStats['count_friends']);
+        E::ModuleViewer()->assign('iCountFavourite', $aProfileStats['count_favourites']);
+        E::ModuleViewer()->assign('iCountFriendsUser', $aProfileStats['count_friends']);
     }
 
 }

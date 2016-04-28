@@ -31,7 +31,7 @@
                     <tr>
                         <td class="number">{$oComment->GetId()}</td>
                         <td>
-                            <a href="{router page='admin'}users-list/profile/{$oComment->GetUser()->GetId()}/">{$oComment->GetUser()->getDisplayName()}</a>
+                            <a href="{R::GetLink("admin")}users-list/profile/{$oComment->GetUser()->GetId()}/">{$oComment->GetUser()->getDisplayName()}</a>
                         </td>
                         <td class="name">
                             {$oComment->GetText()}

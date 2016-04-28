@@ -24,7 +24,7 @@ class WidgetPeopleStats extends Widget {
         $aPeopleStats = E::ModuleUser()->GetStatUsers();
 
         // Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('aPeopleStats', $aPeopleStats);
+        E::ModuleViewer()->assign('aPeopleStats', $aPeopleStats);
     }
 }
 

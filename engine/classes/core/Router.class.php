@@ -567,10 +567,10 @@ class Router extends LsObject {
      */
     protected function AssignVars() {
 
-        E::ModuleViewer()->Assign('sAction', static::$sAction);
-        E::ModuleViewer()->Assign('sEvent', static::$sActionEvent);
-        E::ModuleViewer()->Assign('aParams', static::$aParams);
-        E::ModuleViewer()->Assign('PATH_WEB_CURRENT', E::ModuleTools()->Urlspecialchars(static::$sCurrentFullUrl));
+        E::ModuleViewer()->assign('sAction', static::$sAction);
+        E::ModuleViewer()->assign('sEvent', static::$sActionEvent);
+        E::ModuleViewer()->assign('aParams', static::$aParams);
+        E::ModuleViewer()->assign('PATH_WEB_CURRENT', E::ModuleTools()->Urlspecialchars(static::$sCurrentFullUrl));
     }
 
     /**
@@ -950,33 +950,44 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает правильную адресацию по переданому названию страницы (экшену)
+     * Возвращает URL по переданому названию страницы (экшену)
      *
      * @param  string $sAction Экшен
      *
      * @return string
      */
-    static public function GetPath($sAction) {
+    static public function GetLink($sAction) {
 
         if (empty(static::$aActionPaths[$sAction])) {
             $sAction = trim($sAction, '/');
-            static::$aActionPaths[$sAction] = static::getInstance()->_getPath($sAction);
+            static::$aActionPaths[$sAction] = static::getInstance()->_getLink($sAction);
         }
         return static::$aActionPaths[$sAction];
     }
 
     /**
+     * @deprecated 
+     * @param $sAction
+     *
+     * @return string
+     */
+    static public function GetPath($sAction) {
+        
+        return static::GetLink($sAction);
+    }
+    
+    /**
      * @param string $sAction
      *
      * @return string
      */
-    public function _getPath($sAction) {
+    public function _getLink($sAction) {
 
         // Если пользователь запросил action по умолчанию
         $sPage = (($sAction == 'default') ? $this->aConfigRoute['config']['action_default'] : $sAction);
 
         // Смотрим, есть ли правило rewrite
-        $sPage = static::getInstance()->RestorePath($sPage);
+        $sPage = $this->RestorePath($sPage);
         // Маппинг доменов
         if (!empty($this->aConfigRoute['domains']['backward'])) {
             if (isset($this->aConfigRoute['domains']['backward'][$sPage])) {
@@ -1086,7 +1097,7 @@ class Router extends LsObject {
      *
      * @param string $sLocation    URL для редиректа
      */
-    static public function Location($sLocation) {
+    static public function Redirect($sLocation) {
 
         static::getInstance()->oEngine->shutdown();
         if (substr($sLocation, 0, 1) !== '/') {
@@ -1094,16 +1105,25 @@ class Router extends LsObject {
             $sRelLocation = trim($sLocation, '/');
             if (preg_match('|^[a-z][\w\-]+$|', $sRelLocation)) {
                 // задан action
-                $sLocation = static::GetPath($sRelLocation);
+                $sLocation = static::GetLink($sRelLocation);
             } elseif (preg_match('|^([a-z][\w\-]+)(\/.+)$|', $sRelLocation)) {
                 // задан action/event/...
                 list($sAction, $sRest) = explode('/', $sLocation, 2);
-                $sLocation = static::GetPath($sAction) . '/' . $sRest;
+                $sLocation = static::GetLink($sAction) . '/' . $sRest;
             }
         }
         F::HttpLocation($sLocation);
     }
 
+    /**
+     * @deprecated 
+     * @param $sLocation
+     */
+    static public function Location($sLocation) {
+        
+        return static::Redirect($sLocation);
+    }
+    
     /**
      * @param   array $aData
      * @param   string $sPart  One of values: 'url', 'link', 'root', 'path', 'action', 'event', 'params'

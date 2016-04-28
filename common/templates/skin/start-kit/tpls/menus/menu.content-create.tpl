@@ -40,9 +40,9 @@
 
     <ul class="dropdown-menu" id="dropdown-create-menu" style="display: none">
         <li {if $sMenuItemSelect!='blog'}class="active"{/if}><a
-                    href="{router page='content'}add/">{$aLang.topic_menu_add}</a></li>
+                    href="{R::GetLink("content")}add/">{$aLang.topic_menu_add}</a></li>
         <li {if $sMenuItemSelect=='blog'}class="active"{/if}><a
-                    href="{router page='blog'}add/">{$aLang.blog_menu_create}</a></li>
+                    href="{R::GetLink("blog")}add/">{$aLang.blog_menu_create}</a></li>
         {hook run='menu_create_item' sMenuItemSelect=$sMenuItemSelect}
     </ul>
 </div>
@@ -53,14 +53,14 @@
             {foreach from=$aAllowedContentTypes item=oContentType}
             {if $oContentType->isAccessible()}
                 <li {if $sMenuSubItemSelect==$oContentType->getContentUrl()}class="active"{/if}>
-                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/">{$oContentType->getContentTitle()|escape:'html'}</a>
+                    <a href="{R::GetLink("content")}{$oContentType->getContentUrl()}/add/">{$oContentType->getContentTitle()|escape:'html'}</a>
                 </li>
             {/if}
         {/foreach}
         {/if}
         {if $iUserCurrentCountTopicDraft}
             <li class="pull-right{if $sMenuSubItemSelect=='drafts'} active{/if}">
-                <a href="{router page='content'}drafts/">{$aLang.topic_menu_drafts} ({$iUserCurrentCountTopicDraft})</a>
+                <a href="{R::GetLink("content")}drafts/">{$aLang.topic_menu_drafts} ({$iUserCurrentCountTopicDraft})</a>
             </li>
         {/if}
         {hook run='menu_create_topic_item'}

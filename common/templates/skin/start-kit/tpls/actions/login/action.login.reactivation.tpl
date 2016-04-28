@@ -15,7 +15,7 @@
         <h3>{$aLang.reactivation}</h3>
     </div>
 
-    <form action="{router page='login'}reactivation/" method="POST" class="js-form-reactivation">
+    <form action="{R::GetLink("login")}reactivation/" method="POST" class="js-form-reactivation">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <div class="form-group">
             <label for="reactivation-mail">{$aLang.password_reminder_email}</label>

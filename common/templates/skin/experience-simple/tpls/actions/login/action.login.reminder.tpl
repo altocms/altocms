@@ -28,7 +28,7 @@
     <div class="row">
     <div class="col-xs-20 col-xs-offset-2 col-sm-12 col-sm-offset-6  col-md-10 col-md-offset-7  col-lg-10 col-lg-offset-7">
 
-        <form action="{router page='login'}reminder/" method="POST" id="reminder-form" class="js-form-registration js-form-reminder">
+        <form action="{R::GetLink("login")}reminder/" method="POST" id="reminder-form" class="js-form-registration js-form-reminder">
             {hook run='form_reminder_begin' isPopup=true}
 
             <div class="form-group has-feedback">
@@ -47,8 +47,8 @@
             <br/>
             <br/>
 
-            <a class="btn btn-light btn-normal corner-no" href="{router page='login'}">{$aLang.user_login_submit}</a>
-            <a class="btn btn-light btn-normal corner-no" href="{router page='registration'}">{$aLang.user_registration}</a>
+            <a class="btn btn-light btn-normal corner-no" href="{R::GetLink("login")}">{$aLang.user_login_submit}</a>
+            <a class="btn btn-light btn-normal corner-no" href="{R::GetLink("registration")}">{$aLang.user_registration}</a>
             <button type="submit" name="submit_reminder" class="btn btn-blue btn-normal corner-no" id="reminder-form-submit" disabled="disabled">
                 {$aLang.user_password_reminder}
             </button>

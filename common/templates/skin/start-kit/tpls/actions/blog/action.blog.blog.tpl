@@ -39,13 +39,13 @@
                 <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
                 {if $oBlog->CanEditedBy(E::User())}
                 <li>
-                    <a href="{router page='blog'}edit/{$oBlog->getId()}/" title="{$aLang.blog_menu_edit}"
+                    <a href="{R::GetLink("blog")}edit/{$oBlog->getId()}/" title="{$aLang.blog_menu_edit}"
                        class="actions-edit">{$aLang.blog_menu_edit}</a>
                 </li>
                 {/if}
                 {if $oBlog->CanAdminBy(E::User())}
                 <li>
-                    <a href="{router page='blog'}admin/{$oBlog->getId()}/" title="{$aLang.blog_menu_admin}"
+                    <a href="{R::GetLink("blog")}admin/{$oBlog->getId()}/" title="{$aLang.blog_menu_admin}"
                        class="actions-edit">{$aLang.blog_menu_admin}</a>
                 </li>
                 {/if}
@@ -68,7 +68,7 @@
             <div class="col-sm-6 col-lg-6 blog-mini-header">
                 <a href="#" class="small link-dotted"
                    onclick="ls.blog.toggleInfo(); return false;">{$aLang.blog_expand_info}</a>
-                <a href="{router page='rss'}blog/{$oBlog->getUrl()}/" class="small">RSS</a>
+                <a href="{R::GetLink("rss")}blog/{$oBlog->getUrl()}/" class="small">RSS</a>
                 {if E::UserId()!=$oBlog->getOwnerId()}
                     <button type="submit" class="btn btn-success btn-sm{if $oBlog->getUserIsJoin()} active{/if}"
                             id="button-blog-join-first-{$oBlog->getId()}"

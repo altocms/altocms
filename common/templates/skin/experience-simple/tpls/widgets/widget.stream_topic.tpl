@@ -44,8 +44,8 @@
 {/if}
 
 {*<footer class="small text-muted">*}
-    {*<a href="{router page='index'}newall/">{$aLang.widget_stream_topics_all}</a> ·*}
-    {*<a href="{router page='rss'}new/">RSS</a>*}
+    {*<a href="{R::GetLink("index")}newall/">{$aLang.widget_stream_topics_all}</a> ·*}
+    {*<a href="{R::GetLink("rss")}new/">RSS</a>*}
 {*</footer>*}
 
 

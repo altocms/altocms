@@ -105,7 +105,7 @@
 
                 {if E::UserId() == $oUserProfile->getId()}
                 <li {if $sAction=='talk'}class="active"{/if}>
-                    <a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                    <a class="link link-lead link-dual link-clear" href="{R::GetLink("talk")}">
                         <i class="fa fa-envelope-o"></i>{$aLang.talk_menu_inbox}
                         {if $iUserCurrentCountTalkNew}
                             <span class="badge pull-right">{$iUserCurrentCountTalkNew}</span>
@@ -113,7 +113,7 @@
                     </a>
                 </li>
                 <li {if $sAction=='settings'}class="active"{/if}>
-                    <a class="link link-lead link-dual link-clear" href="{router page='settings'}">
+                    <a class="link link-lead link-dual link-clear" href="{R::GetLink("settings")}">
                         <i class="fa fa-cogs"></i>{$aLang.settings_menu}
                     </a>
                 </li>

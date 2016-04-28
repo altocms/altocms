@@ -70,7 +70,7 @@ class ModuleValidate_EntityValidatorBoolean extends ModuleValidate_EntityValidat
             || $this->strict && $sValue !== $this->trueValue && $sValue !== $this->falseValue
         ) {
             return $this->getMessage(
-                E::ModuleLang()->Get('validate_boolean_invalid', null, false), 'msg',
+                E::ModuleLang()->get('validate_boolean_invalid', null, false), 'msg',
                 array('true' => $this->trueValue, 'false' => $this->falseValue)
             );
         }

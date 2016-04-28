@@ -34,7 +34,7 @@ class WidgetTags extends Widget {
             E::ModuleTools()->MakeCloud($aTags);
 
             // * Устанавливаем шаблон вывода
-            E::ModuleViewer()->Assign('aTags', $aTags);
+            E::ModuleViewer()->assign('aTags', $aTags);
         }
 
         // * Теги пользователя
@@ -46,7 +46,7 @@ class WidgetTags extends Widget {
                 E::ModuleTools()->MakeCloud($aTags);
 
                 // * Устанавливаем шаблон вывода
-                E::ModuleViewer()->Assign('aTagsUser', $aTags);
+                E::ModuleViewer()->assign('aTagsUser', $aTags);
             }
         }
     }

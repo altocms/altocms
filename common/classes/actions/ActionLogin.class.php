@@ -63,7 +63,7 @@ class ActionLogin extends Action {
         $sUrlRedirect = F::GetRequestStr('return-path');
 
         if (!$sUserLogin || !trim($sUserPassword)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_login_bad'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('user_login_bad'));
             return;
         }
 
@@ -81,22 +81,22 @@ class ActionLogin extends Action {
             if ($iError) {
                 switch($iError) {
                     case ModuleUser::USER_AUTH_ERR_NOT_ACTIVATED:
-                        $sErrorMessage = E::ModuleLang()->Get(
+                        $sErrorMessage = E::ModuleLang()->get(
                             'user_not_activated',
-                            array('reactivation_path' => R::GetPath('login') . 'reactivation')
+                            array('reactivation_path' => R::GetLink('login') . 'reactivation')
                         );
                         break;
                     case ModuleUser::USER_AUTH_ERR_IP_BANNED:
-                        $sErrorMessage = E::ModuleLang()->Get('user_ip_banned');
+                        $sErrorMessage = E::ModuleLang()->get('user_ip_banned');
                         break;
                     case ModuleUser::USER_AUTH_ERR_BANNED_DATE:
-                        $sErrorMessage = E::ModuleLang()->Get('user_banned_before', array('date' => $oUser->GetBanLine()));
+                        $sErrorMessage = E::ModuleLang()->get('user_banned_before', array('date' => $oUser->GetBanLine()));
                         break;
                     case ModuleUser::USER_AUTH_ERR_BANNED_UNLIM:
-                        $sErrorMessage = E::ModuleLang()->Get('user_banned_unlim');
+                        $sErrorMessage = E::ModuleLang()->get('user_banned_unlim');
                         break;
                     default:
-                        $sErrorMessage = E::ModuleLang()->Get('user_login_bad');
+                        $sErrorMessage = E::ModuleLang()->get('user_login_bad');
                 }
                 E::ModuleMessage()->AddErrorSingle($sErrorMessage);
                 return;
@@ -115,7 +115,7 @@ class ActionLogin extends Action {
             }
         }
 
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_login_bad'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('user_login_bad'));
     }
 
     /**
@@ -127,7 +127,7 @@ class ActionLogin extends Action {
             R::Location(Config::Get('path.root.url') . '/');
         }
 
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('reactivation'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('reactivation'));
     }
 
     /**
@@ -140,19 +140,19 @@ class ActionLogin extends Action {
         /** @var ModuleUser_EntityUser $oUser */
         if ((F::CheckVal(F::GetRequestStr('mail'), 'mail') && $oUser = E::ModuleUser()->GetUserByMail(F::GetRequestStr('mail')))) {
             if ($oUser->getActivate()) {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('registration_activate_error_reactivate'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('registration_activate_error_reactivate'));
                 return;
             } else {
                 $oUser->setActivationKey(F::RandomStr());
                 if (E::ModuleUser()->Update($oUser)) {
-                    E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('reactivation_send_link'));
+                    E::ModuleMessage()->AddNotice(E::ModuleLang()->get('reactivation_send_link'));
                     E::ModuleNotify()->SendReactivationCode($oUser);
                     return;
                 }
             }
         }
 
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('password_reminder_bad_email'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('password_reminder_bad_email'));
     }
 
     /**
@@ -166,7 +166,7 @@ class ActionLogin extends Action {
         if (E::ModuleUser()->GetUserCurrent()) {
             R::Location(Config::Get('path.root.url') . '/');
         }
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('login'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('login'));
     }
 
     /**
@@ -210,7 +210,7 @@ class ActionLogin extends Action {
             R::Location($sRedirect);
             exit;
         } else {
-            // E::ModuleViewer()->Assign('bRefreshToHome', true);
+            // E::ModuleViewer()->assign('bRefreshToHome', true);
             // Время показа страницы выхода не задано, поэтому просто редирект
             R::Location(Config::Get('path.root.web'));
             exit;
@@ -237,10 +237,10 @@ class ActionLogin extends Action {
 
         if (E::IsUser()) {
             // Для авторизованного юзера восстанавливать нечего
-            Router::Location('/');
+            R::Redirect('/');
         } else {
             // Устанавливаем title страницы
-            E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('password_reminder'));
+            E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('password_reminder'));
 
             $this->_eventRecovery(false);
         }
@@ -256,12 +256,12 @@ class ActionLogin extends Action {
             if ($sEmail && (F::CheckVal($sEmail, 'mail'))) {
                 if ($this->_eventRecoveryRequest($sEmail)) {
                     if (!$bAjax) {
-                        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('password_reminder_send_link'));
+                        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('password_reminder_send_link'));
                     }
                     return;
                 }
             }
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('password_reminder_bad_email'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('password_reminder_bad_email'), E::ModuleLang()->get('error'));
         } elseif ($sRecoveryCode = $this->GetParam(0)) {
             // Was recovery code in GET
             if (F::CheckVal($sRecoveryCode, 'md5')) {
@@ -270,7 +270,7 @@ class ActionLogin extends Action {
                 if ($this->_eventRecoverySend($sRecoveryCode)) {
                     return null;
                 }
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('password_reminder_bad_code_txt'), E::ModuleLang()->Get('password_reminder_bad_code'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('password_reminder_bad_code_txt'), E::ModuleLang()->get('password_reminder_bad_code'));
                 if (!$bAjax) {
                     return R::Action('error');
                 }
@@ -294,7 +294,7 @@ class ActionLogin extends Action {
             $oReminder->setUserId($oUser->getId());
             if (E::ModuleUser()->AddReminder($oReminder)) {
                 E::ModuleNotify()->SendReminderCode($oUser, $oReminder);
-                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('password_reminder_send_link'));
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->get('password_reminder_send_link'));
                 return true;
             }
         }
@@ -324,7 +324,7 @@ class ActionLogin extends Action {
                     $this->SetTemplateAction('reminder_confirm');
 
                     if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
-                        E::ModuleViewer()->Assign('return-path', $sUrl);
+                        E::ModuleViewer()->assign('return-path', $sUrl);
                     }
                     return true;
                 }

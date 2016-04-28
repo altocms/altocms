@@ -15,7 +15,7 @@
                 {if $aTags}
                     {foreach $aTags as $sTag}
                         <li>
-                            <a class="link link-lead link-light-gray link-clear" href="{router page='tag'}{$sTag|escape:'url'}/">{$sTag|escape:'html'}</a>{if !$sTag@last}, {/if}
+                            <a class="link link-lead link-light-gray link-clear" href="{R::GetLink("tag")}{$sTag|escape:'url'}/">{$sTag|escape:'html'}</a>{if !$sTag@last}, {/if}
                         </li>
                     {/foreach}
                 {*{else}*}

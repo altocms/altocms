@@ -19,10 +19,10 @@
                title="{$aLang.action.admin.menu_manager_actions_add}"><i class="icon icon-plus"></i></a>
 
             {if $isSubMenu}
-                <a href="{router page='admin'}settings-menumanager/reset/{$oMenu->getId()}/" class="btn btn-danger tip-top"
+                <a href="{R::GetLink("admin")}settings-menumanager/reset/{$oMenu->getId()}/" class="btn btn-danger tip-top"
                    title=""><i class="icon icon-remove"></i>&nbsp;{$aLang.action.admin.menu_manager_actions_remove_submenu}</a>
             {else}
-                <a href="{router page='admin'}settings-menumanager/reset/{$oMenu->getId()}/" class="btn btn-primary tip-top"
+                <a href="{R::GetLink("admin")}settings-menumanager/reset/{$oMenu->getId()}/" class="btn btn-primary tip-top"
                    title=""><i class="icon icon-reload"></i>&nbsp;{$aLang.action.admin.menu_manager_actions_reset}</a>
             {/if}
         </div>
@@ -288,7 +288,7 @@
                     </td>
                     <td class="menumanager_submenu">
                         {if $oItem->getItemSubmenu()}
-                            <a href="{router page='admin'}settings-menumanager/edit/{$oItem->getItemSubmenu()}/"
+                            <a href="{R::GetLink("admin")}settings-menumanager/edit/{$oItem->getItemSubmenu()}/"
                                class="">{$aLang.action.admin.menu_manager_edit_submenu}</a>
                         {/if}
                     </td>

@@ -8,7 +8,7 @@
 
 <br/>
 Для подтверждения смены емайла пройдите по ссылке:
-<a href="{router page='profile'}changemail/confirm-to/{$oChangemail->getCodeTo()}/">{router page='profile'}changemail/confirm-to/{$oChangemail->getCodeTo()}/</a>
+<a href="{R::GetLink("profile")}changemail/confirm-to/{$oChangemail->getCodeTo()}/">{R::GetLink("profile")}changemail/confirm-to/{$oChangemail->getCodeTo()}/</a>
 
 <br/><br/>
 С уважением, администрация сайта <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

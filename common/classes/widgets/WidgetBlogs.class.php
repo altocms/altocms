@@ -31,7 +31,7 @@ class WidgetBlogs extends Widget {
 
             // * Формируем результат в виде шаблона и возвращаем
             $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
-            E::ModuleViewer()->Assign('sBlogsTop', $sTextResult);
+            E::ModuleViewer()->assign('sBlogsTop', $sTextResult);
         }
     }
 }

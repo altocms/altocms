@@ -49,12 +49,12 @@
                         <td class="text-muted cell-label">{$aLang.profile_place}:</td>
                         <td itemprop="address" itemscope itemtype="http://data-vocabulary.org/Address">
                             {if $oGeoTarget->getCountryId()}
-                                <a href="{router page='people'}country/{$oGeoTarget->getCountryId()}/"
+                                <a href="{R::GetLink("people")}country/{$oGeoTarget->getCountryId()}/"
                                    itemprop="country-name">{$oUserProfile->getProfileCountry()|escape:'html'}</a>{if $oGeoTarget->getCityId()},{/if}
                             {/if}
 
                             {if $oGeoTarget->getCityId()}
-                                <a href="{router page='people'}city/{$oGeoTarget->getCityId()}/"
+                                <a href="{R::GetLink("people")}city/{$oGeoTarget->getCityId()}/"
                                    itemprop="locality">{$oUserProfile->getProfileCity()|escape:'html'}</a>
                             {/if}
                         </td>

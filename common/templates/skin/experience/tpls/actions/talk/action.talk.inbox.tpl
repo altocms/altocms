@@ -14,7 +14,7 @@
 
     {if $aTalks}
 
-        <form action="{router page='talk'}" method="post" id="form_talks_list">
+        <form action="{R::GetLink("talk")}" method="post" id="form_talks_list">
             <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
             <input type="hidden" name="submit_talk_unread" id="form_talks_list_submit_unread" value=""/>
             <input type="hidden" name="submit_talk_read" id="form_talks_list_submit_read" value=""/>
@@ -96,7 +96,7 @@
                         <td>
 
                             {strip}
-                                <a href="{router page='talk'}read/{$oTalk->getId()}/" class="js-title-talk link link-lead link-clear"
+                                <a href="{R::GetLink("talk")}read/{$oTalk->getId()}/" class="js-title-talk link link-lead link-clear"
                                    title="{$oTalk->getTextLast()|strip_tags|truncate:100:'...'|escape:'html'}">
                                     {if $oTalkUserAuthor->getCommentCountNew() OR !$oTalkUserAuthor->getDateLast()}
                                         <strong>{$oTalk->getTitle()|escape:'html'}</strong>

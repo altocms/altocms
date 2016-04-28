@@ -20,16 +20,16 @@
 						<ul class="list-unstyled footer-list">
 							<li class="footer-list-header word-wrap">{$oUserCurrent->getLogin()}</li>
 							<li><a href="{$oUserCurrent->getUserWebPath()}">{$aLang.footer_menu_user_profile}</a></li>
-							<li><a href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
-							<li><a href="{router page='topic'}add/" class="js-write-window-show">{$aLang.block_create}</a></li>
+							<li><a href="{R::GetLink("settings")}profile/">{$aLang.user_settings}</a></li>
+							<li><a href="{R::GetLink("topic")}add/" class="js-write-window-show">{$aLang.block_create}</a></li>
 							{hook run='footer_menu_user_item' oUser=$oUserCurrent}
-							<li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a></li>
+							<li><a href="{R::GetLink("login")}exit/?security_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a></li>
 						</ul>
 					{else}
 						<ul class="list-unstyled footer-list">
 							<li class="footer-list-header word-wrap">{$aLang.footer_menu_user_quest_title}</li>
-							<li><a class="js-registration-form-show" href="{router page='registration'}" class="js-registration-form-show">{$aLang.registration_submit}</a></li>
-							<li><a class="js-login-form-show" href="{router page='login'}" class="js-login-form-show sign-in">{$aLang.user_login_submit}</a></li>
+							<li><a class="js-registration-form-show" href="{R::GetLink("registration")}" class="js-registration-form-show">{$aLang.registration_submit}</a></li>
+							<li><a class="js-login-form-show" href="{R::GetLink("login")}" class="js-login-form-show sign-in">{$aLang.user_login_submit}</a></li>
 							{hook run='footer_menu_user_item' isGuest=true}
 						</ul>
 					{/if}
@@ -39,9 +39,9 @@
 					<ul class="list-unstyled footer-list">
 						<li class="footer-list-header">{$aLang.footer_menu_navigate_title}</li>
 						<li><a href="{Config::Get('path.root.web')}">{$aLang.topic_title}</a></li>
-						<li><a href="{router page='blogs'}">{$aLang.blogs}</a></li>
-						<li><a href="{router page='people'}">{$aLang.people}</a></li>
-						<li><a href="{router page='stream'}">{$aLang.stream_menu}</a></li>
+						<li><a href="{R::GetLink("blogs")}">{$aLang.blogs}</a></li>
+						<li><a href="{R::GetLink("people")}">{$aLang.people}</a></li>
+						<li><a href="{R::GetLink("stream")}">{$aLang.stream_menu}</a></li>
 						{hook run='footer_menu_navigate_item'}
 					</ul>
 				</div>

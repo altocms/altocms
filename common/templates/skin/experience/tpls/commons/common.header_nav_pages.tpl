@@ -32,7 +32,7 @@
             {include file="menus/menu.main.tpl"}
 
             <li class="right last search">
-                <form action="{router page='search'}topics/" class="form">
+                <form action="{R::GetLink("search")}topics/" class="form">
                     <label>
                         <input placeholder="{$aLang.search|mb_strtolower}" type="text" maxlength="255" name="q"/>
                     </label>

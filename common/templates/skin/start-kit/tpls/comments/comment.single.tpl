@@ -24,7 +24,7 @@
                    class="comment-topic-author"{/if}>{$oUser->getDisplayName()}</a>
             </li>
             <li class="comment-info-date">
-                <a href="{if Config::Get('module.comment.nested_per_page')}{router page='comments'}{else}#comment{/if}{$oComment->getId()}"
+                <a href="{if Config::Get('module.comment.nested_per_page')}{R::GetLink("comments")}{else}#comment{/if}{$oComment->getId()}"
                    class="link-dotted" title="{$aLang.comment_url_notice}">
                     <time datetime="{date_format date=$oComment->getDate() format='c'}">{date_format date=$oComment->getDate() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}</time>
                 </a>

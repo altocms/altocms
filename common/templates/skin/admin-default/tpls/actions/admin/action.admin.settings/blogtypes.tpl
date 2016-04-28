@@ -2,13 +2,13 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary tip-top"
+        <a href="{R::GetLink("admin")}settings-blogtypes/add/" class="btn btn-primary tip-top"
            title="{$aLang.action.admin.blogtypes_add}"><i class="icon icon-plus"></i></a>
     </div>
 {/block}
 
 {block name="content-body"}
-<form action="{router page='admin'}settings-blogtypes/" method="post" id="form_blogtype_list" class="uniform">
+<form action="{R::GetLink("admin")}settings-blogtypes/" method="post" id="form_blogtype_list" class="uniform">
     <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
     <input type="hidden" name="blogtype_action" value="">
     <div class="b-wbox">
@@ -39,7 +39,7 @@
                             {$oBlogType->getId()}
                         </td>
                         <td>
-                            <a href="{router page='admin'}content-blogs/list/{$oBlogType->getTypeCode()}">
+                            <a href="{R::GetLink("admin")}content-blogs/list/{$oBlogType->getTypeCode()}">
                                 {$oBlogType->getTypeCode()}
                             </a>
                         </td>
@@ -105,7 +105,7 @@
                             </div>
                         </td>
                         <td>
-                            <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
+                            <a href="{R::GetLink("admin")}settings-blogtypes/edit/{$oBlogType->getId()}/">
                                 <i class="icon icon-note tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
                             {if $oBlogType AND $oBlogType->CanDelete()}
                             <a href="#" onclick="return admin.blogtypeDelete('{$oBlogType->getId()}', '{$oBlogType->getTypeCode()}', '{$oBlogType->getName()|escape:'html'}')">

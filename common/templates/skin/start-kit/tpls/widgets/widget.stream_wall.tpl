@@ -28,5 +28,5 @@
 {/if}
 
 <footer class="small text-muted">
-    <a href="{router page='rss'}wall/">RSS</a>
+    <a href="{R::GetLink("rss")}wall/">RSS</a>
 </footer>

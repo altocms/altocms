@@ -131,14 +131,14 @@ class ActionUploader extends Action {
         }
 
         if (!F::File_Exists($sTmpFile)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
 
             return false;
         }
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return false;
         }
@@ -190,7 +190,7 @@ class ActionUploader extends Action {
         }
 
         // * В случае ошибки, возвращаем false
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
 
         return false;
     }
@@ -222,13 +222,13 @@ class ActionUploader extends Action {
         } else {
             $sError = E::ModuleUploader()->GetErrorMsg();
             if ($sError) {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get($sError));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get($sError));
                 return false;
             }
         }
 
         // * В случае ошибки, возвращаем false
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
 
         return FALSE;
     }
@@ -260,7 +260,7 @@ class ActionUploader extends Action {
 
         // Проверяем, загружен ли файл
         if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('error_upload_image'), E::ModuleLang()->get('error'));
 
             return;
         }
@@ -275,7 +275,7 @@ class ActionUploader extends Action {
                 // Будем делать временную картинку
 
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
                 return;
             }
@@ -315,7 +315,7 @@ class ActionUploader extends Action {
                     return;
                 }
             } else {
-                $sError = E::ModuleLang()->Get('error_upload_wrong_image_type');
+                $sError = E::ModuleLang()->get('error_upload_wrong_image_type');
             }
 
             // If anything wrong then deletes temp file
@@ -325,12 +325,12 @@ class ActionUploader extends Action {
             // Ошибки загрузки картинки
             $sError = E::ModuleUploader()->GetErrorMsg();
             if (!$sError) {
-                $sError = E::ModuleLang()->Get('error_upload_image');
+                $sError = E::ModuleLang()->get('error_upload_image');
             }
         }
 
         // Выведем ошибки пользователю
-        E::ModuleMessage()->AddError($sError, E::ModuleLang()->Get('error'));
+        E::ModuleMessage()->AddError($sError, E::ModuleLang()->get('error'));
 
         // Удалим ранее загруженый файл
         F::File_Delete($sTmpFile);
@@ -351,14 +351,14 @@ class ActionUploader extends Action {
         $sPreviewFile = E::ModuleSession()->Get("sPreview-{$sTarget}-{$sTargetId}");
 
         if (!F::File_Exists($sTmpFile)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
 
             return;
         }
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
@@ -415,9 +415,9 @@ class ActionUploader extends Action {
 
             E::ModuleViewer()->AssignAjax('sFile', $oFileWeb->getUrl());
             E::ModuleViewer()->AssignAjax('sFilePreview', $sFileWebPreview);
-            E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->Get('uploader_upload_success'));
+            E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->get('uploader_upload_success'));
         } else {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('error_upload_image'), E::ModuleLang()->get('error'));
         }
     }
 
@@ -434,7 +434,7 @@ class ActionUploader extends Action {
             $sTargetType = F::GetRequest('target', FALSE),
             $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
@@ -458,7 +458,7 @@ class ActionUploader extends Action {
         }
 
         // * Возвращает сообщение
-        E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->Get('uploader_upload_success'));
+        E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->get('uploader_upload_success'));
 
     }
 
@@ -475,14 +475,14 @@ class ActionUploader extends Action {
             $sTarget = F::GetRequest('target', FALSE),
             $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
         $sTmpFile = E::ModuleSession()->Get("sTmp-{$sTarget}-{$sTargetId}");
 
         if (!F::File_Exists($sTmpFile)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
 
             return;
         }
@@ -511,7 +511,7 @@ class ActionUploader extends Action {
 
         // Проверяем, загружен ли файл
         if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('error_upload_image'), E::ModuleLang()->get('error'));
 
             return false;
         }
@@ -530,7 +530,7 @@ class ActionUploader extends Action {
                 // Будем делать временную картинку
 
             } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
                 return false;
             }
@@ -554,17 +554,17 @@ class ActionUploader extends Action {
                 $sTarget = F::GetRequest('target', FALSE),
                 $sTargetId = F::GetRequest('target_id', FALSE))
             ) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get(
+                E::ModuleMessage()->AddError(E::ModuleLang()->get(
                     'uploader_photoset_error_count_photos',
                     array('MAX' => Config::Get('module.topic.photoset.count_photos_max'))
-                ), E::ModuleLang()->Get('error'));
+                ), E::ModuleLang()->get('error'));
 
                 return FALSE;
             }
 
             // Определим, существует ли объект или он будет создан позже
             if (!($sTmpKey = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) && $sTargetId == '0' && $bTmp) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('error_upload_image'), E::ModuleLang()->get('error'));
 
                 return FALSE;
             }
@@ -574,7 +574,7 @@ class ActionUploader extends Action {
             $oImg = E::ModuleImg()->Read($sTmpFile);
             $sExtension = strtolower(pathinfo($sTmpFile, PATHINFO_EXTENSION));
             if (!$sSavedTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('error_upload_image'), E::ModuleLang()->get('error'));
 
                 F::File_Delete($sTmpFile);
                 return FALSE;
@@ -622,12 +622,12 @@ class ActionUploader extends Action {
             // Ошибки загрузки картинки
             $sError = E::ModuleUploader()->GetErrorMsg();
             if (!$sError) {
-                $sError = E::ModuleLang()->Get('error_upload_image');
+                $sError = E::ModuleLang()->get('error_upload_image');
             }
         }
 
         // Выведем ошибки пользователю
-        E::ModuleMessage()->AddError($sError, E::ModuleLang()->Get('error'));
+        E::ModuleMessage()->AddError($sError, E::ModuleLang()->get('error'));
 
         // Удалим ранее загруженый файл
         F::File_Delete($sTmpFile);
@@ -648,19 +648,19 @@ class ActionUploader extends Action {
             $sTargetType = F::GetRequest('target', FALSE),
             $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         if (!($sResourceId = F::GetRequest('resource_id', FALSE))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         if (!($oResource = E::ModuleMresource()->GetMresourceById($sResourceId))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
@@ -669,7 +669,7 @@ class ActionUploader extends Action {
         // изображение нам уже ни к чему.
         E::ModuleMresource()->DeleteMresources($oResource, TRUE, TRUE);
 
-        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_photo_deleted'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_photoset_photo_deleted'));
 
     }
 
@@ -687,20 +687,20 @@ class ActionUploader extends Action {
             $sTargetType = F::GetRequest('target', FALSE),
             $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         if (!($sResourceId = F::GetRequest('resource_id', FALSE))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         /** @var ModuleMresource_EntityMresource $oResource */
         if (!($oResource = E::ModuleMresource()->GetMresourceById($sResourceId))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
@@ -708,7 +708,7 @@ class ActionUploader extends Action {
         $oResource->setDescription(F::GetRequestStr('description', ''));
         E::ModuleMresource()->UpdateParams($oResource);
 
-        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_description_done'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_photoset_description_done'));
 
     }
 
@@ -726,20 +726,20 @@ class ActionUploader extends Action {
             $sTargetType = F::GetRequest('target', FALSE),
             $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         if (!($sResourceId = F::GetRequest('resource_id', FALSE))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         /** @var ModuleMresource_EntityMresource $oResource */
         if (!($oResource = E::ModuleMresource()->GetMresourceById($sResourceId))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
@@ -747,11 +747,11 @@ class ActionUploader extends Action {
         // Если картинка и так превьюшка, то отключим её
         if ($oResource->getType() == ModuleMresource::TYPE_PHOTO) {
             $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_is_preview'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_photoset_is_preview'));
             E::ModuleViewer()->AssignAjax('bPreview', true);
         } else {
             $oResource->setType(ModuleMresource::TYPE_PHOTO);
-            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_mark_is_not_preview'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('topic_photoset_mark_is_not_preview'));
             E::ModuleViewer()->AssignAjax('bPreview', false);
         }
 
@@ -773,26 +773,26 @@ class ActionUploader extends Action {
             $sTargetType = F::GetRequest('target', FALSE),
             $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         if (!($aOrder = F::GetRequest('order', FALSE))) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         if (!is_array($aOrder)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
 
             return;
         }
 
         E::ModuleMresource()->UpdateSort(array_flip($aOrder), $sTargetType, $sTargetId);
 
-        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('uploader_sort_changed'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->get('uploader_sort_changed'));
 
     }
 

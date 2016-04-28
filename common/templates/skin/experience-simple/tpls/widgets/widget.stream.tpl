@@ -8,7 +8,7 @@
         <div class="panel-header">
             <i class="fa fa-microphone"></i>
             <a class=""
-               href="{router page='comments'}"
+               href="{R::GetLink("comments")}"
                title="{$aLang.widget_stream_comments_all}">{$aLang.widget_stream}</a>
             <a href="#"
                onclick="
@@ -47,8 +47,8 @@
     </div>
     {if $aWidgetParams.hide_footer != true}
         <div class="panel-footer">
-            <a class="link link-dual link-lead link-clear" href="{router page='rss'}allcomments/"><i class="fa fa-rss"></i>RSS</a>
-            <a class="link link-dual link-lead link-clear pull-right" href="{router page='comments'}"><i class="fa fa-comment"></i>{$aLang.widget_stream_comments_all}</a>
+            <a class="link link-dual link-lead link-clear" href="{R::GetLink("rss")}allcomments/"><i class="fa fa-rss"></i>RSS</a>
+            <a class="link link-dual link-lead link-clear pull-right" href="{R::GetLink("comments")}"><i class="fa fa-comment"></i>{$aLang.widget_stream_comments_all}</a>
         </div>
     {/if}
 </div>

@@ -80,16 +80,16 @@ class ActionComments extends Action {
         // * Формируем постраничность
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.comment.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('comments')
+            R::GetLink('comments')
         );
 
         // * Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aComments', $aComments);
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aComments', $aComments);
 
         // * Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('comments_all'));
-        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'allcomments/', E::ModuleLang()->Get('comments_all'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('comments_all'));
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetLink('rss') . 'allcomments/', E::ModuleLang()->get('comments_all'));
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('index');
@@ -133,7 +133,7 @@ class ActionComments extends Action {
     public function EventShutdown() {
 
         // * Загружаем в шаблон необходимые переменные
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 
 }

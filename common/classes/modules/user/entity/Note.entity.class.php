@@ -58,7 +58,7 @@ class ModuleUser_EntityNote extends Entity {
         if (($oUserTarget = E::ModuleUser()->GetUserById($sValue)) && $this->getUserId() != $oUserTarget->getId()) {
             return true;
         }
-        return E::ModuleLang()->Get('user_note_target_error');
+        return E::ModuleLang()->get('user_note_target_error');
     }
 
 }

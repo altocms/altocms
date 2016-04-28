@@ -68,13 +68,13 @@ class ActionSubscribe extends Action {
             $oSubscribe->setDateRemove(F::Now());
             E::ModuleSubscribe()->UpdateSubscribe($oSubscribe);
 
-            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('subscribe_change_ok'), null, true);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->get('subscribe_change_ok'), null, true);
         }
         /**
          * Получаем URL для редиректа
          */
         if ((!$sUrl = E::ModuleSubscribe()->GetUrlTarget($oSubscribe->getTargetType(), $oSubscribe->getTargetId()))) {
-            $sUrl = R::GetPath('index');
+            $sUrl = R::GetLink('index');
         }
         R::Location($sUrl);
     }
@@ -95,7 +95,7 @@ class ActionSubscribe extends Action {
             $sMail = $this->oUserCurrent->getMail();
         }
         if (!F::CheckVal($sMail, 'mail')) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('registration_mail_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('registration_mail_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -103,7 +103,7 @@ class ActionSubscribe extends Action {
          */
         $sTargetType = F::GetRequestStr('target_type');
         if (!E::ModuleSubscribe()->IsAllowTargetType($sTargetType)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         $sTargetId = F::GetRequestStr('target_id') ? F::GetRequestStr('target_id') : null;
@@ -114,14 +114,14 @@ class ActionSubscribe extends Action {
          * Есть ли доступ к подписке гостям?
          */
         if (!$this->oUserCurrent && !E::ModuleSubscribe()->IsAllowTargetForGuest($sTargetType)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         /**
          * Проверка объекта подписки
          */
         if (!E::ModuleSubscribe()->CheckTarget($sTargetType, $sTargetId, $iValue)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -133,10 +133,10 @@ class ActionSubscribe extends Action {
         ) {
             $oSubscribe->setStatus($iValue);
             E::ModuleSubscribe()->UpdateSubscribe($oSubscribe);
-            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('subscribe_change_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->get('subscribe_change_ok'), E::ModuleLang()->get('attention'));
             return;
         }
-        E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+        E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         return;
     }
 
@@ -150,7 +150,7 @@ class ActionSubscribe extends Action {
         E::ModuleViewer()->SetResponseAjax('json');
 
         if (!$this->oUserCurrent) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('need_authorization'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -158,7 +158,7 @@ class ActionSubscribe extends Action {
          */
         $sTargetType = F::GetRequestStr('target_type');
         if (!E::ModuleSubscribe()->IsAllowTargetType($sTargetType)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         $sTargetId = F::GetRequestStr('target_id') ? F::GetRequestStr('target_id') : null;
@@ -169,7 +169,7 @@ class ActionSubscribe extends Action {
          * Проверка объекта подписки
          */
         if (!E::ModuleSubscribe()->CheckTarget($sTargetType, $sTargetId, $iValue)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             return;
         }
         /**
@@ -178,10 +178,10 @@ class ActionSubscribe extends Action {
         if ($oTrack = E::ModuleSubscribe()->AddTrackSimple($sTargetType, $sTargetId, $this->oUserCurrent->getId())) {
             $oTrack->setStatus($iValue);
             E::ModuleSubscribe()->UpdateTrack($oTrack);
-            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('subscribe_change_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->get('subscribe_change_ok'), E::ModuleLang()->get('attention'));
             return;
         }
-        E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+        E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         return;
     }
 }

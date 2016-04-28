@@ -35,7 +35,7 @@ class WidgetTagsCity extends Widget {
         /**
          * Выводим в шаблон
          */
-        E::ModuleViewer()->Assign('aCityList', $aCities);
+        E::ModuleViewer()->assign('aCityList', $aCities);
     }
 }
 

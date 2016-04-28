@@ -17,7 +17,7 @@
     <div class="text-center page-header">
         <h3>{$aLang.password_reminder}</h3>
     </div>
-    <form action="{router page='login'}reminder/" method="POST" id="reminder-form">
+    <form action="{R::GetLink("login")}reminder/" method="POST" id="reminder-form">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <div class="form-group">
             <label for="input-reminder-mail">{$aLang.password_reminder_email}</label>
@@ -32,8 +32,8 @@
             {$aLang.user_password_reminder_note}
         </p>
 
-        <a class="btn btn-default" href="{router page='login'}">{$aLang.user_login_submit}</a>
-        <a class="btn btn-default" href="{router page='registration'}">{$aLang.user_registration}</a>
+        <a class="btn btn-default" href="{R::GetLink("login")}">{$aLang.user_login_submit}</a>
+        <a class="btn btn-default" href="{R::GetLink("registration")}">{$aLang.user_registration}</a>
         <button type="submit" name="submit_reminder" class="btn btn-success" id="reminder-form-submit" disabled="disabled">
             {$aLang.user_password_reminder}
         </button>

@@ -17,7 +17,7 @@
 
     <div class="row">
         <div class="col-xs-20 col-xs-offset-2 col-sm-12 col-sm-offset-6  col-md-10 col-md-offset-7  col-lg-10 col-lg-offset-7">
-            <form id="login-form" action="{router page='login'}" method="post" class="js-form-login">
+            <form id="login-form" action="{R::GetLink("login")}" method="post" class="js-form-login">
                 {hook run='form_login_begin'}
 
                 <div class="form-group">
@@ -51,8 +51,8 @@
                        name="submit_login"
                        class="btn btn-blue btn-big corner-no js-form-login-submit"
                        value="{$aLang.user_login_submit_on_site}">
-                <a class="btn btn-light btn-big corner-no" href="{router page='registration'}">{$aLang.user_registration}</a>
-                <a class="btn btn-light btn-big corner-no" href="{router page='login'}reminder/">{$aLang.user_password_reminder}</a>
+                <a class="btn btn-light btn-big corner-no" href="{R::GetLink("registration")}">{$aLang.user_registration}</a>
+                <a class="btn btn-light btn-big corner-no" href="{R::GetLink("login")}reminder/">{$aLang.user_password_reminder}</a>
 
             </form>
         </div>
@@ -67,7 +67,7 @@
         <br/>
 <div class="row">
     <div class="col-xs-20 col-xs-offset-2 col-sm-12 col-sm-offset-6  col-md-10 col-md-offset-7  col-lg-10 col-lg-offset-7">
-        <form action="{router page='registration'}invite/" method="POST">
+        <form action="{R::GetLink("registration")}invite/" method="POST">
             <div class="text-center page-header">
                 <h3>{$aLang.registration_invite}</h3>
             </div>

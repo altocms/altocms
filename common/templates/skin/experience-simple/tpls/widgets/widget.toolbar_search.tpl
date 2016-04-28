@@ -3,7 +3,7 @@
 
 <div class="toolbar-button toolbar-search toolbar-menu-popover">
     <div id="hidden-toolbar-search-content" style="display: none;">
-        <form action="{router page='search'}topics/" class="form toolbar-menu">
+        <form action="{R::GetLink("search")}topics/" class="form toolbar-menu">
             <div class="form-group">
                 <div class="input-group">
                     <input class="form-control" placeholder="{$aLang.search|mb_strtolower}..." type="text" maxlength="255" name="q"/>

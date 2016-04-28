@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}settings-contenttypes/" class="btn btn-default"><i class="icon icon-action-undo"></i></a>
+        <a href="{R::GetLink("admin")}settings-contenttypes/" class="btn btn-default"><i class="icon icon-action-undo"></i></a>
     </div>
 {/block}
 
@@ -175,9 +175,9 @@
                                     {$oField->getFieldDescription()}
                                 </td>
                                 <td align="center">
-                                    <a href="{router page='admin'}settings-contenttypes-fieldedit/{$oField->getFieldId()}/">{$aLang.action.admin.contenttypes_edit}</a>
+                                    <a href="{R::GetLink("admin")}settings-contenttypes-fieldedit/{$oField->getFieldId()}/">{$aLang.action.admin.contenttypes_edit}</a>
                                     |
-                                    <a href="{router page='admin'}settings-contenttypes-fielddelete/{$oField->getFieldId()}/?security_key={$ALTO_SECURITY_KEY}"
+                                    <a href="{R::GetLink("admin")}settings-contenttypes-fielddelete/{$oField->getFieldId()}/?security_key={$ALTO_SECURITY_KEY}"
                                        onclick="return confirm('{$aLang.action.admin.contenttypes_field_detele_confirm}');">{$aLang.action.admin.contenttypes_delete}</a>
                                 </td>
                             </tr>
@@ -185,7 +185,7 @@
                         </tbody>
                     </table>
                     <div class="control-group">
-                        <a class="btn btn-default fl-r" href="{router page="admin"}settings-contenttypes-fieldadd/{$oContentType->getContentId()}/">
+                        <a class="btn btn-default fl-r" href="{R::GetLink("admin")}settings-contenttypes-fieldadd/{$oContentType->getContentId()}/">
                             <i class="icon icon-plus"></i> {$aLang.action.admin.contenttypes_add_field}
                         </a>
                     </div>

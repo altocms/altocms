@@ -102,14 +102,14 @@
 
             {if E::UserId() == $oUserProfile->getId()}
                 <li {if $sAction=='talk'}class="active"{/if}>
-                    <a href="{router page='talk'}">{$aLang.talk_menu_inbox}
+                    <a href="{R::GetLink("talk")}">{$aLang.talk_menu_inbox}
                         {if $iUserCurrentCountTalkNew}
                             <span class="badge pull-right">{$iUserCurrentCountTalkNew}</span>
                         {/if}
                     </a>
                 </li>
                 <li {if $sAction=='settings'}class="active"{/if}>
-                    <a href="{router page='settings'}">{$aLang.settings_menu}</a>
+                    <a href="{R::GetLink("settings")}">{$aLang.settings_menu}</a>
                 </li>
             {/if}
 
@@ -132,7 +132,7 @@
                 <ul class="list-unstyled profile-actions" id="profile_actions">
                     {include file='actions/profile/action.profile.friend_item.tpl' oUserFriend=$oUserProfile->getUserFriend()}
                     <li>
-                        <a href="{router page='talk'}add/?talk_users={$oUserProfile->getLogin()}">{$aLang.user_write_prvmsg}</a>
+                        <a href="{R::GetLink("talk")}add/?talk_users={$oUserProfile->getLogin()}">{$aLang.user_write_prvmsg}</a>
                     </li>
                     <li>
                         <a href="#" onclick="ls.user.followToggle(this, {$oUserProfile->getId()}); return false;"

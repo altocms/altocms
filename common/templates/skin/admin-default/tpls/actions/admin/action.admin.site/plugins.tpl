@@ -2,24 +2,24 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary tip-top"
+        <a href="{R::GetLink("admin")}site-plugins/add/" class="btn btn-primary tip-top"
            title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}site-plugins/list/all/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{R::GetLink("admin")}site-plugins/list/all/">
             {$aLang.action.admin.all_plugins}
         </a>
-        <a class="btn btn-default {if $sMode=='active'}active{/if}" href="{router page='admin'}site-plugins/list/active/">
+        <a class="btn btn-default {if $sMode=='active'}active{/if}" href="{R::GetLink("admin")}site-plugins/list/active/">
             {$aLang.action.admin.active_plugins}
         </a>
-        <a class="btn btn-default {if $sMode=='inactive'}active{/if}" href="{router page='admin'}site-plugins/list/inactive/">
+        <a class="btn btn-default {if $sMode=='inactive'}active{/if}" href="{R::GetLink("admin")}site-plugins/list/inactive/">
             {$aLang.action.admin.inactive_plugins}
         </a>
     </div>
 {/block}
 
 {block name="content-body"}
-    <form action="{router page='admin'}site-plugins/" method="post" id="form_plugins_list" class="uniform">
+    <form action="{R::GetLink("admin")}site-plugins/" method="post" id="form_plugins_list" class="uniform">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">

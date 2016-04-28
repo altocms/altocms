@@ -52,7 +52,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
     public function Init() {
 
         $this->SetDefaultEvent('index');
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('search'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('search'));
     }
 
     /**
@@ -78,7 +78,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
     function EventOpenSearch() {
 
         Router::SetIsShowStats(false);
-        E::ModuleViewer()->Assign('sAdminMail', Config::Get('sys.mail.from_email'));
+        E::ModuleViewer()->assign('sAdminMail', Config::Get('sys.mail.from_email'));
     }
 
     /**
@@ -91,7 +91,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
         $aReq = $this->PrepareRequest();
         $aRes = $this->PrepareResults($aReq, Config::Get('module.topic.per_page'));
         if (false === $aRes) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return Router::Action('error');
         }
 
@@ -125,9 +125,9 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
             /**
              *  Отправляем данные в шаблон
              */
-            E::ModuleViewer()->Assign('bIsResults', true);
-            E::ModuleViewer()->Assign('aRes', $aRes);
-            E::ModuleViewer()->Assign('aTopics', $aTopics);
+            E::ModuleViewer()->assign('bIsResults', true);
+            E::ModuleViewer()->assign('aRes', $aRes);
+            E::ModuleViewer()->assign('aTopics', $aTopics);
         }
     }
 
@@ -141,7 +141,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
         $aReq = $this->PrepareRequest();
         $aRes = $this->PrepareResults($aReq, Config::Get('module.comment.per_page'));
         if (false === $aRes) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             return Router::Action('error');
         }
 
@@ -173,8 +173,8 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
             /**
              *  Отправляем данные в шаблон
              */
-            E::ModuleViewer()->Assign('aRes', $aRes);
-            E::ModuleViewer()->Assign('aComments', $aComments);
+            E::ModuleViewer()->assign('aRes', $aRes);
+            E::ModuleViewer()->assign('aComments', $aComments);
         }
     }
 
@@ -191,7 +191,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
              * Если запрос слишком короткий перенаправляем на начальную страницу поиска
              * Хотя тут лучше показывать юзеру в чем он виноват
              */
-            Router::Location(Router::GetPath('search'));
+            R::Redirect(R::GetLink('search'));
         }
         $aReq['sType'] = strtolower(Router::GetActionEvent());
 
@@ -202,7 +202,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
         }
 
         // *  Передача данных в шаблонизатор
-        E::ModuleViewer()->Assign('aReq', $aReq);
+        E::ModuleViewer()->assign('aReq', $aReq);
 
         return $aReq;
     }
@@ -230,7 +230,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
             // * Проверяем отсальные типы
             foreach (array_keys($this->sTypesEnabled) as $sType) {
                 if ($aRes['aCounts'][$sType]) {
-                    Router::Location(Router::GetPath('search') . $sType . '/?q=' . $aReq['q']);
+                    R::Redirect(R::GetLink('search') . $sType . '/?q=' . $aReq['q']);
                 }
             }
         } elseif (($aReq['iPage'] - 1) * $iLimit <= $aRes['aCounts'][$aReq['sType']]) {
@@ -256,17 +256,17 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
                 $aReq['iPage'],
                 $iLimit,
                 Config::Get('pagination.pages.count'),
-                Router::GetPath('search') . $aReq['sType'],
+                R::GetLink('search') . $aReq['sType'],
                 array(
                      'q' => $aReq['q']
                 )
             );
-            E::ModuleViewer()->Assign('aPaging', $aPaging);
+            E::ModuleViewer()->assign('aPaging', $aPaging);
         }
 
         $this->SetTemplateAction('results');
         E::ModuleViewer()->AddHtmlTitle($aReq['q']);
-        E::ModuleViewer()->Assign('bIsResults', $this->bIsResults);
+        E::ModuleViewer()->assign('bIsResults', $this->bIsResults);
         return $aRes;
     }
 }

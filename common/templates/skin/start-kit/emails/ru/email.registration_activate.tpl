@@ -4,7 +4,7 @@
 &nbsp;&nbsp;&nbsp;пароль: <b>{$sPassword}</b><br>
 <br>
 Для завершения регистрации вам необходимо активировать аккаунт пройдя по ссылке: 
-<a href="{router page='registration'}activate/{$oUser->getActivateKey()}/">{router page='registration'}activate/{$oUser->getActivateKey()}/</a>
+<a href="{R::GetLink("registration")}activate/{$oUser->getActivateKey()}/">{R::GetLink("registration")}activate/{$oUser->getActivateKey()}/</a>
 
 <br><br>
 С уважением, администрация сайта <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

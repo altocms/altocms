@@ -168,7 +168,7 @@ class ActionContent extends Action {
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('add');
-        E::ModuleViewer()->Assign('sMode', 'add');
+        E::ModuleViewer()->assign('sMode', 'add');
 
         // * Вызов хуков
         E::ModuleHook()->Run('topic_add_show');
@@ -180,7 +180,7 @@ class ActionContent extends Action {
             }
         }
 
-        E::ModuleViewer()->Assign('oContentType', $this->oContentType);
+        E::ModuleViewer()->assign('oContentType', $this->oContentType);
         $this->sMenuSubItemSelect = $this->oContentType->getContentUrl();
 
         // * Если тип контента не доступен текущему юзеру
@@ -221,11 +221,11 @@ class ActionContent extends Action {
         }
 
         // * Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
-        E::ModuleViewer()->Assign('aBlogsAllow', $aBlogsAllow);
-        E::ModuleViewer()->Assign('bEditDisabled', false);
+        E::ModuleViewer()->assign('bPersonalBlog', $this->bPersonalBlogEnabled);
+        E::ModuleViewer()->assign('aBlogsAllow', $aBlogsAllow);
+        E::ModuleViewer()->assign('bEditDisabled', false);
         E::ModuleViewer()->AddHtmlTitle(
-            E::ModuleLang()->Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle(), 'UTF-8')
+            E::ModuleLang()->get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle(), 'UTF-8')
         );
         if (!is_numeric(F::GetRequest('topic_id'))) {
             $_REQUEST['topic_id'] = '';
@@ -236,7 +236,7 @@ class ActionContent extends Action {
         // * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
         if ($sTargetTmp = E::ModuleSession()->GetCookie('ls_photoset_target_tmp')) {
             E::ModuleSession()->SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D', false);
-            E::ModuleViewer()->Assign('aPhotos', E::ModuleTopic()->GetPhotosByTargetTmp($sTargetTmp));
+            E::ModuleViewer()->assign('aPhotos', E::ModuleTopic()->GetPhotosByTargetTmp($sTargetTmp));
         } else {
             E::ModuleSession()->SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D', false);
         }
@@ -302,19 +302,19 @@ class ActionContent extends Action {
 
         // * Если блог не определен, то выдаем предупреждение
         if (!$oBlog) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_create_blog_error_unknown'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_create_blog_error_unknown'), E::ModuleLang()->get('error'));
             return false;
         }
 
         // * Проверяем права на постинг в блог
         if (!E::ModuleACL()->IsAllowBlog($oBlog, $this->oUserCurrent)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_create_blog_error_noallow'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_create_blog_error_noallow'), E::ModuleLang()->get('error'));
             return false;
         }
 
         // * Проверяем разрешено ли постить топик по времени
         if (F::isPost('submit_topic_publish') && !E::ModuleACL()->CanPostTopicTime($this->oUserCurrent)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_time_limit'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_time_limit'), E::ModuleLang()->get('error'));
             return false;
         }
 
@@ -439,7 +439,7 @@ class ActionContent extends Action {
             );
             R::Location($oTopic->getUrl());
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             F::SysWarning('System Error');
             return R::Action('error');
         }
@@ -474,7 +474,7 @@ class ActionContent extends Action {
             return parent::EventNotFound();
         }
 
-        E::ModuleViewer()->Assign('oContentType', $this->oContentType);
+        E::ModuleViewer()->assign('oContentType', $this->oContentType);
         $this->sMenuSubItemSelect = $this->oContentType->getContentUrl();
 
         // * Есть права на редактирование
@@ -497,14 +497,14 @@ class ActionContent extends Action {
         E::ModuleHook()->Run('topic_edit_show', array('oTopic' => $oTopic));
 
         // * Загружаем переменные в шаблон
-        E::ModuleViewer()->Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
-        E::ModuleViewer()->Assign('aBlogsAllow', $aBlogsAllow);
-        E::ModuleViewer()->Assign('bEditDisabled', $oTopic->getQuestionCountVote() == 0 ? false : true);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('topic_topic_edit'));
+        E::ModuleViewer()->assign('bPersonalBlog', $this->bPersonalBlogEnabled);
+        E::ModuleViewer()->assign('aBlogsAllow', $aBlogsAllow);
+        E::ModuleViewer()->assign('bEditDisabled', $oTopic->getQuestionCountVote() == 0 ? false : true);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('topic_topic_edit'));
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('add');
-        E::ModuleViewer()->Assign('sMode', 'edit');
+        E::ModuleViewer()->assign('sMode', 'edit');
 
         // * Проверяем, отправлена ли форма с данными
         if ($this->IsPost()) {
@@ -573,17 +573,17 @@ class ActionContent extends Action {
         if (!isset($_REQUEST['topic_url_short'])) {
             $_REQUEST['topic_url_short'] = $oTopic->getUrlShort();
         }
-        E::ModuleViewer()->Assign('aEditTopicUrl', $aEditTopicUrl);
+        E::ModuleViewer()->assign('aEditTopicUrl', $aEditTopicUrl);
 
         // Old style templates compatibility
         $_REQUEST['topic_url_before'] = $aEditTopicUrl['before'];
         $_REQUEST['topic_url'] = $aEditTopicUrl['input'];
         $_REQUEST['topic_url_after'] = $aEditTopicUrl['after'];
 
-        E::ModuleViewer()->Assign('oTopic', $oTopic);
+        E::ModuleViewer()->assign('oTopic', $oTopic);
 
         // Добавим картинки фотосета для вывода
-        E::ModuleViewer()->Assign(
+        E::ModuleViewer()->assign(
             'aPhotos',
             E::ModuleMresource()->GetMresourcesRelByTarget('photoset', $oTopic->getId())
         );
@@ -646,13 +646,13 @@ class ActionContent extends Action {
 
         // * Если блог не определен выдаем предупреждение
         if (!$oBlog) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_create_blog_error_unknown'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_create_blog_error_unknown'), E::ModuleLang()->get('error'));
             return false;
         }
 
         // * Проверяем права на постинг в блог
         if (!E::ModuleACL()->IsAllowBlog($oBlog, $this->oUserCurrent)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_create_blog_error_noallow'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_create_blog_error_noallow'), E::ModuleLang()->get('error'));
             return false;
         }
 
@@ -660,7 +660,7 @@ class ActionContent extends Action {
         if (isPost('submit_topic_publish') && !$oTopic->getPublishDraft()
             && !E::ModuleACL()->CanPostTopicTime($this->oUserCurrent)
         ) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_time_limit'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('topic_time_limit'), E::ModuleLang()->get('error'));
             return;
         }
         $oTopic->setBlogId($oBlog->getId());
@@ -772,7 +772,7 @@ class ActionContent extends Action {
             }
             R::Location($oTopic->getUrl());
         } else {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('system_error'));
             F::SysWarning('System Error');
             return R::Action('error');
         }
@@ -859,14 +859,14 @@ class ActionContent extends Action {
          */
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('content') . $this->sCurrentEvent
+            R::GetLink('content') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон
          */
-        E::ModuleViewer()->Assign('aPaging', $aPaging);
-        E::ModuleViewer()->Assign('aTopics', $aTopics);
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('topic_menu_' . $this->sCurrentEvent));
+        E::ModuleViewer()->assign('aPaging', $aPaging);
+        E::ModuleViewer()->assign('aTopics', $aTopics);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->get('topic_menu_' . $this->sCurrentEvent));
     }
 
     /**
@@ -882,14 +882,14 @@ class ActionContent extends Action {
 
         // * Проверяем авторизован ли юзер
         if (!E::ModuleUser()->IsAuthorization()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
             return false;
         }
 
         // * Файл был загружен?
         $aUploadedFile = $this->GetUploadedFile('Filedata');
         if (!$aUploadedFile) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             F::SysWarning('System Error');
             return false;
         }
@@ -905,7 +905,7 @@ class ActionContent extends Action {
                 $sTargetId = F::GetRequestStr('ls_photoset_target_tmp');
             }
             if (!$sTargetId) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 F::SysWarning('System Error');
                 return false;
             }
@@ -914,7 +914,7 @@ class ActionContent extends Action {
             // * Загрузка фото к уже существующему топику
             $oTopic = E::ModuleTopic()->GetTopicById($iTopicId);
             if (!$oTopic || !E::ModuleACL()->IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 F::SysWarning('System Error');
                 return false;
             }
@@ -924,10 +924,10 @@ class ActionContent extends Action {
         // * Максимальное количество фото в топике
         if (Config::Get('module.topic.photoset.count_photos_max') && $iCountPhotos >= Config::Get('module.topic.photoset.count_photos_max')) {
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get(
+                E::ModuleLang()->get(
                     'topic_photoset_error_too_much_photos',
                     array('MAX' => Config::Get('module.topic.photoset.count_photos_max'))
-                ), E::ModuleLang()->Get('error')
+                ), E::ModuleLang()->get('error')
             );
             return false;
         }
@@ -935,10 +935,10 @@ class ActionContent extends Action {
         // * Максимальный размер фото
         if (filesize($aUploadedFile['tmp_name']) > Config::Get('module.topic.photoset.photo_max_size') * 1024) {
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get(
+                E::ModuleLang()->get(
                     'topic_photoset_error_bad_filesize',
                     array('MAX' => Config::Get('module.topic.photoset.photo_max_size'))
-                ), E::ModuleLang()->Get('error')
+                ), E::ModuleLang()->get('error')
             );
             return false;
         }
@@ -963,19 +963,19 @@ class ActionContent extends Action {
 
                 E::ModuleViewer()->AssignAjax('file', $oPhoto->getWebPath('100crop'));
                 E::ModuleViewer()->AssignAjax('id', $oPhoto->getId());
-                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('topic_photoset_photo_added'), E::ModuleLang()->Get('attention'));
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->get('topic_photoset_photo_added'), E::ModuleLang()->get('attention'));
 
                 return true;
             } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 F::SysWarning('System Error');
             }
         } else {
             $sMsg = E::ModuleTopic()->UploadPhotoError();
             if (!$sMsg) {
-                $sMsg = E::ModuleLang()->Get('system_error');
+                $sMsg = E::ModuleLang()->get('system_error');
             }
-            E::ModuleMessage()->AddError($sMsg, E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError($sMsg, E::ModuleLang()->get('error'));
         }
         return false;
     }
@@ -998,7 +998,7 @@ class ActionContent extends Action {
          * Проверяем авторизован ли юзер
          */
         if (!E::ModuleUser()->IsAuthorization()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
             return R::Action('error');
         }
         /**
@@ -1019,7 +1019,7 @@ class ActionContent extends Action {
                     $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
                     E::ModuleTopic()->UpdateTopicPhoto($oPhoto);
                 }
-                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('topic_photoset_description_done'));
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->get('topic_photoset_description_done'));
             }
         }
     }
@@ -1046,7 +1046,7 @@ class ActionContent extends Action {
             $sThumbSize = '50crop';
         }
         if (!$iTopicId || !($oTopic = E::ModuleTopic()->GetTopicById($iTopicId)) || !$iLastId) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
             F::SysWarning('System Error');
             return;
         }
@@ -1088,7 +1088,7 @@ class ActionContent extends Action {
 
         // * Проверяем авторизован ли юзер
         if (!E::ModuleUser()->IsAuthorization()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->get('not_access'), E::ModuleLang()->get('error'));
             return false;
         }
 
@@ -1112,18 +1112,18 @@ class ActionContent extends Action {
                     $oTopic->setPhotosetCount($oTopic->getPhotosetCount() - 1);
                     E::ModuleTopic()->UpdateTopic($oTopic);
                     E::ModuleMessage()->AddNotice(
-                        E::ModuleLang()->Get('topic_photoset_photo_deleted'), E::ModuleLang()->Get('attention')
+                        E::ModuleLang()->get('topic_photoset_photo_deleted'), E::ModuleLang()->get('attention')
                     );
                     return;
                 }
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
                 return;
             }
             E::ModuleTopic()->DeleteTopicPhoto($oPhoto);
-            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('topic_photoset_photo_deleted'), E::ModuleLang()->Get('attention'));
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->get('topic_photoset_photo_deleted'), E::ModuleLang()->get('attention'));
             return;
         }
-        E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
+        E::ModuleMessage()->AddError(E::ModuleLang()->get('system_error'), E::ModuleLang()->get('error'));
         return;
     }
 
@@ -1179,7 +1179,7 @@ class ActionContent extends Action {
          * Валидируем топик
          */
         if (!$oTopic->_Validate()) {
-            E::ModuleMessage()->AddError($oTopic->_getValidateError(), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError($oTopic->_getValidateError(), E::ModuleLang()->get('error'));
             $bOk = false;
         }
         /**
@@ -1196,9 +1196,9 @@ class ActionContent extends Action {
      */
     public function EventShutdown() {
 
-        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
-        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
-        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
     }
 
 }

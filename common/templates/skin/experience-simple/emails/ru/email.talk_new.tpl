@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 Вам пришло новое письмо от пользователя <a href="{$oUserFrom->getProfileUrl()}">{$oUserFrom->getDisplayName()}</a>,
-прочитать и ответить на него можно перейдя по <a href="{router page='talk'}read/{$oTalk->getId()}/">этой ссылке</a><br>
+прочитать и ответить на него можно перейдя по <a href="{R::GetLink("talk")}read/{$oTalk->getId()}/">этой ссылке</a><br>
 Тема письма: <b>{$oTalk->getTitle()|escape:'html'}</b><br>
 
 {if Config::Get('sys.mail.include_talk')}

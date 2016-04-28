@@ -975,7 +975,7 @@ class ModuleComment extends Module {
                 if ($oTopic && ($oBlog = $oTopic->getBlog())) {
                     if (!in_array($oBlog->getType(), $aAllowBlogTypes) && !in_array($oBlog->getId(), $aClosedBlogs)) {
                         $oTopic->setTitle('...');
-                        $oComment->setText(E::ModuleLang()->Get('acl_cannot_show_content'));
+                        $oComment->setText(E::ModuleLang()->get('acl_cannot_show_content'));
                     }
                 }
             }

@@ -109,24 +109,24 @@ class ModuleUser_EntityUser extends \alto\engine\ar\EntityRecord {
                 return $xResult;
             } else {
                 if ($nError == ModuleUser::USER_LOGIN_ERR_MIN) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_min', array(
+                    $xResult = E::ModuleLang()->get('registration_login_error_min', array(
                             'min' => intval(Config::Get('module.user.login.min_size')),
                         ));
                 } elseif ($nError == ModuleUser::USER_LOGIN_ERR_LEN) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_len', array(
+                    $xResult = E::ModuleLang()->get('registration_login_error_len', array(
                             'min' => intval(Config::Get('module.user.login.min_size')),
                             'max' => intval(Config::Get('module.user.login.max_size')),
                         ));
                 } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_chars');
+                    $xResult = E::ModuleLang()->get('registration_login_error_chars');
                 } elseif ($nError == ModuleUser::USER_LOGIN_ERR_DISABLED) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_used');
+                    $xResult = E::ModuleLang()->get('registration_login_error_used');
                 } else {
-                    $xResult = E::ModuleLang()->Get('registration_login_error');
+                    $xResult = E::ModuleLang()->get('registration_login_error');
                 }
             }
         } else {
-            $xResult = E::ModuleLang()->Get('registration_login_error');
+            $xResult = E::ModuleLang()->get('registration_login_error');
         }
         return $xResult;
     }
@@ -144,7 +144,7 @@ class ModuleUser_EntityUser extends \alto\engine\ar\EntityRecord {
         if (!E::ModuleUser()->GetUserByLogin($sValue)) {
             return true;
         }
-        return E::ModuleLang()->Get('registration_login_error_used');
+        return E::ModuleLang()->get('registration_login_error_used');
     }
 
     /**
@@ -160,17 +160,17 @@ class ModuleUser_EntityUser extends \alto\engine\ar\EntityRecord {
         if (!E::ModuleUser()->GetUserByMail($sValue)) {
             return true;
         }
-        return E::ModuleLang()->Get('registration_mail_error_used');
+        return E::ModuleLang()->get('registration_mail_error_used');
     }
 
     public function ValidatePassword($sValue, $aParams) {
 
         $iMinLength = Config::Val('module.security.password_len', 3);
         if ($sValue && $this->getLogin() && $sValue === $this->getLogin()) {
-            return E::ModuleLang()->Get('registration_password_error', array('min' => $iMinLength));
+            return E::ModuleLang()->get('registration_password_error', array('min' => $iMinLength));
         }
         if (mb_strlen($sValue, 'UTF-8') < $iMinLength) {
-            return E::ModuleLang()->Get('registration_password_error', array('min' => $iMinLength));
+            return E::ModuleLang()->get('registration_password_error', array('min' => $iMinLength));
         }
         return true;
     }
@@ -913,7 +913,7 @@ class ModuleUser_EntityUser extends \alto\engine\ar\EntityRecord {
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию
-            $sUrl = R::GetPath('profile/' . $this->getLogin());
+            $sUrl = R::GetLink('profile/' . $this->getLogin());
             $this->setProp($sKey, $sUrl);
             return $sUrl;
         }
@@ -924,7 +924,7 @@ class ModuleUser_EntityUser extends \alto\engine\ar\EntityRecord {
         $sUrl = strtr($sUrlMask, $aReplace);
         if (strpos($sUrl, '/')) {
             list($sAction, $sPath) = explode('/', $sUrl, 2);
-            $sUrl = R::GetPath($sAction) . $sPath;
+            $sUrl = R::GetLink($sAction) . $sPath;
         } else {
             $sUrl = F::File_RootUrl() . $sUrl;
         }

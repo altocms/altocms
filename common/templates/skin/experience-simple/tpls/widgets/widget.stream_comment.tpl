@@ -34,7 +34,7 @@
                 </li>
             </ul>
             <div class="feed-comment-text">
-                <a href="{if Config::Get('module.comment.nested_per_page')}{router page='comments'}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}"
+                <a href="{if Config::Get('module.comment.nested_per_page')}{R::GetLink("comments")}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}"
                    class="stream-topic link">{$oTopic->getTitle()|escape:'html'}</a>
                 {*<span class="text-muted"> - <i class="fa fa-comments-o"></i>{$oTopic->getCountComment()}</span>*}
             </div>
