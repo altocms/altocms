@@ -403,7 +403,7 @@ class Engine extends LsObject {
 
         // * Создаем объект модуля
         $oModule = new $sModuleClass();
-        $oModuleDecorator = Decorator::Create($oModule);
+        $oModuleDecorator = Decorator::create($oModule);
         $this->aModules[$sModuleClass] = $oModuleDecorator;
         if ($bInit || $sModuleClass === 'ModuleCache') {
             $this->_initModule($oModuleDecorator);
@@ -562,7 +562,7 @@ class Engine extends LsObject {
             $aArgsRef[] =& $aArgs[$iKey];
         }
         if ($oModule instanceof Decorator) {
-            $xResult = $oModule->CallMethod($sMethod, $aArgsRef);
+            $xResult = $oModule->callMethod($sMethod, $aArgsRef);
         } else {
             $xResult = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
         }
@@ -1388,7 +1388,7 @@ class Engine extends LsObject {
     public static function UserId() {
 
         if ($oUser = static::User()) {
-            return $oUser->GetId();
+            return $oUser->getId();
         }
         return null;
     }
@@ -1408,6 +1408,55 @@ class Engine extends LsObject {
 
         return static::getInstance()->getPlugins();
     }
+    
+    /**
+     * hook:hook_name
+     * text:just_a_text
+     * func:func_name
+     * conf:some.config.key
+     * role:admin_moderator
+     *
+     * @param mixed $xExpression
+     * @param array $aParams
+     *
+     * @return mixed
+     */
+    public static function evaluate($xExpression, $aParams = []) {
+
+        if (is_bool($xExpression)) {
+            return $xExpression;
+        } elseif (is_numeric($xExpression)) {
+            return (int)$xExpression;
+        } elseif (is_object($xExpression)) {
+            return $xExpression();
+        } elseif (is_string($xExpression) && strpos($xExpression, ':')) {
+            list($sType, $sName) = explode(':', $xExpression, 2);
+            if ($sType === 'hook') {
+                return E::ModuleHook()->Run($sName, $aParams, false);
+            } elseif ($sType === 'text') {
+                return $sName;
+            } elseif ($sType === 'func') {
+                return call_user_func($sName, $aParams);
+            } elseif ($sType === 'conf') {
+                return C::Get($sName);
+            } elseif ($sType === 'role') {
+                if ($sName === 'guest') {
+                    return !E::IsUser();
+                } elseif ($sName === 'user') {
+                    return E::IsUser();
+                } elseif ($sName === 'moderator') {
+                    return E::IsModerator();
+                } elseif ($sName === 'admin') {
+                    return E::IsAdmin();
+                } elseif ($sName === 'admin_moderator' || $sName === 'moderator_admin') {
+                    return E::IsAdminOrModerator();
+                }
+            }
+        }
+
+        return $xExpression;
+    }
+    
 }
 
 // EOF
