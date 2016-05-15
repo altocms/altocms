@@ -16,27 +16,104 @@ use \E as E, \F as F, \C as C;
  *
  * @package alto\engine\ar
  */
-class Condition extends \Entity {
+class Condition extends \Entity implements \Serializable {
 
-    protected $aCondition = [];
+    protected $iConditionsId = 0;
+
+    protected $aConditions = [];
 
     /** @var int Level of condition block */
     protected $iConditionLevel = 0;
 
-    /** @var array Params in expressions */
-    static private $aConditionParams = [];
+    protected $aAutoParams = [];
+
+    protected $aBindParams = [];
+
+    protected $aSubConditions = [];
+
+    static private $iConditionsCnt = 0;
 
     /**
      * Condition constructor.
      *
-     * @param null $oParent
      */
-    public function __construct($oParent = null) {
+    public function __construct() {
 
         parent::__construct();
+        $this->iConditionsId = ++self::$iConditionsCnt;
     }
 
-    static public function addParam($sName, $xValue) {
+    /**
+     * @return string
+     */
+    public function serialize() {
+
+        return serialize(['cond' => $this->aConditions, 'auto' => $this->aAutoParams, 'bind' => $this->aBindParams]);
+    }
+
+    /**
+     * @param array $sData
+     *
+     */
+    public function unserialize($sData) {
+
+        $aData = @unserialize($sData);
+
+        if (is_array($aData['cond']) && is_array($aData['auto']) && is_array($aData['bind'])) {
+            $this->aConditions = $aData['cond'];
+            $this->aAutoParams = $aData['auto'];
+            $this->aBindParams = $aData['bind'];
+        }
+    }
+
+    protected function _addSubCondition($oSubCondition) {
+
+        $this->aSubConditions[] = $oSubCondition;
+    }
+
+    /**
+     * Create and add auto parameter
+     *
+     * @param mixed $xValue
+     *
+     * @return string
+     */
+    protected function _autoParam($xValue) {
+
+        $sName = false;
+        if (!empty($this->aAutoParams)) {
+            $sName = array_search($xValue, $this->aAutoParams);
+        }
+        if ($sName === false) {
+            $iIdx = count($this->aAutoParams) + 1;
+            while (isset($this->aAutoParams[$sName = ':_' . $this->iConditionsId . '_' . $iIdx])) {
+                $iIdx += 1;
+            }
+            $this->aAutoParams[$sName] = $xValue;
+        }
+
+        return $sName;
+    }
+
+    /**
+     * Add parameter
+     *
+     * @param string $sName
+     * @param mixed  $xValue
+     */
+    protected function _bindParam($sName, $xValue) {
+
+        $this->aBindParams[$sName] = $xValue;
+    }
+
+    /**
+     * @param string $sName
+     * @param mixed  $xValue
+     *
+     * @return bool|string
+     */
+    /*
+    static public function _x_addParam($sName, $xValue) {
 
         if (is_null($sName)) {
             $sName = false;
@@ -51,26 +128,44 @@ class Condition extends \Entity {
             }
         }
         self::$aConditionParams[$sName] = $xValue;
+        
         return $sName;
     }
+    */
 
-    static public function getParams() {
+    /**
+     * @return array
+     */
+    public function getQueryParams() {
 
-        return self::$aConditionParams;
-    }
-
-    static public function SQL($sStr) {
-
-        return new ExpressionORM2($sStr);
-    }
-
-    public function clearProps() {
-
-        foreach($this->_aData as $sKey => $xVal) {
-            if (substr($sKey, 0, 2) == '__') {
-                unset($this->_aData[$sKey]);
+        $aResult = [];
+        if ($this->aSubConditions) {
+            foreach ($this->aSubConditions as $oSubCondition) {
+                $aResult = array_merge($aResult, $oSubCondition->getQueryParams());
             }
         }
+        if (!empty($this->aAutoParams)) {
+            foreach($this->aAutoParams as $sName => $xVal) {
+                $aResult[$sName] = $xVal;
+            }
+        }
+        if ($aResult && !empty($this->aBindParams)) {
+            $aResult = array_merge($aResult, $this->aBindParams);
+        } elseif (!empty($this->aBindParams)) {
+            $aResult = $this->aBindParams;
+        }
+
+        return $aResult;
+    }
+
+    /**
+     * @param $sStr
+     *
+     * @return Expression
+     */
+    static public function SQL($sStr) {
+
+        return new Expression($sStr);
     }
 
     /**
@@ -81,18 +176,17 @@ class Condition extends \Entity {
     protected function _isPlaceholder($sStr) {
 
         if (!empty($sStr) && is_string($sStr)) {
-            switch (strlen($s = substr($sStr, 0, 3))) {
-                case 3:
-                    if ($s[0] == '?' && $s[2] == ':') {
-                        return true;
-                    }
-                case 2:
-                    if ($s[0] == '?' && $s[1] == ':') {
-                        return true;
-                    }
-                    if ($s[0] == '?' || $s[0] == ':') {
-                        return true;
-                    }
+            $n = strlen($sStr);
+            if ($n > 2 && $sStr[0] == '?' && $sStr[2] == ':') {
+                return true;
+            }
+            if ($n > 1) {
+                if ($sStr[0] == '?' && $sStr[1] == ':') {
+                    return true;
+                }
+                if ($sStr[0] == '?' || $sStr[0] == ':') {
+                    return true;
+                }
             }
         }
         return false;
@@ -111,8 +205,8 @@ class Condition extends \Entity {
         $aResult = [];
         if (!$bHasOperator) {
             if (is_array($xExp)) {
-                // ->where(['foo', 123])
-                // ->where(['foo', '?d:foo'], [':foo' => 123])
+                // ->where(['foo', 123]) -- autoparams
+                // ->where(['foo', '?d:foo'], [':foo' => 123]) -- set params
                 foreach($xExp as $sKey => $sVal) {
                     if (is_array($sVal) || substr($sVal, 0, 3) === '?a:') {
                         $aResult = array_merge($aResult, $this->_prepare(true, $sKey, 'in', $sVal));
@@ -151,7 +245,8 @@ class Condition extends \Entity {
                 // ->where('foo', '>', 123)
                 $sOperator = strtoupper($sOperator);
                 if (!$this->_isPlaceholder($xValue)) {
-                    $sValue = self::addParam(null, $xValue);
+                    //$sValue = self::addParam(null, $xValue);
+                    $sValue = $this->_autoParam($xValue);
                     if (is_array($xValue)) {
                         $sValue = '?a' . $sValue;
                     } else {
@@ -186,10 +281,10 @@ class Condition extends \Entity {
      */
     protected function _addCondition($sLogic, $sType, $xData) {
 
-        if (!$sLogic && empty($this->aCondition)) {
+        if (!$sLogic && empty($this->aConditions)) {
             $sLogic = 'AND';
         }
-        $this->aCondition[] = array(
+        $this->aConditions[] = array(
             'level' => $this->iConditionLevel,
             'logic' => $sLogic,
             'type' => $sType,
@@ -216,6 +311,7 @@ class Condition extends \Entity {
 
         $this->iConditionLevel += 1;
         $this->_addCondition('AND', 'sub', null);
+
         return $this;
     }
 
@@ -226,6 +322,7 @@ class Condition extends \Entity {
 
         $this->_addCondition('AND', 'sub', null);
         $this->iConditionLevel -= 1;
+
         return $this;
     }
 
@@ -255,10 +352,13 @@ class Condition extends \Entity {
                     $sFieldName = $aFieldsMap[$sFieldName];
                 }
                 $sExpression = $sFieldName . ' ' . $aCondBlock['data']['operator'] . ' ';
+                $sParam = $aCondBlock['data']['value'];
                 if ($aCondBlock['data']['operator'] == 'IN' || $aCondBlock['data']['operator'] == 'NOT IN') {
-                    $sExpression .= '(' . $aCondBlock['data']['value'] . ')';
+                    //$sExpression .= '(' . $this->_getParamStr($aCondBlock['data']['value']) . ')';
+                    $sExpression .= '(' . $sParam . ')';
                 } else {
-                    $sExpression .= $aCondBlock['data']['value'];
+                    //$sExpression .= $this->_getParamStr($aCondBlock['data']['value']);
+                    $sExpression .= $sParam;
                 }
             } else {
                 $sExpression = '';
@@ -292,7 +392,7 @@ class Condition extends \Entity {
      *
      * @return Condition
      */
-    public function _condition($iNum, $sLogic, $xExp, $sOperator = null, $xValue = null) {
+    protected function _condition($iNum, $sLogic, $xExp, $sOperator = null, $xValue = null) {
 
         if ($iNum < 3) {
             $aConditionSet = $this->_prepare(false, $xExp, $sOperator, $xValue);
@@ -341,13 +441,13 @@ class Condition extends \Entity {
     public function getConditionStr($aFieldsMap = null) {
 
         $sResult = '';
-        if (!empty($this->aCondition)) {
-            reset($this->aCondition);
-            $sResult = $this->_getConditionStr($this->aCondition, $aFieldsMap);
+        if (!empty($this->aConditions)) {
+            reset($this->aConditions);
+            $sResult = $this->_getConditionStr($this->aConditions, $aFieldsMap);
         }
 
         if (empty($sResult)) {
-            $sResult = '(1=1)';
+            //$sResult = '(1=1)';
         }
 
         return $sResult;

@@ -302,6 +302,30 @@ class EntityRecord extends \Entity {
     }
 
     /**
+     * @param string|array $xTable
+     * @param array        $aCondition
+     *
+     * @return EntityRecord
+     */
+    public function joinTable($xTable, $aCondition) {
+
+        if (is_array($xTable)) {
+            list($sTableName, $sTableAlias) = F::Array_Pair($xTable);
+        } else {
+            $sTableName = (string)$xTable;
+            $sTableAlias = static::DEFAULT_ALIAS . count($this->aTables);
+        }
+        $this->aTables[] = [
+            'type' => 'LEFT JOIN',
+            'name' => $sTableName,
+            'alias' => $sTableAlias,
+            'on' => $aCondition,
+        ];
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getTableName() {

@@ -36,6 +36,9 @@ class Builder extends Query {
         $this->oWhere = new Condition($this);
     }
 
+    /**
+     * Clone object
+     */
     public function __clone() {
 
         $this->clearProps();
@@ -73,6 +76,9 @@ class Builder extends Query {
         return $oEntity;
     }
 
+    /**
+     * @return ArMapper|null
+     */
     public function getEntityMapper() {
 
         $oEntity = $this->getEntity();
@@ -82,6 +88,9 @@ class Builder extends Query {
         return null;
     }
 
+    /**
+     * @return ArModule|null
+     */
     public function getEntityModule() {
 
         $oEntity = $this->getEntity();
@@ -91,6 +100,9 @@ class Builder extends Query {
         return null;
     }
 
+    /**
+     * @param $oVar
+     */
     protected function _resolveRelations($oVar) {
 
         if (!empty($this->aWithRelations)) {
@@ -219,6 +231,137 @@ class Builder extends Query {
     }
 
     /**
+     * Set cache key
+     *
+     * @param mixed|null $xCacheKey
+     * ->cacheKey('cache_key')
+     * ->cacheKey(['cache_key' => ['tag1', 'tag2', ...]])
+     *
+     * @return Builder
+     */
+    public function cacheKey($xCacheKey = null) {
+
+        if (is_null($xCacheKey)) {
+            $xCacheKey = (bool)$this->iCacheTime;
+        }
+        if (is_bool($xCacheKey) || is_string($xCacheKey)) {
+            $this->sCacheKey = $xCacheKey;
+        } elseif (is_array($xCacheKey)) {
+            list($sCacheKey, $aCacheTags) = F::Array_Pair($xCacheKey);
+            if (is_int($sCacheKey)) {
+                $this->sCacheKey = true; // auto key
+            } else {
+                $this->sCacheKey = $sCacheKey;
+            }
+            $this->cacheTags($aCacheTags);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param null $xCacheTime
+     * ->cacheTime(3600)
+     * ->cacheTime('P1D')
+     * ->cacheTime(false);
+     *
+     * @return Builder
+     */
+    public function cacheTime($xCacheTime = null) {
+
+        if (!is_null($xCacheTime) && $this->sCacheKey) {
+            if (is_numeric($xCacheTime)) {
+                $this->iCacheTime = intval($xCacheTime);
+            } else {
+                $this->iCacheTime = F::ToSeconds($xCacheTime);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $aCacheTags
+     * ->cacheTags('tag')
+     * ->cacheTags(['tag1', 'tag2'])
+     * ->cacheTags([])
+     *
+     * @return Builder
+     */
+    public function cacheTags($aCacheTags) {
+
+        if (is_string($aCacheTags)) {
+            $this->aCacheTags = [$aCacheTags];
+        } elseif (is_array($aCacheTags)) {
+            $this->aCacheTags = $aCacheTags;
+        } elseif (empty($aCacheTags)) {
+            $this->aCacheTags = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param \Module|string $xCacheModule
+     * ->cacheModule('ModuleCache')
+     * ->cacheModule($oModuleCache)
+     *
+     * @return Builder
+     */
+    public function cacheModule($xCacheModule) {
+
+        if (is_object($xCacheModule)) {
+            $this->oCacheModule = $xCacheModule;
+        } else {
+            $this->oCacheModule = E::Module($xCacheModule);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $aParams
+     *
+     * @return Builder
+     */
+    public function cacheParams($aParams) {
+
+        foreach($aParams as $sKey => $xVal) {
+            if ($sKey === 'key') {
+                $this->cacheKey($xVal);
+            } elseif ($sKey === 'tags') {
+                $this->cacheTags($xVal);
+            } elseif ($sKey === 'time') {
+                $this->cacheTime($xVal);
+            } elseif ($sKey === 'module') {
+                $this->cacheModule($xVal);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string|integer $xTime
+     * @param string|array   $xKey
+     * @param string|\Module $xModule
+     *
+     * @return Builder
+     */
+    public function cache($xTime, $xKey = null, $xModule = null) {
+
+        $this->cacheTime($xTime);
+        if (!is_null($xKey)) {
+            $this->cacheKey($xKey);
+        }
+        if (!is_null($xModule)) {
+            $this->cacheModule($xModule);
+        }
+
+        return $this;
+    }
+
+    /**
      * ->width(rel)
      * ->width(rel1, rel2, ...)
      * ->width([rel1, rel1, ...])
@@ -264,7 +407,7 @@ class Builder extends Query {
         return $this;
     }
 
-    protected function _getMainAlias() {
+    protected function _getDefaultAlias() {
 
         $sMainAlias = '';
         $aTables = $this->getTableNames();
@@ -282,7 +425,7 @@ class Builder extends Query {
      */
     public function getColumnNames() {
 
-        $sMainAlias = $this->_getMainAlias();
+        $sMainAlias = $this->_getDefaultAlias();
         if (empty($this->aColumns)) {
             if ($sMainAlias) {
                 return array($sMainAlias . '.*');

@@ -21,18 +21,91 @@ class Query extends Condition {
     CONST COLUMN_TYPE_FIELD = 'field';
     CONST COLUMN_TYPE_EXPRESSION = 'expression';
 
-    protected $aColumns = [];
+    protected $oMapper;
 
-    protected $aTables = [];
+    protected $aQueryData = [];
 
-    protected $aJoinTables = [];
+    protected $sCacheKey = false;
 
-    /** @var Condition */
-    protected $oWhere = null;
+    protected $iCacheTime = 0;
 
-    protected $aOrderBy = [];
+    protected $aCacheTags = [];
 
-    protected $aGroupBy = [];
+    protected $oCacheModule = null;
+
+    /**
+     * Query constructor.
+     *
+     * @param null $oMapper
+     */
+    public function __construct($oMapper = null) {
+
+        parent::__construct();
+        $this->oMapper = $oMapper;
+        $this->aQueryData = $this->_fill();
+
+        if ($xAutoCache = C::Get('ar.cache_auto')) {
+            if (is_bool($xAutoCache)) {
+                $this->sCacheKey = $xAutoCache; // auto key
+            } else {
+                $this->iCacheTime = F::ToSeconds($xAutoCache);
+                if ($this->iCacheTime) {
+                    $this->sCacheKey = true; // auto key
+                }
+            }
+        }
+    }
+
+    protected function _fill($aData = null) {
+
+        $aResult = [
+            'columns' => null,
+            'table' => null,
+            'join' => null,
+            'order_by' => null,
+            'group_by' => null,
+            'limit' => null,
+        ];
+
+        if (is_array($aData) && $aData) {
+            $aResult = array_merge($aResult, $aData);
+        }
+
+        return $aResult;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize() {
+
+        $sParentData = parent::serialize();
+        $aSelfData = $this->aQueryData;
+        foreach($aSelfData as $sKey => $xVal) {
+            if (empty($xVal)) {
+                $aSelfData[$sKey] = null;
+            }
+        }
+
+        return serialize(['parent' => $sParentData, 'self' => $aSelfData]);
+    }
+
+    /**
+     * @param string $sData
+     *
+     */
+    public function unserialize($sData) {
+
+        $aData = @unserialize($sData);
+        if (!empty($aData['self'])) {
+            $this->aQueryData = $this->_fill($aData['self']);
+        } else {
+            $this->aQueryData = $this->_fill();
+        }
+        if (!empty($aData['parent'])) {
+            parent::unserialize($aData['parent']);
+        }
+    }
 
     /**
      * @param string $sName
@@ -108,7 +181,7 @@ class Query extends Condition {
      */
     public function select() {
 
-        $this->aColumns = [];
+        $this->aQueryData['columns'] = [];
         foreach(func_get_args() as $xArg) {
             $this->_addColumn($xArg);
         }
@@ -121,7 +194,7 @@ class Query extends Condition {
      */
     public function addSelect() {
 
-        if (empty($this->aColumns)) {
+        if (empty($this->aQueryData['columns'])) {
             $this->_addColumn('*');
         }
         foreach(func_get_args() as $xArg) {
@@ -139,7 +212,7 @@ class Query extends Condition {
         if (is_array($xArg)) {
             list($sAlias, $sExp) = $this->_aliasName($xArg);
             if (is_numeric($sAlias) && !(is_string($sAlias) && strpos($sAlias, '.'))) {
-                $this->aColumns[$sExp] = array(
+                $this->aQueryData['columns'][$sExp] = array(
                     'type' => self::COLUMN_TYPE_EXPRESSION,
                     'data' => $sExp,
                     'alias' => null,
@@ -151,14 +224,14 @@ class Query extends Condition {
                 } else {
                     $sType = self::COLUMN_TYPE_FIELD;
                 }
-                $this->aColumns[$sAlias] = array(
+                $this->aQueryData['columns'][$sAlias] = array(
                     'type' => $sType,
                     'data' => $sExp,
                     'alias' => $sAlias,
                 );
             }
         } elseif (is_scalar($xArg)) {
-            $this->aColumns[$xArg] = array(
+            $this->aQueryData['columns'][$xArg] = array(
                 'type' => self::COLUMN_TYPE_FIELD,
                 'data' => $xArg,
             );
@@ -166,40 +239,53 @@ class Query extends Condition {
     }
 
     /**
-     * ->from(['t' => 'table_name'])
+     * ->from('table_name')
+     * ->from(['alias' => 'table_name'])
+     * ->from(['alias' => Query'])
+     *
+     * @param string|array $xTable
      *
      * @return Query
      */
-    public function from() {
+    public function from($xTable) {
 
-        foreach(func_get_args() as $xTable) {
-            list($sAlias, $sTable) = $this->_aliasName($xTable);
-            $this->aTables[] = array(
-                'name' => $sTable,
-                'alias' => $sAlias,
-            );
+        $sAlias = null;
+        if (is_array($xTable)) {
+            list($sAlias, $xTable) = F::Array_Pair($xTable);
         }
+        $this->aQueryData['from'] = [
+            'table' => $xTable,
+            'alias' => $sAlias,
+        ];
+        if ($xTable instanceof Condition) {
+            $this->_addSubCondition($xTable);
+        }
+
         return $this;
     }
 
     /**
-     * ->joinTable('LEFT JOIN', ['post' => 'p'], 'p.user_id = user.id');
+     * ->joinTable('LEFT JOIN', ['p' => 'post'], 'p.user_id = user_id');
      *
-     * @param string       $sJoin
+     * @param string       $sType
      * @param array|string $xTable
      * @param array|string $sCondition
      *
      * @return Query
      */
-    public function joinTable($sJoin, $xTable, $sCondition) {
+    public function joinTable($sType, $xTable, $sCondition) {
 
         list($sAlias, $xTable) = $this->_aliasName($xTable);
-        $this->aJoinTables[] = array(
-            'join' => $sJoin,
+        $this->aQueryData['join'][] = array(
+            'type' => strtoupper($sType),
             'name' => $xTable,
             'alias' => $sAlias,
             'on' => $sCondition,
         );
+        if ($xTable instanceof Condition) {
+            $this->_addSubCondition($xTable);
+        }
+
         return $this;
     }
 
@@ -244,7 +330,8 @@ class Query extends Condition {
      */
     public function whereSql($sExp, $aParams = []) {
 
-        $this->oWhere->_addCondition(null, 'sql', $sExp);
+        $this->_addCondition(null, 'sql', $sExp);
+
         return $this->bind($aParams);
     }
 
@@ -256,7 +343,8 @@ class Query extends Condition {
      */
     public function andWhereSql($sExp, $aParams = []) {
 
-        $this->oWhere->_addCondition('AND', 'sql', $sExp);
+        $this->_addCondition('AND', 'sql', $sExp);
+
         return $this->bind($aParams);
     }
 
@@ -268,7 +356,8 @@ class Query extends Condition {
      */
     public function orWhereSql($sExp, $aParams = []) {
 
-        $this->oWhere->_addCondition('OR', 'sql', $sExp);
+        $this->_addCondition('OR', 'sql', $sExp);
+
         return $this->bind($aParams);
     }
 
@@ -288,7 +377,8 @@ class Query extends Condition {
         if (func_num_args() == 2) {
             $aParams = $sOperator;
         }
-        $this->oWhere->_condition(func_num_args(), null, $xExp, $sOperator, $xValue);
+        $this->_condition(func_num_args(), null, $xExp, $sOperator, $xValue);
+
         return $this->bind($aParams);
     }
 
@@ -308,7 +398,8 @@ class Query extends Condition {
         if (func_num_args() == 2) {
             $aParams = $sOperator;
         }
-        $this->oWhere->_condition(func_num_args(), 'AND', $xExp, $sOperator, $xValue);
+        $this->_condition(func_num_args(), 'AND', $xExp, $sOperator, $xValue);
+
         return $this->bind($aParams);
     }
 
@@ -328,7 +419,8 @@ class Query extends Condition {
         if (func_num_args() == 2) {
             $aParams = $sOperator;
         }
-        $this->oWhere->_condition(func_num_args(), 'OR', $xExp, $sOperator, $xValue);
+        $this->_condition(func_num_args(), 'OR', $xExp, $sOperator, $xValue);
+
         return $this->bind($aParams);
     }
 
@@ -337,7 +429,8 @@ class Query extends Condition {
      */
     public function andWhereBegin() {
 
-        $this->oWhere->andConditionBegin();
+        $this->andConditionBegin();
+
         return $this;
     }
 
@@ -346,7 +439,8 @@ class Query extends Condition {
      */
     public function orWhereBegin() {
 
-        $this->oWhere->orConditionBegin();
+        $this->orConditionBegin();
+
         return $this;
     }
 
@@ -355,7 +449,8 @@ class Query extends Condition {
      */
     public function whereEnd() {
 
-        $this->oWhere->conditionEnd();
+        $this->conditionEnd();
+
         return $this;
     }
 
@@ -367,14 +462,14 @@ class Query extends Condition {
     public function groupBy($xFields) {
 
         if (is_string($xFields)) {
-            $this->aGroupBy = array($xFields);
+            $this->aQueryData['group_by'] = array($xFields);
         }
         if (is_array($xFields)) {
             $aData = [];
             foreach($xFields as $sField) {
                 $aData[] = array('name' => $sField);
             }
-            $this->aGroupBy = $aData;
+            $this->aQueryData['group_by'] = $aData;
         }
         return $this;
     }
@@ -387,21 +482,21 @@ class Query extends Condition {
     public function orderBy($xFields) {
 
         if (is_string($xFields)) {
-            $this->aOrderBy[$xFields] = '';
+            $this->aQueryData['order_by'][$xFields] = '';
         } elseif (is_array($xFields)) {
             foreach($xFields as $sField => $sOrder) {
                 if (is_numeric($sField)) {
                     $sField = $sOrder;
                     $sOrder = '';
                 }
-                if (isset($this->aOrderBy[$sField])) {
-                    unset($this->aOrderBy[$sField]);
+                if (isset($this->aQueryData['order_by'][$sField])) {
+                    unset($this->aQueryData['order_by'][$sField]);
                 }
                 $sOrder = strtoupper($sOrder);
                 if ($sOrder != 'ASC' && $sOrder != 'DESC') {
                     $sOrder = '';
                 }
-                $this->aOrderBy[$sField] = $sOrder;
+                $this->aQueryData['order_by'][$sField] = $sOrder;
             }
         }
         return $this;
@@ -420,8 +515,9 @@ class Query extends Condition {
             $iOffset = 0;
         }
         if (is_numeric($iLimit) && is_numeric($iOffset)) {
-            $this->setProp('limit', array($iOffset, $iLimit));
+            $this->aQueryData['limit'] = [$iOffset, $iLimit];
         }
+
         return $this;
     }
 
@@ -444,9 +540,13 @@ class Query extends Condition {
     /**
      * @return string
      */
-    protected function _getMainAlias() {
+    protected function _getDefaultAlias($bSubQuery = false) {
 
-        return '';
+        if (!empty($this->aQueryData['from']['alias'])) {
+            return $this->aQueryData['from']['alias'];
+        }
+
+        return 't' . ($bSubQuery ? $this->iConditionsId : '');
     }
 
     /**
@@ -454,16 +554,18 @@ class Query extends Condition {
      */
     protected function _getColumns() {
 
-        return $this->aColumns;
+        return $this->aQueryData['columns'];
     }
 
     /**
+     * @param bool $bSubQuery
+     *
      * @return string
      */
-    public function getColumnsStr() {
+    public function getColumnsStr($bSubQuery = false) {
 
-        $sMainAlias = $this->_getMainAlias();
-        if (empty($this->aColumns)) {
+        $sMainAlias = $this->_getDefaultAlias($bSubQuery);
+        if (empty($this->aQueryData['columns'])) {
             if ($sMainAlias) {
                 return $sMainAlias . '.*';
             } else {
@@ -495,32 +597,46 @@ class Query extends Condition {
     }
 
     /**
-     * @return array
-     */
-    public function getTableNames() {
-
-        return $this->aTables;
-    }
-
-    /**
+     * @param bool $bSubQuery
+     *
      * @return string
      */
-    public function getTablesStr() {
+    public function getTableStr($bSubQuery = false) {
 
-        if ($aTableNames = $this->getTableNames()) {
-            return $this->_escapeNameList($aTableNames);
+        if (!empty($this->aQueryData['from']['table'])) {
+            if (empty($this->aQueryData['from']['alias'])) {
+                $sAlias = $this->_getDefaultAlias($bSubQuery);
+            } else {
+                $sAlias = $this->aQueryData['from']['alias'];
+            }
+            $xTable = $this->aQueryData['from']['table'];
+            if (is_string($xTable)) {
+                return $xTable . ' AS ' . $sAlias;
+            } elseif ($xTable instanceof Query) {
+                return '(' . $xTable->getQueryStr(true) . ') AS ' . $sAlias;
+            }
         }
+
         return '';
     }
 
     /**
-     * @return string
+     * @param bool $bSubQuery
+     *
+     * @return mixed
      */
-    public function getJoinTablesStr() {
+    public function getJoinTablesStr($bSubQuery = false) {
 
         $aResult = [];
-        foreach($this->aJoinTables as $aJoinTable) {
-            $sJoinTable = $aJoinTable['join'] . ' ' . $this->_escapeName($aJoinTable['name']);
+        foreach($this->aQueryData['join'] as $aJoinTable) {
+            $xTable = $aJoinTable['name'];
+            if ($xTable instanceof Query) {
+                $sTable = '(' . $xTable->getQueryStr(true) . ')';
+            } else {
+                $sTable = $this->_escapeName($xTable);
+            }
+
+            $sJoinTable = $aJoinTable['type'] . ' ' . $sTable;
             if (!empty($aJoinTable['alias'])) {
                 $sJoinTable .= ' AS ' . $aJoinTable['alias'];
             }
@@ -531,7 +647,7 @@ class Query extends Condition {
                 if (!strpos($sField1, '.') && !strpos($sField2, '.')) {
                     $sAlias1 = ($aJoinTable['alias'] ? $aJoinTable['alias'] : $aJoinTable['name']);
                     $sField1 = $sAlias1 . '.' . $sField1;
-                    $sAlias2 = $this->_getMainAlias();
+                    $sAlias2 = $this->_getDefaultAlias($bSubQuery);
                     if ($sAlias2) {
                         $sField2 = $sAlias2 . '.' . $sField2;
                     }
@@ -550,13 +666,7 @@ class Query extends Condition {
      */
     public function getWhereSql() {
 
-        if ($this->oWhere) {
-            $sResult = $this->oWhere->getConditionStr();
-        } else {
-            $sResult = '';
-        }
-
-        return $sResult;
+        return $this->getConditionStr();
     }
 
     /**
@@ -565,8 +675,8 @@ class Query extends Condition {
     public function getGroupByStr() {
 
         $sResult = '';
-        if (!empty($this->aGroupBy)) {
-            $sResult = implode(',', $this->aGroupBy);
+        if (!empty($this->aQueryData['group_by'])) {
+            $sResult = implode(',', $this->aQueryData['group_by']);
         }
         return $sResult;
     }
@@ -577,8 +687,8 @@ class Query extends Condition {
     public function getOrderByStr() {
 
         $sResult = '';
-        if (!empty($this->aOrderBy)) {
-            $sResult = implode(',', $this->aOrderBy);
+        if (!empty($this->aQueryData['order_by'])) {
+            $sResult = implode(',', $this->aQueryData['order_by']);
         }
         return $sResult;
     }
@@ -588,7 +698,7 @@ class Query extends Condition {
      */
     public function getLimitStr() {
 
-        $aLimit = $this->getProp('limit');
+        $aLimit = $this->aQueryData['limit'];
         if ($aLimit) {
             return implode(',', $aLimit);
         }
@@ -598,11 +708,11 @@ class Query extends Condition {
     /**
      * @return string
      */
-    public function getQueryStr() {
+    public function getQueryStr($bSubQuery = false) {
 
-        $sColumnsStr = $this->getColumnsStr();
-        $sTableListStr = $this->getTablesStr();
-        $sJoinTablesStr = $this->getJoinTablesStr();
+        $sColumnsStr = $this->getColumnsStr($bSubQuery);
+        $sTableListStr = $this->getTableStr($bSubQuery);
+        $sJoinTablesStr = $this->getJoinTablesStr($bSubQuery);
 
         $sSql = "SELECT $sColumnsStr\n FROM $sTableListStr";
         if ($sJoinTablesStr) {
@@ -629,7 +739,15 @@ class Query extends Condition {
      */
     public function getQueryParams() {
 
-        return self::getParams();
+        return parent::getQueryParams();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHash() {
+
+        return md5($this->serialize());
     }
 
     /**
@@ -637,8 +755,10 @@ class Query extends Condition {
      */
     public function query() {
 
-        $oMapper = new ArMapper(E::ModuleDatabase()->GetConnect());
-        $aResult = $oMapper->getRowsByQuery($this);
+        if (!$this->oMapper) {
+            $this->oMapper = new ArMapper(E::ModuleDatabase()->GetConnect());
+        }
+        $aResult = $this->oMapper->getRowsByQuery($this);
 
         return $aResult;
     }

@@ -608,6 +608,8 @@ $config['db']['table']['user']                  = '___db.table.prefix___user';
 
 $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
 
+$config['ar']['cache_auto'] = 'P1D';
+
 /**
  * Настройки роутинга
  */
