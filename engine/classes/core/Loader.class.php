@@ -90,7 +90,7 @@ class Loader {
                 $sPathSubdir = '';
             }
             Config::Set('path.root.subdir', $sPathSubdir);
-        } else {
+        } elseif ($sPathSubdir) {
             if ($sPathSubdir === '/') {
                 $sPathSubdir = '';
             } elseif ($sPathSubdir[0] !== '/' || substr($sPathSubdir, -1) === '/') {
