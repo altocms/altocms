@@ -5,6 +5,7 @@ $config['$root$']['menu']['data']['topics']['list']['top'] = array(
     'link'    => '___path.root.url___/index/top/',
     'active'  => array('topic_kind' => array('top')),
     'submenu' => 'top',
+    'display' => 'conf:rating.enabled',
 );
 
 /**
@@ -38,7 +39,9 @@ $config['$root$']['menu']['data']['top'] = array(
             'active' => array('compare_get_param' => array('period', 'all')),
         ),
 
-    )
+    ),
 );
+
+return $config;
 
 // EOF

@@ -17,6 +17,7 @@ include_once __DIR__ . '/function.hook.php';
 function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
     // Меню нет - уходим
+    /** ModuleMenu_EntityMenu $oMenu */
     if (empty($aParams['id']) || !($oMenu = E::ModuleMenu()->GetMenu($aParams['id'], $aParams))) {
         return '';
     }

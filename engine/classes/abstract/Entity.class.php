@@ -832,8 +832,11 @@ abstract class Entity extends LsObject {
         if (is_bool($aRules)) {
             return $aRules;
         }
-        // Правило жёстко задано - вернем его
         if (is_string($aRules)) {
+            if (strpos($aRules, ':')) {
+                return E::evaluate($aRules);
+            }
+            // Правило жёстко задано - вернем его
             return $aRules;
         }
 
@@ -871,15 +874,7 @@ abstract class Entity extends LsObject {
             }
 
             if (is_string($xRule) && $bConcatenateResult) {
-                if (strpos($xRule, 'hook:') === 0) {
-                    $bResult .= E::ModuleHook()->Run(substr($xRule, 5));
-                } elseif (strpos($xRule, 'text:') === 0) {
-                    $bResult .= substr($xRule, 5);
-                } elseif (strpos($xRule, 'func:') === 0) {
-                    $bResult .= call_user_func(substr($xRule, 5));
-                } else {
-                    $bResult .= $xRule;
-                }
+                $bResult .= E::evaluate($xRule);
                 continue;
             }
 
@@ -910,12 +905,8 @@ abstract class Entity extends LsObject {
             }
             // Вызовем метод
             if ($sTmpMethodName && $aTmpMethodParams !== FALSE) {
-                if (strpos($sTmpMethodName, 'hook:') === 0) {
-                    $xCallResult = E::ModuleHook()->Run(substr($sTmpMethodName, 5), $aTmpMethodParams, false);
-                } elseif (strpos($sTmpMethodName, 'text:') === 0) {
-                    $xCallResult = substr($sTmpMethodName, 5);
-                } elseif (strpos($sTmpMethodName, 'func:') === 0) {
-                    $xCallResult = call_user_func_array(substr($sTmpMethodName, 5), $aTmpMethodParams);
+                if (strpos($sTmpMethodName, ':')) {
+                    $xCallResult = E::evaluate($sTmpMethodName, $aTmpMethodParams);
                 } else {
                     $sTmpMethodName = $sOwnerClassName . '_' . F::StrCamelize($sTmpMethodName);
                     $xCallResult = call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);

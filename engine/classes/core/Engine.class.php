@@ -1454,6 +1454,41 @@ class Engine extends LsObject {
 
         return static::getInstance()->GetPlugins();
     }
+
+    /**
+     * hook:hook_name
+     * text:just_a_text
+     * func:func_name
+     * conf:some.config.key
+     * 
+     * @param mixed $xExpression
+     * @param array $aParams
+     *
+     * @return mixed
+     */
+    public static function evaluate($xExpression, $aParams = []) {
+
+        if (is_bool($xExpression)) {
+            return $xExpression;
+        } elseif (is_numeric($xExpression)) {
+            return (int)$xExpression;
+        } elseif (is_object($xExpression)) {
+            return $xExpression();
+        } elseif (is_string($xExpression) && strpos($xExpression, ':')) {
+            list($sType, $sName) = explode(':', $xExpression, 2);
+            if ($sType === 'hook') {
+                return E::ModuleHook()->Run($sName, $aParams, false);
+            } elseif ($sType === 'text') {
+                return $sName;
+            } elseif ($sType === 'func') {
+                return call_user_func($sName, $aParams);
+            } elseif ($sType === 'conf') {
+                return C::Get($sName);
+            }
+        }
+        
+        return $xExpression;
+    }
 }
 
 // EOF
