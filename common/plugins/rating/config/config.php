@@ -50,7 +50,7 @@ $config = array(
 
     'topic'   => array(
         'vote'          => TRUE,
-        'dislike'       => TRUE,
+        //'dislike'       => TRUE,
         'min_change'    => '0.1',
         'max_change'    => '8',
         'max_rating'    => '500',

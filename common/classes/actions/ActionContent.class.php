@@ -1052,6 +1052,7 @@ class ActionContent extends Action {
         }
 
         // * Получаем список фото
+        /** @var ModuleMresource_EntityMresourceRel[] $aPhotos */
         $aPhotos = $oTopic->getPhotosetPhotos($iLastId, Config::Get('module.topic.photoset.per_page'));
         $aResult = array();
         if (count($aPhotos)) {
@@ -1059,8 +1060,10 @@ class ActionContent extends Action {
             foreach ($aPhotos as $oPhoto) {
                 $aResult[] = array(
                     'id'          => $oPhoto->getMresourceId(),
-                    'path_thumb'  => $oPhoto->getLink($sThumbSize),
-                    'path'        => $oPhoto->getLink(),
+                    //'path_thumb'  => $oPhoto->getLink($sThumbSize),
+                    //'path'        => $oPhoto->getLink(),
+                    'path_thumb' => $oPhoto->getWebPath($sThumbSize),
+                    'path' => $oPhoto->getWebPath(),
                     'description' => $oPhoto->getDescription(),
                 );
             }
