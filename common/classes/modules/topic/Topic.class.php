@@ -1437,7 +1437,7 @@ class ModuleTopic extends Module {
             $aFilter['blog_type'] = empty($aParams['personal']) ? E::ModuleBlog()->GetOpenBlogTypes() : 'personal';
 
             // If a user is authorized then adds blogs on which it is subscribed
-            if (E::IsUser() && !empty($aParams['accessible']) && empty($aParams['personal'])) {
+            if (E::IsUser() && (!isset($aParams['accessible']) || $aParams['accessible']) && empty($aParams['personal'])) {
                 $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser(E::User());
                 if (count($aOpenBlogs)) {
                     $aFilter['blog_type']['*'] = $aOpenBlogs;
