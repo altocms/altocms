@@ -3,7 +3,7 @@
 
 {$oUser=$oComment->getUser()}
 
- {if $sDateReadLast==''}
+{if $sDateReadLast==''}
     {$sTargetType = $oComment->getTargetType()}
     {if $sTargetType == 'topic'}
         {assign var="sDateReadLast" value="{$oComment->getTarget()->getDateRead()}"}

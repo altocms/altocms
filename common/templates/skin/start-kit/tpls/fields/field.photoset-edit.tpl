@@ -72,7 +72,7 @@
     </div>
     <div id="topic-field-photoset" class="panel-collapse collapse {if $ImagesList}in{/if}">
         <div class="panel-body topic-photo-upload">
-            {* БЛОК ЗАГРУЗК�? �?ЗОБРАЖЕН�?Я *}
+            {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
 
             <div class="js-alto-multi-uploader js-topic-photoset"
                  data-target="{$sTargetType}"
