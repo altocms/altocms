@@ -642,9 +642,22 @@ class Router extends LsObject {
     protected function FindActionClass() {
 
         if (!static::$sAction) {
-            $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], static::$sActionEvent);
-            if ($sActionClass) {
-                static::$sAction = $this->aConfigRoute['config']['action_default'];
+            if (empty($this->aConfigRoute['config']['action_default'])) {
+                $sActionClass = $this->DetermineClass('homepage', static::$sActionEvent);
+                if ($sActionClass) {
+                    static::$sAction = 'homepage';
+                }
+            } else {
+                $aDefaultAction = explode('/', $this->aConfigRoute['config']['action_default']);
+                if (count($aDefaultAction) > 1) {
+                    $sActionClass = $this->DetermineClass($aDefaultAction[0], $aDefaultAction[1]);
+                } else {
+                    $sActionClass = $this->DetermineClass($aDefaultAction[0]);
+                }
+                if ($sActionClass) {
+                    static::$sAction = $aDefaultAction[0];
+                    static::$sActionEvent = (!empty($aDefaultAction[1]) ? $aDefaultAction[1] : null);
+                }
             }
         } else {
             $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
@@ -709,10 +722,6 @@ class Router extends LsObject {
     protected function DetermineClass($sAction, $sEvent = null) {
 
         $sActionClass = null;
-
-        if ($sAction && !$sEvent && strpos($sAction, '/')) {
-            list($sAction, $sEvent, $sParams) = explode('/', $sAction, 3);
-        }
 
         if ($sAction) {
             // Сначала ищем экшен по таблице роутинга
@@ -1420,7 +1429,12 @@ class Router extends LsObject {
                 // приводим к виду action=>array(events)
                 if (is_int($sAction) && !is_array($aEvents)) {
                     $sAction = (string)$aEvents;
-                    $aEvents = array();
+                    if (strpos($sAction, '/')) {
+                        list($sAction, $sEvent) = explode('/', $sAction);
+                        $aEvents = array($sEvent);
+                    } else {
+                        $aEvents = array();
+                    }
                 }
                 if ($sAction == $sCurrentAction) {
                     if (!$aEvents) {

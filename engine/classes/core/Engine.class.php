@@ -1482,6 +1482,8 @@ class Engine extends LsObject {
                 return $sName;
             } elseif ($sType === 'func') {
                 return call_user_func($sName, $aParams);
+            } elseif ($sType === 'call') {
+                return call_user_func($sName, $aParams);
             } elseif ($sType === 'conf') {
                 return C::Get($sName);
             }
