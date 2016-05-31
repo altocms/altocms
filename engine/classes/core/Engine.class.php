@@ -1466,7 +1466,7 @@ class Engine extends LsObject {
      *
      * @return mixed
      */
-    public static function evaluate($xExpression, $aParams = []) {
+    public static function evaluate($xExpression, $aParams = array()) {
 
         if (is_bool($xExpression)) {
             return $xExpression;
