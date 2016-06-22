@@ -190,11 +190,30 @@ class ModuleWidget extends Module {
      * @param   string      $sName
      * @param   string|null $sPlugin
      * @param   bool        $bReturnClassName
+     * 
      * @return  string|bool
      */
     public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
 
-        $sName = ucfirst($sName);
+        $sSeekName = F::StrCamelize($sName);
+        $xResult = $this->_fileClassExists($sSeekName, $sPlugin, $bReturnClassName);
+        if ($xResult === false) {
+            $sSeekName = ucfirst($sName);
+            $xResult = $this->_fileClassExists($sSeekName, $sPlugin, $bReturnClassName);
+        }
+
+        return $xResult;
+    }
+
+    /**
+     * @param   string      $sName
+     * @param   string|null $sPlugin
+     * @param   bool        $bReturnClassName
+     *
+     * @return  string|bool
+     */
+    protected function _fileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
+
         if (!$sPlugin) {
             $aPathSeek = Config::Get('path.root.seek');
             $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
@@ -202,7 +221,7 @@ class ModuleWidget extends Module {
         } else {
             $aPathSeek = array(Plugin::GetPath($sPlugin));
             $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
-            $sClass = 'Plugin' . ucfirst($sPlugin) . '_Widget' . $sName;
+            $sClass = 'Plugin' . F::StrCamelize($sPlugin) . '_Widget' . $sName;
         }
         if (F::File_Exists($sFile, $aPathSeek)) {
             return $bReturnClassName ? $sClass : $sFile;
