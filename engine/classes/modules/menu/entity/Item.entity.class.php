@@ -84,7 +84,7 @@ class ModuleMenu_EntityItem extends Entity {
     protected function _checkPath($aPaths, $bDefault = TRUE) {
 
         if ($aPaths) {
-            return R::CompareWithLocalPath($aPaths);
+            return R::CmpControllerPath($aPaths);
         }
 
         return $bDefault;

@@ -32,7 +32,7 @@ class ModuleWidget extends Module {
     protected function _checkPath($aPaths, $bDefault = true) {
 
         if ($aPaths) {
-            return R::CompareWithLocalPath($aPaths);
+            return R::CmpControllerPath($aPaths);
         }
         return $bDefault;
     }
@@ -176,7 +176,7 @@ class ModuleWidget extends Module {
         /** @var ModuleWidget_EntityWidget $oWidget */
         foreach ($aWidgets as $oWidget) {
             if ($oWidget->isDisplay()) {
-                if (R::AllowLocalPath($oWidget->GetIncludePaths(), $oWidget->GetExcludePaths())) {
+                if (R::AllowControllerPath($oWidget->GetIncludePaths(), $oWidget->GetExcludePaths())) {
                     $this->aWidgets[$oWidget->GetId()] = $oWidget;
                 }
             }

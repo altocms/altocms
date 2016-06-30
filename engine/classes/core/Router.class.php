@@ -1366,6 +1366,18 @@ class Router extends LsObject {
     }
 
     /**
+     * Alias of CmpControllerPath()
+     * @param      $aPaths
+     * @param null $bDefault
+     *
+     * @return string
+     */
+    static public function CompareWithLocalPath($aPaths, $bDefault = null) {
+
+        return static::CmpControllerPath($aPaths, $bDefault);
+    }
+    
+    /**
      * Compare each item of array with controller path
      *
      * @see GetControllerPath
@@ -1375,7 +1387,7 @@ class Router extends LsObject {
      *
      * @return string
      */
-    static public function CompareWithLocalPath($aPaths, $bDefault = null) {
+    static public function CmpControllerPath($aPaths, $bDefault = null) {
 
         if ($aPaths) {
             $sControllerPath = static::GetControllerPath();
@@ -1397,6 +1409,46 @@ class Router extends LsObject {
     }
 
     /**
+     * Compare each item of array with request path
+     * 
+     * @param string|array $aPaths
+     * @param bool         $bDefault
+     *
+     * @return string
+     */
+    static public function CmpRequestPath($aPaths, $bDefault = null) {
+
+        if ($aPaths) {
+            $sComparePath = trim(static::Url('path'), '/');
+            $aPaths = F::Val2Array($aPaths);
+            if ($aPaths) {
+                foreach($aPaths as $nKey => $sPath) {
+                    if ($sPath == '*') {
+                        return $sPath;
+                    } elseif(strpos($sPath, '*') === false && trim($sPath, '/') == $sComparePath) {
+                        return $sPath;
+                    }
+                }
+                return F::File_InPath($sComparePath, $aPaths);
+            }
+        }
+        return $bDefault;
+    }
+
+    /**
+     * Alias of AllowControllerPath()
+     *
+     * @param $aAllowPaths
+     * @param $aDisallowPaths
+     *
+     * @return bool
+     */
+    static public function AllowLocalPath($aAllowPaths, $aDisallowPaths) {
+        
+        return static::AllowControllerPath($aAllowPaths, $aDisallowPaths);
+    }
+    
+    /**
      * Check the local path by allow/disallow rules
      *
      * @param string|array|null $aAllowPaths
@@ -1404,9 +1456,9 @@ class Router extends LsObject {
      *
      * @return bool
      */
-    static public function AllowLocalPath($aAllowPaths, $aDisallowPaths) {
+    static public function AllowControllerPath($aAllowPaths, $aDisallowPaths) {
 
-        if (static::CompareWithLocalPath($aAllowPaths, true) && !static::CompareWithLocalPath($aDisallowPaths, false)) {
+        if (static::CmpControllerPath($aAllowPaths, true) && !static::CmpControllerPath($aDisallowPaths, false)) {
             return true;
         }
         return false;

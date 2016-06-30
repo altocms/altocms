@@ -163,7 +163,7 @@ class HookMain extends Hook {
             if (!empty($aScript['place']) && $aScript['place'] == $sPlace && empty($aScript['disable']) && !empty($aScript['code'])) {
                 $aIncludePaths = (!empty($aScript['on']) ? $aScript['on'] : array());
                 $aExcludePaths = (!empty($aScript['off']) ? $aScript['off'] : array());
-                if ((!$aIncludePaths && !$aExcludePaths) || R::AllowLocalPath($aIncludePaths, $aExcludePaths)) {
+                if ((!$aIncludePaths && !$aExcludePaths) || R::AllowControllerPath($aIncludePaths, $aExcludePaths)) {
                     $sResult .= PHP_EOL . $aScript['code'] . PHP_EOL;
                 }
             }
