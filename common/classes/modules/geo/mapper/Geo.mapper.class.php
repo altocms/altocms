@@ -234,6 +234,7 @@ class ModuleGeo_MapperGeo extends Mapper {
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND code = ? }
+					{ AND code IN (?a) }
 				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
@@ -246,7 +247,8 @@ class ModuleGeo_MapperGeo extends Mapper {
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en_like']) ? $aFilter['name_en_like'] : DBSIMPLE_SKIP,
-            isset($aFilter['code']) ? $aFilter['code'] : DBSIMPLE_SKIP,
+            (isset($aFilter['code']) && !is_array($aFilter['code']))? $aFilter['code'] : DBSIMPLE_SKIP,
+            (isset($aFilter['code']) && is_array($aFilter['code']))? $aFilter['code'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
