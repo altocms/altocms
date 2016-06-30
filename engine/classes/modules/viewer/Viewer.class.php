@@ -1773,6 +1773,9 @@ class ModuleViewer extends Module {
                 $bReplace = (bool)$aParams['replace'];
             }
         }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = 'append';
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['js'][$sFile] = $aParams;
@@ -1800,6 +1803,9 @@ class ModuleViewer extends Module {
             } else {
                 $bReplace = (bool)$aParams['replace'];
             }
+        }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = 'prepend';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
@@ -1829,6 +1835,9 @@ class ModuleViewer extends Module {
                 $bReplace = (bool)$aParams['replace'];
             }
         }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = 'append';
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['css'][$sFile] = $aParams;
@@ -1856,6 +1865,9 @@ class ModuleViewer extends Module {
             } else {
                 $bReplace = (bool)$aParams['replace'];
             }
+        }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = 'prepend';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
