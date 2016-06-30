@@ -1247,7 +1247,7 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return ModuleTopic_EntityTopicPhoto|null
      */
-    public function getPhotosetMainPhoto($bFirst = FALSE) {
+    public function getPhotosetMainPhoto() {
 
         // Топика ещё нет, вернём дефолтное значение (null)
         if (!$this->getId()) {
@@ -1269,11 +1269,18 @@ class ModuleTopic_EntityTopic extends Entity {
 
     }
 
-    public function getPhotosetMainPhotoUrl($bFirst = false, $sSize='' ) {
+    /**
+     * @param string $sSize
+     * @return null|string
+     */
+    public function getPhotosetMainPhotoUrl($sSize='' ) {
 
-        $oMresource = $this->getPhotosetMainPhoto($bFirst);
+        $oMresource = $this->getPhotosetMainPhoto();
         if ($oMresource) {
-            return E::ModuleUploader()->ResizeTargetImage($oMresource->getWebPath(), $sSize);
+            if ($sSize) {
+                return E::ModuleUploader()->ResizeTargetImage($oMresource->getLink(), $sSize);
+            }
+            return $oMresource->getLink();
         }
         return null;
     }
