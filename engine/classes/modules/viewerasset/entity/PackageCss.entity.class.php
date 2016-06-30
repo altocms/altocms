@@ -37,7 +37,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
     protected function InitCompressor() {
 
         if (Config::Get('compress.css.use')) {
-            F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
+            //F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
             $this->oCompressor = new csstidy();
 
             if ($this->oCompressor) {
