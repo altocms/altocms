@@ -37,7 +37,7 @@
             <div class="js-content-type-menu-container col-md-{if $sMenuType=='select'}12{else}18{/if}">
                 {if $sMenuType=='select'}
                     <div class="form-group">
-                        <select name="blog_id" id="blog_id" onchange="location = this.options[this.selectedIndex].value;" class="form-control">
+                        <select name="content_type" id="content_type" onchange="location = this.options[this.selectedIndex].value;" class="form-control">
                         {foreach from=$aContentTypes item=oContentTypeItem}
                             {if $oContentTypeItem->isAccessible()}
                                 <option value="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/" {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>

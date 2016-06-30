@@ -1153,6 +1153,9 @@ class AltoFunc_File {
                 array('offset' => 0, 'signature' => "\x4D\x4D\x00\x2A"),
                 array('offset' => 0, 'signature' => "\x4D\x4D\x00\x2B"),
             ),
+            'image/ico' => array(
+                array('offset' => 0, 'signature' => "\x00\x00\x01\x00"),
+            ),
         );
     /**
      * Helper variable
