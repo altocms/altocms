@@ -1774,7 +1774,7 @@ class ModuleViewer extends Module {
             }
         }
         if (empty($aParams['asset'])) {
-            $aParams['asset'] = 'append';
+            $aParams['asset'] = '__default_append';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
@@ -1805,7 +1805,7 @@ class ModuleViewer extends Module {
             }
         }
         if (empty($aParams['asset'])) {
-            $aParams['asset'] = 'prepend';
+            $aParams['asset'] = '__default_prepend';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
@@ -1836,7 +1836,7 @@ class ModuleViewer extends Module {
             }
         }
         if (empty($aParams['asset'])) {
-            $aParams['asset'] = 'append';
+            $aParams['asset'] = '__default_append';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
@@ -1867,7 +1867,7 @@ class ModuleViewer extends Module {
             }
         }
         if (empty($aParams['asset'])) {
-            $aParams['asset'] = 'prepend';
+            $aParams['asset'] = '__default_prepend';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;

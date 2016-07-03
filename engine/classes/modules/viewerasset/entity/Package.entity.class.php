@@ -25,6 +25,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected $aAssetNames = array();
     protected $aAssets = array();
+    protected $iAssetNum = 0;
 
     protected $aLinks = array();
     protected $aHtmlLinkParams = array();
@@ -58,7 +59,6 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     protected function _makeSubdir($sDir) {
 
         if (!isset($this->aMapDir[$sDir])) {
-            $s=F::Crc32($sDir, true);
             $this->aMapDir[$sDir] = F::Crc32($sDir, true);
         }
         return $this->aMapDir[$sDir];
@@ -363,11 +363,14 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 if (isset($aFileParams['asset'])) {
                     $sAssetName = $aFileParams['asset'];
                 } elseif (isset($aFileParams['block'])) {
+                    // LS compatible
                     $sAssetName = $aFileParams['block'];
-                } // LS compatible
-                else {
-                    $sAssetName = 'default';
+                } else {
+                    $sAssetName = '__default';
                 }
+            }
+            if (strpos($sAssetName, '__default') === 0) {
+                $sAssetName .= $this->iAssetNum;
             }
         } else {
             // Если слияние отключено, то каждый набор - это отдельный файл
@@ -384,24 +387,28 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         $aFileParams['prepare'] = isset($aFileParams['prepare'])? (bool)isset($aFileParams['prepare']) : false;
         $aFileParams['name'] = F::File_NormPath($aFileParams['name']);
 
+        /*
+         * Если среди файлов дефолтных наборов встречается ссылка,
+         * то может быть нарушен порядок добавления файлов, а он иногда важен.
+         * Для того, чтобы этого избежать, мы разбиваем дефолтные наборы на поднаборы,
+         * если среди них есть ссылки. Для этого и используется $this->iAssetNum
+         */
+        // Это необходимо, чтобы файлы из дефолтных наборов шли в том же порядке, как
+        if ($aFileParams['link']) {
+            $this->iAssetNum += 1;
+        }
+
         return $aFileParams;
     }
 
     /**
-     * @param string $sFileName
      * @param array  $aFileParams
-     * @param string $sAssetName
      * @param bool   $bPrepend
-     * @param bool   $bReplace
      *
      * @return int
      */
-    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = null) {
+    protected function _add($aFileParams, $bPrepend = false) {
 
-        if (is_null($bReplace)) {
-            $bReplace = (isset($aFileParams['replace']) ? (bool)$aFileParams['replace'] : false);
-        }
-        $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
         $sName = $aFileParams['name'];
         $sAssetName = $aFileParams['asset'];
         // If this asset does not exist then add it into stack
@@ -414,19 +421,20 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             }
         }
         if (isset($this->aFiles[$sAssetName]['_append_'][$sName])) {
-            if ($bReplace) {
+            if (!empty($aFileParams['replace'])) {
                 unset($this->aFiles[$sAssetName]['_append_'][$sName]);
             } else {
                 return 0;
             }
         } elseif (isset($this->aFiles[$sAssetName]['_prepend_'][$sName])) {
-            if ($bReplace) {
+            if (!empty($aFileParams['replace'])) {
                 unset($this->aFiles[$sAssetName]['_prepend_'][$sName]);
             } else {
                 return 0;
             }
         }
         $this->aFiles[$sAssetName][$bPrepend ? '_prepend_' : '_append_'][$sName] = $aFileParams;
+
         return 1;
     }
 
@@ -435,12 +443,21 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      * @param string $sAssetName
      * @param bool   $bPrepend
      * @param bool   $bReplace
+     *
+     * @return int
      */
     public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = null) {
 
-        foreach ($aFiles as $sName => $aFileParams) {
-            $this->_add($sName, $aFileParams, $sAssetName, $bPrepend, $bReplace);
+        $iCount = 0;
+        foreach ($aFiles as $sFileName => $aFileParams) {
+            if ($bReplace === null) {
+                $aFileParams['replace'] = (isset($aFileParams['replace']) ? (bool)$aFileParams['replace'] : false);
+            }
+            $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
+            $iCount += $this->_add($aFileParams, $bPrepend);
         }
+
+        return $iCount;
     }
 
     /**
