@@ -58,11 +58,22 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
                 }
             }
             if (isset($aParams['prepare'])) {
+                $sAssetName = (empty($aParams['asset']) ? $sFile : $aParams['asset']);
+                // Грязноватый хак, но иначе нам не получить ссылку
+                $aFileData = array(
+                    $sFile => array(
+                        'name' => md5($sFile),
+                        'prepare' => true,
+                    ),
+                );
+
                 /** @var ModuleViewerAsset $oLocalViewerAsset */
                 $oLocalViewerAsset = new ModuleViewerAsset();
-                $oLocalViewerAsset->AddFiles(F::File_GetExtension($sFile, true), array($sFile));
+                $oLocalViewerAsset->AddFiles(F::File_GetExtension($sFile, true), $aFileData, $sAssetName);
                 $oLocalViewerAsset->Prepare();
-                $sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
+                //$sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
+                $aLinks = $oLocalViewerAsset->GetPreparedAssetLinks();
+                $sUrl = reset($aLinks);
             } else {
                 $sUrl = E::ModuleViewerAsset()->File2Link($sFile, 'skin/' . $sSkin . '/');
             }
