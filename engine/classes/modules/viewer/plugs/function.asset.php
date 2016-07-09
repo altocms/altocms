@@ -30,15 +30,12 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
             || (stripos($aParams['file'], 'http://') === 0)) {
             $sUrl = $aParams['file'];
         } else {
+            $sSkin = (!empty($aParams['skin']) ? $aParams['skin'] : E::ModuleViewer()->GetConfigSkin());
+            // File name has full local path
             if (F::File_LocalDir($aParams['file'])) {
                 $sFile = $aParams['file'];
             } else {
                 // Need URL to asset file
-                if (empty($aParams['skin'])) {
-                    $sSkin = E::ModuleViewer()->GetConfigSkin();
-                } else {
-                    $sSkin = $aParams['skin'];
-                }
                 if (isset($aParams['theme'])) {
                     if (is_bool($aParams['theme'])) {
                         $sTheme = E::ModuleViewer()->GetConfigTheme();
