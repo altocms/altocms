@@ -557,7 +557,7 @@ abstract class Entity extends LsObject {
                         }
                     }
                 } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
-                    $this->setProp($sKey, $aArgs[0]);
+                    return $this->setProp($sKey, $aArgs[0]);
                 }
                 return null;
             } else {
