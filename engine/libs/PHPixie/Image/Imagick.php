@@ -93,10 +93,14 @@ class Imagick extends Driver{
 		);
 	}
 
-	protected function jpg_bg() {
+	protected function jpg_bg($image) {
+
+        if ($image->getImageProfiles()) {
+            $image->transformImageColorspace(\Imagick::COLORSPACE_SRGB);
+        }
 		$bg = new $this->image_class();
 		$bg->newImage($this->width, $this->height, $this->get_color(0xffffff, 1));
-		$bg->compositeImage($this->image, $this->composition_mode, 0, 0);
+		$bg->compositeImage($image, $this->composition_mode, 0, 0);
 		$bg->setImageFormat('jpeg');
 		return $bg;
 	}
@@ -138,7 +142,7 @@ class Imagick extends Driver{
 				$image->setImageFormat($format);
 				break;
 			case 'jpeg':
-				$image = $this->jpg_bg($this->image);
+				$image = $this->jpg_bg($image);
 				break;
 			default:
 				throw new \Exception("Type must be either png, jpeg or gif");
@@ -177,7 +181,7 @@ class Imagick extends Driver{
 				$image->setImageResolution(72, 72);
 				$image->resampleImage(72, 72, $this->resize_filter, 1);
 			}
-			$image->writeImage($file);
+            $image->writeImage($file);
 		}
 
 		if ($format == 'jpeg')
@@ -225,7 +229,7 @@ class Imagick extends Driver{
 					$frame->setImagePage($width, $height, 0, 0);
 				}
 			} else {
-				$this->image->resizeImage($width, $height, $this->resize_filter, 1, $fit);
+                $this->image->resizeImage($width, $height, $this->resize_filter, 1, $fit);
 			}
 			$this->update_size($width, $height);
 		}
