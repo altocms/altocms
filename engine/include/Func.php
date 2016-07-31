@@ -104,8 +104,9 @@ class Func {
 
     /**
      * @param $sError
+     * @param $aLogTrace
      */
-    static public function _errorLog($sError) {
+    static public function _errorLog($sError, $aLogTrace = null) {
 
         $sError = mb_convert_encoding($sError, 'UTF-8', 'auto');
         $sText = $sError;
@@ -144,7 +145,7 @@ class Func {
                 }
             }
 
-            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = static::_callStackError())) {
+            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = ($aLogTrace ? $aLogTrace : static::_callStackError()))) {
                 $sText .= "--- call stack ---\n";
                 foreach ($aCallStack as $aCaller) {
                     $sText .= static::_callerToString($aCaller) . "\n";
@@ -306,8 +307,13 @@ class Func {
                 }
             }
             $sLogMsg .= "\nTemplates stack:\n" . join("\n", $aTemplateStack);
+        } else {
+            $aLogTrace = $oException->getTrace();
+            if (is_array($aLogTrace) && $oException->getFile() && $oException->getLine()) {
+                array_unshift($aLogTrace, array('file' => $oException->getFile(), 'line' => $oException->getLine()));
+            }
         }
-        static::_errorLog($sLogMsg);
+        static::_errorLog($sLogMsg, !empty($aLogTrace) ? $aLogTrace : null);
     }
 
     /**

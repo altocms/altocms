@@ -54,7 +54,7 @@ class AltoFunc_File {
     /**
      * Returns total list of included files
      *
-     * @return float
+     * @return array
      */
     static public function GetIncludedFiles() {
 
