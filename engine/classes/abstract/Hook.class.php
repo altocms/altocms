@@ -37,7 +37,9 @@ abstract class Hook extends LsObject {
             $sClassNameHook = null;
         }
         if (is_null($sClassNameHook)) {
-            $sCallBack = array($this, $sCallBack);
+            if (is_string($sCallBack) && strpos($sCallBack, '::') === false && !function_exists($sCallBack)) {
+                $sCallBack = array($this, $sCallBack);
+            }
             E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
         } else {
             E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
@@ -66,7 +68,7 @@ abstract class Hook extends LsObject {
             $sClassNameHook = null;
         }
         if (is_null($sClassNameHook)) {
-            if (is_string($sCallBack)) {
+            if (is_string($sCallBack) && strpos($sCallBack, '::') === false && !function_exists($sCallBack)) {
                 $sCallBack = array($this, $sCallBack);
             }
             E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
