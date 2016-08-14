@@ -206,6 +206,8 @@ class Loader {
                                 Config::Set($aConfigRoot, false, null, $nConfigLevel, $sConfigFile);
                             }
                             if (!empty($aConfig)) {
+                                Config::Set('plugin', array($sPlugin => $aConfig), null, $nConfigLevel, $sConfigFile);
+                                /*
                                 // Если конфиг этого плагина пуст, то загружаем массив целиком
                                 $sKey = 'plugin.' . $sPlugin;
                                 if (!Config::isExist($sKey)) {
@@ -213,9 +215,10 @@ class Loader {
                                 } else {
                                     // Если уже существуют привязанные к плагину ключи,
                                     // то сливаем старые и новое значения ассоциативно-комбинированно
-                                    /** @see AltoFunc_Array::MergeCombo() */
+                                    //** @see AltoFunc_Array::MergeCombo() * /
                                     Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
                                 }
+                                */
                             }
                         }
                     }

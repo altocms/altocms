@@ -108,6 +108,9 @@ class Config extends Storage {
         }
     }
 
+    /**
+     * @param string $sSource
+     */
     protected function _addSource($sSource) {
 
         if (DEBUG) {
@@ -746,6 +749,9 @@ class Config extends Storage {
         return $xResult;
     }
 
+    /**
+     * @param $sKeyMap
+     */
     protected function _clearKeyExtension($sKeyMap) {
 
         if (isset(self::$aKeyExtends[$sKeyMap])) {
@@ -754,6 +760,9 @@ class Config extends Storage {
         }
     }
 
+    /**
+     *
+     */
     protected function _restoreKeyExtensions() {
 
         foreach(self::$aClearedKeyExtensions as $sKey => $sVal) {
@@ -774,7 +783,7 @@ class Config extends Storage {
      *
      * @return bool
      */
-    static public function isExist($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
+    static public function isKeyExists($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         return static::getInstance()->_isExists($sKey, $sRoot);
     }
@@ -932,7 +941,7 @@ class Config extends Storage {
         $aConfig = $this->GetConfig();
         // If it`s not array, return key
         if (!is_array($aConfig) || !count($aConfig)) {
-            return false;
+            return array();
         }
         // If it`s array, get array_keys recursive
         return F::Array_KeysRecursive($aConfig);
@@ -970,6 +979,12 @@ class Config extends Storage {
         return false;
     }
 
+    /**
+     * @param array  $aData
+     * @param string $sPrefix
+     *
+     * @return array
+     */
     static protected function _explodeData($aData, $sPrefix = null) {
 
         if (sizeof($aData) == 1 && isset($aData[$sPrefix]) && $aData[$sPrefix]['storage_key'] == $sPrefix) {
@@ -1030,7 +1045,7 @@ class Config extends Storage {
         }
         if (!$aConfig) {
             if (!$bCacheOnly && class_exists('E', false)) {
-                // Перечитаем конфиг из базы
+                // Reread config from db
                 $sPrefix = $sPrefix . $sConfigKeyPrefix;
                 $aData = E::ModuleAdmin()->GetStorageConfig($sPrefix);
                 $aConfig = self::_explodeData($aData, $sPrefix);
@@ -1146,7 +1161,7 @@ class Config extends Storage {
     }
 
     /**
-     *
+     * @return array
      */
     static public function ReReadStorageConfig() {
 
@@ -1178,7 +1193,7 @@ class Config extends Storage {
     }
 
     /**
-     *
+     * @return array
      */
     static public function ReReadCustomConfig() {
 
@@ -1353,8 +1368,8 @@ class Config extends Storage {
     /**
      * Сохраняет в файловом кеше кастомную конфигурацию
      *
-     * @param $aConfig
-     * @param $bReset
+     * @param array $aConfig
+     * @param bool  $bReset
      */
     static protected function _putFileCfg($aConfig, $bReset = false) {
 
@@ -1379,7 +1394,7 @@ class Config extends Storage {
     /**
      * Читает из файлового кеша кастомную конфигурацию
      *
-     * @return  array
+     * @return array
      */
     static protected function _getFileCfg() {
 
@@ -1394,6 +1409,9 @@ class Config extends Storage {
         return array();
     }
 
+    /**
+     * @return string
+     */
     static protected function _getHash() {
 
         return md5(ALTO_VERSION . serialize(F::GetPluginsList(false, true)));
