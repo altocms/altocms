@@ -22,8 +22,8 @@ class ActionSearch extends Action {
     protected $sPatternXA = '[^\s\wа-яА-Я\/\-]'; // запрещеные символы, в т.ч. *
     protected $sPatternUrl;
     protected $sModeOutList;
-    protected $nShippetLength;
-    protected $nShippetMaxLength;
+    protected $nSnippetLength;
+    protected $nSnippetMaxLength;
     protected $sSnippetBeforeMatch;
     protected $sSnippetAfterMatch;
     protected $sSnippetBeforeFragment;
@@ -54,10 +54,10 @@ class ActionSearch extends Action {
 
         $this->sModeOutList = C::Get('module.search.out_mode');
 
-        $this->nShippetLength = C::Get('module.search.snippet.length');
-        $this->nShippetMaxLength = C::Get('module.search.snippet.max_length');
-        if (($this->nShippetMaxLength > 0) && ($this->nShippetMaxLength < $this->nShippetLength)) {
-            $this->nShippetMaxLength = $this->nShippetLength;
+        $this->nSnippetLength = C::Get('module.search.snippet.length');
+        $this->nSnippetMaxLength = C::Get('module.search.snippet.max_length');
+        if (($this->nSnippetMaxLength > 0) && ($this->nSnippetMaxLength < $this->nSnippetLength)) {
+            $this->nSnippetMaxLength = $this->nSnippetLength;
         }
 
         $this->sSnippetBeforeMatch = C::Get('module.search.snippet.before_match');
@@ -346,20 +346,20 @@ class ActionSearch extends Action {
         $nLenWord = $nLen;
         $nLenText = mb_strlen($sText);
 
-        $nShippetOffset = floor(($this->nShippetLength - $nLenWord) / 2);
+        $nSnippetOffset = floor(($this->nSnippetLength - $nLenWord) / 2);
 
         // начало фрагмена
-        if ($nPos < $nShippetOffset) {
+        if ($nPos < $nSnippetOffset) {
             $nFragBegin = 0;
         } else {
-            $nFragBegin = $nPos - $nShippetOffset;
+            $nFragBegin = $nPos - $nSnippetOffset;
         }
 
         // конец фрагмента
-        if ($nPos + $nLenWord + $nShippetOffset > $nLenText) {
+        if ($nPos + $nLenWord + $nSnippetOffset > $nLenText) {
             $nFragEnd = $nLenText;
         } else {
-            $nFragEnd = $nPos + $nLenWord + $nShippetOffset;
+            $nFragEnd = $nPos + $nLenWord + $nSnippetOffset;
         }
 
         // Выравнивание по границе слов
@@ -374,7 +374,7 @@ class ActionSearch extends Action {
         }
 
         // Обрезание по максимальной длине
-        if (($this->nShippetMaxLength > 0) && (($nOver = $nFragEnd - $nFragBegin - $this->nShippetMaxLength) > 0)) {
+        if (($this->nSnippetMaxLength > 0) && (($nOver = $nFragEnd - $nFragBegin - $this->nSnippetMaxLength) > 0)) {
             $nFragBegin -= floor($nOver / 2);
             if ($nFragBegin < 0) {
                 $nFragBegin = 0;
@@ -382,7 +382,7 @@ class ActionSearch extends Action {
             if ($nFragBegin > $nPos) {
                 $nFragBegin = $nPos;
             }
-            $nFragEnd = $nFragBegin + $this->nShippetMaxLength;
+            $nFragEnd = $nFragBegin + $this->nSnippetMaxLength;
             if ($nFragEnd < $nPos + $nLenWord) {
                 $nFragEnd = $nPos + $nLenWord;
             }
@@ -443,7 +443,7 @@ class ActionSearch extends Action {
                     $nLastLen = $nFrPos + $nFrLen;
                     $aFragmentSets[++$nFragmentSetsCount][] = $aLastSet;
                 } else {
-                    if (($nFrPos + $nFrLen - $aLastSet['pos']) < $this->nShippetLength) {
+                    if (($nFrPos + $nFrLen - $aLastSet['pos']) < $this->nSnippetLength) {
                         $aFragmentSets[$nFragmentSetsCount][] = array(
                             'txt' => $sFrTxt,
                             'pos' => $nFrPos,
@@ -480,8 +480,8 @@ class ActionSearch extends Action {
                 $sSnippet .= $this->sSnippetBeforeFragment . $sFragment . $this->sSnippetAfterFragment;
             }
         } else {
-            if (mb_strlen($sText) > $this->nShippetMaxLength) {
-                $sSnippet = mb_substr($sText, 0, $this->nShippetMaxLength) . '&hellip;';
+            if (mb_strlen($sText) > $this->nSnippetMaxLength) {
+                $sSnippet = mb_substr($sText, 0, $this->nSnippetMaxLength) . '&hellip;';
             } else {
                 $sSnippet = $sText;
             }
