@@ -93,7 +93,7 @@ class ModuleSkin_EntitySkin extends Entity {
             $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
         }
         if ($bParseText) {
-            $oXml->$sProperty->data = E::ModuleText()->Parser(trim((string)array_shift($data)));
+            $oXml->$sProperty->data = E::ModuleText()->Parse(trim((string)array_shift($data)));
         } else {
             $oXml->$sProperty->data = trim((string)array_shift($data));
         }

@@ -581,7 +581,7 @@ class ActionProfile extends Action {
         if ($oWall->_Validate()) {
 
             // * Экранируем текст и добавляем запись в БД
-            $oWall->setText(E::ModuleText()->Parser($oWall->getText()));
+            $oWall->setText(E::ModuleText()->Parse($oWall->getText()));
             E::ModuleHook()->Run('wall_add_before', array('oWall' => $oWall));
             if ($this->AddWallMessage($oWall)) {
                 E::ModuleHook()->Run('wall_add_after', array('oWall' => $oWall));
@@ -1202,7 +1202,7 @@ class ActionProfile extends Action {
         /**
          * Обрабатываем текст заявки
          */
-        $sUserText = E::ModuleText()->Parser($sUserText);
+        $sUserText = E::ModuleText()->Parse($sUserText);
         /**
          * Создаем связь с другом
          */

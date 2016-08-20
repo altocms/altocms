@@ -131,7 +131,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sText = trim((string)array_shift($aData));
         if ($sText) {
-            $oXml->$sProperty->data = ($bHtml ? E::ModuleText()->Parser($sText) : htmlentities($sText, ENT_QUOTES, 'UTF-8'));
+            $oXml->$sProperty->data = ($bHtml ? E::ModuleText()->Parse($sText) : htmlentities($sText, ENT_QUOTES, 'UTF-8'));
         } else {
             $oXml->$sProperty->data = '';
         }
@@ -300,7 +300,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp('homepage');
         if (is_null($sResult)) {
-            $sResult = E::ModuleText()->Parser((string)$this->_getXmlProperty('homepage'));
+            $sResult = E::ModuleText()->Parse((string)$this->_getXmlProperty('homepage'));
             $this->setProp('homepage', $sResult);
         }
         return $sResult;

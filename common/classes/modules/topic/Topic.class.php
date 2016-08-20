@@ -2827,7 +2827,7 @@ class ModuleTopic extends Module {
 
                         //текстовые поля
                         if (in_array($oField->getFieldType(), array('input', 'textarea', 'select'))) {
-                            $sData = E::ModuleText()->Parser($_REQUEST['fields'][$oField->getFieldId()]);
+                            $sData = E::ModuleText()->Parse($_REQUEST['fields'][$oField->getFieldId()]);
                         }
                         //поле ссылки
                         if ($oField->getFieldType() == 'link') {
@@ -2888,7 +2888,7 @@ class ModuleTopic extends Module {
 
                                                 $aFileObj = array();
                                                 $aFileObj['file_hash'] = F::RandomStr(32);
-                                                $aFileObj['file_name'] = E::ModuleText()->Parser($_FILES['fields_' . $oField->getFieldId()]['name']);
+                                                $aFileObj['file_name'] = E::ModuleText()->Parse($_FILES['fields_' . $oField->getFieldId()]['name']);
                                                 $aFileObj['file_url'] = $sFile;
                                                 $aFileObj['file_size'] = $_FILES['fields_' . $oField->getFieldId()]['size'];
                                                 $aFileObj['file_extension'] = $aPathInfo['extension'];

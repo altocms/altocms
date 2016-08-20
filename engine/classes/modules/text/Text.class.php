@@ -14,7 +14,7 @@ F::IncludeFile('./parser/ITextParser.php');
  * Модуль обработки текста на основе типографа Jevix/Qevix
  * Позволяет вырезать из текста лишние HTML теги и предотвращает различные попытки внедрить в текст JavaScript
  * <pre>
- * $sText=E::ModuleText()->Parser($sTestSource);
+ * $sText=E::ModuleText()->Parse($sTestSource);
  * </pre>
  * Настройки парсинга находятся в конфиге /config/jevix.php
  *
@@ -35,6 +35,12 @@ class ModuleText extends Module {
     protected $aCheckTagLinks = array();
 
     protected $aSpecialParsers = array();
+
+    protected $aSnippets = array(
+        'user' => array('block' => false),
+        'photoset' => array('block' => true),
+        'spoiler' => array('block' => true),
+    );
 
     /**
      * Инициализация модуля
@@ -96,6 +102,8 @@ class ModuleText extends Module {
             $this->oTextParser->tagBuilder($sTag, array($this, 'CallbackCheckLinks'));
         }
         $this->oTextParser->tagBuilder('ls', array($this, 'CallbackTagLs'));
+
+        $this->oTextParser->tagBuilder('alto', array($this, 'CallbackTagSnippet'));
     }
 
     /**
@@ -299,26 +307,35 @@ class ModuleText extends Module {
                 $aReplaceData = array();
 
                 /**
-                 * @var int $k Порядковый номер найденного сниппета
+                 * @var int $iSnippetNum Порядковый номер найденного сниппета
                  * @var string $sSnippetName Имя (идентификатор) сниппета
                  */
-                foreach ($aMatches[1] as $k => $sSnippetName) {
+                foreach ($aMatches[1] as $iSnippetNum => $sSnippetName) {
 
-                    // Получим параметры в виде массива. Вообще-то их может и не быть воовсе,
+                    // Получим атрибуты сниппета в виде массива. Вообще-то их может и не быть воовсе,
                     // но мы всё-таки попробуем это сделать...
-                    $aParams = array();
-                    if (preg_match_all('~([a-zA-Z]+)\s*=\s*[\'"]([^\'"]+)[\'"]~Ui', $aMatches[2][$k], $aMatchesParams)) {
-                        foreach ($aMatchesParams[1] as $pk => $sParamName) {
-                            $aParams[$sParamName] = @$aMatchesParams[2][$pk];
+                    $aSnippetAttr = array();
+                    if (preg_match_all('~([a-zA-Z]+)\s*=\s*[\'"]([^\'"]+)[\'"]~Ui', $aMatches[2][$iSnippetNum], $aMatchesAttr)) {
+                        foreach ($aMatchesAttr[1] as $iAttrNum => $sAttrName) {
+                            // Имя параметра должно быть буквенноцифровым + подчеркивание + дефис
+                            if (!empty($aMatchesAttr[2][$iAttrNum]) && preg_match('/^[\w\-]+$/', $sAttrName)) {
+                                $aSnippetAttr[$sAttrName] = $aMatchesAttr[2][$iAttrNum];
+                            }
                         }
                     }
 
+                    $sSnippetInnerText = isset($aMatches[3][$iSnippetNum]) ? $aMatches[3][$iSnippetNum] : false;
+                    $sSnippetResultTag = $this->Snippet2Html($sSnippetName, $aSnippetAttr, $sSnippetInnerText);
+
+                    $aReplaceData[$iSnippetNum] = $sSnippetResultTag;
+
+                    /*
                     // Добавим в параметры текст, который был в топике, вдруг какой-нибудь сниппет
                     // захочет с ним поработать.
                     $aParams['target_text'] = $sText;
 
                     // Если это блочный сниппет, то добавим в параметры еще и текст блока
-                    $aParams['snippet_text'] = isset($aMatches[3][$k]) ? $aMatches[3][$k] : '';
+                    $aParams['snippet_text'] = isset($aMatches[3][$iSnippetNum]) ? $aMatches[3][$iSnippetNum] : '';
 
                     // Добавим в параметры имя сниппета
                     $aParams['snippet_name'] = $sSnippetName;
@@ -347,23 +364,53 @@ class ModuleText extends Module {
 
                     }
 
-                    $aReplaceData[$k] = is_string($sResult) ? $sResult : '';
-
+                    $aReplaceData[$iSnippetNum] = is_string($sResult) ? $sResult : '';
+                    */
                 }
 
-                // Произведем замену. Если обработчиков не было, то сниппеты
-                // будут заменены на пустую строку.
-                $sText = str_replace(
-                    array_values($aMatches[0]),
-                    array_values($aReplaceData),
-                    $sText
-                );
-
+                // Произведем замену сниппетов на валидный HTML-код
+                $sText = str_replace(array_values($aMatches[0]), array_values($aReplaceData), $sText);
             }
-
         }
 
         return $sText;
+    }
+
+    /**
+     * @param string       $sSnippetName
+     * @param array        $aSnippetAttr
+     * @param string|false $sSnippetText
+     *
+     * @return string
+     */
+    public function Snippet2Html($sSnippetName, $aSnippetAttr, $sSnippetText)
+    {
+        // Определяем строчный сниппет или блочный
+        if (!empty($this->aSnippets[$sSnippetName]['block'])) {
+            // Явно задано, что сниппет блочный
+            $bBlockSnippet = true;
+        } elseif (isset($this->aSnippets[$sSnippetName]['block'])) {
+            // Сниппет строчный
+            $bBlockSnippet = false;
+        } else {
+            // В настройках не задана блочность
+            // В таких случаях считаем блочными сниппеты с парным закрывающим тегом
+            $bBlockSnippet = is_string($sSnippetText);
+        }
+
+        $sDataAltoTagAttr = '';
+        foreach ($aSnippetAttr as $sAttrName => $sAttrValue) {
+            $sDataAltoTagAttr .= $sAttrName . ':' . $sAttrValue . ';';
+        }
+
+        // Преобразуем сниппет в HTML-тег
+        $sSnippetResultTag = '<alto'
+            . ' style="' . ($bBlockSnippet ? 'display:block' : '') . '"'
+            . ' data-alto-tag-name="' . $sSnippetName . '"'
+            . ' data-alto-tag-attr="' . $sDataAltoTagAttr . '">'
+            . $sSnippetText . '</alto>';
+
+        return $sSnippetResultTag;
     }
 
     /**
@@ -373,7 +420,7 @@ class ModuleText extends Module {
      *
      * @return string
      */
-    public function Parser($sText) {
+    public function Parse($sText) {
 
         if (!is_string($sText)) {
             return '';
@@ -385,6 +432,18 @@ class ModuleText extends Module {
         }
 
         return $sText;
+    }
+
+    /**
+     * LS-compatible
+     *
+     * @param $sText
+     *
+     * @return string
+     */
+    public function Parser($sText) {
+
+        return $this->Parse($sText);
     }
 
     /**
@@ -509,6 +568,11 @@ class ModuleText extends Module {
         return $sText;
     }
 
+    /**
+     * @param string $sString
+     *
+     * @return string
+     */
     public function CallbackTagAt($sString) {
 
         $sText = '';
@@ -524,6 +588,89 @@ class ModuleText extends Module {
             }
         }
         return $sText;
+    }
+
+    /**
+     * @param string $sTagName
+     * @param array  $aTagAttributes
+     * @param string $sСontent
+     *
+     * @return string
+     */
+    public function CallbackTagSnippet($sTagName, $aTagAttributes, $sСontent)
+    {
+        if (isset($aTagAttributes['data-alto-tag-name'])) {
+            $sSnippetName = $aTagAttributes['data-alto-tag-name'];
+        } elseif (isset($aTagAttributes['name'])) {
+            $sSnippetName = $aTagAttributes['name'];
+        } else {
+            // Нет имени сниппета, оставляем, как есть
+            return $this->_buildTag($sTagName, $aTagAttributes, $sСontent);
+        }
+
+        // Имя сниппета есть, обрабатываем его
+        $sCacheKey = serialize(array($sTagName, $aTagAttributes, $sСontent));
+        // Может сниппет уже был в обработке, тогда просто возьмем его из кэша
+        $sResult = E::ModuleCache()->GetTmp($sCacheKey);
+        // Если результата в кеше нет, то обрабатываем
+        if (FALSE === ($sResult)) {
+            $aParams = array();
+            if (!empty($aTagAttributes['data-alto-tag-attr'])) {
+                $aTagAttr = explode(';', $aTagAttributes['data-alto-tag-attr']);
+                foreach($aTagAttr as $sAttr) {
+                    if ($sAttr) {
+                        list($sAttrName, $sAttrValue) = explode(':', $sAttr);
+                        $aParams[$sAttrName] = $sAttrValue;
+                    }
+                }
+            }
+            // Добавим в параметры текст, который был в топике, вдруг какой-нибудь сниппет
+            // захочет с ним поработать.
+            //$aSnippetParams['target_text'] = $sText;
+
+            // Добавим контент сниппета
+            $aParams['snippet_text'] = $sСontent;
+
+            // Добавим в параметры имя сниппета
+            $aParams['snippet_name'] = $sSnippetName;
+
+            // Попытаемся получить результат от обработчика
+
+            // Определим тип сниппета, может быть шаблонным, а может и исполняемым
+            // по умолчанию сниппет ссчитаем исполняемым. Если шаблонный, то его
+            // обрабатывает предопределенный хук snippet_template_type
+            $sHookName = 'snippet_' . $sSnippetName;
+            $sHookName = E::ModuleHook()->IsEnabled($sHookName)
+                ? 'snippet_' . $sSnippetName
+                : 'snippet_template_type';
+            // Вызовем хук
+            E::ModuleHook()->Run($sHookName, array(
+                'params' => &$aParams,
+                'result' => &$sResult,
+            ));
+            if ($sHookName === 'snippet_template_type' && $sResult === false) {
+                // Шаблонный хук не отработал, оставлям тег, как есть
+                $sResult = $this->_buildTag($sTagName, $aTagAttributes, $sСontent);
+            }
+            // Запишем результат обработки в кэш
+            E::ModuleCache()->SetTmp($sResult, $sCacheKey);
+        }
+
+        return $sResult;
+    }
+
+    protected function _buildTag($sTag, $aParams, $sСontent)
+    {
+        $sResult = '<' . $sTag;
+        foreach($aParams as $sAttrName => $sAttrValue) {
+            $sResult .= ' ' . $sAttrName . '="' . $sAttrValue . '"';
+        }
+        $sResult .= '>';
+        if ($sСontent !== false) {
+            $sResult .= $sСontent . '</' . $sTag . '>';
+        }
+
+        return $sResult;
     }
 
     /**

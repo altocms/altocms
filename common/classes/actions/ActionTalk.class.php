@@ -371,7 +371,7 @@ class ActionTalk extends Action {
 
         // * Отправляем письмо
         if ($oTalk = E::ModuleTalk()->SendTalk(
-            E::ModuleText()->Parser(strip_tags(F::GetRequestStr('talk_title'))), E::ModuleText()->Parser(F::GetRequestStr('talk_text')),
+            E::ModuleText()->Parse(strip_tags(F::GetRequestStr('talk_title'))), E::ModuleText()->Parse(F::GetRequestStr('talk_text')),
             $this->oUserCurrent, $this->aUsersId
         )
         ) {
@@ -630,7 +630,7 @@ class ActionTalk extends Action {
         }
 
         // * Проверяем текст комментария
-        $sText = E::ModuleText()->Parser(F::GetRequestStr('comment_text'));
+        $sText = E::ModuleText()->Parse(F::GetRequestStr('comment_text'));
         $iMin = intval(Config::Get('module.talk.min_length'));
         $iMax = intval(Config::Get('module.talk.max_length'));
         if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {

@@ -1312,8 +1312,8 @@ class ActionAjax extends Action {
         // * Формируем текст топика
         list($sTextShort, $sTextNew, $sTextCut) = E::ModuleText()->Cut($oTopic->getTextSource());
         $oTopic->setCutText($sTextCut);
-        $oTopic->setText(E::ModuleText()->Parser($sTextNew));
-        $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
+        $oTopic->setText(E::ModuleText()->Parse($sTextNew));
+        $oTopic->setTextShort(E::ModuleText()->Parse($sTextShort));
 
         // * Готовим дополнительные поля, кроме файлов
         if ($oType = $oTopic->getContentType()) {
@@ -1329,7 +1329,7 @@ class ActionAjax extends Action {
 
                         //текстовые поля
                         if (in_array($oField->getFieldType(), array('input', 'textarea', 'select'))) {
-                            $sText = E::ModuleText()->Parser($_REQUEST['fields'][$oField->getFieldId()]);
+                            $sText = E::ModuleText()->Parse($_REQUEST['fields'][$oField->getFieldId()]);
                         }
                         //поле ссылки
                         if ($oField->getFieldType() == 'link') {
@@ -1402,7 +1402,7 @@ class ActionAjax extends Action {
         if ($bSave) {
             $sTextResult = htmlspecialchars($sText);
         } else {
-            $sTextResult = E::ModuleText()->Parser($sText);
+            $sTextResult = E::ModuleText()->Parse($sText);
         }
         // * Передаем результат в ajax ответ
         E::ModuleViewer()->AssignAjax('sText', $sTextResult);

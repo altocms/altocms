@@ -34,7 +34,8 @@ class HookSnippet extends Hook {
     /**
      * Хук обработки шаблонного сниппета
      *
-     * @param $aData
+     * @param array $aData
+     *
      * @return bool|string
      */
     public function SnippetTemplateType($aData) {
@@ -46,8 +47,12 @@ class HookSnippet extends Hook {
 
         // Получим html-код сниппета
         $aVars = array('aParams' => isset($aData['params']) ? $aData['params'] : array());
-
-        $aData['result'] = trim(E::ModuleViewer()->GetLocalViewer()->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl", $aVars));
+        $sTemplate = "tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl";
+        if (E::ModuleViewer()->TemplateExists($sTemplate)) {
+            $aData['result'] = trim(E::ModuleViewer()->Fetch($sTemplate, $aVars));
+        } else {
+            $aData['result'] = false;
+        }
 
         return $aData['result'];
     }
@@ -56,37 +61,35 @@ class HookSnippet extends Hook {
      * Метод осуществляет обработку сниппета вставки имени
      * пользователя.
      *
-     * @param $aData
+     * @param array $aData
+     *
      * @return bool|string
      */
     public function SnippetUser($aData) {
 
         // Получим параметры, собственно, он тут единственный - это
-        // имя пользователя которое и добавляем в редактор
+        // имя пользователя которое и добавляем
         if (!($sUserLogin = isset($aData['params']['login']) ? $aData['params']['login'] : FALSE)) {
             return FALSE;
         }
 
+        $aVars = array('sUserLogin' => $sUserLogin);
         // Если пользователь найден, то вернём ссылку на него
         if (is_string($sUserLogin) && ($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
-            // Получим html-код сниппета
-            $aVars = array('oUser' => $oUser);
-
-            $aData['result'] = trim(E::ModuleViewer()->Fetch('tpls/snippets/snippet.user.tpl', $aVars));
-
-            return $aData['result'];
+            $aVars['oUser'] = $oUser;
         }
+        // Получим html-код сниппета
+        $aData['result'] = trim(E::ModuleViewer()->Fetch('tpls/snippets/snippet.user.tpl', $aVars));
 
-        // Иначе, затрём сниппет
-        return FALSE;
-
+        return $aData['result'];
     }
 
     /**
      * Возвращает html-код фотосета
      *
-     * @param $aData
-     * @return bool
+     * @param array $aData
+     *
+     * @return bool|string
      */
     public function SnippetPhotoset($aData) {
 
@@ -96,14 +99,23 @@ class HookSnippet extends Hook {
         // Редактируется топик.
         // Получим его ид. и по нему поднимем необходимый фотосет
         $aAdminMatches = array();
-        if (preg_match('~content\/edit\/(\d+)\/~', R::GetControllerPath(), $aMatches)
-            || preg_match('~admin\/content-pages\/edit\/(\d+)\/~', R::GetControllerPath(), $aAdminMatches)
+        $sControllerPath =  R::GetControllerPath();
+        if ($sControllerPath === 'ajax/preview/topic/' && F::isPost('topic_id')) {
+            $iTopicId = (int)F::GetRequestStr('topic_id');
+        } elseif (
+            preg_match('~content\/edit\/(\d+)\/~', $sControllerPath, $aMatches)
+            || preg_match('~admin\/content-pages\/edit\/(\d+)\/~', $sControllerPath, $aAdminMatches)
         ) {
 
             // Найдем топик, из которого будем брать фотосет
-            $iTopicId = (int)isset($aData['params']['topic']) ? $aData['params']['topic'] : ($aAdminMatches ? FALSE : $aMatches[1]);
+            $iTopicId = !empty($aData['params']['topic'])
+                ? (int)$aData['params']['topic']
+                : ($aAdminMatches ? false : $aMatches[1]);
+        } else {
+            $iTopicId = 0;
+        }
 
-
+        if ($iTopicId) {
             // Странно, но топик не нашли - завернём сниппет
             if (!($oTopic = E::ModuleTopic()->GetTopicById($iTopicId))) {
                 return FALSE;
@@ -116,28 +128,26 @@ class HookSnippet extends Hook {
             }
 
             // Попытаемся найти фотосет
-            /** @var ModuleMresource_EntityMresource[] $aPhotos */
-            if (!(($aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('photoset', $oTopic->getId())) &&
-                is_array($aPhotos) &&
-                count($aPhotos) > 0)
-            ) {
+            /** @var ModuleMresource_EntityMresource[] $aPhotoset */
+            $aPhotoset = E::ModuleMresource()->GetMresourcesRelByTarget('photoset', $oTopic->getId());
+            if (empty($aPhotoset)) {
                 return FALSE;
             }
 
             // Фотосет нашли, теперь из него нужно выбрать только те фото,
             // которые выбрал пользователь в параметрах from и to
             $iFrom = isset($aData['params']['from']) ? $aData['params']['from'] : 0;
-            $iFrom = (int)str_replace(array('last', 'first'), array(count($aPhotos), 0), $iFrom);
+            $iFrom = (int)str_replace(array('last', 'first'), array(count($aPhotoset), 0), $iFrom);
             // Пользователи считают картинки с первой, а не с нулевой
             if ($iFrom) {
                 $iFrom -= 1;
             }
-            // Если указана длина, то правый предел игнорируем
+            // Если указано количество, то правый предел игнорируем
             if (($iCount = (int)isset($aData['params']['count']) ? $aData['params']['count'] : FALSE)) {
                 $iTo = $iFrom + $iCount - 1;
             } else {
-                $iTo = isset($aData['params']['to']) ? $aData['params']['to'] : count($aPhotos);
-                $iTo = (int)str_replace(array('last', 'first'), array(count($aPhotos), 0), $iTo);
+                $iTo = isset($aData['params']['to']) ? $aData['params']['to'] : count($aPhotoset);
+                $iTo = (int)str_replace(array('last', 'first'), array(count($aPhotoset), 0), $iTo);
                 if ($iTo) {
                     $iTo -= 1;
                 }
@@ -148,17 +158,19 @@ class HookSnippet extends Hook {
                 return FALSE;
             }
             // Сбросим ключи набора фото, так лучше считать диапазон
-            $aPhotos = array_values($aPhotos);
-            foreach ($aPhotos as $k => $v) {
-                if ($k < $iFrom || $k > $iTo) {
-                    unset ($aPhotos[$k]);
+            $aPhotoset = array_values($aPhotoset);
+            $aPhotos = array();
+            for ($i = $iFrom; $i <= $iTo; $i++) {
+                if (isset($aPhotoset[$i])) {
+                    $oPhoto = $aPhotoset[$i];
+                    $aPhotos[$oPhoto->getMresourceId()] = $oPhoto;
                 }
             }
             if (!$aPhotos) {
                 return FALSE;
             }
 
-            $sPosition = $iTopicId = (int)isset($aData['params']['position']) ? $aData['params']['position'] : 'center';
+            $sPosition = (isset($aData['params']['position']) ? $aData['params']['position'] : 'center');
             if (!in_array($sPosition, array('left', 'right'))) {
                 $sPosition = 'center';
             }
@@ -176,8 +188,9 @@ class HookSnippet extends Hook {
             return $aData['result'];
         }
 
-
         return FALSE;
     }
 
 }
+
+// EOF

@@ -1,8 +1,8 @@
 <?php
 /*
- * jevix.php
+ * qevix.php
  *
- * Tags for Jevix configuration
+ * Qevix configuration
  */
 
 return array(
@@ -14,13 +14,13 @@ return array(
                 array('p', 'ls', 'cut', 'a', 'img', 'i', 'b', 'u', 's', 'small', 'video', 'em', 'strong', 'nobr', 'li',
                       'ol', 'ul', 'sup', 'abbr', 'sub', 'acronym', 'h4', 'h5', 'h6', 'br', 'hr', 'pre', 'code',
                       'codeline', 'object', 'param', 'embed', 'blockquote', 'iframe', 'table', 'tbody', 'thead', 'th',
-                      'tr', 'td', 'div'),
+                      'tr', 'td', 'div', 'alto'),
             ),
         ),
         // Коротие теги типа
         'cfgSetTagShort' => array(
             array(
-                array('br', 'img', 'hr', 'cut', 'ls')
+                array('br', 'img', 'hr', 'cut', 'ls'),
             ),
         ),
         // Преформатированные теги
@@ -69,8 +69,8 @@ return array(
                 'object',
                 array('width' => '#int', 'height' => '#int', 'type'  => '#text',
                       'data'  => array('#domain' => array(
-                              'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com',
-                          )),
+                          'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com',
+                      )),
                 )
             ),
             array(
@@ -80,15 +80,15 @@ return array(
             array(
                 'embed',
                 array('src' => array('#domain' => array(
-                            'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'static.googleusercontent.com',
-                        )),
-                    'type'              => '#text',
-                    'allowscriptaccess' => '#text',
-                    'allowfullscreen'   => '#text',
-                    'width'             => '#int',
-                    'height'            => '#int',
-                    'flashvars'         => '#text',
-                    'wmode'             => '#text',
+                    'youtube.com', 'www.youtube.com', 'rutube.ru', 'vimeo.com', 'player.vimeo.com', 'static.googleusercontent.com',
+                )),
+                      'type'              => '#text',
+                      'allowscriptaccess' => '#text',
+                      'allowfullscreen'   => '#text',
+                      'width'             => '#int',
+                      'height'            => '#int',
+                      'flashvars'         => '#text',
+                      'wmode'             => '#text',
                 )
             ),
             array(
@@ -132,7 +132,20 @@ return array(
             ),
             array(
                 'div',
-                array('class'=> array('alto-photoset', 'alto-photoset js-topic-photoset-list', 'spoiler', 'spoiler-title', 'spoiler-slider', 'spoiler-text'), 'data-width')
+                array(
+                    'class'=> array('alto-photoset', 'alto-photoset js-topic-photoset-list', 'spoiler', 'spoiler-title', 'spoiler-slider', 'spoiler-text'),
+                    'data-width',
+                    'data-alto-tag-name',
+                    'data-alto-tag-attr',
+                ),
+            ),
+            array(
+                'alto',
+                array(
+                    'name',
+                    'data-alto-tag-name',
+                    'data-alto-tag-attr',
+                ),
             ),
         ),
         // Параметры тегов являющиеся обязательными
@@ -202,7 +215,7 @@ return array(
         // Если нужно оставлять пустые не короткие теги
         'cfgSetTagIsEmpty' => array(
             array(
-                array('param', 'embed', 'a', 'iframe')
+                array('param', 'embed', 'a', 'iframe', 'alto')
             ),
         ),
         // Не нужна авто-расстановка <br>

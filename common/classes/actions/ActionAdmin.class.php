@@ -2170,7 +2170,7 @@ class ActionAdmin extends Action {
         $bOk = true;
 
         $sTitle = $this->GetPost('talk_title');
-        $sText = E::ModuleText()->Parser(F::GetRequest('talk_text'));
+        $sText = E::ModuleText()->Parse(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -2232,7 +2232,7 @@ class ActionAdmin extends Action {
 
         $sTitle = F::GetRequest('talk_title');
 
-        $sText = E::ModuleText()->Parser(F::GetRequest('talk_text'));
+        $sText = E::ModuleText()->Parse(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -2250,7 +2250,7 @@ class ActionAdmin extends Action {
                 $oSelfTalk->setUserId($this->oUserCurrent->getId());
                 $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
                 $oSelfTalk->setTitle($sTitle);
-                $oSelfTalk->setText(E::ModuleText()->Parser('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
+                $oSelfTalk->setText(E::ModuleText()->Parse('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
                 $oSelfTalk->setDate($sDate);
                 $oSelfTalk->setDateLast($sDate);
                 $oSelfTalk->setUserIp($sIp);

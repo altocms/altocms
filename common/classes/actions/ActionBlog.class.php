@@ -248,7 +248,7 @@ class ActionBlog extends Action {
             $oBlog->setTitle(E::ModuleTools()->RemoveAllTags(F::GetRequestStr('blog_title')));
 
             // * Парсим текст на предмет разных HTML-тегов
-            $sText = E::ModuleText()->Parser(F::GetRequestStr('blog_description'));
+            $sText = E::ModuleText()->Parse(F::GetRequestStr('blog_description'));
             $oBlog->setDescription($sText);
             $oBlog->setType(F::GetRequestStr('blog_type'));
             $oBlog->setDateAdd(F::Now());
@@ -365,7 +365,7 @@ class ActionBlog extends Action {
             $oBlog->setTitle(E::ModuleTools()->RemoveAllTags(F::GetRequestStr('blog_title')));
 
             // Парсим описание блога
-            $sText = E::ModuleText()->Parser(F::GetRequestStr('blog_description'));
+            $sText = E::ModuleText()->Parse(F::GetRequestStr('blog_description'));
             $oBlog->setDescription($sText);
 
             // Если меняется тип блога, фиксируем это
@@ -1280,7 +1280,7 @@ class ActionBlog extends Action {
         }
 
         // * Проверяем текст комментария
-        $sText = E::ModuleText()->Parser(F::GetRequestStr('comment_text'));
+        $sText = E::ModuleText()->Parse(F::GetRequestStr('comment_text'));
         if (!F::CheckVal($sText, 'text', Config::Val('module.comment.min_length', 2), Config::Val('module.comment.max_length', 10000))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_text_len', array(
                 'min' => 2,
@@ -1568,7 +1568,7 @@ class ActionBlog extends Action {
         }
 
         // * Проверяем текст комментария
-        $sNewText = E::ModuleText()->Parser($this->GetPost('comment_text'));
+        $sNewText = E::ModuleText()->Parse($this->GetPost('comment_text'));
         $iMin = Config::Val('module.comment.min_length', 2);
         $iMax = Config::Val('module.comment.max_length', 0);
         if (!F::CheckVal($sNewText, 'text', $iMin, $iMax)) {

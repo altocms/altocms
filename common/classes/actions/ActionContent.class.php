@@ -325,11 +325,11 @@ class ActionContent extends Action {
         list($sTextShort, $sTextNew, $sTextCut) = E::ModuleText()->Cut($oTopic->getTextSource());
 
         $oTopic->setCutText($sTextCut);
-        $oTopic->setText(E::ModuleText()->Parser($sTextNew));
+        $oTopic->setText(E::ModuleText()->Parse($sTextNew));
 
         // Получаем ссылки, полученные при парсинге текста
         $oTopic->setTextLinks(E::ModuleText()->GetLinks());
-        $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
+        $oTopic->setTextShort(E::ModuleText()->Parse($sTextShort));
 
         // * Варианты ответов
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && F::GetRequest('topic_field_answers', array())) {
@@ -669,11 +669,11 @@ class ActionContent extends Action {
         list($sTextShort, $sTextNew, $sTextCut) = E::ModuleText()->Cut($oTopic->getTextSource());
 
         $oTopic->setCutText($sTextCut);
-        $oTopic->setText(E::ModuleText()->Parser($sTextNew));
+        $oTopic->setText(E::ModuleText()->Parse($sTextNew));
 
         // Получаем ссылки, полученные при парсинге текста
         $oTopic->setTextLinks(E::ModuleText()->GetLinks());
-        $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
+        $oTopic->setTextShort(E::ModuleText()->Parse($sTextShort));
 
         // * Изменяем вопрос/ответы, только если еще никто не голосовал
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question')

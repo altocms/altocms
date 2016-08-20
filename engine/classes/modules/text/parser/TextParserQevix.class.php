@@ -37,7 +37,7 @@ class TextParserQevix extends Qevix implements ITextParser {
             }
 
             // * Хардкодим некоторые параметры
-            unset($this->entities1['&']); // разрешаем в параметрах символ &
+            unset($this->entities['&']); // разрешаем в параметрах символ &
             if (C::Get('view.noindex') && isset($this->tagsRules['a'])) {
                 $this->cfgSetTagParamDefault('a', 'rel', 'nofollow', true);
             }
@@ -90,11 +90,14 @@ class TextParserQevix extends Qevix implements ITextParser {
      *
      * @return string
      */
-    public function Parse($sText, &$aErrors) {
+    public function parse($sText, &$aErrors) {
 
         return parent::parse($sText, $aErrors);
     }
 
+    /**
+     * @return mixed|string
+     */
     protected function makeText() {
 
         $sText = parent::makeText();
@@ -108,6 +111,7 @@ class TextParserQevix extends Qevix implements ITextParser {
         }
         return $sText;
     }
+
 }
 
 // EOF
