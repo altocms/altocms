@@ -387,7 +387,7 @@ class AltoFunc_Array {
             } else {
                 self::$iSortDirect = 1;
             }
-            usort($aEntities, array(__CLASS__, '_sortByProp'));
+            uasort($aEntities, array(__CLASS__, '_sortByProp'));
         }
         return $aEntities;
     }
