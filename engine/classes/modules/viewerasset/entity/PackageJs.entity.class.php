@@ -39,7 +39,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
     protected function InitCompressor() {
 
         if (Config::Get('compress.js.use')) {
-            F::IncludeLib('JShrink-1.0.1/src/JShrink/Minifier.php');
+            //F::IncludeLib('JShrink-1.0.1/src/JShrink/Minifier.php');
             // * Получаем параметры из конфигурации
             return true;
         }
