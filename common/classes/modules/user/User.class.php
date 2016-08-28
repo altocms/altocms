@@ -2245,7 +2245,7 @@ class ModuleUser extends Module {
      */
     public function getDefaultAvatarUrl($xSize, $sSex) {
 
-        if ($sSex !== 'female' && $sSex !== 'male') {
+        if ($sSex === null) {
             $sSex = 'male';
         }
 
