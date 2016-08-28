@@ -435,6 +435,11 @@ class ModuleCache extends Module {
         return md5($this->sCachePrefix . $sKey);
     }
 
+    /**
+     * @param $aTags
+     *
+     * @return array|string
+     */
     protected function _prepareTags($aTags) {
 
         // Теги - это массив строковых значений
@@ -463,14 +468,15 @@ class ModuleCache extends Module {
     }
 
     /**
-     * Make cache key
+     * Make cache key from array
+     *
+     * @param array $aArgs
      *
      * @return string
      */
-    public function Key() {
+    public function Array2Key($aArgs) {
 
         $sKey = '';
-        $aArgs = func_get_args();
         foreach($aArgs as $xVal) {
             if (is_null($xVal)) {
                 $sVal = '';
@@ -480,13 +486,23 @@ class ModuleCache extends Module {
                 $sVal = (string)$xVal;
             } elseif (is_array($xVal)) {
                 ksort($xVal);
-                $sVal = serialize($xVal);
+                $sVal = $this->Array2Key($xVal);
             } else {
                 $sVal = serialize($xVal);
             }
-            $sKey .= '[' . $sVal . ']';
+            $sKey .= '[[' . $sVal . ']]';
         }
         return $sKey;
+    }
+
+    /**
+     * Make cache key from arguments
+     *
+     * @return string
+     */
+    public function Key() {
+
+        return $this->Array2Key(func_get_args());
     }
 
     /**
@@ -517,6 +533,9 @@ class ModuleCache extends Module {
      */
     public function Set($xData, $sCacheKey, $aTags = array(), $nTimeLife = false, $sCacheType = null) {
 
+        if (empty($sCacheKey)) {
+            return false;
+        }
         if ($sCacheType && strpos($sCacheType, ',') !== false) {
             $aCacheTypes = explode(',', $sCacheType);
             $bResult = false;
@@ -586,6 +605,9 @@ class ModuleCache extends Module {
      */
     public function Get($xCacheKey, $sCacheType = null) {
 
+        if (empty($xCacheKey)) {
+            return false;
+        }
         if ($sCacheType && strpos($sCacheType, ',') !== false) {
             $aCacheTypes = explode(',', $sCacheType);
             $xResult = false;

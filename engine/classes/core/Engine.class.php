@@ -226,6 +226,13 @@ class Engine extends LsObject {
     static protected $aClassesInfo = array();
 
     /**
+     * Hash of active plugins
+     *
+     * @var string
+     */
+    static protected $sPluginsHash = null;
+
+    /**
      * Список загруженных модулей
      *
      * @var array
@@ -1450,9 +1457,31 @@ class Engine extends LsObject {
         return static::Module('Plugin')->IsActivePlugin($sPlugin);
     }
 
+    /**
+     * @return array
+     */
     public static function GetActivePlugins() {
 
         return static::getInstance()->GetPlugins();
+    }
+
+    /**
+     * @return string
+     */
+    public static function GetActivePluginsHash() {
+
+        if (self::$sPluginsHash === null) {
+            self::$sPluginsHash = '';
+            $aPlugins = static::GetActivePlugins();
+            foreach($aPlugins as $oPlugin) {
+                $oPluginEntity = $oPlugin->GetPluginEntity();
+                if (self::$sPluginsHash) {
+                    self::$sPluginsHash .= ',';
+                }
+                self::$sPluginsHash .= $oPluginEntity->GetId() . '(' . $oPluginEntity->GetVersion() . ')';
+            }
+        }
+        return self::$sPluginsHash;
     }
 
     /**
