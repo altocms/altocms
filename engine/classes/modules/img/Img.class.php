@@ -864,7 +864,7 @@ class ModuleImg extends Module {
 
         $sImageFile = '';
         $sName = basename($sFile);
-        if (preg_match('/^' . preg_quote($sPrefix) . '_([a-z0-9-]+)(_(male|female))?(\.([\-0-9a-z]+))?(\.([a-z]+))$/i', $sName, $aMatches)) {
+        if (preg_match('/^' . preg_quote($sPrefix) . '_([a-z0-9-]+)(_(male|female|[a-z]+))?(\.([\-0-9a-z]+))?(\.([a-z]+))$/i', $sName, $aMatches)) {
             $sSkin = $aMatches[1];
             $sType = $aMatches[3];
             if ($sSkin) {
