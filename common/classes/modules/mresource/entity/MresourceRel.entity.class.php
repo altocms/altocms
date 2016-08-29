@@ -34,10 +34,7 @@ class ModuleMresource_EntityMresourceRel extends ModuleMresource_EntityMresource
 
         $sUrl = $this->getPathUrl();
         if ($sUrl) {
-            if (strpos($sUrl, '@') === 0) {
-                $sUrl = Config::Get('path.root.url') . substr($sUrl, 1);
-            }
-
+            $sUrl = E::ModuleUploader()->CompleteUrl($sUrl);
             if (!$xSize) {
                 return $sUrl;
             }

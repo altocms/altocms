@@ -131,7 +131,7 @@ class ModuleMresource_EntityMresource extends Entity {
      */
     public function SetUrl($sUrl) {
 
-        if (substr($sUrl, 0, 1) === '@') {
+        if ($sUrl[0] === '@') {
             $sPathUrl = substr($sUrl, 1);
             $sUrl = F::File_RootUrl() . $sPathUrl;
         } else {
@@ -203,10 +203,9 @@ class ModuleMresource_EntityMresource extends Entity {
      */
     public function GetUrl() {
 
-        $sUrl = $this->GetPathUrl();
-        if (substr($sUrl, 0, 1) == '@') {
-            $sUrl = F::File_NormPath(F::File_RootUrl() . '/' . substr($sUrl, 1));
-        }
+        $sPathUrl = $this->GetPathUrl();
+        $sUrl = E::ModuleUploader()->CompleteUrl($sPathUrl);
+
         return $sUrl;
     }
 
@@ -218,10 +217,9 @@ class ModuleMresource_EntityMresource extends Entity {
     public function GetFile() {
 
         $sPathFile = $this->GetPathFile();
-        if (substr($sPathFile, 0, 1) == '@') {
-            $sPathFile = F::File_NormPath(F::File_RootDir() . '/' . substr($sPathFile, 1));
-        }
-        return $sPathFile;
+        $sFile = E::ModuleUploader()->CompleteDir($sPathFile);
+
+        return $sFile;
     }
 
     /**
@@ -388,10 +386,14 @@ class ModuleMresource_EntityMresource extends Entity {
         return E::ModuleUploader()->Exists($sCheckUuid);
     }
 
+    /**
+     * @param bool $xSize
+     *
+     * @return string
+     */
     public function getWebPath($xSize=FALSE) {
 
-        $sUrl = str_replace('@', Config::Get('path.root.web'), $this->getPathUrl());
-
+        $sUrl = E::ModuleUploader()->CompleteUrl($this->getPathUrl());
         if (!$xSize) {
             return $sUrl;
         }

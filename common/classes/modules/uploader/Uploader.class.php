@@ -989,6 +989,73 @@ class ModuleUploader extends Module {
     }
 
     /**
+     * @param $sPath
+     * @param $sResultPath
+     *
+     * @return bool|string
+     */
+    protected function _getDrive($sPath, &$sResultPath) {
+
+
+        if ($sPath && is_string($sPath) && strlen($sPath) > 1) {
+            if ($sPath[0] === '@') {
+                $sDrive = 'local';
+                $sResultPath = substr($sPath, 1);
+            } elseif ($sPath[0] === '[' && ($nPos = strpos($sPath, ']'))) {
+                $sDrive = substr($sPath, 1, $nPos - 1);
+                $sResultPath = substr($sPath, $nPos + 1);
+            } else {
+                $sDrive = '';
+                $sResultPath = $sPath;
+            }
+            return $sDrive;
+        }
+        return false;
+    }
+
+    /**
+     * @param $sUrl
+     *
+     * @return bool
+     */
+    public function CompleteUrl($sUrl) {
+
+        $sDrive = $this->_getDrive($sUrl, $sPath);
+        if ($sDrive) {
+            $sRootUrl = C::Get('module.uploader.drives.' . $sDrive . '.url');
+            // Old version compatibility
+            if (!$sRootUrl && $sDrive === 'local') {
+                $sRootUrl = C::Get('path.root.url');
+            }
+            if ($sRootUrl) {
+                return F::File_NormPath($sRootUrl . '/' . $sPath);
+            }
+        }
+        return $sUrl;
+    }
+
+    /**
+     * @param $sDir
+     *
+     * @return bool
+     */
+    public function CompleteDir($sDir) {
+
+        $sDrive = $this->_getDrive($sDir, $sPath);
+        if ($sDrive) {
+            $sRootDir = C::Get('module.uploader.drives.' . $sDrive . '.dir');
+            // Old version compatibility
+            if (!$sRootDir && $sDrive === 'local') {
+                $sRootDir = C::Get('path.root.dir');
+            }
+            if ($sRootDir) {
+                return F::File_NormPath($sRootDir . '/' . $sPath);
+            }
+        }
+        return $sDir;
+    }
+
+    /**
      * Возвращает максимальное количество картинок для типа объекта
      *
      * @param string $sTargetType
@@ -1035,7 +1102,7 @@ class ModuleUploader extends Module {
      * @param string $sTarget
      * @param int    $iTargetId
      *
-     * @return bool
+     * @return mixed
      */
     public function CheckAccessAndGetTarget($sTarget, $iTargetId = null) {
 
@@ -1231,8 +1298,7 @@ class ModuleUploader extends Module {
         if ($aMResourceRel) {
             $oMResource = reset($aMResourceRel);
 
-            $sUrl = str_replace('@', Config::Get('path.root.web'), $oMResource->getPathUrl());
-
+            $sUrl = $this->CompleteUrl($oMResource->getPathUrl());
             if (!$xSize) {
                 return $sUrl;
             }
@@ -1259,16 +1325,13 @@ class ModuleUploader extends Module {
 
         if (Config::Get('module.image.autoresize')) {
             $sFile = $this->Url2Dir($sUrl);
-            if (!F::File_Exists($sFile)) {
+            if ($sFile && !F::File_Exists($sFile)) {
                 E::ModuleImg()->Duplicate($sFile);
             }
         }
+        $sUrl = $this->CompleteUrl($sUrl);
 
-        if ($sUrl[0] == '@') {
-            $sUrl = Config::Get('path.root.url') . substr($sUrl, 1);
-        }
         return $sUrl;
-
     }
 
     /**

@@ -746,7 +746,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function GetPhotoUrl($xSize = null) {
 
-        $sPropKey = '_avatar_url_' . $xSize;
+        $sPropKey = '_photo_url_' . $xSize;
         $sUrl = $this->getProp($sPropKey);
         if (is_null($sUrl)) {
             if (!$xSize) {
