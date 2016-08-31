@@ -432,6 +432,13 @@ $config['module']['uploader']['images']['video'] = array(
 );
 
 
+$config['module']['uploader']['drives'] = array(
+    'local' => array(
+        'dir' => '___path.root.dir___',
+        'url' => '___path.root.url___',
+    ),
+);
+
 // Модуль Image
 $config['module']['image']['autoresize'] = true;
 
