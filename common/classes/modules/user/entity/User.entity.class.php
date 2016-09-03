@@ -617,12 +617,17 @@ class ModuleUser_EntityUser extends Entity {
      */
     protected function _getProfileImageUrl($sType, $xSize = null) {
 
-        $sUrl = '';
-        $aImages = $this->getMediaResources($sType);
-        if (!empty($aImages)) {
-            /** @var ModuleMresource_EntityMresourceRel $oImage */
-            $oImage = reset($aImages);
-            $sUrl = $oImage->getImageUrl($xSize);
+        $sPropKey = '_profile_imge_url_' . $sType . '-' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if ($sUrl === null) {
+            $sUrl = '';
+            $aImages = $this->getMediaResources($sType);
+            if (!empty($aImages)) {
+                /** @var ModuleMresource_EntityMresourceRel $oImage */
+                $oImage = reset($aImages);
+                $sUrl = $oImage->getImageUrl($xSize);
+            }
+            $this->setProp($sPropKey, $sUrl);
         }
         return $sUrl;
     }
