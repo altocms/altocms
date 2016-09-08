@@ -1525,7 +1525,7 @@ return array(
     'uploader_image_delete' => 'Delete image',
     'uploader_upload_success' => 'Image uploaded',
     'uploader_photoset_error_count_photos' => 'You can upload up to %% MAX %% images',
-    'uploader_picker' => '- Drag and drop your images images in this area',
+    'uploader_picker' => '- Drag your images here',
     'uploader_sort_notice' => 'You can change the order of the pictures using your mouse.',
     'uploader_sort_changed' => 'Image order is changed',
     'error_upload_image' => 'Image upload error',
