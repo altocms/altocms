@@ -1930,6 +1930,42 @@ class ModuleViewer extends Module {
     }
 
     /**
+     * Prepend asset file (.js or .css)
+     *
+     * @param string $sFile
+     * @param array  $aParams
+     *
+     * @return bool
+     */
+    public function PrependAsset($sFile, $aParams = array()) {
+
+        if (substr($sFile, -3) === '.js') {
+            return $this->PrependScript($sFile, $aParams);
+        } elseif (substr($sFile, -4) === '.css') {
+            return $this->PrependStyle($sFile, $aParams);
+        }
+        return false;
+    }
+
+    /**
+     * Append asset file (.js or .css)
+     *
+     * @param string $sFile
+     * @param array  $aParams
+     *
+     * @return bool
+     */
+    public function AppendAsset($sFile, $aParams = array()) {
+
+        if (substr($sFile, -3) === '.js') {
+            return $this->AppendScript($sFile, $aParams);
+        } elseif (substr($sFile, -4) === '.css') {
+            return $this->AppendStyle($sFile, $aParams);
+        }
+        return false;
+    }
+
+    /**
      * Строит массив для подключения css и js,
      * преобразовывает их в строку для HTML
      *
