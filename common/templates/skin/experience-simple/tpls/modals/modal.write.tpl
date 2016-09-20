@@ -45,7 +45,7 @@
                                 </a>
                             </li>
                         {*{/if}*}
-                        {hook run='write_item' isPopup=true}
+                        {hook run='write_item' isPopup=true from="modal"}
                     </ul>
 
                 </div>

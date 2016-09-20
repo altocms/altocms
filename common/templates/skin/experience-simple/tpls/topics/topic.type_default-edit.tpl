@@ -51,7 +51,7 @@
                             <option value="{router page='talk'}add">
                                 {$aLang.block_create_talk}
                             </option>
-                            {hook run='write_item' isPopup=true}
+                            {hook run='write_item' isPopup=false from="page"}
                             {if $iUserCurrentCountTopicDraft}
                                 <option value="{router page='content'}drafts/" {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
                                     {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
@@ -80,7 +80,7 @@
                                 {$aLang.block_create_talk}
                             </a>
                         </li>
-                        {hook run='write_item' isPopup=true}
+                        {hook run='write_item' isPopup=false from="page"}
                         {if $iUserCurrentCountTopicDraft}
                             <li {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
                                 <a href="{router page='content'}drafts/"

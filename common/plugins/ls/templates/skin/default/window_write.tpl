@@ -27,7 +27,7 @@
                 <a href="{router page='talk'}add" class="write-item-image"></a>
                 <a href="{router page='talk'}add" class="write-item-link">{$aLang.block_create_talk}</a>
             </li>
-            {hook run='write_item' isPopup=true}
+            {hook run='write_item' isPopup=true from="modal"}
         </ul>
 	</div>
 	{/strip}
