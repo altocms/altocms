@@ -54,9 +54,6 @@
                 <i class="fa fa-times"></i>&nbsp;{$aLang.uploader_image_delete}
             </a>
 
-            {* Файл для загрузки *}
-            <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
-
         </div>
 
         {* Форма обрезки картинки при ее загрузке *}
