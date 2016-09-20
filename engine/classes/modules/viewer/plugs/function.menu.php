@@ -62,7 +62,7 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
         // Сформируем подменю если нужно
         $oMenuItem->setMenuId($aParams['id']);
         if (strpos($sMenuItemHtml = $oMenuItem->getHtml(), "[[submenu_") !== FALSE) {
-            $sMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) use($oMenuItem) {
+            $sMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) use($oMenuItem, $oSmarty) {
                 if (isset($sSubmenuId[1])) {
                     $sSubmenuId = $sSubmenuId[1];
                 } else {
@@ -72,7 +72,7 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
                 if (preg_match('~[a-f0-9]{10}~', $sSubmenuId)) {
                     $aSettings = array_merge($aSettings, array('class' => Config::Get('menu.submenu.class')));
                 }
-                $sSubmenuHtml = smarty_function_menu($aSettings);
+                $sSubmenuHtml = smarty_function_menu($aSettings, $oSmarty);
                 if (!empty($sSubmenuHtml)) {
                     return $sSubmenuHtml;
                 }
