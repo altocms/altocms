@@ -1004,7 +1004,7 @@ abstract class Entity extends LsObject {
     /**
      * @param string $sType
      *
-     * @return ModuleMresource_EntityMresourceRel[]
+     * @return array
      */
     public function getMediaResources($sType = null) {
 

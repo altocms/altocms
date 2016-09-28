@@ -46,7 +46,6 @@ class ActionUploader extends Action {
         $this->AddEvent('description', 'EventDescription'); // Установка описания ресурса
         $this->AddEvent('cover', 'EventCover'); // Установка обложки фотосета
         $this->AddEvent('sort', 'EventSort'); // Меняет сортировку элементов фотосета
-
     }
 
     /**

@@ -430,8 +430,8 @@ abstract class Action extends LsObject {
 
                 return $xResult;
             } else {
-                $this->AccessDenied(R::GetActionEvent());
-                return null;
+                return $this->AccessDenied(R::GetActionEvent());
+                //return null;
             }
         }
 
@@ -763,12 +763,16 @@ abstract class Action extends LsObject {
 
         $aFiles = $this->_getRequestData('FILES');
         if (E::ModuleSecurity()->ValidateSendForm(false) && !empty($aFiles)) {
+            $aFileData = false;
             if (is_null($sName)) {
                 $aFileData = reset($aFiles);
-            } elseif (isset($aFiles[$sName])) {
-                $aFileData = $aFiles[$sName];
-            } else {
-                $aFileData = false;
+            } elseif (!empty($aFiles) && is_array($aFiles)) {
+                foreach($aFiles as $sKey => $aData) {
+                    if (strtolower($sKey) === strtolower($sName)) {
+                        $aFileData = $aData;
+                        break;
+                    }
+                }
             }
             if ($aFileData && isset($aFileData['tmp_name']) && is_uploaded_file($aFileData['tmp_name'])) {
                 return $aFileData;

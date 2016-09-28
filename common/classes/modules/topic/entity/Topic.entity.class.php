@@ -1794,6 +1794,157 @@ class ModuleTopic_EntityTopic extends Entity {
         return $oRssItem;
     }
 
+    /**
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getImages() {
+
+        $aResult = array();
+        $aMediaTypes = $this->getMediaResources();
+        if ($aMediaTypes) {
+            foreach($aMediaTypes as $sType => $aMedia) {
+                /** @var ModuleMresource_EntityMresourceRel $oMedia */
+                foreach($aMedia as $iMediaId => $oMedia) {
+                    if ($oMedia->isImage()) {
+                        $aResult[$iMediaId] = $oMedia;
+                    }
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    protected function _findImages($aImages, $sFilter, $iValue = null) {
+
+        $aResult = array();
+        if ($sFilter === 'height-more' || $sFilter === 'width-more') {
+            if ($sFilter === 'height-more') {
+                $sMethod = 'getSizeHeight';
+            } else {
+                $sMethod = 'getSizeWidth';
+            }
+            foreach($aImages as $xKey => $oImage) {
+                if ($oImage->$sMethod() > $iValue) {
+                    $aResult[$xKey] = $oImage;
+                }
+            }
+        } elseif ($sFilter === 'height-less' || $sFilter === 'width-less') {
+            if ($sFilter === 'height-more') {
+                $sMethod = 'getSizeHeight';
+            } else {
+                $sMethod = 'getSizeWidth';
+            }
+            foreach($aImages as $xKey => $oImage) {
+                if ($oImage->$sMethod() < $iValue) {
+                    $aResult[$xKey] = $oImage;
+                }
+            }
+        } elseif ($sFilter === 'height-max' || $sFilter === 'height-min') {
+            $aSorted = [];
+            foreach($aImages as $xKey => $oImage) {
+                $aSorted[$oImage->getSizeHeight()][$xKey] = $oImage;
+            }
+            if ($sFilter === 'height-max') {
+                $iSize = max(array_keys($aSorted));
+            } else {
+                $iSize = min(array_keys($aSorted));
+            }
+            $aResult = $aSorted[$iSize];
+        } elseif ($sFilter === 'width-max' || $sFilter === 'width-min') {
+            $aSorted = [];
+            foreach($aImages as $xKey => $oImage) {
+                $aSorted[$oImage->getSizeWidth()][$xKey] = $oImage;
+            }
+            if ($sFilter === 'width-max') {
+                $iSize = max(array_keys($aSorted));
+            } else {
+                $iSize = min(array_keys($aSorted));
+            }
+            $aResult = $aSorted[$iSize];
+        } else {
+            $aResult = $aImages;
+        }
+
+        return $aResult;
+    }
+
+    /**
+     * @param $aImages
+     * @param $aFilter
+     *
+     * @return array
+     */
+    protected function _filterImages($aImages, $aFilter) {
+
+        $aResult = $aImages;
+        $aMinMax = array('height-max', 'height-min', 'width-max', 'width-min');
+        foreach($aFilter as $sFilterName => $xFilterValue) {
+            if (in_array($xFilterValue, $aMinMax, true)) {
+                $aResult = $this->_findImages($aResult, $xFilterValue, true);
+            } else {
+                $aResult = $this->_findImages($aResult, $sFilterName, $xFilterValue);
+            }
+        }
+        return $aResult;
+    }
+
+    /**
+     * Returns images loaded in topic by filter
+     * Filter parameters:
+     *      'width-more' => N - width more then N px
+     *      'width-less' => N - width less then N px
+     *      'height-more' => N - height more then N px
+     *      'height-less' => N - height less then N px
+     *      'width-max' => true - images width max width
+     *      'width-min' => true - images width min width
+     *      'height-max' => true - images width max height
+     *      'height-min' => true - images width min height
+     *
+     *
+     * @param array $aFilter
+     *
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getLoadedImages($aFilter = array()) {
+
+        $sPropKey = '_loaded_images' . serialize($aFilter);
+        $aResult = $this->getProp($sPropKey);
+        if ($aResult === null) {
+            $aResult = array();
+            if (!empty($aFilter)) {
+                $aImages = $this->getLoadedImages();
+                if (!empty($aImages)) {
+                    $aResult = $this->_filterImages($aImages, $aFilter);
+                }
+            } else {
+                $aMedia = $this->getImages();
+                if ($aMedia) {
+                    foreach($aMedia as $iMediaId => $oMedia) {
+                        if ($oMedia->isFile()) {
+                            $aResult[$iMediaId] = $oMedia;
+                        }
+                    }
+                }
+            }
+            $this->setProp($sPropKey, $aResult);
+        }
+        return $aResult;
+    }
+
+    /**
+     * @param array $aFilter
+     *
+     * @return ModuleMresource_EntityMresourceRel|null
+     */
+    public function selectImage($aFilter = array()) {
+
+        $aImages = $this->getLoadedImages($aFilter);
+        if (empty($aImages)) {
+            return null;
+        }
+        return reset($aImages);
+    }
+
 }
 
 // EOF

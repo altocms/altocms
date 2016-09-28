@@ -38,7 +38,7 @@ ls.photoset = ( function ($) {
     }
 
     this.swfHandlerUploadSuccess = function (e, file, serverData) {
-        ls.photoset.addPhoto(jQuery.parseJSON(serverData));
+        ls.photoset.addImg(jQuery.parseJSON(serverData));
     }
 
     this.swfHandlerUploadComplete = function (e, file, next) {
@@ -53,7 +53,7 @@ ls.photoset = ( function ($) {
         $('#swfu_images').append(template);
     }
 
-    this.addPhoto = function (response) {
+    this.addImg = function (response) {
         $('#photoset_photo_empty').remove();
         if (!response.bStateError) {
             template = '<li id="photo_' + response.id + '"><img src="' + response.file + '" alt="image" />'
@@ -142,7 +142,7 @@ ls.photoset = ( function ($) {
                 $('#photoset_photo_empty').remove();
                 ls.msg.error(data.sMsgTitle, data.sMsg);
             } else {
-                ls.photoset.addPhoto(data);
+                ls.photoset.addImg(data);
             }
         });
         ls.photoset.closeForm();

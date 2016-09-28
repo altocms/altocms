@@ -899,7 +899,7 @@ class ModuleUploader extends Module {
      * @param string $sTargetId
      * @param bool   $bMulti
      *
-     * @return bool
+     * @return bool|ModuleMresource_EntityMresource
      */
     public function AddRelationResourceTarget($oResource, $sTargetType, $sTargetId, $bMulti = FALSE) {
 
@@ -916,9 +916,7 @@ class ModuleUploader extends Module {
             if ($sTargetId == '0') {
                 $oResource->setTargetTmp(E::ModuleSession()->GetCookie(self::COOKIE_TARGET_TMP));
             }
-            $oResource = array($oResource);
-
-            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+            E::ModuleMresource()->AddTargetRel(array($oResource), $sTargetType, $sTargetId);
 
             return $oResource;
         }

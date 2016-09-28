@@ -1,5 +1,5 @@
 /*!
- * jAltoUploader.js
+ * altoUploader.js
  * Файл jquery-плагина для аплоадера изображений Alto
  *
  * @author      Андрей Воронов <andreyv@gladcode.ru>
@@ -12,8 +12,9 @@
 // пропуска проверки параметров этой функции они внесены как заранее
 // предопределённые
 
-(function ($, ls) {
+/*global jQuery, ls, FileAPI, window */
 
+(function ($, ls) {
     "use strict";
 
     //================================================================================================================
@@ -61,13 +62,11 @@
     //      ОПРЕДЕЛЕНИЕ ПРОТОТИПА ОБЪЕКТА
     //================================================================================================================
     altoUploader.prototype = {
-
         /**
          * Инициализация объекта. Вызывается автоматически в
          * конструкторе плагина.
          */
         init: function () {
-
             var $this = this;
 
             $this.$element.trigger('alto.uploader.before_init', $this);
@@ -93,8 +92,8 @@
          * Обработчик загрузки картинки
          */
         uploadImage: function (input) {
-
             var $this = this;
+
             if ($this.blockButtons) {
                 return $this;
             }
@@ -133,22 +132,20 @@
                             $this.uploadDirect();
                         }
                     }
-
                     // Удалим форму, больше она не нужна
                     form.remove();
 
                 }, {progress: true});
 
             return $this;
-
         },
 
         /**
          * Загрузка картинки без ресайза
          */
         uploadDirect: function () {
-
             var $this = this;
+
             if ($this.blockButtons) {
                 return $this;
             }
@@ -165,7 +162,6 @@
                  * @param {{bStateError: {boolean}, sMsg: {string}, sFilePreview: {string}, sFile: {string}}} result
                  */
                 function (result) {
-
                     ls.progressDone();
                     $this.blockButtons = false;
                     ls.hook.run('uploader_progress_stop', [$this.options]);
@@ -178,14 +174,12 @@
                         if ($this.$imageFull.length > 0) {
                             $this.$imageFull.attr('src', result.sFile + '?' + Math.random());
                         }
-
                         $this.buttons.$remove.css({
                             display: 'block'
                         });
 
                         ls.hook.run('uploader_upload_image_after', [$this.options, result]);
                     }
-
                 });
 
             return this;
@@ -195,8 +189,8 @@
          * Удаляет картинку
          */
         uploadImageRemove: function () {
-
             var $this = this;
+
             if ($this.blockButtons) {
                 return $this;
             }
@@ -212,7 +206,6 @@
                  * @param {{bStateError: {boolean}, sMsg: {string}}} result
                  */
                 function (result) {
-
                     ls.progressDone();
                     $this.blockButtons = false;
                     ls.hook.run('uploader_progress_stop', [$this.options]);
@@ -228,7 +221,6 @@
 
                         ls.hook.run('uploader_remove_image_after', [$this.options, result]);
                     }
-
                 });
 
             return $this;
@@ -240,7 +232,6 @@
          * @param {string} sImgFile Путь к файлу
          */
         uploadImageModalCrop: function (sImgFile) {
-
             var $this = this;
 
             // Установим текстовки
@@ -272,7 +263,6 @@
             $this.uploadImageCropInit($this.$cropImage);
 
             return $this;
-
         },
 
         /**
@@ -281,7 +271,6 @@
          * @param cropImage
          */
         uploadImageCropInit: function (cropImage) {
-
             var $this = this;
 
             this.uploadImageCropDone();
@@ -293,14 +282,12 @@
                 });
 
             return $this;
-
         },
 
         /**
          * Разрушение окна кропа
          */
         uploadImageCropDone: function () {
-
             var $this = this;
 
             if ($this.jcropImage) {
@@ -310,15 +297,14 @@
             $('.jcrop-holder').remove();
 
             return $this;
-
         },
 
         /**
          * Выполняет ресайз аватара
          */
         uploadImageCropSubmit: function (button) {
-
             var $this = this;
+
             if ($this.blockButtons) {
                 return $this;
             }
@@ -341,7 +327,6 @@
                  * @param {{bStateError: {boolean}, sMsg: {string}, sFilePreview: {string}, sFile: {string}}} result
                  */
                 function (result) {
-
                     ls.progressDone();
                     $this.blockButtons = false;
                     ls.hook.run('uploader_progress_stop', [$this.options]);
@@ -370,15 +355,14 @@
                 });
 
             return $this;
-
         },
 
         /**
          * Отмена ресайза аватарки, подчищаем временный данные
          */
         uploadImageCropCancel: function (button) {
-
             var $this = this;
+
             if ($this.blockButtons) {
                 return $this;
             }
@@ -398,7 +382,6 @@
                  * @param {{bStateError: {boolean}, sMsg: {string}}} result
                  */
                 function (result) {
-
                     ls.progressDone();
                     $this.blockButtons = false;
                     ls.hook.run('uploader_progress_stop', [$this.options]);
@@ -416,7 +399,6 @@
 
             return $this;
         }
-
     };
 
     //================================================================================================================
@@ -450,7 +432,6 @@
 
             return $this;
         });
-
     };
 
     /**

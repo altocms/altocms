@@ -383,8 +383,8 @@ class ModuleText extends Module {
      *
      * @return string
      */
-    public function Snippet2Html($sSnippetName, $aSnippetAttr, $sSnippetText)
-    {
+    public function Snippet2Html($sSnippetName, $aSnippetAttr, $sSnippetText) {
+
         // Определяем строчный сниппет или блочный
         if (!empty($this->aSnippets[$sSnippetName]['block'])) {
             // Явно задано, что сниппет блочный

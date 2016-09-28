@@ -114,7 +114,7 @@ ls.photoset = ( function ($) {
      * @param serverData
      */
     this.swfHandlerUploadSuccess = function (e, file, serverData) {
-        ls.photoset.addPhoto(file.index, jQuery.parseJSON(serverData));
+        ls.photoset.addImg(file.index, jQuery.parseJSON(serverData));
     };
 
     /**
@@ -215,7 +215,7 @@ ls.photoset = ( function ($) {
      * @param index
      * @param response
      */
-    this.addPhoto = function (index, response) {
+    this.addImg = function (index, response) {
         if (!response) {
             ls.msg.error(null, 'System error #1001');
         } else if (response.bStateError) {
@@ -371,7 +371,7 @@ ls.photoset = ( function ($) {
             } else if (response.bStateError) {
                 ls.msg.error(response.sMsgTitle, response.sMsg);
             } else {
-                ls.photoset.addPhoto(response);
+                ls.photoset.addImg(response);
             }
             form.remove();
         });
