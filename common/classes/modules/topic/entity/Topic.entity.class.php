@@ -1208,44 +1208,9 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Returns ID of main photo in photoset
+     * Return main photo of photoset
      *
-     * @return int|null
-     */
-    public function getPhotosetMainPhotoId() {
-
-        // Топика ещё нет, вернём дефолтное значение (null)
-        if (!$this->getId()) {
-            return NULL;
-        }
-
-        $sPropKey = '_photoset_main_photo_id';
-        $iMainPhotoId = $this->getProp($sPropKey);
-        if (is_null($iMainPhotoId)) {
-            $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
-                'target_type' => 'photoset',
-                'target_id'   => $this->getId(),
-                'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
-            ), 1, 1);
-
-            if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
-                /** @var ModuleMresource_EntityMresource $oMresource */
-                $iMainPhotoId = $oMresource->getMresourceId();
-                $this->setProp($sPropKey, $iMainPhotoId);
-                return $iMainPhotoId;
-            }
-            $this->setProp($sPropKey, false);
-        } elseif ($iMainPhotoId) {
-            return $iMainPhotoId;
-        }
-
-        return $this->getExtraValue('main_photo_id');
-    }
-
-    /**
-     * Returns main photo in photoset
-     *
-     * @return ModuleTopic_EntityTopicPhoto|null
+     * @return ModuleMresource_EntityMresourceRel|null
      */
     public function getPhotosetMainPhoto() {
 
@@ -1254,35 +1219,67 @@ class ModuleTopic_EntityTopic extends Entity {
             return NULL;
         }
 
-        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
-            'target_type' => 'photoset',
-            'target_id'   => $this->getId(),
-            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
-        ), 1, 1);
-
-        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
-            /** @var ModuleMresource_EntityMresource $oMresource */
-            return $oMresource;
+        $sPropKey = '_photoset_cover';
+        $oPhotosetCover = $this->getProp($sPropKey);
+        if ($oPhotosetCover === null) {
+            $aImages = $this->getLoadedImages();
+            foreach($aImages as $oImage) {
+                if ($oImage->getType() | ModuleMresource::TYPE_PHOTO_PRIMARY) {
+                    $oPhotosetCover = $oImage;
+                    break;
+                }
+            }
+            if ($oPhotosetCover) {
+                $this->setProp($sPropKey, $oPhotosetCover);
+            } else {
+                $this->setProp($sPropKey, false);
+            }
         }
-
-        return NULL;
-
+        return $oPhotosetCover ? $oPhotosetCover : null;
     }
 
     /**
-     * @param string $sSize
+     * @param null|string|int $xSize
+     *
      * @return null|string
      */
-    public function getPhotosetMainPhotoUrl($sSize='' ) {
+    public function getPhotosetMainPhotoLink($xSize = null) {
 
-        $oMresource = $this->getPhotosetMainPhoto();
-        if ($oMresource) {
-            if ($sSize) {
-                return E::ModuleUploader()->ResizeTargetImage($oMresource->getLink(), $sSize);
+        $oImage = $this->getPhotosetMainPhoto();
+        if ($oImage) {
+            if ($xSize) {
+                return E::ModuleUploader()->ResizeTargetImage($oImage->getImageUrl(), $xSize);
             }
-            return $oMresource->getLink();
+            return $oImage->getImageUrl();
         }
         return null;
+    }
+
+    /**
+     * Old style compatibility
+     *
+     * @param null $xSize
+     *
+     * @return null|string
+     */
+    public function getPhotosetMainPhotoUrl($xSize = null) {
+
+        return $this->getPhotosetMainPhotoLink($xSize);
+    }
+
+    /**
+     * Returns ID of main photo in photoset
+     *
+     * @return int|null
+     */
+    public function getPhotosetMainPhotoId() {
+
+        $oImage = $this->getPhotosetMainPhoto();
+        if ($oImage) {
+            return $oImage->getMresourceId();
+        }
+
+        return $this->getExtraValue('main_photo_id');
     }
 
     /**
@@ -1339,6 +1336,11 @@ class ModuleTopic_EntityTopic extends Entity {
         return intval($this->getTopicIndexIgnore()) == self::INDEX_IGNORE_LOCK;
     }
 
+    /**
+     * @param string $sMode
+     *
+     * @return string
+     */
     public function getTopicTypeTemplate($sMode) {
 
         $oContentType = $this->getContentType();
