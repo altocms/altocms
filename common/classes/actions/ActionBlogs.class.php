@@ -110,10 +110,23 @@ class ActionBlogs extends Action {
         // * В каком направлении сортировать
         $sOrderWay = F::GetRequestStr('order_way', 'desc');
 
-        // * Фильтр поиска блогов
-        $aFilter = array(
-            'include_type' => E::ModuleBlog()->GetAllowBlogTypes(E::User(), 'list', true),
-        );
+        $aAllowBlogTypes = E::ModuleBlog()->GetAllowBlogTypes(E::User(), 'list', true);
+
+        // * Фильтр выборки блогов
+        $aFilter = array();
+        if ($sIncludeType = F::GetRequestStr('include_type')) {
+            $aFilter['include_type'] = array_intersect(array_merge($aAllowBlogTypes, ['personal']), F::Array_Str2Array($sIncludeType));
+        }
+        if ($sExcludeType = F::GetRequestStr('exclude_type')) {
+            $aFilter['exclude_type'] = F::Array_Str2Array($sExcludeType);
+        }
+
+        if (!$aFilter) {
+            $aFilter = array(
+                'include_type' => $aAllowBlogTypes,
+            );
+        }
+
         if ($sOrder == 'blog_title') {
             $aFilter['order'] = array('blog_title' => $sOrderWay);
         } else {
