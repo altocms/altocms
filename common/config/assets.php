@@ -14,10 +14,12 @@
  * <local_path|URL> => <parameters_array>
  *
  * Параметры:
- *      'asset' - указывает на один набор при слиянии файлов
- *      'name'  - "каноническое" имя файла
- *      'place' - место размещения (только для js)
+ *      'asset'   - указывает на один набор при слиянии файлов
+ *      'name'    - "каноническое" имя файла
  *      'prepare' - файл готовится, но не включается в HTML
+ *      'place'   - место размещения (только для js)
+ *      'defer'   - добавляет атрибут defer (только для js)
+ *      'async'   - добавляет атрибут async (только для js)
  */
 $config['default']['js'] = array(
     /* Vendor libs */
@@ -45,7 +47,7 @@ $config['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/syslabel/syslabel.js',
     '___path.frontend.dir___/libs/vendor/prettyphoto/js/jquery.prettyphoto.js',
     '___path.frontend.dir___/libs/vendor/rowgrid/jquery.row-grid.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery.pulse/jquery.pulse.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery.pulse/jquery.pulse.min.js' => array('asset' => 'mini', 'async' => true),
 
     '___path.frontend.dir___/libs/vendor/parsley/parsley.js',
     '___path.frontend.dir___/libs/vendor/parsley/i18n/messages.ru.js',

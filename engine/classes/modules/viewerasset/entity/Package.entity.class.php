@@ -316,6 +316,37 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     }
 
     /**
+     * @param $aFileParams
+     * @param $sAssetName
+     *
+     * @return string
+     */
+    protected function _defineAssetName($aFileParams, $sAssetName) {
+
+        if ($this->bMerge && $aFileParams['merge']) {
+            // Определяем имя набора
+            if (!$sAssetName) {
+                if (isset($aFileParams['asset'])) {
+                    $sAssetName = $aFileParams['asset'];
+                } elseif (isset($aFileParams['block'])) {
+                    // LS compatible
+                    $sAssetName = $aFileParams['block'];
+                } else {
+                    $sAssetName = '__default';
+                }
+            }
+            if (strpos($sAssetName, '__default') === 0) {
+                $sAssetName .= $this->iAssetNum;
+            }
+        } else {
+            // Если слияние отключено, то каждый набор - это отдельный файл
+            $sAssetName = F::File_NormPath($aFileParams['name']);
+            $aFileParams['merge'] = false;
+        }
+        return $sAssetName;
+    }
+
+    /**
      * @param string $sFileName
      * @param array  $aFileParams
      * @param string $sAssetName
@@ -357,27 +388,10 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $aFileParams['compress'] = $this->bCompress;
             }
         }
-        if ($this->bMerge && $aFileParams['merge']) {
-            // Определяем имя набора
-            if (!$sAssetName) {
-                if (isset($aFileParams['asset'])) {
-                    $sAssetName = $aFileParams['asset'];
-                } elseif (isset($aFileParams['block'])) {
-                    // LS compatible
-                    $sAssetName = $aFileParams['block'];
-                } else {
-                    $sAssetName = '__default';
-                }
-            }
-            if (strpos($sAssetName, '__default') === 0) {
-                $sAssetName .= $this->iAssetNum;
-            }
-        } else {
-            // Если слияние отключено, то каждый набор - это отдельный файл
-            $sAssetName = F::File_NormPath($sFileName);
+
+        if (!$this->bMerge) {
             $aFileParams['merge'] = false;
         }
-        $aFileParams['asset'] = $sAssetName;
         if (!isset($aFileParams['name'])) {
             $aFileParams['name'] = $sFileName;
         }
@@ -386,6 +400,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
         $aFileParams['prepare'] = isset($aFileParams['prepare'])? (bool)isset($aFileParams['prepare']) : false;
         $aFileParams['name'] = F::File_NormPath($aFileParams['name']);
+        $aFileParams['asset'] = $this->_defineAssetName($aFileParams, $sAssetName);
 
         /*
          * Если среди файлов дефолтных наборов встречается ссылка,
@@ -648,6 +663,11 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $sResult .= $sName . '="' . $aLink['link'] . '" ';
             } else {
                 $sResult .= $sName . '="' . $sVal . '" ';
+            }
+        }
+        if (isset($aLink['attr'])) {
+            foreach ($aLink['attr'] as $sAttr) {
+                $sResult .= $sAttr . ' ';
             }
         }
         if ($this->aHtmlLinkParams['pair']) {
