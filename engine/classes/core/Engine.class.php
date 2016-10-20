@@ -1364,8 +1364,15 @@ class Engine extends LsObject {
      * @return null|object
      */
     public static function Module($sModuleName) {
+        static $aModules = array();
 
-        return Engine::getInstance()->GetModule($sModuleName);
+        if (!empty($aModules[$sModuleName])) {
+            $oModule = $aModules[$sModuleName];
+        } else {
+            $oModule = Engine::getInstance()->GetModule($sModuleName);
+            $aModules[$sModuleName] = $oModule;
+        }
+        return $oModule;
     }
 
     /**
@@ -1375,7 +1382,7 @@ class Engine extends LsObject {
      */
     public static function User() {
 
-        return static::ModuleUser()->GetUserCurrent();
+        return static::Module('User')->GetUserCurrent();
     }
 
     /**
@@ -1386,7 +1393,7 @@ class Engine extends LsObject {
     public static function IsUser() {
 
         $oUser = static::User();
-        return $oUser;
+        return !empty($oUser);
     }
 
     /**
