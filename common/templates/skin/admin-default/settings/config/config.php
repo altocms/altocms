@@ -28,9 +28,8 @@ $config['assets']['default']['css'] = array(
 );
 
 $config['assets']['default']['js'] = array(
-    //'___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery-1.11.3.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-1.12.4.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.4.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',

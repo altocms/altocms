@@ -639,11 +639,6 @@ $config['router']['domain'] = array(
     //'public.site.com' => 'blog/public',
 );
 
-// Rewrite rules
-$config['router']['rewrite'] = array(
-    //'secret-admin' => 'admin',
-);
-
 // Правила реврайта для REQUEST_URI
 // Регулярные выражения необходимо заключать в квадратные скобки
 $config['router']['uri'] = array(
@@ -655,6 +650,11 @@ $config['router']['uri'] = array(
      *  - @404      - обработка прекращается с выдачей кода 404
      */
     '[~.+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i]' => '@404',
+);
+
+// Rewrite rules
+$config['router']['rewrite'] = array(
+    //'secret-admin' => 'admin',
 );
 
 // Распределение action

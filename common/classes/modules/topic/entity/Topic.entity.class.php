@@ -1818,6 +1818,9 @@ class ModuleTopic_EntityTopic extends Entity {
 
     protected function _findImages($aImages, $sFilter, $iValue = null) {
 
+        if (empty($aImages)) {
+            return array();
+        }
         $aResult = array();
         if ($sFilter === 'height-more' || $sFilter === 'width-more') {
             if ($sFilter === 'height-more') {
