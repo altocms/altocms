@@ -40,10 +40,8 @@ function smarty_function_hook($aParams, &$oSmarty) {
         }
     } else {
         $sHookName = 'template_' . strtolower($aParams['run']);
-        unset($aParams['run']);
-        if (!isset($aParams['template'])) {
-            $aParams['template'] = $oSmarty->template_resource;
-        }
+        $aParams['hook_name'] = $sHookName;
+        $aParams['hook_source'] = $oSmarty->template_resource;
         $aResultHook = E::ModuleHook()->Run($sHookName, $aParams);
 
         if (array_key_exists('template_result', $aResultHook)) {
