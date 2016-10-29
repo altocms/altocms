@@ -825,12 +825,12 @@ class AltoFunc_File {
             ),
             pathinfo(static::NormPath($sPath))
         );
-        $n = strpos($aResult['extension'], '?');
+        $n = strpos($aResult['basename'], '?');
         if ($n !== false) {
-            $aResult['params'] = substr($aResult['extension'], $n + 1);
-            $aResult['extension'] = substr($aResult['extension'], 0, $n);
-            $n = strpos($aResult['basename'], '?');
+            $aResult['params'] = substr($aResult['basename'], $n + 1);
             $aResult['basename'] = substr($aResult['basename'], 0, $n);
+            $aResult['filename'] = pathinfo($aResult['basename'], PATHINFO_FILENAME);
+            $aResult['extension'] = pathinfo($aResult['basename'], PATHINFO_EXTENSION);
         }
         if (substr($sPath, 0, 2) == '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
             // Возможно, это URL с протоколом по умолчанию

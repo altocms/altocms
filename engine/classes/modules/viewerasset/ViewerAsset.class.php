@@ -69,7 +69,16 @@ class ModuleViewerAsset extends Module {
      */
     public function AssetFilePath($sLocalFile, $sParentDir = null) {
 
-        $sResult = $this->AssetFileHashDir($sLocalFile) . '/' . basename($sLocalFile);
+        if ($n = strpos($sLocalFile, '?')) {
+            $sBasename = basename(substr($sLocalFile, 0, $n)) . '-' . F::Crc32(substr($sLocalFile, $n));
+            $sExtension = F::File_GetExtension($sLocalFile);
+            if ($sExtension) {
+                $sBasename .= '.' . $sExtension;
+            }
+        } else {
+            $sBasename = basename($sLocalFile);
+        }
+        $sResult = $this->AssetFileHashDir($sLocalFile) . '/' . $sBasename;
         if ($sParentDir) {
             if (substr($sParentDir, -1) != '/') {
                 $sParentDir .= '/';
@@ -126,7 +135,8 @@ class ModuleViewerAsset extends Module {
     public function File2Link($sLocalFile, $sParentDir = null) {
 
         $sAssetFile = $this->AssetFileDir($sLocalFile, $sParentDir);
-        if (F::File_Exists($sAssetFile) || F::File_Copy($sLocalFile, $sAssetFile)) {
+        $aInfo = F::File_PathInfo($sLocalFile);
+        if (F::File_Exists($sAssetFile) || F::File_Copy($aInfo['dirname'] . '/' . $aInfo['basename'], $sAssetFile)) {
             return $this->AssetFileUrl($sLocalFile, $sParentDir);
         }
         return false;
