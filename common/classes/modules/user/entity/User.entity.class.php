@@ -663,7 +663,7 @@ class ModuleUser_EntityUser extends Entity {
                     if ($xSize) {
                         $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
                     }
-                } elseif (!$sUrl || $sUrl = '') {
+                } elseif (empty($sUrl)) {
                     $sUrl = $this->getDefaultAvatarUrl($xSize);
                 }
             }
