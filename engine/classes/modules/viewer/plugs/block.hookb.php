@@ -27,7 +27,7 @@
  */
 function smarty_block_hookb($aParams,$sContent,&$oSmarty,&$bRepeat) {
 	if(empty($aParams['run'])) {
-		trigger_error("Hook: missing 'run' parametr",E_USER_WARNING);
+		trigger_error("Hook: missing 'run' parameter",E_USER_WARNING);
 		return;
 	}
 	
@@ -43,4 +43,5 @@ function smarty_block_hookb($aParams,$sContent,&$oSmarty,&$bRepeat) {
 		echo $sContent;
 	}
 }
-?>
+
+// EOF

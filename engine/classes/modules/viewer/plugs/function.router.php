@@ -25,7 +25,7 @@
 function smarty_function_router($aParams, &$oSmarty) {
 
     if (empty($aParams['page'])) {
-        trigger_error("Router: missing 'page' parametr", E_USER_WARNING);
+        trigger_error("Router: missing 'page' parameter", E_USER_WARNING);
         return '';
     }
 

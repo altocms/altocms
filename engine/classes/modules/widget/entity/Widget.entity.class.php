@@ -150,7 +150,7 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     /**
-     * Sets widget parametrs
+     * Sets widget parameters
      *
      * @param array $xVal
      */

@@ -24,8 +24,8 @@
 function smarty_function_cfg($aParams, $oSmartyTemplate) {
 
     if (empty($aParams['name'])) {
-        trigger_error('Config: missing "name" parametr', E_USER_WARNING);
-        return;
+        trigger_error('Config: missing "name" parameter', E_USER_WARNING);
+        return null;
     }
 
     if (!isset($aParams['instance'])) {
@@ -44,6 +44,7 @@ function smarty_function_cfg($aParams, $oSmartyTemplate) {
      * Возвращаем значение из конфигурации
      */
     $xResult = Config::Get($aParams['name'], $aParams['instance'], $aParams['level']);
+
     return is_null($xResult) ? $aParams['default'] : $xResult;
 }
 
