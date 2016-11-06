@@ -1,11 +1,9 @@
 @import "../var.bootstrap.less";
-@import "../bootstrap/mixins";
 @import "../var.experience.less";
 
 .topic-content-preview-img {
     display: block !important;
 }
-
 
 .label {
     border-radius: 0 !important;
@@ -14,8 +12,6 @@
 .dropdown-menu > li > a {
     font-size: 12px !important;
 }
-
-
 
 .topic-text img, .comment-text img {
     cursor: pointer;
@@ -79,7 +75,6 @@ a:hover {
         padding: 0 @content-panel-padding;
     }
 }
-
 
 
 .link {
@@ -419,7 +414,7 @@ ul.marked-list {
     min-height: 120px;
 }
 
-.bg-warning, .comment-preview, {
+.bg-warning, .comment-preview {
     background-color: @color-100;
     border: 1px solid @light-gray;
     padding: 20px;
@@ -651,7 +646,7 @@ small, .small {
 }
 
 .gray {
-    colo: @color-82 !important;
+    color: @color-82 !important;
 }
 
 .red {
@@ -791,9 +786,9 @@ span.counter {
     }
 }
 
-.ui-autocomplete-loading, .loader, .loading { background: url(../images/loader.gif) 50% 50% no-repeat; }
+.ui-autocomplete-loading, .loader, .loading { background: url(../../images/loader.gif) 50% 50% no-repeat; }
 
-.panel-footer .loader, .panel-footer .loading { background: url(../images/loader-gray.gif) 50% 50% no-repeat; }
+.panel-footer .loader, .panel-footer .loading { background: url(../../images/loader-gray.gif) 50% 50% no-repeat; }
 
 .widget-content .loader { min-height: 20px; }
 
@@ -801,7 +796,6 @@ a.loader, a.loading, span.loader, span.loading, .panel-footer a.loader, .panel-f
     background-position: 50% 15px;
     padding-bottom: 4px;
 }
-
 
 #block_talk_search_content .input-group-addon {
     min-width: 140px;

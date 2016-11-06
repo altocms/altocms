@@ -1,4 +1,3 @@
-//@import "../var.experience_simple.less";
 @import "../bootstrap/mixins";
 @import "mixins";
 
@@ -15,6 +14,11 @@
 
 .comment-reply, .comment-reply * {
     white-space: normal;
+}
+
+.comment-reply textarea {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .comment-self *, .comment-new * {

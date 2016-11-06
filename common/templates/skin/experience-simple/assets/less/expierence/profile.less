@@ -1,5 +1,4 @@
 @import "../var.bootstrap.less";
-@import "../bootstrap/mixins";
 @import "../var.experience.less";
 
 .user-toggle-publication-block {
@@ -20,7 +19,7 @@
 
     img.user-logo {
         float: left;
-        width: 95px;
+        max-width: 95px;
     }
 
     .user-name {
@@ -166,11 +165,8 @@
             &:last-child {
                 border-bottom: 0;
             }
-
         }
     }
-
-
 }
 
 .user-friends {
@@ -198,7 +194,6 @@
             opacity: .8;
         }
     }
-
 }
 
 .user-panel {
@@ -261,11 +256,9 @@
                 i {
                     color: @blue;
                 }
-
             }
         }
     }
-
 }
 
 .js-alto-uploader {
@@ -286,6 +279,7 @@
 
     }
 }
+
 .uploader-actions-file {
     cursor: pointer;
     font-size: 100px !important;

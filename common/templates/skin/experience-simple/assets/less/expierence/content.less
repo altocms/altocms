@@ -1,5 +1,4 @@
 @import "../var.bootstrap.less";
-@import "../bootstrap/mixins";
 @import "../var.experience.less";
 
 .topic-top-controls {
@@ -7,7 +6,6 @@
     right: 12px;
     top: 4px;
 }
-
 
 .blog-top-controls {
     position: absolute;
@@ -36,7 +34,7 @@
         position: absolute;
         z-index: -2;
         height: 10px;
-        bottom: 0px;
+        bottom: 0;
     }
 
     .raised:after {
@@ -288,7 +286,6 @@
         }
 
     }
-
 }
 
 /* Адаптивная верстка
@@ -312,7 +309,6 @@
         }
     }
 }
-
 
 // Extra small 481-768
 @media only screen and (min-width: (@screen-xs + 1)) and (max-width: @screen-sm) {

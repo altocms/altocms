@@ -1,6 +1,6 @@
 <?php
 /**
- * Тема оформления Experience v.1.0  для Alto CMS
+ * Тема оформления Experience для Alto CMS
  * @licence     CC Attribution-ShareAlike
  */
 
@@ -15,9 +15,6 @@
  */
 
 $config['assets']['default']['js'] = Config::Get('assets.default.js');
-//$config['assets']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
-//$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
-//$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
@@ -28,21 +25,10 @@ if (Config::Get('view.fix_menu')) {
 
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/userinfo.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/ch-datepicker.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/transition.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/tab.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/tooltip.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/popover.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/carousel.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/collapse.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/modal.min.js";
-//$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/fileinput.min.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/editor.js";
-//$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/jquery/jquery.bootstrap-dropdown-on-hover.js";
-//$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/jquery/pulse/jquery.pulse.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/theme.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/dropdowns-enhancement.js";
@@ -57,15 +43,6 @@ $config['assets']['default']['css'] = array(
     '___path.skin.dir___/assets/css/hover.css',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
-
-    /* tinyMCE */
-    /*
-    '___path.skin.dir___/assets/css/tinymce.css'       => array(
-        'name'      => 'template-tinymce.css',
-        'prepare'   => true,
-        'merge'     => false,
-    ),
-    */
 
     '___path.skin.dir___/assets/css/custom.css',
 

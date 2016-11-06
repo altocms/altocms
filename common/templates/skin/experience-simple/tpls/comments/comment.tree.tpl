@@ -1,5 +1,5 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {wgroup_add group='toolbar' name='toolbar_comment.tpl'
     aPagingCmt=$aPagingCmt
@@ -9,51 +9,48 @@
 
 {hook run='comment_tree_begin' iTargetId=$iTargetId sTargetType=$sTargetType}
 
- <script>
-     jQuery(function($){
-         scroller.loaded();
-     });
+<script>
+    jQuery(function($){
+        scroller.loaded();
+    });
 
-     (function($){
+    (function($){
 
-         scroller = {
-             topScrollOffset: -64,
-             scrollTiming: 1000,
-             pageLoadScrollDelay: 1000,
-             scrollToElement: function(whereTo){
-                 $.scrollTo(whereTo.replace('comment', 'comment_id_'), scroller.scrollTiming, { offset: { top: scroller.topScrollOffset }, easing: 'easeInOutQuart' });
-             },
-             generateTempNavId: function(navId){
-                 return '_'+navId;
-             },
-             getNavIdFromHash: function(){
-                 var hash = window.location.hash;
+        scroller = {
+            topScrollOffset: -64,
+            scrollTiming: 1000,
+            pageLoadScrollDelay: 1000,
+            scrollToElement: function(whereTo){
+                $.scrollTo(whereTo.replace('comment', 'comment_id_'), scroller.scrollTiming, { offset: { top: scroller.topScrollOffset }, easing: 'easeInOutQuart' });
+            },
+            generateTempNavId: function(navId){
+                return '_' + navId;
+            },
+            getNavIdFromHash: function(){
+                var hash = window.location.hash;
+                if (scroller.hashIsTempNavId()) {
+                    hash = hash.substring(1);
+                }
 
-                 if (scroller.hashIsTempNavId()) {
-                     hash = hash.substring(1);
-                 }
+                return hash;
+            },
+            hashIsTempNavId: function(){
+                var hash = window.location.hash;
 
-                 return hash;
-             },
-             hashIsTempNavId: function(){
-                 var hash = window.location.hash;
+                return hash.substring(0,1) === '#';
+            },
 
-                 return hash.substring(0,1) === '#';
-             },
+            loaded: function(){
+                if (scroller.hashIsTempNavId()) {
+                    setTimeout(function(){ scroller.scrollToElement('#'+scroller.getNavIdFromHash()); },scroller.pageLoadScrollDelay);
+                }
+            }
+        };
 
-             loaded: function(){
+    })(jQuery);
+</script>
 
-                 if (scroller.hashIsTempNavId()) {
-                     setTimeout(function(){ scroller.scrollToElement('#'+scroller.getNavIdFromHash()); },scroller.pageLoadScrollDelay);
-                 }
-             }
-         };
-
-     })(jQuery);
- </script>
-
-
- <div class="panel panel-default comment">
+<div class="panel panel-default comment">
     <div class="panel-body">
                     <span class="comment-count">
                         <span id="count-comments">{$iCountComment}</span> {$iCountComment|declension:$aLang.comment_declension:$sLang}
@@ -90,12 +87,10 @@
 </div>
 
 <div class="comments" id="comments">
-
     <a name="comments"></a>
 
     {if $iCountComment == 0}
         <div class="comment-wrapper wrapper-level-0" data-level="0" id="comment_wrapper_id_0"></div>
-
     {else}
 
         {$nesting="-1"}
