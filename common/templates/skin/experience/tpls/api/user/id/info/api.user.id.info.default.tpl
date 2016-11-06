@@ -1,5 +1,5 @@
 <div class="popover-user-info-container">
-    <img src="{$oUser->GetPhotoUrl('popover')}" alt="{$oUser->getDisplayName()}" class="user-avatar popover-user-info-avatar"/>
+    <img src="{$oUser->GetPhotoUrl('popover')}" {$oUser->getPhotoImageSizeAttr('popover')} alt="{$oUser->getDisplayName()}" class="user-avatar popover-user-info-avatar"/>
     <div class="popover-user-info-content">
         <ul class="popover-user-info-top">
             {if (C::Get('rating.enabled'))}

@@ -72,7 +72,7 @@
                                       data-animation="true"
                                       data-cache="true"
                                       class="nowrap">
-                                        <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>&nbsp;
+                                        <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>&nbsp;
                                     <a href="{$oUser->getProfileUrl()}" class="userlogo link link-dual link-lead link-clear mal0 {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getDisplayName()}</a>
                                     </span>
                             {/foreach}

@@ -1,24 +1,23 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike   *}
 
- {extends file="_index.tpl"}
+{extends file="_index.tpl"}
 
- {block name="layout_vars"}
-     {$menu="topics"}
- {/block}
+{block name="layout_vars"}
+    {$menu="topics"}
+{/block}
 
- {block name="layout_content"}
-     {$oUserOwner=$oBlog->getOwner()}
-     {$oVote=$oBlog->getVote()}
+{block name="layout_content"}
+    {$oUserOwner=$oBlog->getOwner()}
+    {$oVote=$oBlog->getVote()}
 
-     <script type="text/javascript">
-         jQuery(function ($) {
-             ls.lang.load({lang_load name="fa_blog_fold_info,fa_blog_expand_info"});
+    <script type="text/javascript">
+        jQuery(function ($) {
+            ls.lang.load({lang_load name="fa_blog_fold_info,fa_blog_expand_info"});
          });
-     </script>
+    </script>
 
-     {include_once file='modals/modal.blog_delete.tpl'}
-
+    {include_once file='modals/modal.blog_delete.tpl'}
 
      <!-- Блок топика -->
      <div class="panel panel-default user-info raised">
@@ -55,7 +54,7 @@
              <div class="row user-info-block">
                  <div class="col-lg-20">
                      {$oBlogType=$oBlog->getBlogType()}
-                     <img class="user-logo" src="{$oBlog->getAvatarUrl('large')}" alt="avatar"/>
+                     <img class="user-logo" src="{$oBlog->getAvatarUrl('large')}" {$oBlog->getAvatarImageSizeAttr('large')} alt="avatar"/>
                      <div class="user-name">
                          <div class="user-login-block">
                             <span class="user-login">
@@ -120,7 +119,7 @@
                                  <td class="bot0">
                                 <span class="avatar">
                                     <a class="link link-clear" href="{$oUserOwner->getProfileUrl()}">
-                                        <img src="{$oUserOwner->getAvatarUrl('small')}" alt="avatar"/>
+                                        <img src="{$oUserOwner->getAvatarUrl('small')}" {$oUserOwner->getAvatarImageSizeAttr('small')}  alt="{$oUserOwner->getDisplayName()}"/>
                                     </a>
                                     <a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
                                 </span>
@@ -129,7 +128,7 @@
                                              {$oUser=$oBlogUser->getUser()}
                                              <br/>
                                              <span class="user-avatar">
-                                            <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('small')}" alt="avatar"/></a>
+                                            <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')}  alt="{$oUser->getDisplayName()}"/></a>
                                             <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                         </span>
                                          {/foreach}
@@ -145,7 +144,7 @@
                                          {foreach $aBlogModerators as $oBlogUser}
                                              {$oUser=$oBlogUser->getUser()}
                                              <span class="user-avatar">
-                                                <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('small')}" alt="avatar"/></a>
+                                                <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')}  alt="{$oUser->getDisplayName()}"/></a>
                                                 <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                             </span>
                                          {/foreach}
@@ -161,7 +160,6 @@
                      </div>
                  </div>
              </div>
-
 
          </div>
          <div class="panel-footer">

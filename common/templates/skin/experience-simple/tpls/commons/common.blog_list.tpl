@@ -64,11 +64,11 @@
                                data-cache="false"
                                href="{$oBlog->getUrlFull()}" class="blog-name">
                                 {if Router::GetActionEvent()=='personal'}
-                                    <img src="{$oUserOwner->getAvatarUrl('medium')}" class="mar6" alt="{$oUserOwner->getDisplayName()}"/>
+                                    <img src="{$oUserOwner->getAvatarUrl('medium')}" {$oUserOwner->getAvatarImageSizeAttr('medium')} class="mar6" alt="{$oUserOwner->getDisplayName()}"/>
                                 {else}
                                     {$sBlogAvatar = $oBlog->getUrlFull()}
                                     {if $sBlogAvatar}
-                                        <img src="{$oBlog->getAvatarUrl('medium')}" width="48" height="48" class="avatar mar6"/>
+                                        <img src="{$oBlog->getAvatarUrl('medium')}" {$oBlog->getAvatarImageSizeAttr('medium')} class="avatar mar6"/>
                                     {else}
                                         <i class="fa fa-folder-o mar6"></i>
                                     {/if}

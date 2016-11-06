@@ -6,7 +6,7 @@
         {foreach $aUsersList as $oUserList}
             <div class="col-xs-4 friend">
                 <a href="{$oUserList->getProfileUrl()}" title="{$oUserList->getDisplayName()}">
-                    <img src="{$oUserList->getAvatarUrl('big')}" alt="{$oUserList->getDisplayName()}" class="avatar"/>
+                    <img src="{$oUserList->getAvatarUrl('big')}" {$oUserList->getAvatarImageSizeAttr('big')} alt="{$oUserList->getDisplayName()}" class="avatar"/>
                 </a>
                 <span class="{if $oUserList->isOnline()}success{else}danger{/if}"></span>
                 {*{$oUserList->getDisplayName()}*}

@@ -1254,37 +1254,70 @@ class AltoFunc_File {
     static public function ImgModAttr($sSize) {
 
         $aResult = array(
-            'width' => null,
-            'height' => null,
-            'mod' => null,
+            'width'     => null, // int - width of image
+            'height'    => null, // int - height of image
+            'mod'       => null, // str - modificator ['fit', 'crop', 'pad', 'max']
+            'attr'      => '',   // str - attributes of HTML tag <img ...>: ' width=... height=...'
+            'style'     => '',   // str - value for attributes style of HTML tag <img ...>
         );
         if ($sSize) {
-            $nPos = strpos($sSize, 'x');
-            if ($nPos === false) {
-                $nHeight = $nWidth = intval($sSize);
-            } elseif ($nPos === 0) {
-                $nWidth = 0;
-                $nHeight = intval(substr($sSize, 1));
+            $iPos = strpos($sSize, 'x');
+            if ($iPos === false) {
+                $iHeight = $iWidth = intval($sSize);
+            } elseif ($iPos === 0) {
+                $iWidth = 0;
+                $iHeight = intval(substr($sSize, 1));
             } else {
-                $nWidth = intval(substr($sSize, 0, $nPos));
-                $nHeight = intval(substr($sSize, $nPos+1));
+                $iWidth = intval(substr($sSize, 0, $iPos));
+                $iHeight = intval(substr($sSize, $iPos+1));
             }
 
-            if ($nWidth || $nHeight) {
-                if ($nWidth) {
-                    $aResult['width'] = $nWidth;
+            if ($iWidth || $iHeight) {
+                if ($iWidth) {
+                    $aResult['width'] = $iWidth;
+                    $aResult['attr'] .= ' ' . 'width="' . $iWidth . '"';
                 }
-                if ($nHeight) {
-                    $aResult['height'] = $nHeight;
+                if ($iHeight) {
+                    $aResult['height'] = $iHeight;
+                    $aResult['attr'] .= ' ' . 'height="' . $iHeight . '"';
                 }
+                if (!empty($aResult['attr'])) {
+                    $aResult['attr'] .= ' ';
+                }
+                // check modificator
+                $iMaxWidth = $iMinWidth = $iMaxHeight = $iMinHeight = 0;
                 if (strpos($sSize, 'fit')) {
                     $aResult['mod'] = 'fit';
+                    $iMaxWidth = $aResult['width'];
+                    $iMaxHeight = $aResult['height'];
                 } else if (strpos($sSize, 'crop')) {
                     $aResult['mod'] = 'crop';
                 } else if (strpos($sSize, 'pad')) {
                     $aResult['mod'] = 'pad';
+                    $iMinWidth = $aResult['width'];
+                    $iMinHeight = $aResult['height'];
                 } else if (strpos($sSize, 'max')) {
                     $aResult['mod'] = 'max';
+                }
+
+                if ($iMaxWidth) {
+                    $aResult['style'] .= 'max-width:' . $iMaxWidth . 'px;';
+                }
+                if ($iMaxHeight) {
+                    $aResult['style'] .= 'max-height:' . $iMaxHeight . 'px;';
+                }
+                if ($iMinWidth) {
+                    $aResult['style'] .= 'min-width:' . $iMinWidth . 'px;';
+                }
+                if ($iMinHeight) {
+                    $aResult['style'] .= 'min-height:' . $iMinHeight . 'px;';
+                }
+
+                if (!$iMaxWidth && !$iMinWidth && $iWidth) {
+                    $aResult['style'] .= 'width:' . $iWidth . 'px;';
+                }
+                if (!$iMaxHeight && !$iMinHeight && $iWidth) {
+                    $aResult['style'] .= 'height:' . $iHeight . 'px;';
                 }
             }
         }

@@ -12,7 +12,7 @@
             <ul>
                 <li class="comment-user js-popover-user-{$oReplyUser->getId()}">
                     <a href="{$oReplyUser->getProfileUrl()}" class="mal0">
-                        <img src="{$oReplyUser->getAvatarUrl('small')}" alt="{$oReplyUser->getDisplayName()}"/>
+                        <img src="{$oReplyUser->getAvatarUrl('small')}" {$oReplyUser->getAvatarImageSizeAttr('small')} alt="{$oReplyUser->getDisplayName()}"/>
                     </a>
                     <a class="userlogo link link-blue link-lead link-clear"
                        href="{$oReplyUser->getProfileUrl()}">

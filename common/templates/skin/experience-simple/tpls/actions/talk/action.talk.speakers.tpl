@@ -50,7 +50,7 @@
                                      <li data-alto-role="popover"
                                          data-api="user/{$oUser->getId()}/info"
                                          id="speaker_item_{$oTalkUser->getUserId()}_area">
-                                         <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                                         <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                                          <a class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                          {if $oTalkUser->getUserActive()==$TALK_USER_ACTIVE}- <a href="#" id="speaker_item_{$oTalkUser->getUserId()}" class="link link-lead link-red-blue delete"><i class="fa fa-times"></i></a>{/if}
                                      </li>

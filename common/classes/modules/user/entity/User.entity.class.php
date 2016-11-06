@@ -671,6 +671,50 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
+     * @param string     $sImageType
+     * @param string|int $xSize
+     *
+     * @return array
+     */
+    protected function _defineImageSize($sImageType, $xSize) {
+
+        $sSize = C::Val('module.uploader.images.' . $sImageType . '.size.' . $xSize, $xSize);
+        return F::File_ImgModAttr($sSize);
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getAvatarImageSizeAttr($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = Config::Val('module.user.profile_avatar_size', self::DEFAULT_AVATAR_SIZE);
+        }
+        $aImgSize = $this->_defineImageSize('profile_avatar', $xSize);
+
+        return $aImgSize['attr'];
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getAvatarImageSizeStyle($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = Config::Val('module.user.profile_avatar_size', self::DEFAULT_AVATAR_SIZE);
+        }
+        $aImgSize = $this->_defineImageSize('profile_avatar', $xSize);
+
+        return $aImgSize['style'];
+    }
+
+    /**
      * Возвращает дефолтный аватар пользователя
      *
      * @param int|string $xSize
@@ -778,6 +822,22 @@ class ModuleUser_EntityUser extends Entity {
             $this->setProp($sPropKey, $sUrl);
         }
         return $sUrl;
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getPhotoImageSizeAttr($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = self::DEFAULT_PHOTO_SIZE;
+        }
+        $aImgSize = $this->_defineImageSize('profile_photo', $xSize);
+
+        return $aImgSize['attr'];
     }
 
     /**

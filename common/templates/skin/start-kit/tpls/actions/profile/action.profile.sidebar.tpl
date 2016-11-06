@@ -23,7 +23,7 @@
                 </span>
                 {* Картинка фона блога *}
                 <img style="width: 100%; display: block; margin-bottom: 8px;"
-                     src="{$oUserProfile->getPhotoUrl('250crop')}"
+                     src="{$oUserProfile->getPhotoUrl('250crop')}" {$oUserProfile->getPhotoImageSizeAttr('250crop')}
                      id="profile-photo-image"
                      class="profile-photo js-uploader-image"/>
             </div>

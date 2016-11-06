@@ -60,13 +60,13 @@
                         <div class="blog-logo">
                             {if Router::GetActionEvent()=='personal'}
                                 <a href="{$oUserOwner->getProfileUrl()}">
-                                    <img src="{$oUserOwner->getAvatarUrl('medium')}" alt="{$oUserOwner->getDisplayName()}"/>
+                                    <img src="{$oUserOwner->getAvatarUrl('medium')}" {$oUserOwner->getAvatarImageSizeAttr('medium')} alt="{$oUserOwner->getDisplayName()}"/>
                                 </a>
                             {else}
                                 {$sBlogAvatar = $oBlog->getUrlFull()}
                                 {if $sBlogAvatar}
                                     <a href="{$oBlog->getUrlFull()}">
-                                        <img src="{$oBlog->getAvatarUrl('medium')}" width="48" height="48" class="avatar"/>
+                                        <img src="{$oBlog->getAvatarUrl('medium')}" {$oBlog->getAvatarImageSizeAttr('medium')} class="avatar"/>
                                     </a>
                                 {else}
                                     <i class="fa fa-folder-o"></i>

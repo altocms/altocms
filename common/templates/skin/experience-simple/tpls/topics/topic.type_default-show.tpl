@@ -28,7 +28,7 @@
                 <ul>
                     <li data-alto-popover-api="user/{$oUser->getId()}/info"
                         class="topic-user">
-                        <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                        <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                         <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                             {$oUser->getDisplayName()}
                         </a>

@@ -51,7 +51,7 @@
             <tr>
                 <td class="cell-name">
                     <a href="{$oBlog->getUrlFull()}">
-                        <img src="{$oBlog->getAvatarUrl('medium')}" width="48" height="48" class="avatar visible-lg"/>
+                        <img src="{$oBlog->getAvatarUrl('medium')}" {$oBlog->getAvatarImageSizeAttr('medium')} class="avatar visible-lg"/>
                     </a>
 
                     <h4>

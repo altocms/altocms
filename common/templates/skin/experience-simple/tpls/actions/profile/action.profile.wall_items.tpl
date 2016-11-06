@@ -9,7 +9,7 @@
             <ul>
                 <li class="comment-user js-popover-user-{$oWallUser->getId()}">
                     <a href="{$oWallUser->getProfileUrl()}" class="mal0">
-                        <img src="{$oWallUser->getAvatarUrl('small')}" alt="{$oWallUser->getDisplayName()}"/>
+                        <img src="{$oWallUser->getAvatarUrl('small')}" {$oWallUser->getAvatarImageSizeAttr('small')} alt="{$oWallUser->getDisplayName()}"/>
                     </a>
                     <a class="userlogo link link-blue link-lead link-clear"
                        href="{$oWallUser->getProfileUrl()}">

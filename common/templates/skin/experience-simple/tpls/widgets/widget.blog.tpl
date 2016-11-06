@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="panel-content">
-                    <a href="{$oBlog->getUrlFull()}"><img src="{$oBlog->getAvatarUrl('great')}" alt=""/></a>
+                    <a href="{$oBlog->getUrlFull()}"><img src="{$oBlog->getAvatarUrl('great')}" {$oBlog->getAvatarImageSizeAttr('great')} alt=""/></a>
                 </div>
 
 

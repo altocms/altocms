@@ -54,7 +54,7 @@
                 </td>
                 <td rowspan="3" class="user-logo  last-td">
                     <a href="{$oUserList->getProfileUrl()}">
-                        <img src="{$oUserList->getAvatarUrl('big')}" alt="{$oUserList->getDisplayName()}"/>
+                        <img src="{$oUserList->getAvatarUrl('big')}" {$oUserList->getAvatarImageSizeAttr('big')} alt="{$oUserList->getDisplayName()}"/>
                     </a>
                 </td>
                 <td class="user-name {if !$oUserList->getProfileName()}no-realname{/if}">

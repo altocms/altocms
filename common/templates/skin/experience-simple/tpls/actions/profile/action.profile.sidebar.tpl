@@ -22,7 +22,7 @@
                     >
 
                 <div class="profile-logo-container">
-                    <img src="{$oUserProfile->getPhotoUrl('240crop')}"
+                    <img src="{$oUserProfile->getPhotoUrl('240crop')}" {$oUserProfile->getPhotoImageSizeAttr('240crop')}
                          id="profile-photo-image"
                          class="profile-photo js-uploader-image"/>
                     <span class="profile-online-status {if $oUserProfile->isOnline()}success{else}danger{/if}"></span>

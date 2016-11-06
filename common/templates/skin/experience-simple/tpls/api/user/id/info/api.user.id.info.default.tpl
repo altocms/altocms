@@ -1,5 +1,5 @@
 <div class="user-info-default-container">
-    <img src="{$oUser->GetPhotoUrl('112x112crop')}" alt="{$oUser->getLogin()}"/>
+    <img src="{$oUser->GetPhotoUrl('112x112crop')}" {$oUser->getPhotoImageSizeAttr('112x112crop')} alt="{$oUser->getLogin()}"/>
     <div class="user-info-default-top">
         <ul>
             {if (C::Get('rating.enabled'))}

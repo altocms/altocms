@@ -37,7 +37,7 @@
                             data-container="body"
                             class="comment-user">
                             <a href="{$oUser->getProfileUrl()}" class="mal0">
-                                <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                                <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                             </a>
                             <a class="userlogo link link-blue link-lead link-clear {if $iAuthorId == $oUser->getId()}comment-topic-author{/if}"
                                href="{$oUser->getProfileUrl()}">

@@ -19,7 +19,6 @@
 
      {include_once file='modals/modal.blog_delete.tpl'}
 
-
      <!-- Блок топика -->
      <div class="panel panel-default user-info flat">
          <div class="panel-body">
@@ -27,7 +26,7 @@
              <div class="row user-info-block">
                  <div class="col-lg-20">
                      {$oBlogType=$oBlog->getBlogType()}
-                     <img class="user-logo bor100" src="{$oBlog->getAvatarUrl('large')}"  alt="avatar"/>
+                     <img class="user-logo bor100" src="{$oBlog->getAvatarUrl('large')}" {$oBlog->getAvatarImageSizeAttr('large')}  alt="avatar"/>
                      <div class="user-name">
                          <div class="user-login-block">
                             <span class="user-login">
@@ -94,7 +93,7 @@
                                     <a data-alto-role="popover"
                                        data-api="user/{$oUserOwner->getId()}/info"
                                        class="link link-clear" href="{$oUserOwner->getProfileUrl()}">
-                                        <img src="{$oUserOwner->getAvatarUrl('mini')}" class="bor32" alt="avatar"/>
+                                        <img src="{$oUserOwner->getAvatarUrl('mini')}" {$oUserOwner->getAvatarImageSizeAttr('mini')} class="bor32"  alt="{$oUserOwner->getDisplayName()}"/>
                                     </a>
                                     <a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
                                 </span>
@@ -103,7 +102,7 @@
                                              {$oUser=$oBlogUser->getUser()}
                                              <br/>
                                              <span class="user-avatar">
-                                            <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}"  class="bor32" alt="avatar"/></a>
+                                            <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}" {$oUser->getAvatarImageSizeAttr('mini')}  class="bor32"  alt="{$oUser->getDisplayName()}"/></a>
                                             <a data-alto-role="popover"
                                                data-api="user/{$oUser->getId()}/info"
                                                href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
@@ -121,7 +120,7 @@
                                          {foreach $aBlogModerators as $oBlogUser}
                                              {$oUser=$oBlogUser->getUser()}
                                              <span class="user-avatar">
-                                                <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}"  class="bor32" alt="avatar"/></a>
+                                                <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}" {$oUser->getAvatarImageSizeAttr('mini')} class="bor32" alt="{$oUser->getDisplayName()}"/></a>
                                                 <a data-alto-role="popover"
                                                    data-api="user/{$oUser->getId()}/info"
                                                    data-api-param-tpl="default"

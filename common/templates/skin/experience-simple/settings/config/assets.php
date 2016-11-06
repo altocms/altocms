@@ -49,9 +49,9 @@ $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/hoverintent/jquery.hoverIntent.js";
 
 $config['assets']['default']['css'] = array(
-    '___path.skin.dir___/assets/css/style.bootstrap.min.css',
+    '___path.skin.dir___/assets/css/style.bootstrap.css',
     //'___path.skin.dir___/assets/css/style.bootstrap.min.map',
-    '___path.skin.dir___/assets/css/style.experience.min.css',
+    '___path.skin.dir___/assets/css/style.experience.css',
     //'___path.skin.dir___/assets/css/style.experience.min.map',
     '___path.skin.dir___/assets/css/animate.min.css',
     '___path.skin.dir___/assets/css/hover.css',
