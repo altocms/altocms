@@ -1845,7 +1845,7 @@ class ModuleTopic_EntityTopic extends Entity {
                 }
             }
         } elseif ($sFilter === 'height-max' || $sFilter === 'height-min') {
-            $aSorted = [];
+            $aSorted = array();
             foreach($aImages as $xKey => $oImage) {
                 $aSorted[$oImage->getSizeHeight()][$xKey] = $oImage;
             }
