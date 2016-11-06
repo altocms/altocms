@@ -652,17 +652,15 @@ class ModuleUser_EntityUser extends Entity {
         $sPropKey = '_avatar_url_' . $xSize;
         $sUrl = $this->getProp($sPropKey);
         if (is_null($sUrl)) {
-            if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
-                $xSize = $sRealSize;
-            }
-            $sUrl = $this->_getProfileImageUrl('profile_avatar', $xSize);
+            $sSize = C::Val('module.uploader.images.profile_avatar.size.' . $xSize, $xSize);
+            $sUrl = $this->_getProfileImageUrl('profile_avatar', $sSize);
             if (!$sUrl) {
                 // Old version compatibility
                 $sUrl = $this->getProfileAvatar();
-                if ($sUrl && ($sUrl[0] == '@') && $xSize) {
-                    $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+                if ($sUrl && ($sUrl[0] == '@') && $sSize) {
+                    $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $sSize);
                 } elseif (empty($sUrl)) {
-                    $sUrl = $this->getDefaultAvatarUrl($xSize);
+                    $sUrl = $this->getDefaultAvatarUrl($sSize);
                 }
             }
             $this->setProp($sPropKey, $sUrl);
@@ -866,6 +864,9 @@ class ModuleUser_EntityUser extends Entity {
         }
         if (!$xSize) {
             $xSize = self::DEFAULT_PHOTO_SIZE;
+        }
+        if ($sRealSize = C::Get('module.uploader.images.profile_photo.size.' . $xSize)) {
+            $xSize = $sRealSize;
         }
         if (is_numeric($xSize)) {
             $xSize = $xSize . 'x' . $xSize;

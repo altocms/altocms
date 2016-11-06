@@ -70,4 +70,8 @@ $config['module']['uploader']['images']['profile_avatar']['size'] = array(
     'mini'   => '16x16crop',
 );
 
+$config['module']['uploader']['images']['profile_photo']['size'] = array(
+    'default'  => '222x222crop',
+);
+
 return $config;
