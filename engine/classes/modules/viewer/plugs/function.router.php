@@ -29,15 +29,14 @@ function smarty_function_router($aParams, &$oSmarty) {
         return '';
     }
 
-    if (!$sPath = R::GetPath($aParams['page'])) {
+    $sUrl = R::GetLink($aParams['page']);
+    if (!$sUrl) {
         trigger_error("Router: unknown 'page' given", E_USER_WARNING);
         return '';
     }
 
     // * Возвращаем полный адрес к указаному Action
-    $sReturn = (isset($aParams['extend']))
-        ? $sPath . $aParams['extend'] . "/"
-        : $sPath;
+    $sReturn = (isset($aParams['extend']) ? $sUrl . $aParams['extend'] . '/' : $sUrl);
 
     if (!empty($aParams['assign'])) {
         $oSmarty->assign($aParams['assign'], $sReturn);

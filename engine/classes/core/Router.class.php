@@ -975,19 +975,31 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает правильную адресацию по переданому названию страницы (экшену)
+     * Возвращает правильную адресацию (URL) по переданому названию страницы (экшену)
      *
      * @param  string $sAction Экшен
      *
      * @return string
      */
-    static public function GetPath($sAction) {
+    static public function GetLink($sAction) {
 
         if (empty(static::$aActionPaths[$sAction])) {
             $sAction = trim($sAction, '/');
-            static::$aActionPaths[$sAction] = static::getInstance()->_getPath($sAction);
+            static::$aActionPaths[$sAction] = static::getInstance()->_getLink($sAction);
         }
         return static::$aActionPaths[$sAction];
+    }
+
+    /**
+     * Alias of GetLink()
+     *
+     * @param $sAction
+     *
+     * @return string
+     */
+    static public function GetPath($sAction) {
+
+        return self::GetLink($sAction);
     }
 
     /**
@@ -995,10 +1007,10 @@ class Router extends LsObject {
      *
      * @return string
      */
-    public function _getPath($sAction) {
+    public function _getLink($sAction) {
 
         // Если пользователь запросил action по умолчанию
-        $sPage = (($sAction == 'default') ? $this->aConfigRoute['config']['action_default'] : $sAction);
+        $sPage = (($sAction === 'default') ? $this->aConfigRoute['config']['action_default'] : $sAction);
 
         // Смотрим, есть ли правило rewrite
         $sPage = static::getInstance()->RestorePath($sPage);
@@ -1006,7 +1018,7 @@ class Router extends LsObject {
         if (!empty($this->aConfigRoute['domains']['backward'])) {
             if (isset($this->aConfigRoute['domains']['backward'][$sPage])) {
                 $sResult = $this->aConfigRoute['domains']['backward'][$sPage];
-                if ($sResult[1] != '/') {
+                if ($sResult[1] !== '/') {
                     $sResult = '//' . $sResult;
                     if (substr($sResult, -1) !== '/') {
                         $sResult .= '/';
