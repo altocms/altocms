@@ -804,7 +804,7 @@ class ActionBlog extends Action {
         }
 
         // Если номер топика правильный, но URL блога неверный, то корректируем его и перенаправляем на нужный адрес
-        if ($sBlogUrl != '' && $this->oCurrentTopic->getBlog()->getUrl() != $sBlogUrl) {
+        if ($sBlogUrl !== '' && $this->oCurrentTopic->getBlog()->getUrl() !== $sBlogUrl) {
             R::Location($this->oCurrentTopic->getUrl());
         }
 
@@ -812,7 +812,7 @@ class ActionBlog extends Action {
         // но ссылка на топик и ЧПУ url разные, и это не запрос RSS
         // то перенаправляем на страницу для вывода топика (во избежание дублирования контента по разным URL)
         if ($sTopicUrlMask && $sBlogUrl == '' 
-            && $this->oCurrentTopic->getUrl() != R::GetPathWebCurrent() . (substr($this->oCurrentTopic->getUrl(), -1) == '/' ? '/' : '')
+            && $this->oCurrentTopic->getUrl() != R::GetPathWebCurrent() . (substr($this->oCurrentTopic->getUrl(), -1) === '/' ? '/' : '')
             && substr(R::RealUrl(true), 0, 4) !== 'rss/'
         ) {
             R::Location($this->oCurrentTopic->getUrl());

@@ -72,6 +72,9 @@
         </div>
     {/block}
 
+    {block name="topic_fields"}
+    {/block}
+
     {block name="topic_footer"}
         {$oBlog=$oTopic->getBlog()}
         {$oUser=$oTopic->getUser()}

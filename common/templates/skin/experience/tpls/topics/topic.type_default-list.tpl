@@ -55,7 +55,6 @@
             </div>
         {/block}
 
-
         {block name="topic_content"}
             <div class="topic-text">
                 {hook run='topic_content_begin' topic=$oTopic bTopicList=true}
@@ -78,7 +77,9 @@
             </div>
         {/block}
 
-        {include file="fields/field.tags-show.tpl"}
+        {block name="topic_fields"}
+            {include file="fields/field.tags-show.tpl"}
+        {/block}
 
     </div>
 

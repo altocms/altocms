@@ -1,5 +1,5 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {extends file="_index.tpl"}
 
@@ -17,8 +17,6 @@
 
 <div class="panel panel-default content-write flat">
     <div class="panel-body">
-
-
 
     {include file='commons/common.editor.tpl' sImgToLoad='blog_description' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
 
@@ -38,15 +36,16 @@
         <div class="form-group">
             <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-header"></i></span>
-                <input type="text" id="blog_title" name="blog_title" value="{$_aRequest.blog_title}" class="form-control"/>
+                <input type="text" id="blog_title" name="blog_title" value="{$_aRequest.blog_title}" class="form-control" placeholder="{$aLang.blog_create_title}"/>
             </div>
             <small class="control-notice">{$aLang.blog_create_title_notice}</small>
         </div>
+
         {* URL БЛОГА *}
         <div class="form-group">
             <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-globe"></i></span>
-                <input type="text" id="blog_url" name="blog_url" value="{$_aRequest.blog_url}" class="form-control" {if $_aRequest.blog_id AND !E::IsAdmin()}disabled{/if} />
+                <input type="text" id="blog_url" name="blog_url" value="{$_aRequest.blog_url}" class="form-control" placeholder="{$aLang.blog_create_url}" {if $_aRequest.blog_id AND !E::IsAdmin()}disabled{/if} />
             </div>
             <small class="control-notice">{$aLang.blog_create_url_notice}</small>
         </div>
@@ -79,7 +78,6 @@
             </div>
         </div>
 
-
         {* ОПИСАНИЕ БЛОГА *}
         <div class="form-group">
             <div class="input-group fill-width">
@@ -90,19 +88,6 @@
             </div>
             <small class="control-notice">{$aLang.blog_create_description_notice}</small>
         </div>
-
-
-
-        {*<div>*}
-            {*{if $oBlogEdit AND $oBlogEdit->getAvatar()}*}
-                {*<div class="avatar-edit">*}
-                    {*{foreach Config::Get('module.blog.avatar_size') as $iSize}*}
-                        {*{if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}*}
-                    {*{/foreach}*}
-                {*</div>*}
-            {*{/if}*}
-        {*</div>*}
-
 
         {hook run='form_add_blog_end'}
         <br/>

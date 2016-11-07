@@ -22,8 +22,6 @@
             </script>
         {/if}
 
-
-
         <div class="panel-header-container">
             <div class="col-md-{if $sMenuType=='select'}12{else}6{/if}">
                 <div class="panel-header">
