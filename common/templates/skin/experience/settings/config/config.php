@@ -72,6 +72,7 @@ $config['module']['uploader']['images']['profile_avatar']['size'] = array(
 
 $config['module']['uploader']['images']['profile_photo']['size'] = array(
     'default'  => '222x222crop',
+    'popover'  => '136x136pad',
 );
 
 return $config;
