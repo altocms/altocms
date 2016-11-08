@@ -41,6 +41,12 @@ class ModulePlugin extends Module {
     /** @var  array List of active plugins from PLUGINS.DAT */
     protected $aActivePlugins;
 
+    protected $aEncodeIdChars = array(
+        '.' => '-__-',
+        '/' => '-_--',
+        '\\' => '--_-',
+    );
+
     /**
      * Список engine-rewrite`ов (модули, экшены, сущности, шаблоны)
      * Определяет типы объектов, которые может переопределить/унаследовать плагин
@@ -284,6 +290,47 @@ class ModulePlugin extends Module {
     }
 
     /**
+     * @param string $sPluginId
+     * @param bool   $bActive
+     *
+     * @return ModulePlugin_EntityPlugin|null
+     */
+    protected function _getPluginEntityById($sPluginId, $bActive) {
+
+        $aPlugins = $this->GetPluginsList($bActive);
+        if (!isset($aPlugins[$sPluginId])) {
+            return null;
+        }
+        return $aPlugins[$sPluginId];
+    }
+
+    /**
+     * @param string $sPluginId
+     * @param bool   $bActive
+     *
+     * @return Plugin|null
+     */
+    protected function _getPluginById($sPluginId, $bActive) {
+
+        $oPlugin = null;
+        $oPluginEntity = $this->_getPluginEntityById($sPluginId, $bActive);
+
+        if ($oPluginEntity) {
+            $sClassName = $oPluginEntity->GetPluginClass();
+            $sPluginClassFile = $oPluginEntity->GetPluginClassFile();
+            if ($sClassName && $sPluginClassFile) {
+                F::IncludeFile($sPluginClassFile);
+                if (class_exists($sClassName, false)) {
+                    /** @var Plugin $oPlugin */
+                    $oPlugin = new $sClassName($oPluginEntity);
+                }
+            }
+        }
+
+        return $oPlugin;
+    }
+
+    /**
      * Активация плагина
      *
      * @param   string  $sPluginId  - код плагина
@@ -301,22 +348,9 @@ class ModulePlugin extends Module {
             '!=' => 'ne', '<>' => 'ne', 'ne' => 'ne'
         );
 
-        // получаем список неактивированных плагинов
-        $aPlugins = $this->GetPluginsList(false);
-        if (!isset($aPlugins[$sPluginId])) {
-            return false;
-        }
-
-        $sPluginName = F::StrCamelize($sPluginId);
-        $sPluginDir = $aPlugins[$sPluginId]->getDirname();
-        if (!$sPluginDir) {
-            $sPluginDir = $sPluginId;
-        }
-        $sClassName = "Plugin{$sPluginName}";
-
-        if (class_exists($sClassName)) {
-            /** @var Plugin $oPlugin */
-            $oPlugin = new $sClassName;
+        /** @var Plugin $oPlugin */
+        $oPlugin = $this->_getPluginById($sPluginId, false);
+        if ($oPlugin) {
             /** @var ModulePlugin_EntityPlugin $oPluginEntity */
             $oPluginEntity = $oPlugin->GetPluginEntity();
 
@@ -461,11 +495,15 @@ class ModulePlugin extends Module {
                 }
             }
             $bResult = $oPlugin->Activate();
+            if ($bResult && ($sVersion = $oPlugin->GetVersion())) {
+                $oPlugin->WriteStorageVersion($sVersion);
+                $oPlugin->WriteStorageDate();
+            }
         } else {
             // * Исполняемый файл плагина не найден
-            $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
+            $sPluginClassFile = Plugin::GetPluginClass($sPluginId) . '.class.php';
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
+                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sPluginClassFile)),
                 E::ModuleLang()->Get('error'),
                 true
             );
@@ -521,39 +559,29 @@ class ModulePlugin extends Module {
     /**
      * Деактивация
      *
-     * @param   string  $sPluginId  - код плагина
+     * @param   string  $sPluginId
+     * @param   bool    $bRemove
      *
      * @return  null|bool
      */
-    public function Deactivate($sPluginId) {
+    public function Deactivate($sPluginId, $bRemove = false) {
 
-        // получаем список активированных плагинов
-        $aPlugins = $this->GetPluginsList(true);
-        if (!isset($aPlugins[$sPluginId])) {
-            return null;
-        }
+        // get activated plugin by ID
+        $oPlugin = $this->_getPluginById($sPluginId, true);
 
-        $sPluginName = F::StrCamelize($sPluginId);
-        $sPluginDir = $aPlugins[$sPluginId]->getDirname();
-        if (!$sPluginDir) {
-            $sPluginDir = $sPluginId;
-        }
-        $sClassName = "Plugin{$sPluginName}";
-
-        if (class_exists($sClassName)) {
-
-            /** @var Plugin $oPlugin */
-            $oPlugin = new $sClassName;
-
+        if ($oPlugin) {
             /**
              * TODO: Проверять зависимые плагины перед деактивацией
              */
             $bResult = $oPlugin->Deactivate();
+            if ($bRemove) {
+                $oPlugin->Remove();
+            }
         } else {
             // Исполняемый файл плагина не найден
-            $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginDir}/Plugin{$sPluginName}.class.php");
+            $sPluginClassFile = Plugin::GetPluginClass($sPluginId) . '.class.php';
             E::ModuleMessage()->AddError(
-                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sFile)),
+                E::ModuleLang()->Get('action.admin.plugin_file_not_found', array('file' => $sPluginClassFile)),
                 E::ModuleLang()->Get('error'),
                 true
             );
@@ -588,12 +616,14 @@ class ModulePlugin extends Module {
     /**
      * Возвращает список активированных плагинов в системе
      *
+     * @param bool $bIdOnly
+     *
      * @return array
      */
-    public function GetActivePlugins() {
+    public function GetActivePlugins($bIdOnly = false) {
 
         if (is_null($this->aActivePlugins)) {
-            $this->aActivePlugins = F::GetPluginsList(false, false);
+            $this->aActivePlugins = F::GetPluginsList(false, $bIdOnly);
         }
         return $this->aActivePlugins;
     }
@@ -668,6 +698,10 @@ class ModulePlugin extends Module {
             // * Если плагин активен, деактивируем его
             if (in_array($sPluginId, $aActivePlugins)) {
                 $this->Deactivate($sPluginId);
+            }
+            $oPlugin = $this->_getPluginById($sPluginId, false);
+            if ($oPlugin) {
+                $oPlugin->Remove();
             }
 
             // * Удаляем директорию с плагином
@@ -1034,6 +1068,46 @@ class ModulePlugin extends Module {
     }
 
     /**
+     * Encode plugin id
+     *
+     * @param $xPluginId
+     *
+     * @return array|mixed
+     */
+    public function EncodeId($xPluginId) {
+
+        if (is_array($xPluginId)) {
+            $aResult = array();
+            foreach($xPluginId as $iIdx => $sPluginId) {
+                $aResult = $this->EncodeId($sPluginId);
+            }
+            return $aResult;
+        } else {
+            return str_replace(array_keys($this->aEncodeIdChars), array_values($this->aEncodeIdChars), $xPluginId);
+        }
+    }
+
+    /**
+     * Decode plugin id
+     *
+     * @param $xPluginId
+     *
+     * @return array|mixed
+     */
+    public function DecodeId($xPluginId) {
+
+        if (is_array($xPluginId)) {
+            $aResult = array();
+            foreach($xPluginId as $xKey => $sPluginId) {
+                $aResult[$xKey] = $this->DecodeId($sPluginId);
+            }
+            return $aResult;
+        } else {
+            return str_replace(array_values($this->aEncodeIdChars), array_keys($this->aEncodeIdChars), $xPluginId);
+        }
+    }
+
+    /**
      * Распаковывает архив с плагином и перемещает его в нужную папку
      *
      * @param $sPackFile
@@ -1083,6 +1157,10 @@ class ModulePlugin extends Module {
                 }
                 if (!$sPluginDir) {
                     $sPluginDir = basename($sPluginSrc);
+                }
+                // Old style compatible
+                if ($sPluginDir && preg_match('/^alto-plugin-([a-z]+)-[\d\.]+$/', $sPluginDir, $aM)) {
+                    $sPluginDir = $aM[1];
                 }
 
                 $sPluginPath = $this->GetPluginsDir() . '/' . $sPluginDir . '/';

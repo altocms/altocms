@@ -99,6 +99,9 @@ class ActionRegistration extends Action {
                             break;
                         case 'password':
                             $oUser->setPassword($sValue);
+                            if (isset($aField['params']['login'])) {
+                                $oUser->setLogin($aField['params']['login']);
+                            }
                             break;
                         case 'password_confirm':
                             $oUser->setPasswordConfirm($sValue);

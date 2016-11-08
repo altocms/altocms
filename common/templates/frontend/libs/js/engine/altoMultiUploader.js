@@ -15,7 +15,6 @@
 /*global jQuery, ls, FileAPI, window */
 
 (function ($, ls) {
-
     "use strict";
 
     //================================================================================================================
@@ -39,7 +38,6 @@
         this.descriptionQueue = [];
         this.descriptionTimerId = [];
 
-
         this.init();
 
         return this;
@@ -49,13 +47,11 @@
     //      ОПРЕДЕЛЕНИЕ ПРОТОТИПА ОБЪЕКТА
     //================================================================================================================
     altoMultiUploader.prototype = {
-
         /**
-         * Инициализация объекта. Вызывается автоматически в
-         * конструкторе плагина.
+         * Инициализация объекта.
+         * Вызывается автоматически в конструкторе плагина.
          */
         init: function () {
-
             /*jslint unparam: true*/
             // Для onCheckFiles поскольку первый параметр не используется
             var $this = this,
@@ -99,11 +95,15 @@
                 },
                 multiple: true,
                 onFileComplete: function (evt, uiEvt) {
-                    /*jslint nomen: true*/
-                    // Специфическое поле FileAPI
-                    evt.widget.remove(evt.widget.__fileId);
-                    /*jslint nomen: false*/
-                    $this.addPhoto(uiEvt.result);
+                    if (uiEvt && uiEvt.status && uiEvt.status >= 400) {
+                        ls.msg.error('HTTP Error ' + uiEvt.status, uiEvt.statusText ? uiEvt.statusText : '');
+                    } else {
+                        /*jslint nomen: true*/
+                        // Специфическое поле FileAPI
+                        evt.widget.remove(evt.widget.__fileId);
+                        /*jslint nomen: false*/
+                        $this.addImg(uiEvt.result);
+                    }
                 },
                 onComplete: $this.options.onComplete,
                 elements: {
@@ -136,7 +136,6 @@
             $this.$list
                 .sortable({
                     stop: function () {
-
                         var elements = $this.$list.find('li'),
                             order = [];
                         if (elements.length > 0) {
@@ -193,12 +192,15 @@
             }
         },
 
-        addPhoto: function (data) {
+        addImg: function (data) {
             var $this = this,
                 html;
 
+            ls.log('add img', data);
             if (!data) {
                 ls.msg.error(null, 'System error #1001');
+            } else if (typeof data === 'string') {
+                ls.msg.error(null, 'System error #1003');
             } else if (data.bStateError) {
                 ls.msg.error(data.sMsgTitle, data.sMsg);
             } else {
@@ -214,8 +216,6 @@
                     this.$list.append($(html)).show();
                 }
             }
-
-
         },
 
         /**
@@ -224,10 +224,10 @@
          * @param id
          */
         setCover: function (id) {
+            var $this = this;
 
             this.$preview.val(id);
 
-            var $this = this;
             if ($this.blockButtons) {
                 return $this;
             }
@@ -245,7 +245,6 @@
                  * @param {{bStateError: {boolean}, sMsg: {string}, bPreview: {boolean}}} result
                  */
                 function (result) {
-
                     ls.progressDone();
                     $this.blockButtons = false;
                     ls.hook.run('uploader_cover_stop', [$this.options]);
@@ -261,11 +260,9 @@
                         }
                         ls.hook.run('uploader_set_cover_after', [$this.options, result]);
                     }
-
                 });
 
             return $this;
-
         },
 
         /**
@@ -274,8 +271,8 @@
          * @param id
          */
         remove: function (id) {
-
             var $this = this;
+
             if ($this.blockButtons) {
                 return $this;
             }
@@ -293,7 +290,6 @@
                  * @param {{bStateError: {boolean}, sMsg: {string}}} result
                  */
                 function (result) {
-
                     ls.progressDone();
                     $this.blockButtons = false;
                     ls.hook.run('uploader_progress_stop', [$this.options]);
@@ -306,11 +302,9 @@
                         ls.msg.notice(null, result.sMsg);
                         ls.hook.run('uploader_remove_image_after', [$this.options, result]);
                     }
-
                 });
 
             return $this;
-
         },
 
         /**
@@ -355,7 +349,6 @@
                         }
                         ls.hook.run('uploader_add_description_after', [$this.options, result]);
                     }
-
                 });
         },
 
@@ -366,7 +359,6 @@
          * @returns {altoMultiUploader}
          */
         setDescription: function (id) {
-
             var $this = this,
                 $textarea = $('#uploader_item_' + id).find('textarea'),
                 data;
@@ -393,7 +385,6 @@
             $this.processDescriptionQueue(false);
 
             return $this;
-
         },
 
         getUploaded: function () {
@@ -415,7 +406,6 @@
      * @returns {altoMultiUploader}
      */
     $.fn.altoMultiUploader = function (option) {
-
         var $this = $(this),
             data = $this.data('alto.altoMultiUploader'),
             options = typeof option === 'object' && option,
@@ -425,9 +415,9 @@
             option = {};
         }
 
-        if (typeof option === 'getUploaded') {
-            data[option]();
-        }
+        //if (typeof option === 'getUploaded') {
+        //    data[option]();
+        //}
 
         if (!data) {
             data = new altoMultiUploader(this, options);
@@ -451,8 +441,6 @@
         }
 
         return funcResult || $this;
-
-
     };
 
     /**
@@ -497,6 +485,5 @@
         submitForm: ''
     };
     /*jslint unparam: false*/
-
 
 }(window.jQuery, ls));

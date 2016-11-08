@@ -48,7 +48,7 @@ class ModuleSession extends Module {
      *
      * @var bool
      */
-    protected $bUseStandartSession = true;
+    protected $bUseStandardSession = true;
 
     /**
      * Инициализация модуля
@@ -56,11 +56,20 @@ class ModuleSession extends Module {
      */
     public function Init() {
 
-        $this->bUseStandartSession = Config::Get('sys.session.standart');
+        $this->bUseStandardSession = Config::Get('sys.session.standart');
 
         // * Стартуем сессию
         $this->Start();
-        $this->SetCookie('visitor_id', F::RandomStr());
+
+        if (!$this->GetCookie('visitor_id')) {
+            $this->SetCookie('visitor_id', F::RandomStr());
+        }
+
+        if (PHP_VERSION_ID >= 50400) {
+            session_register_shutdown();
+        } else {
+            register_shutdown_function('session_write_close');
+        }
     }
 
     /**
@@ -69,7 +78,7 @@ class ModuleSession extends Module {
      */
     protected function Start() {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             $sSysSessionName = Config::Get('sys.session.name');
             session_name($sSysSessionName);
             session_set_cookie_params(
@@ -101,9 +110,11 @@ class ModuleSession extends Module {
                     session_id($sSSID);
                     session_start();
                 } else {
-                    // wrong session ID, regenerates it
-                    session_regenerate_id();
                     session_start();
+                    if ($sSSID) {
+                        // wrong session ID, regenerates it
+                        session_regenerate_id(true);
+                    }
                 }
             }
         } else {
@@ -153,7 +164,7 @@ class ModuleSession extends Module {
      */
     public function GetId() {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             return session_id();
         } else {
             return $this->sId;
@@ -208,7 +219,7 @@ class ModuleSession extends Module {
         if (is_null($sName)) {
             return $this->GetData();
         } else {
-            if ($this->bUseStandartSession) {
+            if ($this->bUseStandardSession) {
                 return isset($_SESSION[$sName]) ? $_SESSION[$sName] : $sDefault;
             } else {
                 return isset($this->aData[$sName]) ? $this->aData[$sName] : $sDefault;
@@ -217,14 +228,30 @@ class ModuleSession extends Module {
     }
 
     /**
+     * Get session data and drop it from current session
+     *
+     * @param string|null $sName
+     * @param mixed|null  $sDefault
+     *
+     * @return mixed|null
+     */
+    public function GetClear($sName = null, $sDefault = null) {
+
+        $xResult = $this->Get($sName, $sDefault);
+        $this->Drop($sName);
+
+        return $xResult;
+    }
+
+    /**
      * Записывает значение в сессию
      *
-     * @param string $sName    Имя параметра
-     * @param mixed $data    Данные
+     * @param string $sName  Имя параметра
+     * @param mixed  $data   Данные
      */
     public function Set($sName, $data) {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             $_SESSION[$sName] = $data;
         } else {
             $this->aData[$sName] = $data;
@@ -239,12 +266,14 @@ class ModuleSession extends Module {
      */
     public function Drop($sName) {
 
-        if ($this->bUseStandartSession) {
+        if (isset($_SESSION[$sName])) {
             unset($_SESSION[$sName]);
-        } else {
-            if (isset($_SESSION[$sName])) unset($_SESSION[$sName]);
-            unset($this->aData[$sName]);
-            $this->Save();
+        }
+        if (!$this->bUseStandardSession) {
+            if (isset($this->aData[$sName])) {
+                unset($this->aData[$sName]);
+                $this->Save();
+            }
         }
     }
 
@@ -255,7 +284,7 @@ class ModuleSession extends Module {
      */
     public function GetData() {
 
-        if ($this->bUseStandartSession) {
+        if ($this->bUseStandardSession) {
             return $_SESSION;
         } else {
             return $this->aData;
@@ -268,7 +297,7 @@ class ModuleSession extends Module {
      */
     public function DropSession() {
 
-        if ($this->bUseStandartSession && session_id()) {
+        if ($this->bUseStandardSession && session_id()) {
             session_unset();
             $this->DelCookie(Config::Get('sys.session.name'));
             session_destroy();
@@ -287,6 +316,8 @@ class ModuleSession extends Module {
      * @param   int|string|null $xPeriod - period in seconds or in string like 'P<..>'
      * @param   bool            $bHttpOnly
      * @param   bool            $bSecure
+     *
+     * @return bool
      */
     public function SetCookie($sName, $sValue, $xPeriod = null, $bHttpOnly = true, $bSecure = false) {
 
@@ -295,7 +326,21 @@ class ModuleSession extends Module {
         } else {
             $nTime = 0;
         }
-        setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
+        // setting a cookie with a value of FALSE will try to delete the cookie
+        if (is_bool($sValue)) {
+            $sValue = ($sValue ? 1 : 0);
+        }
+        $bResult = setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
+        if (DEBUG) {
+            if (!$bResult) {
+                if (headers_sent($sFilename, $iLine)) {
+                    F::SysWarning('Cannot set cookie "' . $sName . '" - header was sent in file ' . $sFilename . '(' . $iLine . ')');
+                } else {
+                    F::SysWarning('Cannot set cookie "' . $sName . '"');
+                }
+            }
+        }
+        return $bResult;
     }
 
     /**
@@ -324,6 +369,7 @@ class ModuleSession extends Module {
         }
         setcookie($sName, '', time() - 3600, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'));
     }
+
 }
 
 // EOF

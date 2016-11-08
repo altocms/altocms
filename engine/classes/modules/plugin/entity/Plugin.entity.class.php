@@ -11,18 +11,18 @@
 /**
  * Class ModulePlugin_EntityPlugin
  *
- * @method string GetId()
  * @method bool GetIsActive()
  *
- * @method SetNum()
- * @method SetIsActive()
+ * @method SetNum($iParam)
+ * @method SetIsActive($bParam)
  */
 class ModulePlugin_EntityPlugin extends Entity {
 
+    /** @var SimpleXMLElement */
     protected $oXml = null;
 
     /**
-     * Constractor of entity
+     * Constructor of entity
      *
      * @param bool $aParams
      */
@@ -102,30 +102,36 @@ class ModulePlugin_EntityPlugin extends Entity {
      * @param SimpleXMLElement $oXml         - XML узел
      * @param string           $sProperty    - Свойство, которое нужно вернуть
      * @param string|array     $xLang        - Название языка
-     * @param bool             $bHtml        - HTML или текст
+     * @param bool             $bHtml        - HTML или текст.
+     *                                              Если предполагается, что в свойстве текст, то текст преобразуются
+     *                                              htmlentites(). Таким образом, чтобы можно просто вывести текст без всяких фильтров, чтобы
+     *                                              увидеть html-сущности в виде текста. Либо можно использовать htmlspecialchars перед выводом, чтобы
+     *                                              отобразить текст как он написан внутри свойства.
+     *
      */
     protected function _xlang($oXml, $sProperty, $xLang, $bHtml = false) {
 
         $sProperty = trim($sProperty);
 
+        $aData = array();
         if (is_array($xLang)) {
-            foreach($xLang as $sLang) {
-                if (count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
+            foreach ($xLang as $sLang) {
+                if (count($aData = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
                     break;
                 }
-                if (!count($data)) {
-                    $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+                if (!count($aData)) {
+                    $aData = $oXml->xpath("{$sProperty}/lang[@name='default']");
                 }
             }
         } else {
-            if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$xLang}']"))) {
-                $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+            if (!count($aData = $oXml->xpath("{$sProperty}/lang[@name='{$xLang}']"))) {
+                $aData = $oXml->xpath("{$sProperty}/lang[@name='default']");
             }
         }
 
-        $sText = trim((string)array_shift($data));
+        $sText = trim((string)array_shift($aData));
         if ($sText) {
-            $oXml->$sProperty->data = ($bHtml ? E::ModuleText()->Parser($sText) : strip_tags($sText));
+            $oXml->$sProperty->data = ($bHtml ? E::ModuleText()->Parse($sText) : htmlentities($sText, ENT_QUOTES, 'UTF-8'));
         } else {
             $oXml->$sProperty->data = '';
         }
@@ -158,6 +164,29 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     /**
+     * @param bool $bEncode
+     *
+     * @return mixed|null
+     */
+    public function GetId($bEncode = false) {
+
+        $sResult = $this->getProp('id');
+        if ($bEncode) {
+            $sResult = E::ModulePlugin()->EncodeId($sResult);
+        }
+
+        return $sResult;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function GetManifestFile() {
+
+        return $this->getProp('manifest');
+    }
+
+    /**
      * @return string
      */
     public function GetName() {
@@ -186,7 +215,20 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function GetPluginClass() {
 
-        return 'Plugin' . ucfirst($this->GetCode());
+        return Plugin::GetPluginClass($this->GetId());
+    }
+
+    /**
+     * @return null|string
+     */
+    public function GetPluginClassFile() {
+
+        $sManifest = $this->GetManifestFile();
+        $sClassName = $this->GetPluginClass();
+        if ($sManifest && $sClassName) {
+            return dirname($sManifest) . '/' . $sClassName . '.class.php';
+        }
+        return null;
     }
 
     /**
@@ -258,7 +300,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp('homepage');
         if (is_null($sResult)) {
-            $sResult = E::ModuleText()->Parser((string)$this->_getXmlProperty('homepage'));
+            $sResult = E::ModuleText()->Parse((string)$this->_getXmlProperty('homepage'));
             $this->setProp('homepage', $sResult);
         }
         return $sResult;

@@ -32,7 +32,7 @@
                     <li data-alto-role="popover"
                         data-api="user/{$oUser->getId()}/info"
                         class="topic-user">
-                        <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                        <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                         <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                             {$oUser->getDisplayName()}
                         </a>
@@ -47,24 +47,6 @@
                     </li>
                 </ul>
 
-
-                {*{if !$bPreview}*}
-                    {*<span class="pull-right topic-top-controls">*}
-                        {*{if E::IsAdmin() OR E::UserId()==$oTopic->getUserId() OR E::UserId()==$oBlog->getOwnerId() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator()}*}
-                            {*<a href="{router page='content'}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="small link link-lead link-dark link-clear">*}
-                                {*<i class="fa fa-pencil"></i>*}
-                                {*&nbsp;{$aLang.topic_edit}*}
-                            {*</a>*}
-                            {*{if E::IsAdmin() OR $oBlog->getUserIsAdministrator() OR $oBlog->getOwnerId()==E::UserId()}*}
-                            {*&nbsp;<a href="#" class="small link link-lead link-clear link-red-blue" title="{$aLang.topic_delete}"*}
-                                     {*onclick="ls.topic.remove('{$oTopic->getId()}', '{$oTopic->getTitle()}'); return false;">*}
-                                {*<i class="fa fa-times"></i>*}
-                                {*&nbsp;{$aLang.topic_delete}*}
-                            {*</a>*}
-                        {*{/if}*}
-                        {*{/if}*}
-                    {*</span>*}
-                {*{/if}*}
             </div>
         {/block}
 
@@ -73,19 +55,15 @@
             <div class="topic-text">
                 {hook run='topic_content_begin' topic=$oTopic bTopicList=true}
 
-                {$sImagePath=$oTopic->getPhotosetMainPhotoUrl(false, '682pad')}
-                {if $sImagePath}
-                    <img src="{$sImagePath}" alt="image" align="left"/>
-                    <br/>
-                {/if}
-
                 {$oTopic->getTextShort()}
 
                 {hook run='topic_content_end' topic=$oTopic bTopicList=true}
             </div>
         {/block}
 
-        {*{include file="fields/field.tags-show.tpl"}*}
+        {block name="topic_fields"}
+            {*{include file="fields/field.tags-show.tpl"}*}
+        {/block}
 
     </div>
 

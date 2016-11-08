@@ -25,6 +25,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected $aAssetNames = array();
     protected $aAssets = array();
+    protected $iAssetNum = 0;
 
     protected $aLinks = array();
     protected $aHtmlLinkParams = array();
@@ -58,7 +59,6 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     protected function _makeSubdir($sDir) {
 
         if (!isset($this->aMapDir[$sDir])) {
-            $s=F::Crc32($sDir, true);
             $this->aMapDir[$sDir] = F::Crc32($sDir, true);
         }
         return $this->aMapDir[$sDir];
@@ -201,7 +201,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                     $bPrepare = false;
                 }
             }
-            if (F::File_PutContents($sDestination, $sContents)) {
+            if (F::File_PutContents($sDestination, $sContents, LOCK_EX, true)) {
                 $aParams = array(
                     'file' => $sDestination,
                     'asset' => $sAsset,
@@ -211,7 +211,6 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 );
                 $this->AddLink($this->sOutType, E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aParams);
             } else {
-                F::SysWarning('Can not write asset file "' . $sDestination . '"');
                 return false;
             }
         } else {
@@ -317,6 +316,37 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     }
 
     /**
+     * @param $aFileParams
+     * @param $sAssetName
+     *
+     * @return string
+     */
+    protected function _defineAssetName($aFileParams, $sAssetName) {
+
+        if ($this->bMerge && $aFileParams['merge']) {
+            // Определяем имя набора
+            if (!$sAssetName) {
+                if (isset($aFileParams['asset'])) {
+                    $sAssetName = $aFileParams['asset'];
+                } elseif (isset($aFileParams['block'])) {
+                    // LS compatible
+                    $sAssetName = $aFileParams['block'];
+                } else {
+                    $sAssetName = '__default';
+                }
+            }
+            if (strpos($sAssetName, '__default') === 0) {
+                $sAssetName .= $this->iAssetNum;
+            }
+        } else {
+            // Если слияние отключено, то каждый набор - это отдельный файл
+            $sAssetName = F::File_NormPath($aFileParams['name']);
+            $aFileParams['merge'] = false;
+        }
+        return $sAssetName;
+    }
+
+    /**
      * @param string $sFileName
      * @param array  $aFileParams
      * @param string $sAssetName
@@ -358,24 +388,10 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $aFileParams['compress'] = $this->bCompress;
             }
         }
-        if ($this->bMerge && $aFileParams['merge']) {
-            // Определяем имя набора
-            if (!$sAssetName) {
-                if (isset($aFileParams['asset'])) {
-                    $sAssetName = $aFileParams['asset'];
-                } elseif (isset($aFileParams['block'])) {
-                    $sAssetName = $aFileParams['block'];
-                } // LS compatible
-                else {
-                    $sAssetName = 'default';
-                }
-            }
-        } else {
-            // Если слияние отключено, то каждый набор - это отдельный файл
-            $sAssetName = F::File_NormPath($sFileName);
+
+        if (!$this->bMerge) {
             $aFileParams['merge'] = false;
         }
-        $aFileParams['asset'] = $sAssetName;
         if (!isset($aFileParams['name'])) {
             $aFileParams['name'] = $sFileName;
         }
@@ -384,25 +400,30 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
         $aFileParams['prepare'] = isset($aFileParams['prepare'])? (bool)isset($aFileParams['prepare']) : false;
         $aFileParams['name'] = F::File_NormPath($aFileParams['name']);
+        $aFileParams['asset'] = $this->_defineAssetName($aFileParams, $sAssetName);
+
+        /*
+         * Если среди файлов дефолтных наборов встречается ссылка,
+         * то может быть нарушен порядок добавления файлов, а он иногда важен.
+         * Для того, чтобы этого избежать, мы разбиваем дефолтные наборы на поднаборы,
+         * если среди них есть ссылки. Для этого и используется $this->iAssetNum
+         */
+        // Это необходимо, чтобы файлы из дефолтных наборов шли в том же порядке, как
+        if ($aFileParams['link']) {
+            $this->iAssetNum += 1;
+        }
 
         return $aFileParams;
     }
 
     /**
-     * @param string $sFileName
      * @param array  $aFileParams
-     * @param string $sAssetName
      * @param bool   $bPrepend
-     * @param bool   $bReplace
      *
      * @return int
      */
-    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = null) {
+    protected function _add($aFileParams, $bPrepend = false) {
 
-        if (is_null($bReplace)) {
-            $bReplace = (isset($aFileParams['replace']) ? (bool)$aFileParams['replace'] : false);
-        }
-        $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
         $sName = $aFileParams['name'];
         $sAssetName = $aFileParams['asset'];
         // If this asset does not exist then add it into stack
@@ -415,19 +436,20 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             }
         }
         if (isset($this->aFiles[$sAssetName]['_append_'][$sName])) {
-            if ($bReplace) {
+            if (!empty($aFileParams['replace'])) {
                 unset($this->aFiles[$sAssetName]['_append_'][$sName]);
             } else {
                 return 0;
             }
         } elseif (isset($this->aFiles[$sAssetName]['_prepend_'][$sName])) {
-            if ($bReplace) {
+            if (!empty($aFileParams['replace'])) {
                 unset($this->aFiles[$sAssetName]['_prepend_'][$sName]);
             } else {
                 return 0;
             }
         }
         $this->aFiles[$sAssetName][$bPrepend ? '_prepend_' : '_append_'][$sName] = $aFileParams;
+
         return 1;
     }
 
@@ -436,12 +458,21 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      * @param string $sAssetName
      * @param bool   $bPrepend
      * @param bool   $bReplace
+     *
+     * @return int
      */
     public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = null) {
 
-        foreach ($aFiles as $sName => $aFileParams) {
-            $this->_add($sName, $aFileParams, $sAssetName, $bPrepend, $bReplace);
+        $iCount = 0;
+        foreach ($aFiles as $sFileName => $aFileParams) {
+            if ($bReplace === null) {
+                $aFileParams['replace'] = (isset($aFileParams['replace']) ? (bool)$aFileParams['replace'] : false);
+            }
+            $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
+            $iCount += $this->_add($aFileParams, $bPrepend);
         }
+
+        return $iCount;
     }
 
     /**
@@ -504,7 +535,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         } elseif (($nStage == 3) && F::File_Exists($sFile . '.3.end.tmp')) {
             return false;
         }
-        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', time());
+        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', time(), LOCK_EX, true);
     }
 
     /**
@@ -514,7 +545,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     protected function _stageEnd($nStage, $bFinal = false) {
 
         $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
-        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time());
+        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time(), LOCK_EX, true);
         for ($n = 1; $n <= $nStage; $n++) {
             F::File_Delete($sFile . '.' . $n . '.begin.tmp');
             if ($n < $nStage || $bFinal) {
@@ -632,6 +663,11 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $sResult .= $sName . '="' . $aLink['link'] . '" ';
             } else {
                 $sResult .= $sName . '="' . $sVal . '" ';
+            }
+        }
+        if (isset($aLink['attr'])) {
+            foreach ($aLink['attr'] as $sAttr) {
+                $sResult .= $sAttr . ' ';
             }
         }
         if ($this->aHtmlLinkParams['pair']) {

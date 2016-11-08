@@ -66,6 +66,39 @@ class DataArray extends ArrayObject {
     }
 
     /**
+     * Check specified index (used in isset(...))
+     *
+     * @param mixed $xIndex
+     *
+     * @return bool
+     */
+    public function offsetExists($xIndex) {
+
+        if (!is_string($xIndex) || !strpos($xIndex, $this->sDelimiter)) {
+            return parent::offsetExists($xIndex);
+        } else {
+            $aPath = explode($this->sDelimiter, $xIndex);
+            $xItem = null;
+            foreach($aPath as $iNum => $sPiece) {
+                if ($iNum == 0) {
+                    if (parent::offsetExists($sPiece)) {
+                        $xItem = parent::offsetGet($sPiece);
+                    } else {
+                        return false;
+                    }
+                } else {
+                    if (is_array($xItem) && isset($xItem[$sPiece])) {
+                        $xItem = $xItem[$sPiece];
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Returns the value at the specified index
      *
      * @param string|int $xIndex
@@ -74,13 +107,16 @@ class DataArray extends ArrayObject {
      */
     public function offsetGet($xIndex) {
 
+        if (is_string($xIndex)) {
+            $xIndex = trim($xIndex, $this->sDelimiter);
+        }
         if (isset($this->aQuickMap[$xIndex])) {
             $xResult = $this->aQuickMap[$xIndex];
         } else {
             $xResult = null;
         }
 
-        if (is_int($xIndex) || !strpos($xIndex, '.')) {
+        if (!is_string($xIndex) || !strpos($xIndex, $this->sDelimiter)) {
             if (parent::offsetExists($xIndex)) {
                 $xResult = parent::offsetGet($xIndex);
             }
@@ -119,7 +155,8 @@ class DataArray extends ArrayObject {
      */
     public function offsetSet($xIndex, $xValue) {
 
-        if (!is_int($xIndex) && strpos($xIndex, '.')) {
+        if (is_string($xIndex) && strpos($xIndex, $this->sDelimiter)) {
+            $xIndex = trim($xIndex, $this->sDelimiter);
             $aPath = explode($this->sDelimiter, $xIndex);
             $aData = array();
             $xItem = null;
@@ -135,6 +172,12 @@ class DataArray extends ArrayObject {
             $xItem = $xValue;
             $xIndex = F::Array_FirstKey($aData);
             $xValue = reset($aData);
+        }
+        if (is_array($xValue) && parent::offsetExists($xIndex)) {
+            $xOldValue = parent::offsetGet($xIndex);
+            if (is_array($xOldValue)) {
+                $xValue = F::Array_MergeCombo($xOldValue, $xValue);
+            }
         }
         parent::offsetSet($xIndex, $xValue);
         $this->aQuickMap = array();

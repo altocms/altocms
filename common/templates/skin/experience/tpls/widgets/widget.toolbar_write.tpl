@@ -30,7 +30,7 @@
                         <span>{$aLang.block_create_talk}</span>
                     </a>
                 </li>
-                {hook run='write_item' isPopup=true}
+                {hook run='write_item' isPopup=false from="toolbar"}
                 {if $iUserCurrentCountTopicDraft}
                     <li class="divider"></li>
                     <li>

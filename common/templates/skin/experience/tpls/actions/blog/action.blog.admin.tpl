@@ -36,7 +36,7 @@
                         <td class="cell-name wi30">
                             <span>
                             <a href="{$oUser->getProfileUrl()}">
-                                <img src="{$oUser->getAvatarUrl('small')}" alt="avatar" class="avatar"/>
+                                <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')}  alt="{$oUser->getDisplayName()}" class="avatar"/>
                             </a>
                             <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                             </span>

@@ -73,7 +73,7 @@
         <div class="form-group">
             <label for="blog_limit_rating_topic">{$aLang.blog_create_rating}</label>
             <input type="text" id="blog_limit_rating_topic" name="blog_limit_rating_topic"
-                   value="{$_aRequest.blog_limit_rating_topic}" class="form-control"/>
+                   value="{$_aRequest.blog_limit_rating_topic|default:'0'}" class="form-control"/>
 
             <p class="help-block">
                 <small>{$aLang.blog_create_rating_notice}</small>

@@ -2,10 +2,7 @@
 
 {block name="content-bar"}
     <script>
-
-
             var addForm = {
-
                 show: function(){
                     var form = $('#new_menu_item');
 
@@ -13,9 +10,7 @@
 
                     return false;
                 }
-
             };
-
     </script>
 
         <div class="btn-group">
@@ -107,46 +102,35 @@
         </div>
 
     <script>
-
-        var fixHelper = function (e, ui) {
-            ui.children().each(function () {
-                $(this).width($(this).width());
-            });
-            return ui;
-        };
-
-        var sortSave = function (e, ui) {
-            var tr = $('#sortable tbody.content tr');
-            if (tr.length > 0) {
-                var order = [];
-                $.each(tr, function (index, value) {
-                    order.push({ 'id': $(value).data('id')});
-                });
-                var data = {
-                    'order': order,
-                    'menu_id': "{$oMenu->getId()}"
-                };
-                ls.ajax(aRouter['admin'] + 'ajaxchangeordermenu/', data, function (response) {
-                    if (!response.bStateError) {
-                        ls.msg.notice(response.sMsgTitle, response.sMsg);
-                    } else {
-                        ls.msg.error(response.sMsgTitle, response.sMsg);
-                    }
-                });
-            }
-        };
-
         $(function () {
-            $("#sortable tbody.content").sortable({
-                helper: fixHelper
-            });
-            $("#sortable tbody.content").disableSelection();
+            var container = $('.js-sortable');
+            var sortSave = function (e, ui) {
+                var tr = container.find('tr');
+                if (tr.length > 0) {
+                    var order = [];
+                    $.each(tr, function (index, value) {
+                        order.push({ 'id': $(value).data('id')});
+                    });
+                    var data = {
+                        'order': order,
+                        'menu_id': "{$oMenu->getId()}"
+                    };
 
-            $("#sortable tbody.content").sortable({
-                stop: sortSave
-            });
+                    ls.progressStart();
+                    ls.ajax(aRouter['admin'] + 'ajaxchangeordermenu/', data, function (response) {
+                        ls.progressDone();
+                        if (!response.bStateError) {
+                            ls.msg.notice(response.sMsgTitle, response.sMsg);
+                        } else {
+                            ls.msg.error(response.sMsgTitle, response.sMsg);
+                        }
+                    });
+                }
+            };
+            if (admin && admin.sortable) {
+                admin.sortable(container, sortSave);
+            }
         });
-
         var saveText = function (link) {
             var $link = $(link);
             var data = {
@@ -154,7 +138,10 @@
                 'item_id': $link.data('item_id'),
                 'text': $link.prev().val()
             };
+
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxchangemenutext/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.parent().prev().find('span').text(response.text);
@@ -172,7 +159,10 @@
                 'item_id': $link.data('item_id'),
                 'text': $link.prev().val()
             };
+
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxchangemenulink/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.parent().prev().find('span').text(response.text);
@@ -189,7 +179,10 @@
                 'menu_id': "{$oMenu->getId()}",
                 'item_id': $link.data('item_id')
             };
+
+            ls.progressStart();
             ls.ajax(aRouter['admin'] + 'ajaxmenuitemremove/', data, function (response) {
+                ls.progressDone();
                 if (!response.bStateError) {
                     ls.msg.notice(response.sMsgTitle, response.sMsg);
                     $link.parents('tr').remove();
@@ -224,7 +217,7 @@
     </script>
     <div class="span12">
 
-    <table class="table menumanager-list" id="sortable">
+    <table class="table menumanager-list">
         <thead>
         <tr>
             <th>{$aLang.action.admin.menu_manager_id}</th>
@@ -235,7 +228,7 @@
             <th></th>
         </tr>
         </thead>
-        <tbody class="content">
+        <tbody class="content js-sortable">
         {if $aItems=$oMenu->getItems()}
             {foreach $aItems as $k=>$oItem}
 
@@ -251,7 +244,7 @@
                 {if $oItem->getMenuMode() != 'list'}{continue}{/if}
 
 
-                <tr id="menumanager_{$oItem->getId()}" data-id="{$oItem->getId()}">
+                <tr id="menumanager_{$oItem->getId()}" data-id="{$oItem->getId()}" class="i-cursor-x">
                     <td class="menumanager_id">{$oItem->getId()|escape:"html"}</td>
                     <td class="menumanager_text">
                         <span>

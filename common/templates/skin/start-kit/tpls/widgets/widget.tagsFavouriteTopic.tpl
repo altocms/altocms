@@ -24,7 +24,9 @@
                             <li>
                                 <a class="tag-size-{$oTag->getSize()} {if $sFavouriteTag==$oTag->getText()}tag-current{/if}"
                                    title="{$oTag->getCount()}"
-                                   href="{$oFavouriteUser->getProfileUrl()}favourites/topics/tag/{$oTag->getText()|escape:'url'}/">{$oTag->getText()}</a>
+                                   href="{$oTag->getLink()}">
+                                    {$oTag->getText()}
+                                </a>
                             </li>
                         {/foreach}
                     </ul>
@@ -37,8 +39,11 @@
                 {if $aFavouriteTopicUserTags}
                     <ul class="list-unstyled list-inline tag-cloud word-wrap">
                         {foreach $aFavouriteTopicUserTags as $oTag}
-                            <li><a class="tag-size-{$oTag->getSize()}" title="{$oTag->getCount()}"
-                                   href="{$oFavouriteUser->getProfileUrl()}favourites/topics/tag/{$oTag->getText()|escape:'url'}/">{$oTag->getText()}</a>
+                            <li>
+                                <a class="tag-size-{$oTag->getSize()}" title="{$oTag->getCount()}"
+                                   href="{$oTag->getLink()}">
+                                    {$oTag->getText()}
+                                </a>
                             </li>
                         {/foreach}
                     </ul>

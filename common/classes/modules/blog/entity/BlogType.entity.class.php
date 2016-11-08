@@ -16,20 +16,27 @@
 /**
  * Class ModuleBlog_EntityBlogType
  *
- * @method SetAllowAdd()
- * @method SetMinRateAdd()
- * @method SetMaxNum()
- * @method SetAllowList()
- * @method SetIndexIgnore()
- * @method SetMembership()
- * @method SetMinRateWrite()
- * @method SetMinRateRead()
- * @method SetMinRateComment()
- * @method SetActive()
- * @method SetContentType()
- * @method SetAclWrite()
- * @method SetAclRead()
- * @method SetAclComment()
+ * @method setAllowAdd($xParam)
+ * @method setMinRateAdd($xParam)
+ * @method setMaxNum($xParam)
+ * @method setAllowList($xParam)
+ * @method setIndexIgnore($xParam)
+ * @method setMembership($xParam)
+ * @method setMinRateWrite($xParam)
+ * @method setMinRateRead($xParam)
+ * @method setMinRateComment($xParam)
+ * @method setActive($xParam)
+ * @method setContentType($xParam)
+ * @method setAclWrite($xParam)
+ * @method setAclRead($xParam)
+ * @method setAclComment($xParam)
+ *
+ * @method float getMinRateAdd()
+ * @method float getMinRateList()
+ * @method float getMinRateWrite()
+ * @method float getMinRateRead()
+ * @method float getMinRateComment()
+ * @method string getTypeName()
  */
 class ModuleBlog_EntityBlogType extends Entity {
 
@@ -179,10 +186,15 @@ class ModuleBlog_EntityBlogType extends Entity {
         return (bool)$this->getProp('allow_add');
     }
 
+    /**
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
     public function AllowAddByUser($oUser) {
 
         if ($this->IsAllowAdd()) {
-            $oUser->getRating() > $this->GetMinRating();
+            return $oUser->getRating() > $this->getMinRateAdd();
         }
         return false;
     }

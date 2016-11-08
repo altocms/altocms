@@ -36,7 +36,7 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
         if ($oSmartyTemplate->template_resource) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
-        trigger_error($sError, E_USER_WARNING);
+        F::SysWarning($sError);
         return null;
     }
     if (!isset($aParams['widget'])) {
@@ -44,7 +44,7 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
         if ($oSmartyTemplate->template_resource) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
-        trigger_error($sError, E_USER_WARNING);
+        F::SysWarning($sError);
         return null;
     }
 

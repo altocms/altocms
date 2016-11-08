@@ -27,24 +27,28 @@ abstract class Plugin extends LsObject {
      * @var array
      */
     static protected $aSkins = array();
+
     /**
      * Путь к шаблонам с учетом наличия соответствующего skin`a
      *
      * @var array
      */
     static protected $aTemplateDir = array();
+
     /**
      * Web-адреса шаблонов с учетом наличия соответствующего skin`a
      *
      * @var array
      */
     static protected $aTemplateUrl = array();
+
     /**
      * Массив делегатов плагина
      *
      * @var array
      */
     protected $aDelegates = array();
+
     /**
      * Массив наследуемых классов плагина
      *
@@ -52,11 +56,19 @@ abstract class Plugin extends LsObject {
      */
     protected $aInherits = array();
 
+    /**
+     * @var ModulePlugin_EntityPlugin
+     */
     protected $oPluginEntity;
 
-    public function __construct() {
-
-        $this->oPluginEntity = $this->GetPluginEntity();
+    /**
+     * Constructor
+     */
+    public function __construct(ModulePlugin_EntityPlugin $oPluginEntity = null) {
+        if ($oPluginEntity)
+            $this->oPluginEntity = $oPluginEntity;
+        else
+            $this->oPluginEntity = $this->GetPluginEntity();
     }
 
     /**
@@ -203,6 +215,9 @@ abstract class Plugin extends LsObject {
      */
     public function Remove() {
 
+        $this->ResetConfig();
+        $this->ResetStorage();
+
         return true;
     }
 
@@ -293,6 +308,9 @@ abstract class Plugin extends LsObject {
         return $bSkipPrefix ? substr($sName, 6) : $sName;
     }
 
+    /**
+     * @return ModulePlugin_EntityPlugin
+     */
     public function GetPluginEntity() {
 
         if (!$this->oPluginEntity) {
@@ -324,6 +342,107 @@ abstract class Plugin extends LsObject {
             return $oPluginEntity->EngineCompatible();
         }
         return null;
+    }
+
+    /**
+     * @param string|array $xConfigKey
+     * @param array|null   $xConfigData
+     *
+     * @return bool
+     */
+    public function WriteConfig($xConfigKey, $xConfigData = null) {
+
+        $aConfig = array();
+        if (func_num_args() == 1) {
+            if (is_array($xConfigKey)) {
+                $aConfig = $xConfigKey;
+            }
+        } else {
+            $aConfig = array($xConfigKey => $xConfigData);
+        }
+
+        return Config::WritePluginConfig($this->oPluginEntity->getId(true), $aConfig);
+    }
+
+    /**
+     * @param string|null $sConfigKey
+     *
+     * @return array
+     */
+    public function ReadConfig($sConfigKey = null) {
+
+        return Config::ReadPluginConfig($this->oPluginEntity->getId(true), $sConfigKey);
+    }
+
+    /**
+     * @param string|null $sConfigKey
+     */
+    public function ResetConfig($sConfigKey = null) {
+
+        Config::ResetPluginConfig($this->oPluginEntity->getId(true), $sConfigKey);
+    }
+
+    /**
+     * @param $sVersion
+     *
+     * @return bool
+     */
+    public function WriteStorageVersion($sVersion) {
+
+        $aConfig = array(
+            'plugin.' . $this->oPluginEntity->getId(true) . '.version' => $sVersion,
+        );
+        return Config::WriteEngineConfig($aConfig);
+    }
+
+    /**
+     * @return null
+     */
+    public function ReadStorageVersion() {
+
+        $sKey = 'plugin.' . $this->oPluginEntity->getId(true) . '.version';
+
+        $aData = Config::ReadEngineConfig($sKey);
+        if (isset($aData[$sKey])) {
+            return $aData[$sKey];
+        }
+        return null;
+    }
+
+    /**
+     * @param null $sDate
+     *
+     * @return bool
+     */
+    public function WriteStorageDate($sDate = null) {
+
+        if (!$sDate) {
+            $sDate = date('Y-m-d H:i:s');
+        }
+        $aConfig = array(
+            'plugin.' . $this->oPluginEntity->getId(true) . '.date' => $sDate,
+        );
+        return Config::WriteEngineConfig($aConfig);
+    }
+
+    /**
+     * @return array
+     */
+    public function ReadStorageDate() {
+
+        $sKey = 'plugin.' . $this->oPluginEntity->getId(true) . '.date';
+
+        return Config::ReadEngineConfig($sKey);
+    }
+
+    /**
+     *
+     */
+    public function ResetStorage() {
+
+        $sKey = 'plugin.' . $this->oPluginEntity->getId(true);
+
+        Config::ResetEngineConfig($sKey);
     }
 
     /**
@@ -382,6 +501,21 @@ abstract class Plugin extends LsObject {
     }
 
     /**
+     * Make standard class name from plugin id
+     *
+     * @param string $sPluginId
+     *
+     * @return string
+     */
+    static public function GetPluginClass($sPluginId) {
+
+        if ($sPluginId) {
+            return 'Plugin' . F::StrCamelize($sPluginId);
+        }
+        return null;
+    }
+
+    /**
      * Returns decamelized name of plugin
      *
      * @param object|string $xPlugin
@@ -402,15 +536,22 @@ abstract class Plugin extends LsObject {
      */
     static public function GetDir($xPlugin) {
 
-        $sPluginDirName = self::_pluginDirName($xPlugin);
+        $aSeekDirs = Config::Get('path.root.seek');
 
-        $aDirs = Config::Get('path.root.seek');
-        foreach($aDirs as $sDir) {
-            $sPluginDir = $sDir . '/plugins/' . $sPluginDirName . '/';
-            if (is_file($sPluginDir . 'plugin.xml')) {
-                return F::File_NormPath($sPluginDir);
-            }
+        $sPluginDirName = self::_pluginDirName($xPlugin);
+        $aPluginList = F::GetPluginsList(true, false);
+        $sManifestFile = null;
+        if (isset($aPluginList[$sPluginDirName]['dirname'])) {
+            $sManifestFile = F::File_Exists('plugins/' . $aPluginList[$sPluginDirName]['dirname'] . '/plugin.xml', $aSeekDirs);
         }
+        if (!$sManifestFile) {
+            $sManifestFile = F::File_Exists('plugins/' . $sPluginDirName . '/plugin.xml', $aSeekDirs);
+        }
+
+        if ($sManifestFile) {
+            return dirname($sManifestFile) . '/';
+        }
+
         return null;
     }
 
@@ -423,14 +564,20 @@ abstract class Plugin extends LsObject {
      */
     static public function GetDirLang($xPlugin) {
 
-        $sPluginDirName = self::_pluginDirName($xPlugin);
-
-        $aDirs = array_reverse(Config::Get('path.root.seek'));
         $aResult = array();
-        foreach($aDirs as $sDir) {
+
+        $aSeekDirs = Config::Get('path.root.seek');
+
+        $sPluginDirName = self::_pluginDirName($xPlugin);
+        $aPluginList = F::GetPluginsList(true, false);
+        $sManifestFile = null;
+        if (isset($aPluginList[$sPluginDirName]['dirname'])) {
+            $sPluginDirName = $aPluginList[$sPluginDirName]['dirname'];
+        }
+        foreach($aSeekDirs as $sDir) {
             $sPluginDir = $sDir . '/plugins/' . $sPluginDirName . '/templates/language/';
             if (is_dir($sPluginDir)) {
-                $aResult[] = $sPluginDir;
+                $aResult[] = F::File_NormPath($sPluginDir);
             }
         }
         return $aResult;
@@ -643,6 +790,7 @@ abstract class Plugin extends LsObject {
 
         return self::SetTemplateUrl($sName, $sTemplatePath);
     }
+
 
 }
 

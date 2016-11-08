@@ -118,7 +118,7 @@ $config['data']['topics'] = array(
     'list' => array(
         'good'                 => array(
             'options' => array(
-                'class' => 'bordered',
+                'class' => 'bordered menu-topics-good',
             )
         ),
         'new'                  => array(
@@ -127,21 +127,21 @@ $config['data']['topics'] = array(
                 'new_topics_count' => array(),
             ),
             'options' => array(
-                'class'      => 'bordered',
+                'class'      => 'bordered menu-topics-new',
                 'link_title' => '{{blog_menu_top_period_24h}}'
             )
         ),
 
         'newall'               => array(
             'options' => array(
-                'class'      => 'bordered',
+                'class'      => 'bordered menu-topics-all',
                 'link_title' => '{{blog_menu_top_period_24h}}'
             )
         ),
 
         'feed'                 => array(
             'options' => array(
-                'class' => 'bordered',
+                'class' => 'bordered menu-topics-feed role-guest-hide',
             )
         ),
 
@@ -159,7 +159,7 @@ $config['data']['topics'] = array(
             ),
             'submenu' => 'discussed',
             'options' => array(
-                'class'      => 'dropdown',
+                'class'      => 'dropdown menu-topics-discussed',
                 'link_class' => 'dropdown-toggle',
                 'link_data'  => array(
                     'toggle' => 'dropdown',
@@ -178,7 +178,7 @@ if (C::Get('rating.enabled')) {
         ),
         'submenu' => 'top',
         'options' => array(
-            'class'      => 'dropdown',
+            'class'      => 'dropdown menu-topics-top',
             'link_class' => 'dropdown-toggle',
             'link_data'  => array(
                 'toggle' => 'dropdown',

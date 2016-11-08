@@ -11,6 +11,21 @@
 /**
  * Объект значения поля
  *
+ * @method setTargetId(int $iParam)
+ * @method setTargetType(string $sParam)
+ * @method setFieldId(int $iParam)
+ * @method setFieldType(string $sParam)
+ * @method setValue($xParam)
+ * @method setValueSource($xParam)
+ *
+ * @method int getTargetId()
+ * @method string getTargetType()
+ * @method int getFieldId()
+ * @method string getFieldType()
+ * @method mixed getValue()
+ * @method mixed getValueVarchar()
+ * @method mixed getValueSource()
+ *
  * @package modules.topic
  * @since 1.0
  */

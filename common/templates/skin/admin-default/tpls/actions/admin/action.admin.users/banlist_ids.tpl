@@ -6,7 +6,7 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>{$oLang->user}</th>
+        <th>{$aLang.user}</th>
         <th>{$aLang.action.admin.users_ip_reg}</th>
         <th>Last IP</th>
         <th>{$aLang.action.admin.ban_upto}</th>

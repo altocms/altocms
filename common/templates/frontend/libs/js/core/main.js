@@ -12,6 +12,10 @@
  *----------------------------------------------------------------------------
  */
 ;
+"use strict";
+
+var ls = ls || {};
+
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (context) {
         var fn = this;
@@ -27,6 +31,9 @@ if (!Function.prototype.bind) {
             return fn.apply(context, arguments);
         };
     };
+    ls.nativeBind = false;
+} else {
+    ls.nativeBind = true;
 }
 
 String.prototype.tr = function (a, p) {
@@ -70,13 +77,18 @@ String.prototype.tr = function (a, p) {
     }
 })( jQuery );
 
-var ls = (function ($) {
+ls = (function ($) {
     /**
      * Log info
      */
     this.log = function () {
-        if (window.console && window.console.log) {
+        // Modern browsers
+        if (typeof console != 'undefined' && typeof console.log == 'function') {
             Function.prototype.bind.call(console.log, console).apply(console, arguments);
+        } else
+        // IE8
+        if (!ls.nativeBind && typeof console != 'undefined' && typeof console.log == 'object') {
+            Function.prototype.call.call(console.log, console, Array.prototype.slice.call(arguments));
         } else {
             //alert(msg);
         }
@@ -576,6 +588,8 @@ ls = (function ($) {
             error: function (msg) {
                 ls.debug("ajax error: ");
                 ls.debug.apply(this, arguments);
+                ls.msg.error(null, 'System error #1002'); // may be json parser error
+                ls.progressDone(true);
             }.bind(this),
             complete: function (msg) {
                 ls.debug("ajax complete: ");
@@ -751,14 +765,16 @@ ls = (function ($) {
             size = parseInt(form.find('[name=img_width]').val(), 10),
             html = '';
 
-        align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
-        size = (size == 0) ? '' : 'width="' + size + '%"';
-        html = '<img src="' + url + '" title="' + title + '" ' + align + ' ' + size + ' />';
-        form.find('[name=img_url]').val('');
-        title = form.find('[name=title]').val('');
+        if (url && url !== 'http://' && url !== 'https://') {
+            align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
+            size = (size == 0) ? '' : 'width="' + size + '%"';
+            html = '<img src="' + url + '" title="' + title + '" ' + align + ' ' + size + ' />';
+            form.find('[name=img_url]').val('');
+            title = form.find('[name=title]').val('');
 
-        ls.insertToEditor(html);
-        form.parents('.modal').first().modal('hide');
+            ls.insertToEditor(html);
+            form.parents('.modal').first().modal('hide');
+        }
         return false;
     };
 
@@ -938,19 +954,26 @@ ls.autocomplete = (function ($) {
         return oldString.replace(/<\/?[^>]+>/g,'');
     };
 
+    this.ajaxFunc = function(element, url, params, callback, more) {
+        ls.ajax(url, params, callback, more);
+    };
+
     /**
      * Добавляет автокомплитер к полю ввода
      */
-    this.add = function (obj, sPath, multiple) {
+    this.add = function (element, sPath, multiple, ajaxFunc) {
+        if (!ajaxFunc) {
+            ajaxFunc = this.ajaxFunc;
+        }
         if (multiple) {
-            obj.bind('keydown', function (event) {
+            element.bind('keydown', function (event) {
                 if (event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active) {
                     event.preventDefault();
                 }
             })
                 .autocomplete({
                     source: function (request, response) {
-                        ls.ajax(sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
+                        ajaxFunc(element, sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
                             response(data.aItems);
                         });
                     },
@@ -977,9 +1000,9 @@ ls.autocomplete = (function ($) {
                         $(this).val(ls.autocomplete.stripHTML($(this).val()));
                     });
         } else {
-            obj.autocomplete({
+            element.autocomplete({
                 source: function (request, response) {
-                    ls.ajax(sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
+                    ajaxFunc(element, sPath, {value: ls.autocomplete.extractLast(request.term)}, function (data) {
                         response(data.aItems);
                     });
                 }

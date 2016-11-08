@@ -28,8 +28,9 @@ class ModuleFavourite_EntityTag extends Entity {
             $oUser = E::User();
         }
         if ($oUser) {
-            return $oUser->getProfileUrl() . 'favourites/topics/tag/' . F::UrlEncode($this->getText()) . '/';
+            return $oUser->getProfileUrl() . 'favourites/topics/tag/' . F::UrlEncode($this->getText(), true) . '/';
         }
+        return '';
     }
 
 }

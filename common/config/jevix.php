@@ -304,12 +304,6 @@ return array(
                 array('h4', 'h5', 'h6', 'ol', 'ul', 'blockquote', 'pre', 'table', 'iframe', 'p')
             )
         ),
-        'cfgSetTagCallbackFull' => array(
-            array(
-                'ls',
-                array('_this_', 'CallbackTagLs'),
-            ),
-        ),
     ),
 
     // настройки для обработки текста в результатах поиска

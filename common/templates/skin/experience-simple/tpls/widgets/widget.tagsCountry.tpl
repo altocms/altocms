@@ -5,7 +5,7 @@
     <div class="panel panel-default sidebar flat widget widget-tag-country">
         <div class="panel-body pab24">
             <div class="panel-header">
-                <i class="fa fa-tag"></i>{$aLang.widget_country_tags}
+                <i class="fa fa-globe"></i>{$aLang.widget_country_tags}
             </div>
 
             <div class="panel-content">

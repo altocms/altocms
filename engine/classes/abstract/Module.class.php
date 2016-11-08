@@ -19,7 +19,7 @@
  * @package engine
  * @since 1.0
  *
- * @method bool MethodExists
+ * @method bool MethodExists($sMethodName)
  */
 abstract class Module extends LsObject {
     const STATUS_INIT_BEFORE = 1;
@@ -227,29 +227,29 @@ abstract class Module extends LsObject {
     public function Structurize() {
 
         $iArgsNum = func_num_args();
-        $aAargs = func_get_args();
+        $aArgs = func_get_args();
         if ($iArgsNum == 0) {
             return array();
         } elseif ($iArgsNum == 1) {
-            return $aAargs[0];
+            return $aArgs[0];
         }
         $aResult = array();
-        $aEntities = $aAargs[0];
+        $aEntities = $aArgs[0];
         $oEntity = reset($aEntities);
-        unset($aAargs[0]);
-        if (sizeof($aAargs) == 1 && is_array($aAargs[1])) {
-            $aAargs = $aAargs[1];
+        unset($aArgs[0]);
+        if (sizeof($aArgs) == 1 && is_array($aArgs[1])) {
+            $aArgs = $aArgs[1];
         }
-        foreach($aAargs as $iIdx => $sPropKey) {
+        foreach($aArgs as $iIdx => $sPropKey) {
             if (!$oEntity->isProp($sPropKey)) {
-                unset($aAargs[$iIdx]);
+                unset($aArgs[$iIdx]);
             }
         }
-        if ($aAargs) {
+        if ($aArgs) {
             /** @var Entity $oEntity */
             foreach($aEntities as $oEntity) {
                 $aItems =& $aResult;
-                foreach($aAargs as $sPropKey) {
+                foreach($aArgs as $sPropKey) {
                     $xKey = $oEntity->getProp($sPropKey);
                     if (!isset($aItems[$xKey])) {
                         $aItems[$xKey] = array();
@@ -262,6 +262,32 @@ abstract class Module extends LsObject {
             $aResult = $aEntities;
         }
         return $aResult;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function MakeCacheKey() {
+
+        $aStack = debug_backtrace(false);
+        $sCaller = '';
+        $sFile = false;
+        foreach($aStack as $aItem) {
+            if ($sFile) {
+                if (!empty($aItem['class']) && !empty($aItem['type']) && !empty($aItem['function'])) {
+                    $sCaller = $sFile . '|' . $aItem['class'] . $aItem['type'] . $aItem['function'];
+                    break;
+                }
+            }
+            if (!empty($aItem['file']) && !empty($aItem['function']) && $aItem['function'] === __FUNCTION__) {
+                $sFile = $aItem['file'];
+            }
+        }
+        if ($sCaller) {
+            $sActivePlugins = E::GetActivePluginsHash();
+            return E::Module('Cache')->Key($sActivePlugins . '|' . $sCaller, func_get_args());
+        }
+        return false;
     }
 
 }

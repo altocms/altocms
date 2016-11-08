@@ -6,7 +6,7 @@ ___LANG_START_PARAGRAPH___
 <table class="table">
     <tr>
         <td>___LANG_PHP_PARAMS_VERSION___</td>
-        <td class="result">___VALIDATE_PHP_VERSION___</td>
+        <td class="result">___VALIDATE_PHP_VERSION___<br/>___VALIDATE_PHP_VERSION_NUM___</td>
     </tr>
     <!--tr>
         <td>___LANG_PHP_PARAMS_SAFE_MODE___</td><td class="result">___VALIDATE_SAFE_MODE___</td>

@@ -14,6 +14,7 @@
 class AltoFunc_Main {
 
     static protected $sRandChars = '0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    static protected $sHexChars = '0123456789abcdef';
     static protected $sMemSizeUnits = 'BKMGTP';
 
     /**
@@ -28,6 +29,7 @@ class AltoFunc_Main {
 
     static public function StrCamelize($sStr) {
 
+        $sStr = str_replace('-', '_', $sStr);
         $aParts = explode('_', $sStr);
         $sCamelized = '';
         foreach ($aParts as $sPart) {
@@ -103,6 +105,55 @@ class AltoFunc_Main {
     }
 
     /**
+     * Cryptographically secure pseudo-random number generator (CSPRNG)
+     * @link http://stackoverflow.com/questions/1846202/php-how-to-generate-a-random-unique-alphanumeric-string/13733588#13733588
+     *
+     * @param $iMin
+     * @param $iMax
+     *
+     * @return int
+     */
+    static public function CryptoRandom($iMin, $iMax) {
+
+        $iRange = $iMax - $iMin;
+        if ($iRange < 0) {
+            return $iMin; // not so random...
+        }
+        $nLog = log($iRange, 2);
+        $iBytes = (int)($nLog / 8) + 1; // length in bytes
+        $iBits = (int)$nLog + 1; // length in bits
+        $iFilter = (int)(1 << $iBits) - 1; // set all lower bits to 1
+        do {
+            $iRnd = hexdec(bin2hex(openssl_random_pseudo_bytes($iBytes)));
+            $iRnd = $iRnd & $iFilter; // discard irrelevant bits
+        } while ($iRnd >= $iRange);
+        return $iMin + $iRnd;
+    }
+
+    /**
+     * Random string using CSPRNG
+     *
+     * @param int $iLen
+     * @param bool|string $sChars
+     *
+     * @return string
+     */
+    static function CryptoRandomStr($iLen = 32, $sChars = true) {
+
+        $sResult = '';
+        if ($sChars === true) {
+            $sChars = self::$sHexChars;
+        } elseif (!is_string($sChars)) {
+            $sChars = self::$sRandChars;
+        }
+
+        for ($i = 0; $i < $iLen; $i++) {
+            $sResult .= $sChars[self::CryptoRandom(0, strlen($sChars))];
+        }
+        return $sResult;
+    }
+
+    /**
      * @param   float $nValue
      * @param   int   $nDecimal
      *
@@ -159,6 +210,9 @@ class AltoFunc_Main {
             $iOptions = 0;
             if (defined('JSON_NUMERIC_CHECK')) {
                 $iOptions = $iOptions | JSON_NUMERIC_CHECK;
+            }
+            if (defined('JSON_UNESCAPED_UNICODE')) {
+                $iOptions |= JSON_UNESCAPED_UNICODE;
             }
             return json_encode($xData, $iOptions);
         }
@@ -350,6 +404,7 @@ class AltoFunc_Main {
                     return true;
                 }
                 break;
+            case 'email':
             case 'mail':
                 return filter_var($sValue, FILTER_VALIDATE_EMAIL) !== false;
                 break;
@@ -696,12 +751,16 @@ class AltoFunc_Main {
 
         $sText = mb_strtolower($sText, 'UTF-8');
         if ($xLang !== false) {
-            $aChars = UserLocale::getLocale($xLang, 'translit');
-            if ($aChars) {
-                $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
+            $aLangCharsTranslit = UserLocale::getLocale($xLang, 'translit');
+            if ($aLangCharsTranslit) {
+                $sText = str_replace(array_keys($aLangCharsTranslit), array_values($aLangCharsTranslit), $sText);
             }
-            $sText = preg_replace('/[\-]{2,}/u', '-', $sText);
         }
+        $aConfigCharsTranslit = F::_getConfig('module.text.translit');
+        if ($aConfigCharsTranslit) {
+            $sText = str_replace(array_keys($aConfigCharsTranslit), array_values($aConfigCharsTranslit), $sText);
+        }
+        $sText = preg_replace('/[\-]{2,}/u', '-', $sText);
         $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
         // В некоторых случаях может возвращаться пустая строка
         if (!$sResult) {
@@ -735,24 +794,38 @@ class AltoFunc_Main {
      * URL encoding with double encoding for slashes
      *
      * @param string $sStr
+     * @param bool   $bExtra
      *
      * @return string
      */
-    static public function UrlEncode($sStr) {
+    static public function UrlEncode($sStr, $bExtra = false) {
 
-        return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
+        if (!empty($sStr)) {
+            if ($bExtra) {
+                return str_replace(array('%2F', '%5C', '-', '.', '_'), array('%252F', '%255C', '%2D', '%2E', '%5F'), urlencode($sStr));
+            }
+            return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
+        }
+        return '';
     }
 
     /**
      * URL encoding with double encoding for slashes
      *
      * @param string $sStr
+     * @param bool   $bExtra
      *
      * @return string
      */
-    static public function UrlDecode($sStr) {
+    static public function UrlDecode($sStr, $bExtra = false) {
 
-        return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
+        if (!empty($sStr)) {
+            if ($bExtra) {
+                return urldecode(str_replace(array('%252F', '%255C', '%2D', '%2E', '%5F'), array('%2F', '%5C', '-', '.', '_'), $sStr));
+            }
+            return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
+        }
+        return '';
     }
 
     /**
@@ -819,6 +892,65 @@ class AltoFunc_Main {
         }
         return false;
     }
+
+    /**
+     * Return character by code (unicode included)
+     *
+     * @param $iDec
+     *
+     * @return string
+     */
+    static public function Chr($iDec) {
+
+        return mb_convert_encoding('&#x' . dechex($iDec) . ';', 'UTF-8', 'HTML-ENTITIES');
+    }
+
+    /**
+     * Remove "emoji" from text
+     *
+     * @param string $sText
+     * @param string $sReplace
+     *
+     * @return mixed
+     */
+    static public function RemoveEmoji($sText, $sReplace = '') {
+
+        if ($sReplace !== '') {
+            $sC = self::Chr(0x1F600);
+        } else {
+            $sC = $sReplace;
+        }
+
+        // Match Emoticons
+        $sRegexEmoticons = '/[\x{1F601}-\x{1F64F}]/u';
+        $sResult = preg_replace($sRegexEmoticons, $sC, $sText);
+
+        // Match Miscellaneous Symbols and Pictographs
+        $sRegexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+        $sResult = preg_replace($sRegexSymbols, $sC, $sResult);
+
+        // Match Transport And Map Symbols
+        $sRegexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+        $sResult = preg_replace($sRegexTransport, $sC, $sResult);
+
+        // Match Miscellaneous Symbols
+        $sRegexMisc = '/[\x{2600}-\x{26FF}]/u';
+        $sResult = preg_replace($sRegexMisc, $sC, $sResult);
+
+        // Match Dingbats
+        $sRegexDingbats = '/[\x{2700}-\x{27BF}]/u';
+        $sResult = preg_replace($sRegexDingbats, $sC, $sResult);
+
+        if ($sC !== $sReplace) {
+            // Final replace
+            $sRegexEmoticons = '/[\x{1F600}]/u';
+            $sResult = preg_replace($sRegexEmoticons, $sReplace, $sResult);
+        }
+
+        return $sResult;
+    }
+
+
 }
 
 // EOF

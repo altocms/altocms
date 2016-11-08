@@ -21,13 +21,15 @@
                                 <a href="{router page='content'}drafts/" class="write-item-link link link-lead link-dark link-clear">{$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}</a>
                             </li>
                         {/if}
-                        {foreach from=$aContentTypes item=oContentType}
+                        {foreach $aContentTypes as $oContentType}
                             {if $oContentType->isAccessible()}
+                                {$sLink=R::GetLink('content')|cat:$oContentType->getContentUrl()|cat:'/add/'}
+                                {if $oBlog}{$sLink=$sLink|cat:'?blog_id='|cat:$oBlog->getid()}{/if}
                                 <li class="write-item-type-topic">
-                                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/" class="content-logo link link-lead link-light-gray link-clear">
+                                    <a href="{$sLink}" class="content-logo link link-lead link-light-gray link-clear">
                                         <i class="fa fa-file-text-o"></i>
                                     </a>
-                                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/" class="write-item-link link link-lead link-dark link-clear">{$oContentType->getContentTitle()|escape:'html'}</a>
+                                    <a href="{$sLink}" class="write-item-link link link-lead link-dark link-clear">{$oContentType->getContentTitle()|escape:'html'}</a>
                                 </li>
                             {/if}
                         {/foreach}

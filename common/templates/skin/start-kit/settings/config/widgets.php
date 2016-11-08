@@ -47,7 +47,7 @@ $config['widgets']['toolbar_scrollup'] = array(
 $config['widgets']['people.sidebar'] = array(
     'name' => 'actions/people/action.people.sidebar.tpl',
     'wgroup' => 'right',
-    'on' => 'people',
+    'on' => 'people, search',
 );
 
 // EOF

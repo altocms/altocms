@@ -4,7 +4,7 @@
     <div id="wall-item-{$oWall->getId()}" class="js-wall-item comment-wrapper">
         <div class="comment">
             <a href="{$oWallUser->getProfileUrl()}" class="comment-avatar js-popover-user-{$oWallUser->getId()}">
-                <img src="{$oWallUser->getAvatarUrl('big')}" alt="{$oWallUser->getDisplayName()}" />
+                <img src="{$oWallUser->getAvatarUrl('big')}" {$oWallUser->getAvatarImageSizeAttr('big')} alt="{$oWallUser->getDisplayName()}" />
             </a>
 
             <ul class="list-unstyled list-inline small comment-info">

@@ -56,9 +56,7 @@ class ModuleUser_EntityUser extends Entity {
         );
         $this->aValidateRules[] = array(
             'password',
-            'string',
-            'allowEmpty' => false,
-            'min'        => 5,
+            'password',
             'on'         => array('registration'),
         );
         $this->aValidateRules[] = array(
@@ -165,6 +163,18 @@ class ModuleUser_EntityUser extends Entity {
         return E::ModuleLang()->Get('registration_mail_error_used');
     }
 
+    public function ValidatePassword($sValue, $aParams) {
+
+        $iMinLength = Config::Val('module.security.password_len', 3);
+        if ($sValue && $this->getLogin() && $sValue === $this->getLogin()) {
+            return E::ModuleLang()->Get('registration_password_error', array('min' => $iMinLength));
+        }
+        if (mb_strlen($sValue, 'UTF-8') < $iMinLength) {
+            return E::ModuleLang()->Get('registration_password_error', array('min' => $iMinLength));
+        }
+        return true;
+    }
+
     /**
      * Возвращает ID пользователя
      *
@@ -172,7 +182,8 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getId() {
 
-        return $this->getProp('user_id');
+        $iUserId = $this->getProp('user_id');
+        return $iUserId ? intval($iUserId) : null;
     }
 
     /**
@@ -581,7 +592,7 @@ class ModuleUser_EntityUser extends Entity {
     public function isOnline() {
 
         if ($oSession = $this->getSession()) {
-            if ($oSession->GetSessionExit()) {
+            if ($oSession->getDateExit()) {
                 // User has logout
                 return false;
             }
@@ -606,12 +617,17 @@ class ModuleUser_EntityUser extends Entity {
      */
     protected function _getProfileImageUrl($sType, $xSize = null) {
 
-        $sUrl = '';
-        $aImages = $this->getMediaResources($sType);
-        if (!empty($aImages)) {
-            /** @var ModuleMresource_EntityMresourceRel $oImage */
-            $oImage = reset($aImages);
-            $sUrl = $oImage->getImageUrl($xSize);
+        $sPropKey = '_profile_imge_url_' . $sType . '-' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if ($sUrl === null) {
+            $sUrl = '';
+            $aImages = $this->getMediaResources($sType);
+            if (!empty($aImages)) {
+                /** @var ModuleMresource_EntityMresourceRel $oImage */
+                $oImage = reset($aImages);
+                $sUrl = $oImage->getImageUrl($xSize);
+            }
+            $this->setProp($sPropKey, $sUrl);
         }
         return $sUrl;
     }
@@ -636,19 +652,15 @@ class ModuleUser_EntityUser extends Entity {
         $sPropKey = '_avatar_url_' . $xSize;
         $sUrl = $this->getProp($sPropKey);
         if (is_null($sUrl)) {
-            if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
-                $xSize = $sRealSize;
-            }
-            $sUrl = $this->_getProfileImageUrl('profile_avatar', $xSize);
+            $sSize = C::Val('module.uploader.images.profile_avatar.size.' . $xSize, $xSize);
+            $sUrl = $this->_getProfileImageUrl('profile_avatar', $sSize);
             if (!$sUrl) {
                 // Old version compatibility
                 $sUrl = $this->getProfileAvatar();
-                if ($sUrl) {
-                    if ($xSize) {
-                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
-                    }
-                } else {
-                    $sUrl = $this->getDefaultAvatarUrl($xSize);
+                if ($sUrl && ($sUrl[0] == '@') && $sSize) {
+                    $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $sSize);
+                } elseif (empty($sUrl)) {
+                    $sUrl = $this->getDefaultAvatarUrl($sSize);
                 }
             }
             $this->setProp($sPropKey, $sUrl);
@@ -657,16 +669,69 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
+     * @param string     $sImageType
+     * @param string|int $xSize
+     *
+     * @return array
+     */
+    protected function _defineImageSize($sImageType, $xSize) {
+
+        $sSize = C::Val('module.uploader.images.' . $sImageType . '.size.' . $xSize, $xSize);
+        return F::File_ImgModAttr($sSize);
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getAvatarImageSizeAttr($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = Config::Val('module.user.profile_avatar_size', self::DEFAULT_AVATAR_SIZE);
+        }
+        $aImgSize = $this->_defineImageSize('profile_avatar', $xSize);
+
+        return $aImgSize['attr'];
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getAvatarImageSizeStyle($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = Config::Val('module.user.profile_avatar_size', self::DEFAULT_AVATAR_SIZE);
+        }
+        $aImgSize = $this->_defineImageSize('profile_avatar', $xSize);
+
+        return $aImgSize['style'];
+    }
+
+    /**
      * Возвращает дефолтный аватар пользователя
      *
      * @param int|string $xSize
+     * @param string     $sSex
+     *
      * @return string
      */
-    public function getDefaultAvatarUrl($xSize = null) {
+    public function getDefaultAvatarUrl($xSize = null, $sSex = null) {
+
+        if (!$sSex) {
+            $sSex = ($this->getProfileSex() === 'woman' ? 'female' : 'male');
+        }
+        if ($sSex !== 'female' && $sSex !== 'male') {
+            $sSex = 'male';
+        }
 
         $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
-            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
-            . '.png';
+            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . $sSex . '.png';
 
         if (!$xSize) {
             if (Config::Get('module.user.profile_avatar_size')) {
@@ -685,10 +750,16 @@ class ModuleUser_EntityUser extends Entity {
             $nW = $nH = intval($xSize);
         }
 
-        $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
+        $sResizePath = $sPath . '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
+            $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sResizePath, 'avatar', max($nH, $nW));
         }
+        if ($sResizePath) {
+            $sPath = $sResizePath;
+        } elseif (!F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', null);
+        }
+
         return E::ModuleUploader()->Dir2Url($sPath);
     }
 
@@ -720,7 +791,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function GetPhotoUrl($xSize = null) {
 
-        $sPropKey = '_avatar_url_' . $xSize;
+        $sPropKey = '_photo_url_' . $xSize;
         $sUrl = $this->getProp($sPropKey);
         if (is_null($sUrl)) {
             if (!$xSize) {
@@ -729,6 +800,9 @@ class ModuleUser_EntityUser extends Entity {
                 } else {
                     $xSize = self::DEFAULT_PHOTO_SIZE;
                 }
+            }
+            if ($sRealSize = C::Get('module.uploader.images.profile_photo.size.' . $xSize)) {
+                $xSize = $sRealSize;
             }
 
             $sUrl = $this->_getProfileImageUrl('profile_photo', $xSize);
@@ -749,6 +823,22 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getPhotoImageSizeAttr($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = self::DEFAULT_PHOTO_SIZE;
+        }
+        $aImgSize = $this->_defineImageSize('profile_photo', $xSize);
+
+        return $aImgSize['attr'];
+    }
+
+    /**
      * Возвращает информацию о том, есть ли вообще у пользователя аватар
      *
      * @return bool
@@ -763,29 +853,27 @@ class ModuleUser_EntityUser extends Entity {
      * Returns URL for default photo of current skin
      *
      * @param int|string $xSize
+     * @param string     $sSex
      *
      * @return string
      */
-    public function GetDefaultPhotoUrl($xSize = null) {
+    public function GetDefaultPhotoUrl($xSize = null, $sSex = null) {
 
-        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
-            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
-            . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
-            . '.png';
-        if ($xSize) {
-            if (strpos($xSize, 'x') !== false) {
-                list($nW, $nH) = array_map('intval', explode('x', $xSize));
-            } else {
-                $nW = $nH = intval($xSize);
-            }
-            $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-        } else {
-            $nW = $nH = self::DEFAULT_PHOTO_SIZE;
+        if (!$sSex) {
+            $sSex = ($this->getProfileSex() === 'woman' ? 'female' : 'male');
         }
-        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            E::ModuleImg()->AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
+        if (!$xSize) {
+            $xSize = self::DEFAULT_PHOTO_SIZE;
         }
-        return E::ModuleUploader()->Dir2Url($sPath);
+        if ($sRealSize = C::Get('module.uploader.images.profile_photo.size.' . $xSize)) {
+            $xSize = $sRealSize;
+        }
+        if (is_numeric($xSize)) {
+            $xSize = $xSize . 'x' . $xSize;
+        }
+        $sResult = E::ModuleUser()->GetDefaultPhotoUrl($xSize, $sSex);
+
+        return $sResult;
     }
 
     /**

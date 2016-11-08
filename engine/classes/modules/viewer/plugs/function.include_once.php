@@ -14,28 +14,28 @@
  */
 
 /**
- * @param  $params
- * @param  $smarty
+ * @param   array                    $aParams
+ * @param   Smarty_Internal_Template $oSmartyTemplate
  *
- * @return array|null;
+ * @return string|null;
  */
-function smarty_function_include_once($params, &$smarty) {
+function smarty_function_include_once($aParams, $oSmartyTemplate) {
 
-    if (!array_key_exists('file', $params)) {
+    if (!array_key_exists('file', $aParams)) {
         trigger_error('include_once: missing "name" parameter', E_USER_WARNING);
-        return;
+        return null;
     }
 
-    $sTemplate = E::ModulePlugin()->GetDelegate('template', $params['file']);
-    $aIncluded = (array)$smarty->getTemplateVars('_included_files');
+    $sTemplate = E::ModulePlugin()->GetDelegate('template', $aParams['file']);
+    $aIncluded = (array)$oSmartyTemplate->smarty->getTemplateVars('_included_files');
 
     if (!in_array($sTemplate, $aIncluded)) {
-        unset($params['file']);
-        if ($params) {
-            $smarty->assign($params);
+        unset($aParams['file']);
+        if ($aParams) {
+            $oSmartyTemplate->smarty->assign($aParams);
         }
-        $sResult = $smarty->fetch($sTemplate);
-        $smarty->append('_included_files', $sTemplate);
+        $sResult = $oSmartyTemplate->smarty->fetch($sTemplate);
+        $oSmartyTemplate->smarty->append('_included_files', $sTemplate);
     } else {
         $sResult = '';
     }

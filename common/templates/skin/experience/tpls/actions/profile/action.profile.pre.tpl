@@ -8,7 +8,7 @@
 
     <div class="row user-info-block">
         <div class="col-lg-17">
-            <img src="{$oUserProfile->getAvatarUrl('large')}" alt="{$oUserProfile->getDisplayName()}" class="user-logo" itemprop="photo"/>
+            <img src="{$oUserProfile->getAvatarUrl('large')}" {$oUserProfile->getAvatarImageSizeAttr('large')} alt="{$oUserProfile->getDisplayName()}" class="user-logo" itemprop="photo"/>
             <div class="user-name">
                 <div class="user-login-block">
                     <span class="user-login {if !$oUserProfile->getProfileName()}no-user-name{/if}" >{$oUserProfile->getLogin()}</span><br/>

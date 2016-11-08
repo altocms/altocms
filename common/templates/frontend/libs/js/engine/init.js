@@ -45,6 +45,16 @@
         return false;
     });
 
+    /**
+     * Постраничная навигация, переходы вперёд-назад по Ctrl + →/←
+     */
+    ls.pagination.init({
+        selectors: {
+            pagination: '.js-pagination',
+            next:       '.js-paging-next-page',
+            prev:       '.js-paging-prev-page'
+        }
+    });
 
     /**
      * IE

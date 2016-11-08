@@ -139,6 +139,13 @@ class Router extends LsObject {
     static protected $sUserUrlMask = null;
 
     /**
+     * Call ModuleViewer()->Display() when shutdown
+     *
+     * @var bool
+     */
+    static protected $bAutoDisplay = true;
+
+    /**
      * Делает возможным только один экземпляр этого класса
      *
      * @return Router
@@ -198,7 +205,9 @@ class Router extends LsObject {
 
         $this->AssignVars();
         $this->oEngine->Shutdown();
-        E::ModuleViewer()->Display($this->oAction->GetTemplate());
+        if (self::$bAutoDisplay) {
+            E::ModuleViewer()->Display($this->oAction->GetTemplate());
+        }
         if ($bExit) {
             exit();
         }
@@ -234,8 +243,13 @@ class Router extends LsObject {
 
         static::$aRequestURI = $aRequestUrl = $this->RewriteRequest($aRequestUrl);
 
-        static::$sAction = array_shift($aRequestUrl);
-        static::$sActionEvent = array_shift($aRequestUrl);
+        if (!empty($aRequestUrl)) {
+            static::$sAction = array_shift($aRequestUrl);
+            static::$sActionEvent = array_shift($aRequestUrl);
+        } else {
+            static::$sAction = null;
+            static::$sActionEvent = null;
+        }
         static::$aParams = $aRequestUrl;
 
         // Только для мультиязычных сайтов
@@ -429,12 +443,20 @@ class Router extends LsObject {
         if ($aRouterUriRules) {
             foreach ($aRouterUriRules as $sPattern => $sReplace) {
                 if ($sPattern[0] == '[' && substr($sPattern, -1) == ']') {
+                    $sRegExp = substr($sPattern, 1, strlen($sPattern) - 2);
+                } elseif ((strlen($sPattern) > 3) && ($sPattern[1] == '^') && (substr_count($sPattern, $sPattern[0]) == 2)) {
+                    $sRegExp = $sPattern;
+                } else {
+                    $sRegExp = null;
+                }
+                if ($sRegExp && preg_match($sRegExp, $sRequest)) {
                     // regex pattern
-                    $sPattern = substr($sPattern, 1, strlen($sPattern) - 2);
-                    if (preg_match($sPattern, $sRequest)) {
-                        $sRequest = preg_replace($sPattern, $sReplace, $sRequest);
-                        break;
-                    }
+                    $sRequest = preg_replace($sRegExp, $sReplace, $sRequest);
+                    break;
+                } elseif ($sRegExp && preg_match($sRegExp, $sRequest . '/')) {
+                    // regex pattern
+                    $sRequest = preg_replace($sRegExp, $sReplace, $sRequest . '/');
+                    break;
                 } else {
                     if (substr($sPattern, -2) == '/*') {
                         $bFoundPattern = F::StrMatch(array(substr($sPattern, 0, strlen($sPattern) - 2), $sPattern), $sRequest, true);
@@ -599,21 +621,15 @@ class Router extends LsObject {
         if ($sInitResult === 'next') {
             $this->ExecAction();
         } else {
-            // Если инициализация экшена прошла успешно и метод провеки доступа вернул
-            // положительный результат то запускаем запрошенный ивент на исполнение.
-            if ($sInitResult !== false && $this->oAction->Access(self::GetActionEvent()) !== false) {
-                $res = $this->oAction->ExecEvent();
-                static::$sActionEventName = $this->oAction->GetCurrentEventName();
+            // Если инициализация экшена прошла успешно,
+            // то запускаем запрошенный ивент на исполнение.
+            if ($sInitResult !== false) {
+                $xEventResult = $this->oAction->ExecEvent();
 
+                static::$sActionEventName = $this->oAction->GetCurrentEventName();
                 $this->oAction->EventShutdown();
 
-                if ($res === 'next') {
-                    $this->ExecAction();
-                }
-            } else {
-                if (!F::AjaxRequest()) {
-                    static::$sAction = $this->aConfigRoute['config']['action_not_found'];
-                    static::$sActionEvent = '404';
+                if ($xEventResult === 'next') {
                     $this->ExecAction();
                 }
             }
@@ -630,9 +646,22 @@ class Router extends LsObject {
     protected function FindActionClass() {
 
         if (!static::$sAction) {
-            $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], static::$sActionEvent);
-            if ($sActionClass) {
-                static::$sAction = $this->aConfigRoute['config']['action_default'];
+            if (empty($this->aConfigRoute['config']['action_default'])) {
+                $sActionClass = $this->DetermineClass('homepage', static::$sActionEvent);
+                if ($sActionClass) {
+                    static::$sAction = 'homepage';
+                }
+            } else {
+                $aDefaultAction = explode('/', $this->aConfigRoute['config']['action_default']);
+                if (count($aDefaultAction) > 1) {
+                    $sActionClass = $this->DetermineClass($aDefaultAction[0], $aDefaultAction[1]);
+                } else {
+                    $sActionClass = $this->DetermineClass($aDefaultAction[0]);
+                }
+                if ($sActionClass) {
+                    static::$sAction = $aDefaultAction[0];
+                    static::$sActionEvent = (!empty($aDefaultAction[1]) ? $aDefaultAction[1] : null);
+                }
             }
         } else {
             $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
@@ -698,10 +727,6 @@ class Router extends LsObject {
 
         $sActionClass = null;
 
-        if ($sAction && !$sEvent && strpos($sAction, '/')) {
-            list($sAction, $sEvent, $sParams) = explode('/', $sAction, 3);
-        }
-
         if ($sAction) {
             // Сначала ищем экшен по таблице роутинга
             if (isset($this->aConfigRoute['page'][$sAction])) {
@@ -714,6 +739,16 @@ class Router extends LsObject {
             $sActionClass = Loader::SeekActionClass($sAction, $sEvent);
         }
         return $sActionClass;
+    }
+
+    /**
+     * Set AutoDisplay value
+     *
+     * @param bool $bValue
+     */
+    static public function SetAutoDisplay($bValue) {
+
+        self::$bAutoDisplay = (bool)$bValue;
     }
 
     /**
@@ -733,6 +768,7 @@ class Router extends LsObject {
      */
     static public function Action($sAction, $sEvent = null, $aParams = null) {
 
+        $sAction = trim($sAction, '/');
         // если в $sAction передан путь вида action/event/param..., то обрабатываем его
         if (!$sEvent && !$aParams && ($n = substr_count($sAction, '/'))) {
             if ($n > 2) {
@@ -939,19 +975,31 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает правильную адресацию по переданому названию страницы (экшену)
+     * Возвращает правильную адресацию (URL) по переданому названию страницы (экшену)
      *
      * @param  string $sAction Экшен
      *
      * @return string
      */
-    static public function GetPath($sAction) {
+    static public function GetLink($sAction) {
 
         if (empty(static::$aActionPaths[$sAction])) {
             $sAction = trim($sAction, '/');
-            static::$aActionPaths[$sAction] = static::getInstance()->_getPath($sAction);
+            static::$aActionPaths[$sAction] = static::getInstance()->_getLink($sAction);
         }
         return static::$aActionPaths[$sAction];
+    }
+
+    /**
+     * Alias of GetLink()
+     *
+     * @param $sAction
+     *
+     * @return string
+     */
+    static public function GetPath($sAction) {
+
+        return self::GetLink($sAction);
     }
 
     /**
@@ -959,10 +1007,10 @@ class Router extends LsObject {
      *
      * @return string
      */
-    public function _getPath($sAction) {
+    public function _getLink($sAction) {
 
         // Если пользователь запросил action по умолчанию
-        $sPage = (($sAction == 'default') ? $this->aConfigRoute['config']['action_default'] : $sAction);
+        $sPage = (($sAction === 'default') ? $this->aConfigRoute['config']['action_default'] : $sAction);
 
         // Смотрим, есть ли правило rewrite
         $sPage = static::getInstance()->RestorePath($sPage);
@@ -970,7 +1018,7 @@ class Router extends LsObject {
         if (!empty($this->aConfigRoute['domains']['backward'])) {
             if (isset($this->aConfigRoute['domains']['backward'][$sPage])) {
                 $sResult = $this->aConfigRoute['domains']['backward'][$sPage];
-                if ($sResult[1] != '/') {
+                if ($sResult[1] !== '/') {
                     $sResult = '//' . $sResult;
                     if (substr($sResult, -1) !== '/') {
                         $sResult .= '/';
@@ -1330,6 +1378,18 @@ class Router extends LsObject {
     }
 
     /**
+     * Alias of CmpControllerPath()
+     * @param      $aPaths
+     * @param null $bDefault
+     *
+     * @return string
+     */
+    static public function CompareWithLocalPath($aPaths, $bDefault = null) {
+
+        return static::CmpControllerPath($aPaths, $bDefault);
+    }
+    
+    /**
      * Compare each item of array with controller path
      *
      * @see GetControllerPath
@@ -1339,7 +1399,7 @@ class Router extends LsObject {
      *
      * @return string
      */
-    static public function CompareWithLocalPath($aPaths, $bDefault = null) {
+    static public function CmpControllerPath($aPaths, $bDefault = null) {
 
         if ($aPaths) {
             $sControllerPath = static::GetControllerPath();
@@ -1361,6 +1421,46 @@ class Router extends LsObject {
     }
 
     /**
+     * Compare each item of array with request path
+     * 
+     * @param string|array $aPaths
+     * @param bool         $bDefault
+     *
+     * @return string
+     */
+    static public function CmpRequestPath($aPaths, $bDefault = null) {
+
+        if ($aPaths) {
+            $sComparePath = trim(static::Url('path'), '/');
+            $aPaths = F::Val2Array($aPaths);
+            if ($aPaths) {
+                foreach($aPaths as $nKey => $sPath) {
+                    if ($sPath == '*') {
+                        return $sPath;
+                    } elseif(strpos($sPath, '*') === false && trim($sPath, '/') == $sComparePath) {
+                        return $sPath;
+                    }
+                }
+                return F::File_InPath($sComparePath, $aPaths);
+            }
+        }
+        return $bDefault;
+    }
+
+    /**
+     * Alias of AllowControllerPath()
+     *
+     * @param $aAllowPaths
+     * @param $aDisallowPaths
+     *
+     * @return bool
+     */
+    static public function AllowLocalPath($aAllowPaths, $aDisallowPaths) {
+        
+        return static::AllowControllerPath($aAllowPaths, $aDisallowPaths);
+    }
+    
+    /**
      * Check the local path by allow/disallow rules
      *
      * @param string|array|null $aAllowPaths
@@ -1368,9 +1468,9 @@ class Router extends LsObject {
      *
      * @return bool
      */
-    static public function AllowLocalPath($aAllowPaths, $aDisallowPaths) {
+    static public function AllowControllerPath($aAllowPaths, $aDisallowPaths) {
 
-        if (static::CompareWithLocalPath($aAllowPaths, true) && !static::CompareWithLocalPath($aDisallowPaths, false)) {
+        if (static::CmpControllerPath($aAllowPaths, true) && !static::CmpControllerPath($aDisallowPaths, false)) {
             return true;
         }
         return false;
@@ -1397,30 +1497,32 @@ class Router extends LsObject {
                 // приводим к виду action=>array(events)
                 if (is_int($sAction) && !is_array($aEvents)) {
                     $sAction = (string)$aEvents;
-                    $aEvents = array();
+                    if (strpos($sAction, '/')) {
+                        list($sAction, $sEvent) = explode('/', $sAction);
+                        $aEvents = array($sEvent);
+                    } else {
+                        $aEvents = array();
+                    }
                 }
                 if ($sAction == $sCurrentAction) {
                     if (!$aEvents) {
-                        $bResult = true;
-                        break;
+                        return true;
                     }
-                }
-                $aEvents = (array)$aEvents;
-                foreach ($aEvents as $sEventPreg) {
-                    if ($sEventPreg == $sCurrentEvent) {
-                        // * Это название event`a
-                        $bResult = true;
-                        break 2;
-                    } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
-                        // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
-                        $bResult = true;
-                        break 2;
-                    } elseif ((substr($sEventPreg, 0, 1) == '[')
-                        && (substr($sEventPreg, -1) == ']')
-                        && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
-                        // * Это регулярное выражение
-                        $bResult = true;
-                        break 2;
+                    $aEvents = (array)$aEvents;
+                    foreach ($aEvents as $sEventPreg) {
+                        if (($sCurrentEventName && $sEventPreg == $sCurrentEventName) || $sEventPreg == $sCurrentEvent) {
+                            // * Это название event`a
+                            return true;
+                        } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
+                            // LS-compatibility
+                            // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
+                            return true;
+                        } elseif ((substr($sEventPreg, 0, 1) == '[')
+                            && (substr($sEventPreg, -1) == ']')
+                            && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
+                            // * Это регулярное выражение
+                            return true;
+                        }
                     }
                 }
             }

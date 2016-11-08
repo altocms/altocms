@@ -41,10 +41,9 @@ $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/file
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/editor.js";
 
 $config['assets']['default']['css'] = array(
-    '___path.skin.dir___/assets/css/style.min.css',
-    //'___path.skin.dir___/assets/css/style.min.css.map',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
+    '___path.skin.dir___/assets/css/style.experience.css',
     '___path.skin.dir___/themes/___view.theme___/css/custom.css',
 
     /* tinyMCE */

@@ -12,7 +12,7 @@ if (!defined('ALTO_DIR')) die('');
 /**
  * Versions
  */
-define('ALTO_VERSION', '1.1.4');
+define('ALTO_VERSION', '1.1.23');
 define('LS_VERSION', '1.0.3'); // LS-compatible
 define('ALTO_PHP_REQUIRED', '5.3'); // required version of PHP
 define('ALTO_MYSQL_REQUIRED', '5.0'); // required version of PHP
@@ -32,6 +32,7 @@ define('ALTO_DEBUG_FILES', 2);
 if (is_file(__DIR__ . '/config.defines.php')) {
     include(__DIR__ . '/config.defines.php');
 }
+defined('DEBUG') || define('DEBUG', 0);
 
 // load basic config with paths
 $config = include(__DIR__ . '/config.php');
@@ -40,8 +41,9 @@ if (!$config) {
 }
 
 // load system functions
-if (!@include($config['path']['dir']['engine'] . 'include/Func.php')) {
-    die('Fatal error: Cannot load file "' . $config['path']['dir']['engine'] . 'include/Func.php"');
+$sFuncFile = $config['path']['dir']['engine'] . 'include/Func.php';
+if (!is_file($sFuncFile) || !include($sFuncFile)) {
+    die('Fatal error: Cannot load file "' . $sFuncFile . '"');
 }
 
 // load Storage class

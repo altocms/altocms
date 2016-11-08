@@ -349,7 +349,7 @@ class ActionSettings extends Action {
 
             // * Проверяем информацию о себе
             if (F::CheckVal(F::GetRequestStr('profile_about'), 'text', 1, 3000)) {
-                $this->oUserCurrent->setProfileAbout(E::ModuleText()->Parser(F::GetRequestStr('profile_about')));
+                $this->oUserCurrent->setProfileAbout(E::ModuleText()->Parse(F::GetRequestStr('profile_about')));
             } else {
                 $this->oUserCurrent->setProfileAbout(null);
             }

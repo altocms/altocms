@@ -78,6 +78,12 @@ ls.user = (function ($) {
      */
     this.validateRegistrationField = function(form, fieldName, fieldValue, params) {
         var fields = [];
+        if (fieldName == 'password') {
+            var login = $(form).find('[name=login]').val();
+            if (login) {
+                params['login'] = login;
+            }
+        }
         fields.push({field: fieldName, value: fieldValue, params: params || {}});
         this.validateRegistrationFields(form, fields);
     };
@@ -206,10 +212,10 @@ ls.user = (function ($) {
         button = $(button);
         if (button.hasClass('followed')) {
             ls.stream.unsubscribe(iUserId);
-            button.toggleClass('followed').text(ls.lang.get('profile_user_follow'));
+            button.toggleClass('followed').text(ls.lang.get('profile_user_follow')).prepend('<i class="fa fa-star-o"></i>&nbsp;');
         } else {
             ls.stream.subscribe(iUserId);
-            button.toggleClass('followed').text(ls.lang.get('profile_user_unfollow'));
+            button.toggleClass('followed').text(ls.lang.get('profile_user_unfollow')).prepend('<i class="fa fa-star-o"></i>&nbsp;');
         }
         return false;
     };

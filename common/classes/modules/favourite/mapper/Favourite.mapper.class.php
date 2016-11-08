@@ -76,7 +76,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @param  string $sTargetType    Тип владельца
      * @param  int    $sUserId        ID пользователя
      *
-     * @return array
+     * @return ModuleFavourite_EntityFavourite[]
      */
     public function GetFavouritesByArray($aTargetId, $sTargetType, $sUserId) {
 

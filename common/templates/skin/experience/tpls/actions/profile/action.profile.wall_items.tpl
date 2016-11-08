@@ -7,7 +7,7 @@
     <div id="wall-item-{$oWall->getId()}" class="js-wall-item comment-wrapper">
         <div class="comment">
             <a class="wall-user-logo js-popover-user-{$oWallUser->getId()}" href="{$oWallUser->getProfileUrl()}">
-                <img src="{$oWallUser->getAvatarUrl('medium')}" alt="user-logo"/>
+                <img src="{$oWallUser->getAvatarUrl('medium')}" {$oWallUser->getAvatarImageSizeAttr('medium')} alt="user-logo"/>
             </a>
 
             <div class="wall-content">

@@ -72,7 +72,8 @@ class ModuleImg extends Module {
                 }
             } elseif ($this->aDrivers[$sDriver] == 'Gmagick') {
                 if (class_exists('Gmagick')) {
-                    $aInfo = Gmagick::getVersion();
+                    $img = new \Gmagick();
+                    $aInfo = $img->getVersion();
                     $sVersion = $aInfo['versionString'];
                     if (preg_match('/\w+\s\d+\.[\d\.\-]+/', $sVersion, $aMatches)) {
                         $sVersion = $aMatches[0];
@@ -133,13 +134,21 @@ class ModuleImg extends Module {
 
     /**
      * @param string $sFileExtension
+     * @param string $sPreset
      * @param array  $aOptions
      *
      * @return array
      */
-    public function GetOptions($sFileExtension = '*', $aOptions = array()) {
+    public function GetOptions($sFileExtension = '*', $sPreset = null, $aOptions = array()) {
 
-        $aConfigOptions = E::ModuleUploader()->GetConfig($sFileExtension);
+        if (is_array($sPreset) && empty($aOptions)) {
+            $aOptions = $sPreset;
+            $sPreset = null;
+        }
+        if (!$sPreset && $sPreset !== 'default') {
+            $sPreset = 'images.' . $sPreset;
+        }
+        $aConfigOptions = E::ModuleUploader()->GetConfig($sFileExtension, $sPreset);
         if ($aConfigOptions && $aOptions) {
             /** @var DataArray $aParams */
             $aOptions = F::Array_Merge($aConfigOptions, $aOptions);
@@ -225,7 +234,7 @@ class ModuleImg extends Module {
      */
     public function Resize($xImage, $iWidth = null, $iHeight = null, $bFit = true) {
 
-        if (!$xImage || (!$iWidth && !$iHeight)) {
+        if (!$xImage || (!$iWidth && !$iHeight) || (!is_numeric($iWidth) && !is_numeric($iHeight))) {
             return false;
         }
         if (!is_object($xImage)) {
@@ -438,8 +447,20 @@ class ModuleImg extends Module {
         } else {
             $oImgMark = $xWatermark;
         }
-        if (!$bTopLeft) {
+        if (!$oImg || !$oImgMark) {
+            return false;
+        }
+
+        if ('center' == $iCoordX) {
+            $iCoordX = round($oImg->GetWidth() / 2  - $oImgMark->GetWidth() / 2);
+        }
+        elseif (!$bTopLeft) {
             $iCoordX = $oImg->GetWidth() - $oImgMark->GetWidth() - $iCoordX;
+        }
+        if ('center' == $iCoordY) {
+            $iCoordY = round($oImg->GetHeight() / 2 - $oImgMark->GetHeight() / 2);
+        }
+        elseif (!$bTopLeft) {
             $iCoordY = $oImg->GetHeight() - $oImgMark->GetHeight() - $iCoordY;
         }
         $oImg->Overdraw($oImgMark, $iCoordX, $iCoordY);
@@ -587,8 +608,7 @@ class ModuleImg extends Module {
                 if ($iWidth || $iHeight) {
                     $oImg->Resize($iWidth, $iHeight, $bFit);
                 }
-                $oImg->Save($sDestination, $aOptions);
-                return $sDestination;
+                return $oImg->Save($sDestination, $aOptions);
             }
         } catch(ErrorException $oE) {
             $this->nError = -1;
@@ -811,11 +831,15 @@ class ModuleImg extends Module {
      */
     public function AutoresizeSkinImage($sFile, $sPrefix, $iSize) {
 
+        $xResult = false;
+        $iSize = intval($iSize);
         $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $iSize);
         if ($sImageFile) {
             if ($iSize) {
                 $oImg = $this->Resize($sImageFile, $iSize, $iSize);
-                $xResult = $oImg->SaveUpload($sFile);
+                if ($oImg) {
+                    $xResult = $oImg->SaveUpload($sFile);
+                }
             } else {
                 $xResult = $this->Copy($sImageFile, $sFile);
             }
@@ -823,7 +847,6 @@ class ModuleImg extends Module {
             // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
             //$oImg = $this->Create($nSize, $nSize);
             //$xResult = $oImg->SaveUpload($sFile);
-            $xResult = false;
         }
         return $xResult;
     }
@@ -841,7 +864,7 @@ class ModuleImg extends Module {
 
         $sImageFile = '';
         $sName = basename($sFile);
-        if (preg_match('/^' . preg_quote($sPrefix) . '_([a-z0-9-]+)(_(male|female))?(\.([\-0-9a-z]+))?(\.([a-z]+))$/i', $sName, $aMatches)) {
+        if (preg_match('/^' . preg_quote($sPrefix) . '_([a-z0-9-]+)(_(male|female|[a-z]+))?(\.([\-0-9a-z]+))?(\.([a-z]+))$/i', $sName, $aMatches)) {
             $sSkin = $aMatches[1];
             $sType = $aMatches[3];
             if ($sSkin) {

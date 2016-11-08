@@ -63,30 +63,29 @@
             </div>
         {/block}
 
-        {if $oTopic->isShowPhotoset()}
-            {include file="fields/field.photoset-show.tpl"}
-        {/if}
+        {block name="topic_fields"}
+            {if $oTopic->isShowPhotoset()}
+                {include file="fields/field.photoset-show.tpl"}
+            {/if}
 
-        {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
-            {include file="fields/field.poll-show.tpl"}
-        {/if}
+            {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
+                {include file="fields/field.poll-show.tpl"}
+            {/if}
 
-        {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
-            {include file="fields/field.link-show.tpl"}
-        {/if}
+            {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
+                {include file="fields/field.link-show.tpl"}
+            {/if}
 
-        {if $oContentType}
-            {foreach from=$oContentType->getFields() item=oField}
-                {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
-            {/foreach}
-        {/if}
+            {if $oContentType}
+                {foreach from=$oContentType->getFields() item=oField}
+                    {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
+                {/foreach}
+            {/if}
 
-
-        {include file="fields/field.tags-show.tpl"}
+            {include file="fields/field.tags-show.tpl"}
+        {/block}
 
     </div>
-
-
 
     {if !$bPreview}
         <div class="bg-warning topic-share" id="topic_share_{$oTopic->getId()}">
@@ -108,8 +107,8 @@
         {if !$bPreview}
         <div class="topic-footer">
             <ul>
-                <li class="topic-user js-popover-{$oUser->getId()}">
-                    <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                <li class="topic-user js-popover-user-{$oUser->getId()}">
+                    <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}
                     </a>

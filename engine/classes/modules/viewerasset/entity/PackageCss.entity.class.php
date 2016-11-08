@@ -37,7 +37,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
     protected function InitCompressor() {
 
         if (Config::Get('compress.css.use')) {
-            F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
+            //F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
             $this->oCompressor = new csstidy();
 
             if ($this->oCompressor) {
@@ -57,6 +57,11 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return false;
     }
 
+    /**
+     * @param string $sContents
+     *
+     * @return mixed|string
+     */
     public function Compress($sContents) {
 
         /*
@@ -104,6 +109,9 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return parent::CheckDestination($sDestination);
     }
 
+    /**
+     * @return bool
+     */
     public function PreProcess() {
 
         if ($this->aFiles) {
@@ -112,6 +120,11 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return parent::PreProcess();
     }
 
+    /**
+     * @param array $aLink
+     *
+     * @return string
+     */
     public function BuildLink($aLink) {
 
         if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
@@ -123,6 +136,9 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
     }
 
+    /**
+     * @return bool
+     */
     public function Process() {
 
         $bResult = true;
@@ -134,13 +150,13 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 if (!$this->CheckDestination($sCompressedFile)) {
                     if (($sContents = F::File_GetContents($sAssetFile))) {
                         $sContents = $this->Compress($sContents);
-                        if (F::File_PutContents($sCompressedFile, $sContents)) {
+                        if (F::File_PutContents($sCompressedFile, $sContents, LOCK_EX, true)) {
                             F::File_Delete($sAssetFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
                             if (C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
                                 // Сохраним gzip
                                 $sCompressedContent = gzencode($sContents, 9);
-                                F::File_PutContents($sCompressedFile . '.gz.css', $sCompressedContent);
+                                F::File_PutContents($sCompressedFile . '.gz.css', $sCompressedContent, LOCK_EX, true);
                             }
                         }
                     }
@@ -152,12 +168,18 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return $bResult;
     }
 
+    /**
+     * @param string $sFile
+     * @param string $sDestination
+     *
+     * @return null|string
+     */
     public function PrepareFile($sFile, $sDestination) {
 
         $sContents = F::File_GetContents($sFile);
         if ($sContents !== false) {
             $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
-            if (F::File_PutContents($sDestination, $sContents) !== false) {
+            if (F::File_PutContents($sDestination, $sContents, LOCK_EX, true) !== false) {
                 return $sDestination;
             }
         }
@@ -165,6 +187,12 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return null;
     }
 
+    /**
+     * @param string $sContents
+     * @param string $sSource
+     *
+     * @return mixed|string
+     */
     public function PrepareContents($sContents, $sSource) {
 
         if ($sContents) {
@@ -180,6 +208,12 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return $sContents;
     }
 
+    /**
+     * @param $sContent
+     * @param $sSourceDir
+     *
+     * @return mixed
+     */
     protected function _convertUrlsInCss($sContent, $sSourceDir) {
 
         // Есть ли в файле URLs

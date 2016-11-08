@@ -59,55 +59,62 @@ class ActionLogin extends Action {
         // Проверяем передачу логина пароля через POST
         $sUserLogin = trim($this->GetPost('login'));
         $sUserPassword = $this->GetPost('password');
+        $bRemember = $this->GetPost('remember', false) ? true : false;
+        $sUrlRedirect = F::GetRequestStr('return-path');
+
         if (!$sUserLogin || !trim($sUserPassword)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_login_bad'));
             return;
         }
 
+        $iError = null;
         // Seek user by mail or by login
+        $aUserAuthData = array(
+            'login' => $sUserLogin,
+            'email' => $sUserLogin,
+            'password' => $sUserPassword,
+            'error' => &$iError,
+        );
         /** @var ModuleUser_EntityUser $oUser */
-        if ($oUser = E::ModuleUser()->GetUserByMailOrLogin($sUserLogin)) {
-            // Не забанен ли юзер
-            if ($oUser->IsBanned()) {
-                if ($oUser->IsBannedByIp()) {
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_ip_banned'));
-                    return;
-                } elseif ($oUser->GetBanLine()) {
-                    E::ModuleMessage()->AddErrorSingle(
-                        E::ModuleLang()->Get('user_banned_before', array('date' => $oUser->GetBanLine()))
-                    );
-                    return;
-                } else {
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_banned_unlim'));
-                    return;
-                }
-            }
-            // Check password
-            if (E::ModuleUser()->CheckPassword($oUser, $sUserPassword)) {
-                if (!$oUser->getActivate()) {
-                    E::ModuleMessage()->AddErrorSingle(
-                        E::ModuleLang()->Get(
+        $oUser = E::ModuleUser()->GetUserAuthorization($aUserAuthData);
+        if ($oUser) {
+            if ($iError) {
+                switch($iError) {
+                    case ModuleUser::USER_AUTH_ERR_NOT_ACTIVATED:
+                        $sErrorMessage = E::ModuleLang()->Get(
                             'user_not_activated',
                             array('reactivation_path' => R::GetPath('login') . 'reactivation')
-                        )
-                    );
-                    return;
+                        );
+                        break;
+                    case ModuleUser::USER_AUTH_ERR_IP_BANNED:
+                        $sErrorMessage = E::ModuleLang()->Get('user_ip_banned');
+                        break;
+                    case ModuleUser::USER_AUTH_ERR_BANNED_DATE:
+                        $sErrorMessage = E::ModuleLang()->Get('user_banned_before', array('date' => $oUser->GetBanLine()));
+                        break;
+                    case ModuleUser::USER_AUTH_ERR_BANNED_UNLIM:
+                        $sErrorMessage = E::ModuleLang()->Get('user_banned_unlim');
+                        break;
+                    default:
+                        $sErrorMessage = E::ModuleLang()->Get('user_login_bad');
                 }
-                $bRemember = F::GetRequest('remember', false) ? true : false;
-
+                E::ModuleMessage()->AddErrorSingle($sErrorMessage);
+                return;
+            } else {
                 // Авторизуем
                 E::ModuleUser()->Authorization($oUser, $bRemember);
 
                 // Определяем редирект
                 //$sUrl = Config::Get('module.user.redirect_after_login');
-                $sUrl = Config::Get('path.root.url');
-                if (F::GetRequestStr('return-path')) {
-                    $sUrl = F::GetRequestStr('return-path');
+                if (!$sUrlRedirect) {
+                    $sUrlRedirect = C::Get('path.root.url');
                 }
-                E::ModuleViewer()->AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
+
+                E::ModuleViewer()->AssignAjax('sUrlRedirect', $sUrlRedirect);
                 return;
             }
         }
+
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_login_bad'));
     }
 

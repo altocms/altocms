@@ -65,6 +65,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return int|null
      */
     public function getUrl() {
+
         $sLink = isset($this->_aData['item_url']) ? Config::Get($this->_aData['item_url']) : NULL;
         if (!$sLink) {
             return isset($this->_aData['item_url']) ? $this->_aData['item_url'] : NULL;
@@ -83,13 +84,19 @@ class ModuleMenu_EntityItem extends Entity {
     protected function _checkPath($aPaths, $bDefault = TRUE) {
 
         if ($aPaths) {
-            return R::CompareWithLocalPath($aPaths);
+            return R::CmpControllerPath($aPaths);
         }
 
         return $bDefault;
     }
 
+    /**
+     * @param string|array $aPlugins
+     *
+     * @return bool
+     */
     public function checkPlugin($aPlugins) {
+
         if (is_string($aPlugins)) {
             $aPlugins = array($aPlugins);
         }
@@ -107,8 +114,41 @@ class ModuleMenu_EntityItem extends Entity {
     }
 
     /**
+     * Set parent menu
+     *
+     * @param ModuleMenu_EntityMenu $oMenu
+     */
+    public function setMenu($oMenu) {
+
+        $this->setProp('_menu', !empty($oMenu) ? $oMenu : null);
+    }
+
+    /**
+     * Get parent menu
+     *
+     * @return ModuleMenu_EntityMenu|null
+     */
+    public function getMenu() {
+
+        return $this->getProp('_menu');
+    }
+
+    /**
+     * @return ModuleMenu_EntityItem|null
+     */
+    public function getParentItem() {
+
+        if ($oMenu = $this->getMenu()) {
+            return $oMenu->getParentItem();
+        }
+        return null;
+    }
+
+    /**
      * Проверка на то, нужно выводить элемент или нет
+     *
      * @param string|bool $sType Текущий контент
+     *
      * @return bool
      */
     public function isEnabled($sType = FALSE) {
@@ -147,21 +187,23 @@ class ModuleMenu_EntityItem extends Entity {
         return TRUE;
     }
 
-    public function getLangText($sTextTemplate, $sLang = NULL) {
+    /**
+     * @param       $sTextTemplate
+     * @param array $aReplace
+     * @param null  $sLang
+     *
+     * @return string
+     */
+    public function getLangText($sTextTemplate, $aReplace = array(), $sLang = NULL) {
 
-        return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
-            $sTextTemplatePart = array_shift($sTextTemplatePart);
-            if (!is_null($sText = E::ModuleLang()->Get(substr($sTextTemplatePart, 2, strlen($sTextTemplatePart) - 4)))) {
-                return $sText;
-            }
-
-            return $sTextTemplatePart;
+        return preg_replace_callback('~\{\{\S*\}\}~U', function ($aMatches) use ($aReplace, $sLang) {
+            return E::ModuleLang()->Text($aMatches[0], $aReplace, true, $sLang);
         }, $sTextTemplate);
-
     }
 
     /**
      * Возвращает название текстовки для ссылки
+     *
      * @return int|null
      */
     public function getTitle() {
@@ -182,9 +224,11 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Получает описание элемента меню
-     * @return bool|mixed|null
+     *
+     * @return string|null
      */
     public function getDescription(){
+
         if ($this->_description) {
             return $this->_description;
         }
@@ -196,7 +240,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает надпись на ссылке
-     * @return int|null
+     *
+     * @return string|null
      */
     public function getText() {
 
@@ -218,9 +263,11 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает дополнительные опции ссылки
+     *
      * @return ModuleMenu_EntityItemOptions|null
      */
     public function getOptions() {
+
         $aOptions = isset($this->_aData['item_options']) ? $this->_aData['item_options'] : NULL;
         if ($this->getSubMenuId() && preg_match('~submenu_[a-f0-9]{10}~', $this->getSubMenuId())) {
             $aOptions = E::GetEntity('Menu_ItemOptions', Config::Get('menu.submenu.options'));
@@ -230,22 +277,27 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает массив страниц где ссылка отображается
+     *
      * @return int|null
      */
     public function getOn() {
+
         return isset($this->_aData['item_on']) ? $this->_aData['item_on'] : NULL;
     }
 
     /**
      * Возвращает массив страниц где ссылка НЕ отображается
+     *
      * @return int|null
      */
     public function getOff() {
+
         return isset($this->_aData['item_off']) ? $this->_aData['item_off'] : NULL;
     }
 
     /**
      * Возвращает массив страниц где ссылка НЕ отображается
+     *
      * @return array|null
      */
     public function getType() {
@@ -260,7 +312,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает флаг активности ссылки - включена она или нет
-     * @return int|null
+     *
+     * @return bool|null
      */
     public function getDisplay() {
 
@@ -279,7 +332,8 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает флаг активности ссылки - включена она или нет
-     * @return int|null
+     *
+     * @return bool|null
      */
     public function getShow() {
 
@@ -298,39 +352,48 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Возвращает идентификатор меню
-     * @return mixed
+     *
+     * @return string
      */
     public function getId() {
+
         return isset($this->_aData['item_id']) ? $this->_aData['item_id'] : NULL;
     }
 
     /**
-     * Возвращает идентификатор меню
-     * @return mixed
+     * Возвращает идентификатор подменю
+     *
+     * @return string
      */
     public function getSubMenuId() {
+
         return isset($this->_aData['item_submenu']) ? $this->_aData['item_submenu'] : NULL;
     }
 
     /**
-     * Возвращает идентификатор меню
-     * @return mixed
+     * Возвращает конфигурацию элемента меню
+     *
+     * @return array
      */
     public function getItemConfig() {
-        return isset($this->_aData['item_config']) ? $this->_aData['item_config'] : NULL;
+
+        return $this->getProp('_cfg');
     }
 
     /**
-     * Возвращает идентификатор меню
-     * @return mixed
+     * Возвращает ссылку элемента меню
+     *
+     * @return string
      */
     public function getLink() {
+
         return $this->getUrl();
     }
 
     /**
      * Показывает активна ссылка или нет
-     * @return mixed
+     *
+     * @return bool
      */
     public function getActive() {
 
@@ -339,13 +402,19 @@ class ModuleMenu_EntityItem extends Entity {
             return $this->_isActive;
         }
 
+        // if this is submenu and parent item is not active then this item cannot be active
+        if ($oParentItem = $this->getParentItem()) {
+            if (!$oParentItem->getActive()) {
+                return false;
+            }
+        }
+
         /** @var callable[]|[][] $aActiveRule Правило вычисления активности */
         $aActiveRule = isset($this->_aData['item_active']) ? $this->_aData['item_active'] : FALSE;
 
         $this->_isActive = $this->checkCustomRules($aActiveRule);
 
         return $this->_isActive;
-
     }
 
     /**
@@ -369,7 +438,7 @@ class ModuleMenu_EntityItem extends Entity {
             $aItemFlags['link_active'] = 'active';
             $aItemFlags['link_class'] = '';
         }
-*/
+        */
         $aItemFlags['link_id'] = ($this->getOptions() && ($aLinkId = $this->getOptions()->getLinkId())) ? "id='{$aLinkId}'" : '';
         $aItemFlags['link_active'] = ($this->getOptions() && ($this->getOptions()->getActiveLinkClass())) ? $this->getOptions()->getActiveLinkClass() : 'active';
         $aItemFlags['link_class'] = ($this->getOptions() && ($aLinkClass = $this->getOptions()->getLinkClass())) ? "class='{$aLinkClass} [[link_active]]'" : '';
@@ -407,6 +476,9 @@ class ModuleMenu_EntityItem extends Entity {
         return $aItemFlags;
     }
 
+    /**
+     * @return string
+     */
     public function getHtml() {
 
         // Сформируем динамические параметры
@@ -468,7 +540,35 @@ class ModuleMenu_EntityItem extends Entity {
         $sHtml = str_replace(array_keys($aParams), array_values($aParams), $sHtml);
 
         return $sHtml;
+    }
 
+    /**
+     * @param string $sKey
+     * @param mixed  $xValue
+     */
+    public function SetConfig($sKey, $xValue) {
+
+        if (is_array($xValue)) {
+            // Only scalar can be used as end value
+            array_walk_recursive($xValue, function(&$xV){
+                if (!is_scalar($xV)) {
+                    $xV = null;
+                }
+            });
+        }
+        if ($sKey && (is_scalar($xValue) || is_array($xValue))) {
+            $aKeys = explode('.', $sKey);
+            $aData = &$this->_aData;
+            $aCfg = &$this->_aData['_cfg'];
+            foreach ($aKeys as $sSubKey) {
+                $aData = &$aData[$sSubKey];
+                $aCfg = &$aCfg[$sSubKey];
+            }
+            $aData = $xValue;
+            $aCfg = $xValue;
+        }
     }
 
 }
+
+// EOF

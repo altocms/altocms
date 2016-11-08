@@ -41,7 +41,7 @@
                 {hook run='widget_stream_nav_item'}
             </ul>
         </div>
-        <div class="panel-content js-widget-stream-content" style="background-image: none;">
+        <div class="panel-content js-widget-stream-content" >
 
         </div>
     </div>

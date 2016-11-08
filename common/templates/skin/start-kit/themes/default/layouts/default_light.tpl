@@ -46,21 +46,16 @@
         var SESSION_ID = '{$_sPhpSessionId}';
         var BLOG_USE_TINYMCE = '{Config::Get('view.tinymce')}';
 
-        var TINYMCE_LANG = 'en';
-        {if Config::Get('lang.current') == 'ru'}
-        TINYMCE_LANG = 'ru';
-        {/if}
+        var tinyMCE = tinymce = false;
+        var TINYMCE_LANG = {if E::ModuleLang()->GetLang() == 'ru'}'ru'{else}'en'{/if};
 
-        var aRouter = new Array();
-        {foreach from=$aRouter key=sPage item=sPath}
-        aRouter['{$sPage}'] = '{$sPath}';
-        {/foreach}
+        var aRouter = [];
+        {strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
     </script>
 
     {$aHtmlHeadFiles.js}
 
     <script type="text/javascript">
-        var tinyMCE = false;
         ls.lang.load({json var = $aLangJs});
         ls.registry.set('comment_max_tree', {json var=Config::Get('module.comment.max_tree')});
         ls.registry.set('widget_stream_show_tip', {json var=Config::Get('block.stream.show_tip')});
@@ -70,20 +65,20 @@
 </head>
 
 {if E::IsUser()}
-    {$body_classes=$body_classes|cat:' ls-user-role-user'}
+    {$body_classes=$body_classes|cat:' alto-user-role-user'}
 
     {if $oUserCurrent->isAdministrator()}
-        {$body_classes=$body_classes|cat:' ls-user-role-admin'}
+        {$body_classes=$body_classes|cat:' alto-user-role-admin'}
     {/if}
     {if $oUserCurrent->isModerator()}
-        {$body_classes=$body_classes|cat:' ls-user-role-moderator'}
+        {$body_classes=$body_classes|cat:' alto-user-role-moderator'}
     {/if}
 {else}
-    {$body_classes=$body_classes|cat:' ls-user-role-guest'}
+    {$body_classes=$body_classes|cat:' alto-user-role-guest'}
 {/if}
 
 {if !E::IsAdmin()}
-    {$body_classes=$body_classes|cat:' ls-user-role-not-admin'}
+    {$body_classes=$body_classes|cat:' alto-user-role-not-admin'}
 {/if}
 
 

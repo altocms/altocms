@@ -756,7 +756,7 @@ class ModuleACL extends Module {
                 $sUserRole = 'moderator';
             }
         } else {
-            $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog, $oUser->getId());
+            $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
             if ($oBlogUser) {
                 if ($oBlogUser->IsBlogAdministrator()) {
                     $sUserRole = 'administrator';

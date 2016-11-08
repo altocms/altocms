@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-    <id>ls</id>
     <name>
         <lang name="default">LS Compatibility</lang>
     </name>
@@ -9,7 +8,6 @@
     </author>
     <homepage>http://altocms.com</homepage>
     <version>1.0</version>
-    <dirname>ls</dirname>
     <requires>
         <livestreet>1.0.2</livestreet>
         <alto>

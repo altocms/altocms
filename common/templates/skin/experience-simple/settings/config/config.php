@@ -65,7 +65,7 @@ $config['view']['header']['logo']['file'] = 'logo.png';
 //$config['view']['header']['logo']['url'] = 'http://site.com/logo.png';
 $config['view']['header']['logo']['name'] = Config::Get('view.name');
 
-$config['module']['user']['profile_photo_size'] = '222x';
+$config['module']['user']['profile_photo_size'] = '240x';
 
 C::Set('module.uploader.images.profile_avatar.size', array(
     'great'  => '224x224crop', // Виджет "О блоге"
@@ -77,5 +77,9 @@ C::Set('module.uploader.images.profile_avatar.size', array(
     'mini'   => '24x24crop',
     'micro'  => '16x16crop',   // Не используется
 ));
+
+$config['module']['uploader']['images']['profile_photo']['size'] = array(
+    'default'  => '240x240crop',
+);
 
 return $config;

@@ -47,13 +47,13 @@ class ActionHomepage extends Action {
                 // if page not active or deleted then this homepage is off
                 $oPage = E::ModulePage()->GetPageByUrlFull($sHomepage, 1);
                 if ($oPage) {
-                    $sHomepage = $oPage->getUrlPath();
+                    $sHomepage = $oPage->getLink();
                 } else {
                     $sHomepage = '';
                 }
             } else {
                 if ($sHomepageSelect == 'category_homepage') {
-                    $sHomepageSelect = 'plugin-category-homepage';
+                    $sHomepageSelect = 'plugin-categories-homepage';
                 }
                 $aHomePageSelect = explode('-', $sHomepageSelect);
                 // if homepage was from plugin and plugin is not active then this homepage is off

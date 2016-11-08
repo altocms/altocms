@@ -12,21 +12,22 @@ class ModuleUploader extends Module {
 
     const COOKIE_TARGET_TMP         = 'uploader_target_tmp';
 
-    const ERR_NOT_POST_UPLOADED     = 10001;
-    const ERR_NOT_FILE_VARIABLE     = 10002;
-    const ERR_MAKE_UPLOAD_DIR       = 10003;
-    const ERR_MOVE_UPLOAD_FILE      = 10004;
-    const ERR_COPY_UPLOAD_FILE      = 10005;
-    const ERR_REMOTE_FILE_OPEN      = 10011;
-    const ERR_REMOTE_FILE_MAXSIZE   = 10012;
-    const ERR_REMOTE_FILE_READ      = 10013;
-    const ERR_REMOTE_FILE_WRITE     = 10014;
-    const ERR_NOT_ALLOWED_EXTENSION = 10051;
-    const ERR_FILE_TOO_LARGE        = 10052;
-    const ERR_IMG_NO_INFO           = 10061;
-    const ERR_IMG_LARGE_WIDTH       = 10062;
-    const ERR_IMG_LARGE_HEIGHT      = 10063;
-    const ERR_TRANSFORM_IMAGE       = 10101;
+    const ERR_NOT_POST_UPLOADED         = 10001;
+    const ERR_NOT_FILE_VARIABLE         = 10002;
+    const ERR_MAKE_UPLOAD_DIR           = 10003;
+    const ERR_MOVE_UPLOAD_FILE          = 10004;
+    const ERR_COPY_UPLOAD_FILE          = 10005;
+    const ERR_REMOTE_FILE_OPEN          = 10011;
+    const ERR_REMOTE_FILE_MAXSIZE       = 10012;
+    const ERR_REMOTE_FILE_READ          = 10013;
+    const ERR_REMOTE_FILE_WRITE         = 10014;
+    const ERR_NOT_ALLOWED_EXTENSION     = 10051;
+    const ERR_FILE_TOO_LARGE            = 10052;
+    const ERR_IMG_NO_INFO               = 10061;
+    const ERR_IMG_LARGE_WIDTH           = 10062;
+    const ERR_IMG_LARGE_HEIGHT          = 10063;
+    const ERR_IMG_NOT_ALLOWED_FORMAT    = 10081;
+    const ERR_TRANSFORM_IMAGE           = 10101;
 
     protected $aUploadErrors
         = array(
@@ -52,6 +53,7 @@ class ModuleUploader extends Module {
             self::ERR_IMG_NO_INFO           => 'Cannot get info about image (may be file is corrupted)',
             self::ERR_IMG_LARGE_WIDTH       => 'Width of image is too large',
             self::ERR_IMG_LARGE_HEIGHT      => 'Height of image is too large',
+            self::ERR_IMG_NOT_ALLOWED_FORMAT => 'Not allowed image format',
             self::ERR_TRANSFORM_IMAGE       => 'Error during transform image',
         );
 
@@ -198,7 +200,7 @@ class ModuleUploader extends Module {
      *
      * @return bool
      */
-    protected function _checkUploadedImage($sFile, $sConfigKey = 'default') {
+    protected function _checkUploadedImage($sFile, $sConfigKey = 'images.default') {
 
         $aInfo = @getimagesize($sFile);
         if (!$aInfo) {
@@ -207,9 +209,12 @@ class ModuleUploader extends Module {
         }
         // Gets local config
         if (!$sConfigKey) {
-            $sConfigKey = 'default';
+            $sConfigKey = 'images.default';
+        } elseif (!strpos($sConfigKey, '.')) {
+            $sConfigKey = 'images.' . $sConfigKey;
         }
-        $aConfig = $this->aModConfig['images.' . $sConfigKey];
+
+        $aConfig = $this->aModConfig[$sConfigKey];
         if ($aConfig['max_width'] && F::MemSize2Int($aConfig['max_width']) < $aInfo[0]) {
             $this->nLastError = self::ERR_IMG_LARGE_WIDTH;
             return false;
@@ -229,6 +234,9 @@ class ModuleUploader extends Module {
      */
     protected function _checkUploadedFile($sFile, $sConfigKey = 'default') {
 
+        if (!$sConfigKey) {
+            $sConfigKey = 'default';
+        }
         $sExtension = $this->_extensionMime($sFile);
         $aConfig = $this->GetConfig($sFile, $sConfigKey);
         if (!$aConfig) {
@@ -245,13 +253,22 @@ class ModuleUploader extends Module {
             $this->nLastError = self::ERR_FILE_TOO_LARGE;
             return false;
         }
+
         // Check images
-        $aImageExtensions = (array)$aConfig['image_extensions'];
-        if ($aImageExtensions && in_array($sExtension, $aImageExtensions)) {
-            if (!$this->_checkUploadedImage($sFile, $sConfigKey)) {
-                return false;
+        if ($sConfigKey == 'default') {
+            if (!empty($aConfig['image_extensions']) && in_array($sExtension, (array)$aConfig['image_extensions'])) {
+                return $this->_checkUploadedImage($sFile, $sConfigKey);
+            }
+        } else {
+            if (!empty($aConfig['image_extensions']) && strpos($sConfigKey, 'images.') === 0) {
+                if (!in_array($sExtension, (array)$aConfig['image_extensions'])) {
+                    $this->nLastError = self::ERR_IMG_NOT_ALLOWED_FORMAT;
+                    return false;
+                }
+                return $this->_checkUploadedImage($sFile, $sConfigKey);
             }
         }
+
         return true;
     }
 
@@ -280,11 +297,14 @@ class ModuleUploader extends Module {
      */
     public function GetConfig($sFile, $sConfigKey = 'default') {
 
+        if (!$sConfigKey) {
+            $sConfigKey = 'default';
+        }
         $sExtension = $this->_extensionMime($sFile);
         if (!$sExtension) {
             $sExtension = '*';
         }
-        $sTmpConfigKey = '_' . $sExtension . '_' . $sConfigKey;
+        $sTmpConfigKey = '-' . str_replace('.', '-', $sConfigKey) . '-' . $sExtension;
         $aConfig = $this->aModConfig[$sTmpConfigKey];
 
         if (is_null($aConfig)) {
@@ -292,7 +312,20 @@ class ModuleUploader extends Module {
             $aImageExtensions = array();
 
             // Gets local config
-            if ($sConfigKey && $sConfigKey != 'default') {
+            if ($sConfigKey) {
+                if (isset($this->aModConfig[$sConfigKey])) {
+                    $aConfig = $this->aModConfig[$sConfigKey];
+                    $aImageExtensions = (array)$aConfig['image_extensions'];
+                } elseif (strpos($sConfigKey, '.')) {
+                    if (strpos($sConfigKey, 'images.') === 0) {
+                        $aConfig = $this->aModConfig['images.default'];
+                        $aImageExtensions = (array)$aConfig['image_extensions'];
+                    } else {
+                        $sConfigKey = 'default';
+                    }
+                }
+            }
+            if (!$aConfig && $sConfigKey != 'default') {
                 // Checks key 'images.<type>' and valid image extension
                 if ($aConfig = $this->aModConfig['images.' . $sConfigKey]) {
                     if ($sExtension != '*') {
@@ -340,7 +373,7 @@ class ModuleUploader extends Module {
              *     ),
              * );
              */
-            if (($sExtension != '*') && $aConfig && $aImageExtensions && $aConfig['transform']) {
+            if (($sExtension != '*') && $aImageExtensions && !empty($aConfig['transform'])) {
                 foreach($aConfig['transform'] as $sKey => $aVal) {
                     if (strpos($sKey, '@mime(') === 0) {
                         $sMimeFound = null;
@@ -414,7 +447,12 @@ class ModuleUploader extends Module {
                     if ($bOriginalName) {
                         $sTmpFile = F::File_GetUploadDir() . $aFile['name'];
                     } else {
-                        $sTmpFile = basename(F::File_UploadUniqname(pathinfo($aFile['name'], PATHINFO_EXTENSION)));
+                        if (E::UserId()) {
+                            $sExtension = dechex(E::UserId()) . '.' . pathinfo($aFile['name'], PATHINFO_EXTENSION);
+                        } else {
+                            $sExtension = pathinfo($aFile['name'], PATHINFO_EXTENSION);
+                        }
+                        $sTmpFile = strtolower(basename(F::File_UploadUniqname($sExtension)));
                     }
                     // Copy uploaded file in our temp folder
                     if ($sTmpFile = F::File_MoveUploadedFile($aFile['tmp_name'], $sTmpFile)) {
@@ -447,7 +485,7 @@ class ModuleUploader extends Module {
      * @param string $sUrl
      * @param string $sTarget
      * @param string $sDir
-     * @param array  $aParams
+     * @param array  $aParams [max_size => «размер в килобайтах»]
      *
      * @return bool
      */
@@ -498,7 +536,7 @@ class ModuleUploader extends Module {
                 return false;
             }
         }
-        if ($this->_checkUploadedFile($sTmpFile, $sTarget)) {
+        if (!empty($sTmpFile) && $this->_checkUploadedFile($sTmpFile, $sTarget)) {
             if ($sDir) {
                 return $this->MoveTmpFile($sTmpFile, $sDir);
             } else {
@@ -719,6 +757,7 @@ class ModuleUploader extends Module {
                 if (!$oStoredItem->GetUuid()) {
                     $oStoredItem->SetUuid($sDriverName);
                 }
+                /** @var ModuleMresource_EntityMresource $oMresource */
                 $oMresource = E::GetEntity('Mresource', $oStoredItem);
                 if ($bAddMresource) {
                     E::ModuleMresource()->Add($oMresource);
@@ -754,7 +793,7 @@ class ModuleUploader extends Module {
         }
 
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
-        $aConfig = $this->GetConfig($sFile, $sTarget);
+        $aConfig = $this->GetConfig($sFile, 'images.' . $sTarget);
 
         // Check whether to save the original
         if (isset($aConfig['original']['save']) && $aConfig['original']['save']) {
@@ -782,7 +821,7 @@ class ModuleUploader extends Module {
                     $xSize['h'] = $oImg->getHeight();
                 }
                 if (!isset($xSize['w']) && isset($xSize['h'])) {
-                    $xSize['h'] = $oImg->getWeight();
+                    $xSize['w'] = $oImg->getWidth();
                 }
                 if ((isset($xSize['w']) && isset($xSize['h'])) && !(isset($xSize['x1']) && isset($xSize['y1']))) {
                     $oImg = E::ModuleImg()->CropCenter($oImg, $xSize['w'], $xSize['h']);
@@ -860,7 +899,7 @@ class ModuleUploader extends Module {
      * @param string $sTargetId
      * @param bool   $bMulti
      *
-     * @return bool
+     * @return bool|ModuleMresource_EntityMresource
      */
     public function AddRelationResourceTarget($oResource, $sTargetType, $sTargetId, $bMulti = FALSE) {
 
@@ -877,9 +916,7 @@ class ModuleUploader extends Module {
             if ($sTargetId == '0') {
                 $oResource->setTargetTmp(E::ModuleSession()->GetCookie(self::COOKIE_TARGET_TMP));
             }
-            $oResource = array($oResource);
-
-            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+            E::ModuleMresource()->AddTargetRel(array($oResource), $sTargetType, $sTargetId);
 
             return $oResource;
         }
@@ -950,6 +987,73 @@ class ModuleUploader extends Module {
     }
 
     /**
+     * @param $sPath
+     * @param $sResultPath
+     *
+     * @return bool|string
+     */
+    protected function _getDrive($sPath, &$sResultPath) {
+
+
+        if ($sPath && is_string($sPath) && strlen($sPath) > 1) {
+            if ($sPath[0] === '@') {
+                $sDrive = 'local';
+                $sResultPath = substr($sPath, 1);
+            } elseif ($sPath[0] === '[' && ($nPos = strpos($sPath, ']'))) {
+                $sDrive = substr($sPath, 1, $nPos - 1);
+                $sResultPath = substr($sPath, $nPos + 1);
+            } else {
+                $sDrive = '';
+                $sResultPath = $sPath;
+            }
+            return $sDrive;
+        }
+        return false;
+    }
+
+    /**
+     * @param $sUrl
+     *
+     * @return bool
+     */
+    public function CompleteUrl($sUrl) {
+
+        $sDrive = $this->_getDrive($sUrl, $sPath);
+        if ($sDrive) {
+            $sRootUrl = C::Get('module.uploader.drives.' . $sDrive . '.url');
+            // Old version compatibility
+            if (!$sRootUrl && $sDrive === 'local') {
+                $sRootUrl = C::Get('path.root.url');
+            }
+            if ($sRootUrl) {
+                return F::File_NormPath($sRootUrl . '/' . $sPath);
+            }
+        }
+        return $sUrl;
+    }
+
+    /**
+     * @param $sDir
+     *
+     * @return bool
+     */
+    public function CompleteDir($sDir) {
+
+        $sDrive = $this->_getDrive($sDir, $sPath);
+        if ($sDrive) {
+            $sRootDir = C::Get('module.uploader.drives.' . $sDrive . '.dir');
+            // Old version compatibility
+            if (!$sRootDir && $sDrive === 'local') {
+                $sRootDir = C::Get('path.root.dir');
+            }
+            if ($sRootDir) {
+                return F::File_NormPath($sRootDir . '/' . $sPath);
+            }
+        }
+        return $sDir;
+    }
+
+    /**
      * Возвращает максимальное количество картинок для типа объекта
      *
      * @param string $sTargetType
@@ -996,7 +1100,7 @@ class ModuleUploader extends Module {
      * @param string $sTarget
      * @param int    $iTargetId
      *
-     * @return bool
+     * @return mixed
      */
     public function CheckAccessAndGetTarget($sTarget, $iTargetId = null) {
 
@@ -1148,8 +1252,8 @@ class ModuleUploader extends Module {
      */
     public function GetTargetUrl($sTargetType, $iTargetId) {
 
-        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'photoset' || $sTargetType = 'topic') {
-            /** @var $oTopic ModuleTopic_EntityTopic */
+        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType == 'photoset' || $sTargetType == 'topic') {
+            /** @var ModuleTopic_EntityTopic $oTopic */
             if (!$oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
                 return '';
             }
@@ -1192,8 +1296,7 @@ class ModuleUploader extends Module {
         if ($aMResourceRel) {
             $oMResource = reset($aMResourceRel);
 
-            $sUrl = str_replace('@', Config::Get('path.root.web'), $oMResource->getPathUrl());
-
+            $sUrl = $this->CompleteUrl($oMResource->getPathUrl());
             if (!$xSize) {
                 return $sUrl;
             }
@@ -1220,16 +1323,13 @@ class ModuleUploader extends Module {
 
         if (Config::Get('module.image.autoresize')) {
             $sFile = $this->Url2Dir($sUrl);
-            if (!F::File_Exists($sFile)) {
+            if ($sFile && !F::File_Exists($sFile)) {
                 E::ModuleImg()->Duplicate($sFile);
             }
         }
+        $sUrl = $this->CompleteUrl($sUrl);
 
-        if ($sUrl[0] == '@') {
-            $sUrl = Config::Get('path.root.url') . substr($sUrl, 1);
-        }
         return $sUrl;
-
     }
 
     /**
@@ -1238,7 +1338,7 @@ class ModuleUploader extends Module {
      * @param int|array|null $xUsers
      * @param array|null     $aStructurize
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetTargetImages($sTargetType, $xTargetId = null, $xUsers = null, $aStructurize = null) {
 
@@ -1259,7 +1359,7 @@ class ModuleUploader extends Module {
      * @param int|array|null $xUsers
      * @param array|null     $aStructurize
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetMediaObjects($sTargetType, $xTargetId = null, $xUsers = null, $aStructurize = null) {
 
@@ -1279,7 +1379,7 @@ class ModuleUploader extends Module {
      * @param $sTargetType
      * @param $xTargetId
      *
-     * @return array
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetImagesByUserAndTarget($xUsers, $sTargetType, $xTargetId = null) {
 

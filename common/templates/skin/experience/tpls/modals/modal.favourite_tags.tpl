@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 {if E::IsUser()}
-    <div class="modal fade in" id="favourite-form-tags">
+    <div class="modal fade in" id="modal-favourite_tags">
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -26,9 +26,12 @@
 
                     <div class="modal-footer">
                         <button type="submit" name="" class="btn btn-blue btn-big corner-no">
-                        {$aLang.favourite_form_tags_button_save}</button>
-                        <button type="submit" name="" class="btn btn-light pull-left btn-big corner-no">
-                        {$aLang.favourite_form_tags_button_cancel}</button>
+                        {$aLang.favourite_form_tags_button_save}
+                        </button>
+
+                        <button type="button" name="" class="btn btn-light pull-left btn-big corner-no" data-dismiss="modal">
+                        {$aLang.favourite_form_tags_button_cancel}
+                        </button>
                     </div>
                 </form>
 

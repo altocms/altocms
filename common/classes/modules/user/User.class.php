@@ -44,6 +44,20 @@ class ModuleUser extends Module {
     const USER_ROLE_ADMINISTRATOR = 2;
     const USER_ROLE_MODERATOR = 4;
 
+    const USER_AUTH_RESULT_OK           = 0;
+
+    const USER_AUTH_ERROR               = 1;
+    const USER_AUTH_ERR_LOGIN           = 2;
+    const USER_AUTH_ERR_MAIL            = 3;
+    const USER_AUTH_ERR_ID              = 4;
+    const USER_AUTH_ERR_SESSION         = 5;
+    const USER_AUTH_ERR_PASSWORD        = 9;
+
+    const USER_AUTH_ERR_NOT_ACTIVATED   = 11;
+    const USER_AUTH_ERR_IP_BANNED       = 12;
+    const USER_AUTH_ERR_BANNED_DATE     = 13;
+    const USER_AUTH_ERR_BANNED_UNLIM    = 14;
+
     /**
      * Объект маппера
      *
@@ -70,11 +84,11 @@ class ModuleUser extends Module {
      *
      * @var array
      */
-    protected $aUserFieldTypes
-        = array(
-            'social', 'contact'
-        );
+    protected $aUserFieldTypes = array('social', 'contact');
 
+    /**
+     * @var array
+     */
     protected $aAdditionalData = array('vote', 'session', 'friend', 'geo_target', 'note');
 
     /**
@@ -645,6 +659,73 @@ class ModuleUser extends Module {
             return $oUser;
         }
         return null;
+    }
+
+    /**
+     * @param      $aUserAuthData
+     *
+     * @return bool|ModuleUser_EntityUser|null
+     */
+    public function GetUserAuthorization($aUserAuthData) {
+
+        $oUser = null;
+        $iError = null;
+        if (!empty($aUserAuthData['login'])) {
+            $oUser = $this->GetUserByLogin($aUserAuthData['login']);
+            if (!$oUser) {
+                $iError = self::USER_AUTH_ERR_LOGIN;
+            }
+        }
+        if (!$oUser && !empty($aUserAuthData['email'])) {
+            if (F::CheckVal($aUserAuthData['email'], 'email')) {
+                $oUser = $this->GetUserByMail($aUserAuthData['email']);
+                if ($oUser) {
+                    $iError = null;
+                } else {
+                    $iError = self::USER_AUTH_ERR_MAIL;
+                }
+            }
+        }
+        if (!$oUser && !empty($aUserAuthData['id'])) {
+            if (F::CheckVal(!empty($aUserAuthData['id']), 'id')) {
+                $oUser = $this->GetUserById($aUserAuthData['id']);
+                if (!$oUser) {
+                    $iError = self::USER_AUTH_ERR_ID;
+                }
+            }
+        }
+        if (!$oUser && !empty($aUserAuthData['session'])) {
+            $oUser = $this->GetUserBySessionKey($aUserAuthData['session']);
+            if (!$oUser) {
+                $iError = self::USER_AUTH_ERR_SESSION;
+            }
+        }
+        if ($oUser && !empty($aUserAuthData['password'])) {
+            if (!$this->CheckPassword($oUser, $aUserAuthData['password'])) {
+                $iError = self::USER_AUTH_ERR_PASSWORD;
+            }
+        }
+        if ($oUser && !$iError) {
+            $iError = self::USER_AUTH_RESULT_OK;
+            if (!$oUser->getActivate()) {
+                $iError = self::USER_AUTH_ERR_NOT_ACTIVATED;
+            }
+            // Не забанен ли юзер
+            if ($oUser->IsBanned()) {
+                if ($oUser->IsBannedByIp()) {
+                    $iError = self::USER_AUTH_ERR_IP_BANNED;
+                } elseif ($oUser->GetBanLine()) {
+                    $iError = self::USER_AUTH_ERR_BANNED_DATE;
+                } else {
+                    $iError = self::USER_AUTH_ERR_BANNED_UNLIM;
+                }
+            }
+        } elseif(!$iError) {
+            $iError = self::USER_AUTH_ERROR;
+        }
+        $aUserAuthData['error'] = $iError;
+
+        return $oUser;
     }
 
     /**
@@ -2154,6 +2235,70 @@ class ModuleUser extends Module {
     public function IpIsBanned($sIp) {
 
         return $this->oMapper->IpIsBanned($sIp);
+    }
+
+    /**
+     * @param int|string $xSize
+     * @param string     $sSex
+     *
+     * @return string
+     */
+    public function getDefaultAvatarUrl($xSize, $sSex) {
+
+        if ($sSex === null) {
+            $sSex = 'male';
+        }
+
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
+            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . $sSex . '.png';
+
+        if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
+            $xSize = $sRealSize;
+        }
+        if (is_string($xSize) && strpos($xSize, 'x')) {
+            list($nW, $nH) = array_map('intval', explode('x', $xSize));
+        } else {
+            $nW = $nH = (int)$xSize;
+        }
+
+        $sResizePath = $sPath . '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
+            $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sResizePath, 'avatar', max($nH, $nW));
+        }
+        if ($sResizePath) {
+            $sPath = $sResizePath;
+        } elseif (!F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', null);
+        }
+
+        return E::ModuleUploader()->Dir2Url($sPath);
+    }
+
+    /**
+     * @param int|string $xSize
+     * @param string     $sSex
+     *
+     * @return string
+     */
+    public function GetDefaultPhotoUrl($xSize, $sSex) {
+
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
+            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . $sSex . '.png';
+
+        if (strpos($xSize, 'x') !== false) {
+            list($nW, $nH) = array_map('intval', explode('x', $xSize));
+        } else {
+            $nW = $nH = (int)$xSize;
+        }
+        $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
+        }
+
+        return E::ModuleUploader()->Dir2Url($sPath);
     }
 
     /**

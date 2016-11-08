@@ -62,7 +62,7 @@ class ActionContent extends Action {
     public function Init() {
 
         // * Проверяем авторизован ли юзер
-        if (!E::ModuleUser()->IsAuthorization() && R::GetActionEvent() !== 'go' && R::GetActionEvent() !== 'photo') {
+        if (!E::ModuleUser()->IsAuthorization() && (R::GetActionEvent() !== 'go') && (R::GetActionEvent() !== 'photo')) {
             return parent::EventNotFound();
         }
         $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
@@ -325,11 +325,11 @@ class ActionContent extends Action {
         list($sTextShort, $sTextNew, $sTextCut) = E::ModuleText()->Cut($oTopic->getTextSource());
 
         $oTopic->setCutText($sTextCut);
-        $oTopic->setText(E::ModuleText()->Parser($sTextNew));
+        $oTopic->setText(E::ModuleText()->Parse($sTextNew));
 
         // Получаем ссылки, полученные при парсинге текста
         $oTopic->setTextLinks(E::ModuleText()->GetLinks());
-        $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
+        $oTopic->setTextShort(E::ModuleText()->Parse($sTextShort));
 
         // * Варианты ответов
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && F::GetRequest('topic_field_answers', array())) {
@@ -354,7 +354,9 @@ class ActionContent extends Action {
         if (isset($_REQUEST['submit_topic_publish'])) {
             $oTopic->setPublish(1);
             $oTopic->setPublishDraft(1);
-            $oTopic->setDateShow(F::Now());
+            if (!$oTopic->getDateShow()) {
+                $oTopic->setDateShow(F::Now());
+            }
         } else {
             $oTopic->setPublish(0);
             $oTopic->setPublishDraft(0);
@@ -667,11 +669,11 @@ class ActionContent extends Action {
         list($sTextShort, $sTextNew, $sTextCut) = E::ModuleText()->Cut($oTopic->getTextSource());
 
         $oTopic->setCutText($sTextCut);
-        $oTopic->setText(E::ModuleText()->Parser($sTextNew));
+        $oTopic->setText(E::ModuleText()->Parse($sTextNew));
 
         // Получаем ссылки, полученные при парсинге текста
         $oTopic->setTextLinks(E::ModuleText()->GetLinks());
-        $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
+        $oTopic->setTextShort(E::ModuleText()->Parse($sTextShort));
 
         // * Изменяем вопрос/ответы, только если еще никто не голосовал
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question')
@@ -1050,6 +1052,7 @@ class ActionContent extends Action {
         }
 
         // * Получаем список фото
+        /** @var ModuleMresource_EntityMresourceRel[] $aPhotos */
         $aPhotos = $oTopic->getPhotosetPhotos($iLastId, Config::Get('module.topic.photoset.per_page'));
         $aResult = array();
         if (count($aPhotos)) {
@@ -1057,8 +1060,10 @@ class ActionContent extends Action {
             foreach ($aPhotos as $oPhoto) {
                 $aResult[] = array(
                     'id'          => $oPhoto->getMresourceId(),
-                    'path_thumb'  => $oPhoto->getLink($sThumbSize),
-                    'path'        => $oPhoto->getLink(),
+                    //'path_thumb'  => $oPhoto->getLink($sThumbSize),
+                    //'path'        => $oPhoto->getLink(),
+                    'path_thumb' => $oPhoto->getWebPath($sThumbSize),
+                    'path' => $oPhoto->getWebPath(),
                     'description' => $oPhoto->getDescription(),
                 );
             }

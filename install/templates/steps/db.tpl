@@ -15,11 +15,13 @@
 
 <p><label for="install_db_server">___LANG_DB_PARAMS_HOST___:</label>
 <input type="text" class="input-text input-width-300" class="input-text" name="install_db_server" value="___INSTALL_DB_SERVER___" id="install_db_server" />
+<small class="note">___LANG_DB_PARAMS_HOST_NOTICE___</small>
 </p>
 
 <p><label for="install_db_server">___LANG_DB_PARAMS_PORT___:</label>
 <input type="text" class="input-text input-width-300" name="install_db_port" value="___INSTALL_DB_PORT___" id="install_db_port" />
-<small class="note">___LANG_DB_PARAMS_PORT_NOTICE___</small></p>
+<small class="note">___LANG_DB_PARAMS_PORT_NOTICE___</small>
+</p>
 
 <p><label for="install_db_name">___LANG_DB_PARAMS_NAME___:</label>
 <input type="text" class="input-text input-width-300" name="install_db_name" value="___INSTALL_DB_NAME___" id="install_db_name" />
@@ -27,13 +29,14 @@
 
 <p>
 	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_create" value="1" ___INSTALL_DB_CREATE_CHECK___ /> ___LANG_DB_PARAMS_CREATE___</label>
+	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_ALTO___</label>
 	<label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_from_alto_097" value="1" ___INSTALL_DB_CONVERT_FROM_ALTO_097_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_FROM_ALTO_097___</label>
-    <label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_ALTO___</label>
     <label><input type="checkbox" class="input-checkbox" onclick="checkInputs(this.name);" name="install_db_convert_to_alto_11" value="1" ___INSTALL_DB_CONVERT_TO_ALTO_11_CHECK___ /> ___LANG_DB_PARAMS_CONVERT_TO_11___</label>
 </p>
 
 <p><label for="install_db_user">___LANG_DB_PARAMS_USER___:</label>
 <input type="text" class="input-text input-width-300" name="install_db_user" value="___INSTALL_DB_USER___" id="install_db_user" />
+<small class="note">___LANG_DB_PARAMS_USER_NOTICE___</small>
 </p>
 
 <p><label for="install_db_password">___LANG_DB_PARAMS_PASSWORD___:</label>

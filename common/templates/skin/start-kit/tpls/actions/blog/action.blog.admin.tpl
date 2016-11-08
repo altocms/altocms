@@ -25,7 +25,7 @@
                     <tr>
                         <td class="cell-name">
                             <a href="{$oUser->getProfileUrl()}">
-                                <img src="{$oUser->getAvatarUrl('mini')}" alt="avatar" class="avatar"/>
+                                <img src="{$oUser->getAvatarUrl('mini')}" {$oUser->getAvatarImageSizeAttr('mini')} alt="{$oUser->getDisplayName()}" class="avatar"/>
                             </a>
 
                             <p class="username word-wrap">

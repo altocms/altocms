@@ -541,24 +541,28 @@ abstract class Entity extends LsObject {
      */
     public function __call($sName, $aArgs) {
 
-        $sType = strtolower(substr($sName, 0, 3));
-        if (!strpos($sName, '_') && ($sType == 'get' || $sType == 'set')) {
-            $sKey = F::StrUnderscore(substr($sName, 3));
-            if ($sType == 'get') {
-                if ($this->isProp($sKey)) {
-                    return $this->getProp($sKey);
-                } else {
-                    if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
-                        $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
-                        if ($this->isProp($sModulePrefix . $sKey)) {
-                            return $this->getProp($sModulePrefix . $sKey);
+        if (!strpos($sName, '_')) {
+            $sType = strtolower(substr($sName, 0, 3));
+            if (($sType == 'get' || $sType == 'set')) {
+                $sKey = F::StrUnderscore(substr($sName, 3));
+                if ($sType == 'get') {
+                    if ($this->isProp($sKey)) {
+                        return $this->getProp($sKey);
+                    } else {
+                        if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
+                            $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
+                            if ($this->isProp($sModulePrefix . $sKey)) {
+                                return $this->getProp($sModulePrefix . $sKey);
+                            }
                         }
                     }
+                } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
+                    return $this->setProp($sKey, $aArgs[0]);
                 }
-            } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
-                $this->setProp($sKey, $aArgs[0]);
+                return null;
+            } else {
+                return parent::__call($sName, $aArgs);
             }
-            return null;
         }
         return E::getInstance()->_CallModule($sName, $aArgs);
     }
@@ -828,8 +832,11 @@ abstract class Entity extends LsObject {
         if (is_bool($aRules)) {
             return $aRules;
         }
-        // Правило жёстко задано - вернем его
         if (is_string($aRules)) {
+            if (strpos($aRules, ':')) {
+                return E::evaluate($aRules);
+            }
+            // Правило жёстко задано - вернем его
             return $aRules;
         }
 
@@ -867,15 +874,7 @@ abstract class Entity extends LsObject {
             }
 
             if (is_string($xRule) && $bConcatenateResult) {
-                if (strpos($xRule, 'hook:') === 0) {
-                    $bResult .= E::ModuleHook()->Run(substr($xRule, 5));
-                } elseif (strpos($xRule, 'text:') === 0) {
-                    $bResult .= substr($xRule, 5);
-                } elseif (strpos($xRule, 'func:') === 0) {
-                    $bResult .= call_user_func(substr($xRule, 5));
-                } else {
-                    $bResult .= $xRule;
-                }
+                $bResult .= E::evaluate($xRule);
                 continue;
             }
 
@@ -906,18 +905,16 @@ abstract class Entity extends LsObject {
             }
             // Вызовем метод
             if ($sTmpMethodName && $aTmpMethodParams !== FALSE) {
-                if (strpos($sTmpMethodName, 'hook:') === 0) {
-                    $xCallResult = E::ModuleHook()->Run(substr($sTmpMethodName, 5), $aTmpMethodParams, false);
-                } elseif (strpos($sTmpMethodName, 'text:') === 0) {
-                    $xCallResult = substr($sTmpMethodName, 5);
-                } elseif (strpos($sTmpMethodName, 'func:') === 0) {
-                    $xCallResult = call_user_func_array(substr($sTmpMethodName, 5), $aTmpMethodParams);
+                if (strpos($sTmpMethodName, ':')) {
+                    $xCallResult = E::evaluate($sTmpMethodName, $aTmpMethodParams);
                 } else {
                     $sTmpMethodName = $sOwnerClassName . '_' . F::StrCamelize($sTmpMethodName);
                     $xCallResult = call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
                 }
                 if ($bConcatenateResult) {
-                    $bResult .= $xCallResult;
+                    if (!empty($xCallResult) && (is_string($xCallResult) || is_numeric($xCallResult))) {
+                        $bResult .= $xCallResult;
+                    }
                 } else {
                     $bResult = $bResult || $xCallResult;
                 }
@@ -1007,7 +1004,7 @@ abstract class Entity extends LsObject {
     /**
      * @param string $sType
      *
-     * @return ModuleMresource_EntityMresourceRel[]
+     * @return array
      */
     public function getMediaResources($sType = null) {
 

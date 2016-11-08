@@ -13,7 +13,7 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeFile(Config::Get('path.dir.libs') . '/DklabCache/config.php');
+F::IncludeFile(C::Get('path.dir.libs') . '/DklabCache/config.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Cache/Backend/MemcachedMultiload.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Cache/Backend/TagEmuWrapper.php');
@@ -135,6 +135,8 @@ class ModuleCache extends Module {
 
     protected $nCacheMode = self::CACHE_MODE_AUTO;
 
+    protected $sCachePrefix;
+
     /**
      * Статистика кеширования
      *
@@ -163,14 +165,18 @@ class ModuleCache extends Module {
      */
     public function Init() {
 
-        $this->bUseCache = Config::Get('sys.cache.use');
-        $this->sCacheType = Config::Get('sys.cache.type');
+        $this->bUseCache = C::Get('sys.cache.use');
+        $this->sCacheType = C::Get('sys.cache.type');
+        $this->sCachePrefix = $this->GetCachePrefix();
 
-        $aCacheTypes = (array)Config::Get('sys.cache.backends');
+        $aCacheTypes = (array)C::Get('sys.cache.backends');
+
         // Доступные механизмы кеширования
         $this->aCacheTypesAvailable = array_map('strtolower', array_keys($aCacheTypes));
+
         // Механизмы принудительного кеширования
-        $this->aCacheTypesForce = (array)Config::Get('sys.cache.force');
+        $this->aCacheTypesForce = (array)C::Get('sys.cache.force');
+
         if ($this->aCacheTypesForce === true) {
             // Разрешены все
             $this->aCacheTypesForce = $this->aCacheTypesAvailable;
@@ -216,6 +222,18 @@ class ModuleCache extends Module {
     }
 
     /**
+     * @return string
+     */
+    public function GetCachePrefix() {
+
+        $sUniqKey = C::Get(C::ALTO_UNIQUE_KEY);
+        if (!$sUniqKey) {
+            $sUniqKey = E::ModuleSecurity()->GenerateUniqKey();
+        }
+        return C::Get('sys.cache.prefix') . '_' . F::Crc32($sUniqKey, true);
+    }
+
+    /**
      * Проверка режима кеширования
      *
      * @param   string|null $sCacheType
@@ -239,7 +257,8 @@ class ModuleCache extends Module {
      *
      * @param string $sCacheType
      *
-     * @return string
+     * @return string|null
+     *
      * @throws Exception
      */
     protected function _backendInit($sCacheType) {
@@ -256,7 +275,7 @@ class ModuleCache extends Module {
                     // Unknown cache type
                     throw new Exception('Wrong type of caching: ' . $this->sCacheType);
                 } else {
-                    $aCacheTypes = (array)Config::Get('sys.cache.backends');
+                    $aCacheTypes = (array)C::Get('sys.cache.backends');
                     $sClass = 'CacheBackend' . $aCacheTypes[$sCacheType];
                     $sFile = './backend/' . $sClass . '.class.php';
                     if (!F::IncludeFile($sFile)) {
@@ -281,6 +300,7 @@ class ModuleCache extends Module {
                 return $sCacheType;
             }
         }
+        return null;
     }
 
     /**
@@ -317,8 +337,8 @@ class ModuleCache extends Module {
         if (is_null($sCacheType) || $sCacheType === true) {
             $sCacheType = $this->sCacheType;
         }
-        if ($this->_backendInit($sCacheType) && Config::Get('sys.cache.concurrent_delay')) {
-            return intval(Config::Get('sys.cache.concurrent_delay'));
+        if ($this->_backendInit($sCacheType) && ($sCacheType != 'tmp')) {
+            return intval(C::Get('sys.cache.concurrent_delay'));
         }
         return 0;
     }
@@ -412,9 +432,14 @@ class ModuleCache extends Module {
      */
     protected function _hash($sKey) {
 
-        return md5(Config::Get('sys.cache.prefix') . $sKey);
+        return md5($this->sCachePrefix . $sKey);
     }
 
+    /**
+     * @param $aTags
+     *
+     * @return array|string
+     */
     protected function _prepareTags($aTags) {
 
         // Теги - это массив строковых значений
@@ -440,6 +465,44 @@ class ModuleCache extends Module {
     public function CacheTypeAvailable($sCacheType) {
 
         return $this->_backendIsAvailable($sCacheType);
+    }
+
+    /**
+     * Make cache key from array
+     *
+     * @param array $aArgs
+     *
+     * @return string
+     */
+    public function Array2Key($aArgs) {
+
+        $sKey = '';
+        foreach($aArgs as $xVal) {
+            if (is_null($xVal)) {
+                $sVal = '';
+            } elseif (is_bool($xVal)) {
+                $sVal = ($xVal ? '1' : '0');
+            } elseif (is_scalar($xVal)) {
+                $sVal = (string)$xVal;
+            } elseif (is_array($xVal)) {
+                ksort($xVal);
+                $sVal = $this->Array2Key($xVal);
+            } else {
+                $sVal = serialize($xVal);
+            }
+            $sKey .= '[[' . $sVal . ']]';
+        }
+        return $sKey;
+    }
+
+    /**
+     * Make cache key from arguments
+     *
+     * @return string
+     */
+    public function Key() {
+
+        return $this->Array2Key(func_get_args());
     }
 
     /**
@@ -470,6 +533,9 @@ class ModuleCache extends Module {
      */
     public function Set($xData, $sCacheKey, $aTags = array(), $nTimeLife = false, $sCacheType = null) {
 
+        if (empty($sCacheKey)) {
+            return false;
+        }
         if ($sCacheType && strpos($sCacheType, ',') !== false) {
             $aCacheTypes = explode(',', $sCacheType);
             $bResult = false;
@@ -539,6 +605,9 @@ class ModuleCache extends Module {
      */
     public function Get($xCacheKey, $sCacheType = null) {
 
+        if (empty($xCacheKey)) {
+            return false;
+        }
         if ($sCacheType && strpos($sCacheType, ',') !== false) {
             $aCacheTypes = explode(',', $sCacheType);
             $xResult = false;

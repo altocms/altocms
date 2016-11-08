@@ -14,8 +14,8 @@
                     onComplete: function (evt, uiEvt) {
                         var uploaded = $('.js-alto-topic-uploader').altoMultiUploader('getUploaded');
                         $.each(uploaded, function(key, url) {
-                            console.log(url);
-                            var $param = $('#aim-params');
+                            //console.log(url);
+                            var $param = $('#aim-params'),
                                 align = $param.find('[name=align]').val(),
                                 title = $param.find('[name=title]').val(),
                                 size = parseInt($param.find('[name=img_width]').val(), 10);
@@ -69,7 +69,7 @@
 <div class="add-photo">
     <div class="img-container">
         <div>
-            {* ¡ÀŒ  «¿√–”« » »«Œ¡–¿∆≈Õ»ﬂ *}
+            {* –ë–õ–û–ö –ó–ê–ì–†–£–ó–ö–ò –ò–ó–û–ë–†–ê–ñ–ï–ù–ò–Ø *}
 
             <div class="js-alto-topic-uploader js-topic-photoset"
                  data-target-id="{$sTargetId}"
@@ -82,7 +82,7 @@
 
 
 
-                {* ‘ÓÏ‡ Á‡„ÛÁÍË ËÁÓ·‡ÊÂÌËÈ *}
+                {* –§–æ—Ä–º–∞ –∑–∞–≥—Ä—É–∑–∫–∏ –∏–∑–æ–±—Ä–∞–∂–µ–Ω–∏–π *}
                 <div class="js-alto-topic-uploader-form clearfix">
 
                         <div class="js-alto-multi-uploader-list list-unstyled row"></div>

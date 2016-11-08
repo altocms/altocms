@@ -772,7 +772,8 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function GetTargetTypes() {
 
-        return $this->oDb->selectCol("select DISTINCT target_type from ?_mresource_target");
+        $sql = "SELECT DISTINCT target_type from ?_mresource_target";
+        return $this->oDb->selectCol($sql);
     }
 
     /**
@@ -784,23 +785,24 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function GetMresourcesCountByTarget($sTargetType) {
 
-        if ($sTargetType == 'all') {
-            $aRow =  $this->oDb->selectRow("SELECT COUNT(*) AS count FROM ?_mresource");
+        if ($sTargetType == '*' || $sTargetType == 'all') {
+            $sql = "SELECT COUNT(*) AS count FROM ?_mresource";
+            $aRow =  $this->oDb->selectRow($sql);
         } else {
             if (!is_array($sTargetType)) {
                 $sTargetType = array($sTargetType);
             }
-            $aRow =  $this->oDb->selectRow("
+            $sql = "
               SELECT
                 COUNT(*) AS count
               FROM ?_mresource_target t, ?_mresource m
                 WHERE
               m.mresource_id = t.mresource_id
-              AND t.target_type IN ( ?a )", $sTargetType);
+              AND t.target_type IN ( ?a )
+             ";
+            $aRow =  $this->oDb->selectRow($sql, $sTargetType);
         }
-
-
-        return isset($aRow['count'])?$aRow['count']:0;
+        return isset($aRow['count']) ? $aRow['count'] : 0;
     }
 
     /**
@@ -814,16 +816,24 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetMresourcesCountByTargetAndUserId($sTargetType, $iUserId) {
 
         if ($sTargetType == 'all') {
-            $aRow =  $this->oDb->selectRow("select count(t.target_type) as count from ?_mresource_target t, ?_mresource m  where m.user_id = ?d and m.mresource_id = t.mresource_id", $iUserId);
+            $sql = "
+                SELECT COUNT(t.target_type) AS count 
+                FROM ?_mresource_target t, ?_mresource m  
+                WHERE 
+                    m.user_id = ?d AND m.mresource_id = t.mresource_id";
+            $aRow =  $this->oDb->selectRow($sql, $iUserId);
         } else {
             if (!is_array($sTargetType)) {
                 $sTargetType = array($sTargetType);
             }
-            $aRow =  $this->oDb->selectRow("select count(t.target_type) as count from ?_mresource_target t, ?_mresource m  where m.user_id = ?d and m.mresource_id = t.mresource_id and t.target_type in ( ?a )", $iUserId, $sTargetType);
+            $sql = "
+                SELECT COUNT(t.target_type) AS count 
+                FROM ?_mresource_target t, ?_mresource m  
+                WHERE 
+                    m.user_id = ?d AND m.mresource_id = t.mresource_id AND t.target_type IN ( ?a )";
+            $aRow =  $this->oDb->selectRow($sql, $iUserId, $sTargetType);
         }
-
-
-        return isset($aRow['count'])?$aRow['count']:0;
+        return isset($aRow['count']) ? $aRow['count'] : 0;
     }
 
     /**
@@ -837,18 +847,17 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function GetMresourcesCountByTargetIdAndUserId($sTargetType, $iTargetId, $iUserId){
 
-        $sql = "select
-                  count(t.target_type) as count
-                from
+        $sql = "SELECT
+                  COUNT(t.target_type) as count
+                FROM
                   ?_mresource_target t, ?_mresource m
-                where
+                WHERE
                   m.user_id = ?d
-                  and m.mresource_id = t.mresource_id
-                  and t.target_id = ?d
-                  and t.target_type = ?";
+                  AND m.mresource_id = t.mresource_id
+                  AND t.target_id = ?d
+                  AND t.target_type = ?";
 
         $aRow =  $this->oDb->selectRow($sql, $iUserId, $iTargetId, $sTargetType);
-
 
         return isset($aRow['count'])?$aRow['count']:0;
     }
@@ -914,9 +923,14 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function UpdatePrimary($oResource, $sTargetType, $iTargetId){
 
-        $sql = "UPDATE ?_mresource SET type = ?d WHERE mresource_id IN (
-          SELECT mresource_id FROM ?_mresource_target WHERE target_type = ? AND target_id = ?d
-        )";
+        $sql = "
+          UPDATE ?_mresource 
+          SET type = ?d 
+          WHERE 
+              mresource_id IN (
+                SELECT mresource_id FROM ?_mresource_target WHERE target_type = ? AND target_id = ?d
+              )
+          ";
         $bResult = $this->oDb->query($sql, ModuleMresource::TYPE_PHOTO, $sTargetType, $iTargetId);
 
         $bResult = ($bResult !== false && $this->UpdateType($oResource));
@@ -940,17 +954,19 @@ class ModuleMresource_MapperMresource extends Mapper {
             $sData .= " WHEN mresource_id = '$sId' THEN '$iSort' ";
         }
 
-        $sql ="UPDATE ?_mresource SET sort = (CASE $sData END) WHERE
-                mresource_id
-              IN (
-                SELECT
-                  mresource_id
-                FROM
-                  ?_mresource_target
-                WHERE
-                  target_type = ? AND target_id = ?d)";
-
-
+        $sql ="
+            UPDATE ?_mresource 
+            SET sort = (CASE $sData END) 
+            WHERE
+                mresource_id IN (
+                  SELECT
+                    mresource_id
+                  FROM
+                    ?_mresource_target
+                  WHERE
+                    target_type = ? AND target_id = ?d
+                )
+            ";
         return $this->oDb->query($sql, $sTargetType, $iTargetId);
 
     }
@@ -959,31 +975,33 @@ class ModuleMresource_MapperMresource extends Mapper {
      * Возвращает категории изображения для пользователя
      *
      * @param int $iUserId
-     * @param int $sTopicId
+     * @param int $iTopicId
      *
-     * @return mixed
+     * @return array
      */
-    public function GetImageCategoriesByUserId($iUserId, $sTopicId){
+    public function GetImageCategoriesByUserId($iUserId, $iTopicId){
 
-        $sql = "SELECT
-                  IF(
+        $sql = "
+            SELECT
+                IF(
                     ISNULL(t.target_tmp),
-                    IF((t.target_type LIKE 'topic%' AND t.target_id = ?d), 'current',
-                      IF(t.target_type = 'profile_avatar' OR t.target_type = 'profile_photo', 'user', t.target_type)),
-                    'tmp') AS ttype
-                  , count(t.target_id) AS count
+                    IF(
+                        (t.target_type LIKE 'topic%' AND t.target_id = ?d), 'current',
+                        IF(t.target_type = 'profile_avatar' OR t.target_type = 'profile_photo', 'user', t.target_type)
+                      ), 'tmp'
+                  ) AS ttype, 
+                  COUNT(t.target_id) AS count
                 FROM
                   ?_mresource_target as t, ?_mresource as m
                 WHERE
                   t.mresource_id = m.mresource_id
                   AND m.user_id = ?d
                   AND t.target_type IN ( ?a )
-
                 GROUP  BY
-                  ttype                ORDER BY
-                 m.date_add desc";
+                  ttype
+                  ";
 
-        return $this->oDb->select($sql, (int)$sTopicId, $iUserId, array(
+        return $this->oDb->select($sql, (int)$iTopicId, $iUserId, array(
             'current',
             'tmp',
             'blog_avatar',
@@ -1001,23 +1019,25 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function GetAllImageCategoriesByUserId($iUserId){
 
-        $sql = "SELECT
-                  IF(
+        $sql = "
+            SELECT
+                IF(
                     ISNULL(t.target_tmp),
-                    IF((t.target_type LIKE 'topic%'), 'topic',
-                      IF(t.target_type = 'profile_avatar' OR t.target_type = 'profile_photo', 'user', t.target_type)),
-                    'tmp') AS ttype
-                  , count(t.target_id) AS count
-                FROM
-                  ?_mresource_target as t, ?_mresource as m
-                WHERE
-                  t.mresource_id = m.mresource_id
-                  AND (m.type & (?d | ?d | ?d))
-                  AND m.user_id = ?d
-
-                GROUP  BY
-                  ttype                ORDER BY
-                 m.date_add desc";
+                    IF(
+                        (t.target_type LIKE 'topic%'), 'topic',
+                        IF(t.target_type = 'profile_avatar' OR t.target_type = 'profile_photo', 'user', t.target_type)
+                    ), 'tmp'
+                ) AS ttype, 
+                COUNT(t.target_id) AS count
+            FROM
+                ?_mresource_target AS t, ?_mresource AS m
+            WHERE
+                t.mresource_id = m.mresource_id
+                AND (m.type & (?d | ?d | ?d))
+                AND m.user_id = ?d
+            GROUP  BY
+                ttype
+            ";
 
         return $this->oDb->select($sql,
             ModuleMresource::TYPE_IMAGE,
@@ -1036,7 +1056,7 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetCountImagesByUserId($iUserId){
 
         $sql = "SELECT
-                  count(mresource_id) AS count
+                  COUNT(mresource_id) AS count
                 FROM
                   ?_mresource
                 WHERE
@@ -1062,18 +1082,23 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
 
-        $sql = "select r.mresource_id FROM
-                  (SELECT
+        $sql = "
+          SELECT 
+              r.mresource_id 
+          FROM (
+              SELECT
                   t.mresource_id
-
-                FROM ?_mresource_target AS t, ?_mresource AS m
-                WHERE t.mresource_id = m.mresource_id
-                      AND (m.type & (?d | ?d | ?d))
-                      AND m.user_id = ?d
-                      AND ({1 = ?d AND t.target_tmp IS NOT NULL}{1 = ?d AND t.target_tmp IS NULL} AND ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
-
-                GROUP BY t.mresource_id  ORDER BY
-                 m.date_add desc) as r";
+              FROM ?_mresource_target AS t, ?_mresource AS m
+              WHERE 
+                  t.mresource_id = m.mresource_id
+                  AND (m.type & (?d | ?d | ?d))
+                  AND m.user_id = ?d
+                  AND ({1 = ?d AND t.target_tmp IS NOT NULL}{1 = ?d AND t.target_tmp IS NULL} AND ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
+              GROUP BY 
+                  t.mresource_id  
+              ORDER BY
+                  m.date_add DESC
+              ) AS r";
         $aData = $this->oDb->selectCol($sql,
             ModuleMresource::TYPE_IMAGE,
             ModuleMresource::TYPE_PHOTO,
@@ -1172,6 +1197,11 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param $aFilter
+     *
+     * @return array
+     */
     public function GetCountImagesByTopicType($aFilter) {
 
         $sql = "SELECT
@@ -1207,8 +1237,6 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
-     * Получает ид. писем пользователя
-     *
      * @param int $iUserId
      * @param int $iCount
      * @param int $iCurrPage
@@ -1219,15 +1247,15 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetTalkInfo($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
         $sql = "SELECT
-                  t.target_id        AS talk_id,
-                  count(t.target_id) AS count
+                  t.target_id AS talk_id,
+                  COUNT(t.target_id) AS count
                 FROM ?_mresource_target t, ?_mresource m
                 WHERE
                   m.mresource_id = t.mresource_id
                   AND m.user_id = ?d
                   AND t.target_type IN ( ?a )
                 GROUP BY talk_id
-                ORDER BY m.date_add desc
+                ORDER BY m.date_add DESC
                 LIMIT ?d, ?d";
 
         $aResult = array();

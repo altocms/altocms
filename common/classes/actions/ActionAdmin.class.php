@@ -78,6 +78,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('site-skins', 'EventSkins');
         $this->AddEvent('site-widgets', 'EventWidgets');
         $this->AddEvent('site-plugins', 'EventPlugins');
+        $this->AddEvent('site-scripts', 'EventScripts');
 
         $this->AddEvent('logs-error', 'EventLogs');
         $this->AddEvent('logs-sqlerror', 'EventLogs');
@@ -136,12 +137,21 @@ class ActionAdmin extends Action {
         return $sMode;
     }
 
+    /**
+     * @param int $nParam
+     * @param     $sData
+     */
     protected function _saveMode($nParam = 0, $sData) {
 
         $sKey = R::GetAction() . '.' . R::GetActionEvent() . '.' . $nParam;
         E::ModuleSession()->Set($sKey, $sData);
     }
 
+    /**
+     * @param null $nNumParam
+     *
+     * @return int
+     */
     protected function _getPageNum($nNumParam = null) {
 
         $nPage = 1;
@@ -239,6 +249,7 @@ class ActionAdmin extends Action {
                 $sPlugin = (string)$aPlugin;
             }
             if (isset($aPlugins[$sPlugin])) {
+                /** @var ModulePlugin_EntityPlugin $oPluginEntity */
                 $oPluginEntity = $aPlugins[$sPlugin];
                 $sPluginName = $oPluginEntity->GetName();
                 $aPluginInfo = array(
@@ -311,6 +322,10 @@ class ActionAdmin extends Action {
         return $aInfo;
     }
 
+    /**
+     * @param array  $aInfo
+     * @param string $sMode
+     */
     protected function _EventReportOut($aInfo, $sMode = 'txt') {
 
         E::ModuleSecurity()->ValidateSendForm();
@@ -328,6 +343,10 @@ class ActionAdmin extends Action {
         exit;
     }
 
+    /**
+     * @param array $aInfo
+     * @param array $aParams
+     */
     protected function _reportTxt($aInfo, $aParams) {
 
         $sText = '[report]' . "\n";
@@ -353,6 +372,10 @@ class ActionAdmin extends Action {
         exit;
     }
 
+    /**
+     * @param array $aInfo
+     * @param array $aParams
+     */
     protected function _reportXml($aInfo, $aParams) {
 
         $sText = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<report';
@@ -484,8 +507,8 @@ class ActionAdmin extends Action {
         $aFields = F::IncludeFile(Config::Get('path.dir.config') . 'actions/admin.settings.php', false, true);
         foreach ($aFields as $nSec => $aSection) {
             foreach ($aSection as $nKey => $aItem) {
-                $aItem['text'] = E::ModuleLang()->Get($aItem['label']);
-                if (isset($aItem['help'])) $aItem['help'] = E::ModuleLang()->Get($aItem['help']);
+                $aItem['text'] = E::ModuleLang()->Text($aItem['label']);
+                if (isset($aItem['help'])) $aItem['help'] = E::ModuleLang()->Text($aItem['help']);
                 if (isset($aItem['config'])) {
                     $aItem['value'] = Config::Get($aItem['config'], Config::LEVEL_CUSTOM);
                     $aItem['config'] = str_replace('.', '--', $aItem['config']);
@@ -493,8 +516,19 @@ class ActionAdmin extends Action {
                         $aItem['valtype'] = 'boolean';
                     }
                 }
-                if (isset($aItem['type']) && $aItem['type'] == 'password') {
-                    $aItem['valtype'] = 'string';
+                if (!empty($aItem['type'])) {
+                    if ($aItem['type'] == 'password') {
+                        $aItem['valtype'] = 'string';
+                    } elseif ($aItem['type'] == 'select' && !empty($aItem['options'])) {
+                        $aItem['options'] = F::Array_FlipIntKeys($aItem['options'], null);
+                        foreach ($aItem['options'] as $sValue => $sText) {
+                            if (is_null($sText)) {
+                                $aItem['options'][$sValue] = $sValue;
+                            } else {
+                                $aItem['options'][$sValue] = E::ModuleLang()->Text($sText);
+                            }
+                        }
+                    }
                 }
                 $aFields[$nSec][$nKey] = $aItem;
             }
@@ -584,6 +618,7 @@ class ActionAdmin extends Action {
         $sHomePage = Config::Get('router.config.homepage');
         $sHomePageSelect = Config::Get('router.config.homepage_select');
 
+        /** @var ModulePage_EntityPage[] $aPages */
         $aPages = E::ModulePage()->GetPages();
         $sHomePageUrl = '';
         if (!$sHomePage || $sHomePage == 'index') {
@@ -629,7 +664,7 @@ class ActionAdmin extends Action {
     /**
      * Site settings > Edit
      */
-    protected function _eventConfigEdit() {
+    protected function _eventConfigEdit($sMode) {
 
         $aUnits = array(
             'S' => array('name' => 'seconds'),
@@ -716,8 +751,8 @@ class ActionAdmin extends Action {
     /**
      * Сохраняет пользовательские настройки
      *
-     * @param $aFields
-     * @param $aData
+     * @param array $aFields
+     * @param array $aData
      */
     protected function _eventConfigSave($aFields, $aData) {
 
@@ -772,6 +807,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aWidgetsList', $aWidgets);
     }
 
+    /**
+     * @param ModuleWidget_EntityWidget $oWidget
+     */
     public function _eventWidgetsEdit($oWidget) {
 
         if ($this->GetPost()) {
@@ -806,6 +844,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('oWidget', $oWidget);
     }
 
+    /**
+     * @param $aWidgets
+     */
     public function _eventWidgetsActivate($aWidgets) {
 
         if ($this->GetPost()) {
@@ -819,6 +860,9 @@ class ActionAdmin extends Action {
         }
     }
 
+    /**
+     * @param $aWidgets
+     */
     public function _eventWidgetsDeactivate($aWidgets) {
 
         if ($this->GetPost()) {
@@ -845,7 +889,6 @@ class ActionAdmin extends Action {
             return $this->_EventPluginsAdd();
         } elseif ($this->GetParam(0) == 'config') {
             $this->sMenuSubItemSelect = 'config';
-            $this->PluginDelBlock('right', 'AdminInfo');
             return $this->_eventPluginsConfig();
         } else {
             $sParam = $this->GetParam(0, 'list');
@@ -886,8 +929,9 @@ class ActionAdmin extends Action {
         if ($this->GetPost('plugin_action') == 'delete' && ($aSelectedPlugins = $this->GetPost('plugin_sel'))) {
             // Удаление плагинов
             $this->_eventPluginsDelete($aSelectedPlugins);
+            R::Location('admin/site-plugins/');
         } elseif ($sAction = $this->GetPost('plugin_action')) {
-            $aPlugins = $this->GetPost('plugin_sel');
+            $aPlugins = E::ModulePlugin()->DecodeId($this->GetPost('plugin_sel'));
             if ($sAction == 'activate') {
                 $this->_eventPluginsActivate($aPlugins);
             } elseif ($sAction == 'deactivate') {
@@ -910,6 +954,11 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
+    /**
+     * @param $aPlugins
+     *
+     * @return bool
+     */
     protected function _eventPluginsActivate($aPlugins) {
 
         if (is_array($aPlugins)) {
@@ -921,6 +970,11 @@ class ActionAdmin extends Action {
         return E::ModulePlugin()->Activate($sPluginId);
     }
 
+    /**
+     * @param $aPlugins
+     *
+     * @return bool|null
+     */
     protected function _eventPluginsDeactivate($aPlugins) {
 
         if (is_array($aPlugins)) {
@@ -932,6 +986,9 @@ class ActionAdmin extends Action {
         return E::ModulePlugin()->Deactivate($sPluginId);
     }
 
+    /**
+     * @param $aPlugins
+     */
     protected function _eventPluginsDelete($aPlugins) {
 
         E::ModulePlugin()->Delete($aPlugins);
@@ -948,6 +1005,168 @@ class ActionAdmin extends Action {
         $this->_setTitle(E::ModuleLang()->Get('action.admin.plugins_title'));
         $this->SetTemplateAction('site/plugins_add');
         E::ModuleViewer()->Assign('sMode', 'add');
+    }
+
+    /**********************************************************************************/
+
+    public function EventScripts() {
+
+        $this->sMainMenuItem = 'site';
+
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.scripts_title'));
+        $this->SetTemplateAction('site/scripts');
+
+        if ($this->GetParam(0) == 'add') {
+            return $this->_eventScriptsAdd();
+        } elseif ($this->GetParam(0) == 'edit') {
+            return $this->_eventScriptsEdit();
+        }
+        return $this->_eventScriptsList();
+    }
+
+    /**
+     * Show list of scripts
+     */
+    protected function _eventScriptsList() {
+
+        if ($sAction = $this->GetPost('script_action')) {
+            $aSelected = $this->GetPost('script_sel');
+            if ($sAction == 'delete' && $aSelected) {
+                // Delete scripts
+                $this->_eventScriptsDelete($aSelected);
+            } elseif ($sAction == 'activate') {
+                $this->_eventScriptsActivate($aSelected);
+            } elseif ($sAction == 'deactivate') {
+                $this->_eventScriptsDeactivate($aSelected);
+            }
+            R::Location('admin/site-scripts/');
+        }
+
+        $sMode = $this->GetParam(1, 'all');
+
+        if ($sMode == 'active') {
+            $aScripts = E::ModuleAdmin()->GetScriptsList(true);
+        } elseif ($sMode == 'inactive') {
+            $aScripts = E::ModuleAdmin()->GetScriptsList(false);
+        } else {
+            $aScripts = E::ModuleAdmin()->GetScriptsList();
+        }
+
+        E::ModuleViewer()->Assign('aScripts', $aScripts);
+        E::ModuleViewer()->Assign('sMode', $sMode);
+    }
+
+    /**
+     * Save scripts' settings
+     *
+     * @param string[] $aScript
+     */
+    protected function _eventScriptSave($aScript = null) {
+
+        if (!$aScript) {
+            $sScriptId = 'script-' . time();
+            $aScript = array(
+                'id' => $sScriptId,
+            );
+        }
+        $aScript['name'] = $this->GetPost('script_name');
+        $aScript['description'] = $this->GetPost('script_description');
+        $aScript['place'] = $this->GetPost('script_place');
+        $aScript['disable'] = !intval($this->GetPost('script_active'));
+        $aScript['code'] = $this->GetPost('script_code');
+        if ($this->GetPost('script_exclude_adminpanel')) {
+            $aScript['off'] = 'admin/*';
+        } else {
+            $aScript['off'] = null;
+        }
+
+        E::ModuleAdmin()->SaveScript($aScript);
+        R::Location('admin/site-scripts');
+    }
+
+    /**
+     * Add new script
+     */
+    protected function _eventScriptsAdd() {
+
+        if ($this->GetPost()) {
+            $this->_eventScriptSave();
+        }
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.scripts_title'));
+        $this->SetTemplateAction('site/scripts_add');
+        E::ModuleViewer()->Assign('sMode', 'add');
+    }
+
+    /**
+     * Edit script's settings
+     */
+    protected function _eventScriptsEdit() {
+
+        $sScriptId = $this->GetParam(1);
+        $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+        if ($this->GetPost()) {
+            $this->_eventScriptSave($aScript);
+        }
+
+        $_REQUEST['script_name'] = $aScript['name'];
+        $_REQUEST['script_description'] = $aScript['description'];
+        $_REQUEST['script_place'] = $aScript['place'];
+        $_REQUEST['script_code'] = $aScript['code'];
+        $_REQUEST['script_active'] = ($aScript['disable'] ? 0 : 1);
+        $_REQUEST['script_exclude_adminpanel'] = ($aScript['off'] == 'admin/*');
+
+        E::ModuleViewer()->Assign('aEditScript', $aScript);
+
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.scripts_title'));
+        $this->SetTemplateAction('site/scripts_add');
+        E::ModuleViewer()->Assign('sMode', 'edit');
+    }
+
+    /**
+     * Delete scripts
+     *
+     * @param string[] $aSelected
+     */
+    protected function _eventScriptsDelete($aSelected) {
+
+        foreach($aSelected as $sScriptId) {
+            $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+            if ($aScript) {
+                E::ModuleAdmin()->DeleteScript($aScript);
+            }
+        }
+    }
+
+    /**
+     * Activate scripts
+     *
+     * @param string[] $aSelected
+     */
+    protected function _eventScriptsActivate($aSelected) {
+
+        foreach($aSelected as $sScriptId) {
+            $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+            if ($aScript) {
+                $aScript['disable'] = 0;
+                E::ModuleAdmin()->SaveScript($aScript);
+            }
+        }
+    }
+
+    /**
+     * Deactivate scripts
+     *
+     * @param string[] $aSelected
+     */
+    protected function _eventScriptsDeactivate($aSelected) {
+
+        foreach($aSelected as $sScriptId) {
+            $aScript = E::ModuleAdmin()->GetScriptById($sScriptId);
+            if ($aScript) {
+                $aScript['disable'] = 1;
+                E::ModuleAdmin()->SaveScript($aScript);
+            }
+        }
     }
 
     /**********************************************************************************/
@@ -1019,6 +1238,9 @@ class ActionAdmin extends Action {
         R::Location('admin/content-pages');
     }
 
+    /**
+     * @param $sMode
+     */
     protected function _eventPagesEdit($sMode) {
 
         $this->_setTitle(E::ModuleLang()->Get('action.admin.pages_title'));
@@ -1061,7 +1283,7 @@ class ActionAdmin extends Action {
     /**
      * Обработка отправки формы при редактировании страницы
      *
-     * @param $oPageEdit
+     * @param ModulePage_EntityPage $oPageEdit
      */
     protected function SubmitEditPage($oPageEdit) {
 
@@ -1126,6 +1348,7 @@ class ActionAdmin extends Action {
             return;
         }
         // * Заполняем свойства
+        /** @var ModulePage_EntityPage $oPage */
         $oPage = E::GetEntity('Page');
         $oPage->setActive(F::GetRequest('page_active') ? 1 : 0);
         $oPage->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
@@ -1157,9 +1380,7 @@ class ActionAdmin extends Action {
             return;
         }
 
-        /**
-         * Добавляем страницу
-         */
+        // * Добавляем страницу
         if (E::ModulePage()->AddPage($oPage)) {
             E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.pages_create_submit_save_ok'));
             $this->SetParam(0, null);
@@ -1179,53 +1400,40 @@ class ActionAdmin extends Action {
         E::ModuleSecurity()->ValidateSendForm();
 
         $bOk = true;
-        /**
-         * Проверяем есть ли заголовок топика
-         */
+
+        // * Проверяем есть ли заголовок топика
         if (!F::CheckVal(F::GetRequest('page_title', null, 'post'), 'text', 2, 200)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_title_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем есть ли заголовок топика, с заменой всех пробельных символов на "_"
-         */
+
+        // * Проверяем есть ли заголовок топика, с заменой всех пробельных символов на "_"
         $pageUrl = preg_replace("/\s+/", '_', (string)F::GetRequest('page_url', null, 'post'));
         $_REQUEST['page_url'] = $pageUrl;
         if (!F::CheckVal(F::GetRequest('page_url', null, 'post'), 'login', 1, 50)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_url_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем на счет плохих УРЛов
-         */
-        /*if (in_array(F::GetRequest('page_url',null,'post'),$this->aBadPageUrl)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_url_error_bad').' '.join(',',$this->aBadPageUrl),E::ModuleLang()->Get('error'));
-            $bOk=false;
-        }*/
-        /**
-         * Проверяем есть ли содержание страницы
-         */
+
+        // * Проверяем есть ли содержание страницы
         if (!F::CheckVal(F::GetRequest('page_text', null, 'post'), 'text', 1, 50000)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_text_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем страницу в которую хотим вложить
-         */
+
+        // * Проверяем страницу в которую хотим вложить
         if (F::GetRequest('page_pid') != 0 && !($oPageParent = E::ModulePage()->GetPageById(F::GetRequest('page_pid')))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_parent_page_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Проверяем сортировку
-         */
+
+        // * Проверяем сортировку
         if (F::GetRequest('page_sort') && !is_numeric(F::GetRequest('page_sort'))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_sort_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-        /**
-         * Выполнение хуков
-         */
+
+        // * Выполнение хуков
         E::ModuleHook()->Run('check_page_fields', array('bOk' => &$bOk));
 
         return $bOk;
@@ -1551,6 +1759,13 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('nCountModerators', E::ModuleUser()->GetCountModerators());
     }
 
+    /**
+     * @param $aUsersId
+     * @param $nDays
+     * @param $sComment
+     *
+     * @return bool
+     */
     protected function _eventUsersCmdBan($aUsersId, $nDays, $sComment) {
 
         if ($aUsersId) {
@@ -1579,6 +1794,11 @@ class ActionAdmin extends Action {
         return false;
     }
 
+    /**
+     * @param $aUsersId
+     *
+     * @return bool
+     */
     protected function _eventUsersCmdUnban($aUsersId) {
 
         if ($aUsersId) {
@@ -1593,6 +1813,13 @@ class ActionAdmin extends Action {
         return false;
     }
 
+    /**
+     * @param $sIp
+     * @param $nDays
+     * @param $sComment
+     *
+     * @return bool
+     */
     protected function _eventIpsCmdBan($sIp, $nDays, $sComment) {
 
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
@@ -1622,6 +1849,9 @@ class ActionAdmin extends Action {
         return false;
     }
 
+    /**
+     * @param $sMode
+     */
     protected function _eventUsersList($sMode) {
 
         $this->SetTemplateAction('users/list');
@@ -1940,7 +2170,7 @@ class ActionAdmin extends Action {
         $bOk = true;
 
         $sTitle = $this->GetPost('talk_title');
-        $sText = E::ModuleText()->Parser(F::GetRequest('talk_text'));
+        $sText = E::ModuleText()->Parse(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -1952,6 +2182,7 @@ class ActionAdmin extends Action {
 
         if ($aUsers) {
             if ($bOk && $aUsers) {
+                /** @var ModuleTalk_EntityTalk $oTalk */
                 $oTalk = E::GetEntity('Talk_Talk');
                 $oTalk->setUserId($this->oUserCurrent->getId());
                 $oTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -1967,6 +2198,7 @@ class ActionAdmin extends Action {
                 // теперь рассылаем остальным
                 foreach ($aUsers as $sUserLogin) {
                     if ($sUserLogin && ($oUserRecipient = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                        /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                         $oTalkUser = E::GetEntity('Talk_TalkUser');
                         $oTalkUser->setTalkId($oTalk->getId());
                         $oTalkUser->setUserId($oUserRecipient->GetId());
@@ -2000,7 +2232,7 @@ class ActionAdmin extends Action {
 
         $sTitle = F::GetRequest('talk_title');
 
-        $sText = E::ModuleText()->Parser(F::GetRequest('talk_text'));
+        $sText = E::ModuleText()->Parse(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -2013,15 +2245,17 @@ class ActionAdmin extends Action {
         if ($aUsers) {
             // Если указано, то шлем самому себе со списком получателей
             if (F::GetRequest('send_copy_self')) {
+                /** @var ModuleTalk_EntityTalk $oSelfTalk */
                 $oSelfTalk = E::GetEntity('Talk_Talk');
                 $oSelfTalk->setUserId($this->oUserCurrent->getId());
                 $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
                 $oSelfTalk->setTitle($sTitle);
-                $oSelfTalk->setText(E::ModuleText()->Parser('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
+                $oSelfTalk->setText(E::ModuleText()->Parse('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
                 $oSelfTalk->setDate($sDate);
                 $oSelfTalk->setDateLast($sDate);
                 $oSelfTalk->setUserIp($sIp);
                 if (($oSelfTalk = E::ModuleTalk()->AddTalk($oSelfTalk))) {
+                    /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                     $oTalkUser = E::GetEntity('Talk_TalkUser');
                     $oTalkUser->setTalkId($oSelfTalk->getId());
                     $oTalkUser->setUserId($this->oUserCurrent->getId());
@@ -2040,6 +2274,7 @@ class ActionAdmin extends Action {
                 // теперь рассылаем остальным - каждому отдельное сообщение
                 foreach ($aUsers as $sUserLogin) {
                     if ($sUserLogin && $sUserLogin != $this->oUserCurrent->getLogin() && ($oUserRecipient = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                        /** @var ModuleTalk_EntityTalk $oTalk */
                         $oTalk = E::GetEntity('Talk_Talk');
                         $oTalk->setUserId($this->oUserCurrent->getId());
                         $oTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -2049,6 +2284,7 @@ class ActionAdmin extends Action {
                         $oTalk->setDateLast($sDate);
                         $oTalk->setUserIp($sIp);
                         if (($oTalk = E::ModuleTalk()->AddTalk($oTalk))) {
+                            /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                             $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($oUserRecipient->GetId());
@@ -2056,6 +2292,7 @@ class ActionAdmin extends Action {
                             E::ModuleTalk()->AddTalkUser($oTalkUser);
 
                             // Отправка самому себе, чтобы можно было читать ответ
+                            /** @var ModuleTalk_EntityTalkUser $oTalkUser */
                             $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($this->oUserCurrent->getId());
@@ -2196,6 +2433,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
+    /**
+     * @param $sCmd
+     */
     protected function _eventBanListCmd($sCmd) {
 
         if ($sCmd == 'adm_ban_user') {
@@ -2232,6 +2472,9 @@ class ActionAdmin extends Action {
         R::ReturnBack(true);
     }
 
+    /**
+     * @param $nPage
+     */
     protected function _eventBanlistIds($nPage) {
 
         $this->SetTemplateAction('users/banlist_ids');
@@ -2474,6 +2717,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
+    /**
+     * @param $sLogTxt
+     */
     protected function _eventLogsSqlErrors($sLogTxt) {
 
         $aLogs = $this->_parseLog($sLogTxt);
@@ -2496,6 +2742,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
+    /**
+     * @param $sLogTxt
+     */
     protected function _eventLogsSql($sLogTxt) {
 
         $aLogs = $this->_parseLog($sLogTxt);
@@ -2749,13 +2998,21 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('tools/checkdb_topics');
         $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_topics_co') {
-            $aCommentsOnlineBlogs = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
-            if ($aCommentsOnlineBlogs) {
-                E::ModuleAdmin()->DelUnlinkedTopicsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
+            $aTopics = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
+            if ($aTopics) {
+                E::ModuleAdmin()->DelUnlinkedTopicsForCommentsOnline(array_keys($aTopics));
+            }
+            $aTopics = E::ModuleAdmin()->GetUnlinkedTopicsForComments();
+            if ($aTopics) {
+                E::ModuleAdmin()->DelUnlinkedTopicsForComments(array_keys($aTopics));
             }
         }
+
         $aCommentsOnlineTopics = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
         E::ModuleViewer()->Assign('aCommentsOnlineTopics', $aCommentsOnlineTopics);
+
+        $aCommentsTopics = E::ModuleAdmin()->GetUnlinkedTopicsForComments();
+        E::ModuleViewer()->Assign('aCommentsTopics', $aCommentsTopics);
     }
 
     /**********************************************************************************/
@@ -3026,11 +3283,11 @@ class ActionAdmin extends Action {
                 } else {
                     E::ModuleMessage()->AddError($oBlogType->_getValidateError(), E::ModuleLang()->Get('error'));
                 }
+                E::ModuleViewer()->Assign('oBlogType', $oBlogType);
             } else {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.blogtypes_err_id_notfound'), E::ModuleLang()->Get('error'));
             }
         }
-        E::ModuleViewer()->Assign('oBlogType', $oBlogType);
     }
 
     /**
@@ -3255,6 +3512,9 @@ class ActionAdmin extends Action {
 
     /**********************************************************************************/
 
+    /**
+     * Change the order of menu items
+     */
     public function EventAjaxChangeOrderMenu() {
 
         // * Устанавливаем формат ответа
@@ -3277,30 +3537,26 @@ class ActionAdmin extends Action {
             return;
         }
 
-        $this->_prepareMenus();
-
         /** @var ModuleMenu_EntityMenu $oMenu */
         $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
         if (is_array(F::GetRequest('order')) && $oMenu) {
 
             $aData = array();
-            $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.items"));
-            foreach (F::GetRequest('order') as $oOrder) {
-                if (!($sId = (isset($oOrder['id'])?$oOrder['id']:FALSE))) {
+            //$aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.items"));
+            foreach (F::GetRequest('order') as $aOrder) {
+                if (!($sId = (isset($aOrder['id']) ? $aOrder['id'] : false))) {
                     continue;
                 }
-                if (!in_array($sId, $aAllowedData)) {
-                    continue;
-                }
+                //if (!in_array($sId, $aAllowedData)) {
+                //    continue;
+                //}
                 $aData[]=$sId;
             }
 
             if ($aData) {
-                $sMenuKey = "menu.data.{$oMenu->getId()}";
-                $aMenu = C::Get($sMenuKey);
-                $aMenu['init']['fill']['list'] = $aData;
-                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
+                $oMenu->SetConfig('init.fill.list', $aData);
+                E::ModuleMenu()->SaveMenu($oMenu);
             }
 
 
@@ -3313,6 +3569,9 @@ class ActionAdmin extends Action {
 
     }
 
+    /**
+     * Change the text of the menu item
+     */
     public function EventAjaxChangeMenuText() {
 
         // * Устанавливаем формат ответа
@@ -3341,20 +3600,20 @@ class ActionAdmin extends Action {
             return;
         }
 
-        $this->_prepareMenus();
+        $sMenuId = F::GetRequest('menu_id');
+        $sItemId = F::GetRequest('item_id');
+        $sText = trim(F::GetRequest('text'));
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu($sMenuId);
 
         /** @var ModuleMenu_EntityItem $oItem */
-        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        $oItem = $oMenu->GetItemById($sItemId);
         if ($oItem) {
-            // Удалим старую текстовку из конфига
-            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id');
-            $aMenu = C::Get($sMenuListKey);
-            if ($aMenu && isset($aMenu['list'][F::GetRequest('item_id')]['text']) && ($sText = trim(F::GetRequest('text')))) {
-                $aMenu['list'][F::GetRequest('item_id')]['text'] = $sText;
-                C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
+            if ($sText) {
+                $oMenu->SetConfigItem($sItemId, 'text', $sText);
+                E::ModuleMenu()->SaveMenu($oMenu);
+
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_text_ok'));
                 E::ModuleViewer()->AssignAjax('text', $sText);
                 return;
@@ -3362,10 +3621,11 @@ class ActionAdmin extends Action {
         }
 
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-        return;
-
     }
 
+    /**
+     * Change the link of the menu item
+     */
     public function EventAjaxChangeMenuLink() {
 
         // * Устанавливаем формат ответа
@@ -3394,32 +3654,32 @@ class ActionAdmin extends Action {
             return;
         }
 
-        $this->_prepareMenus();
+        $sMenuId = F::GetRequest('menu_id');
+        $sItemId = F::GetRequest('item_id');
+        $sLink = trim(F::GetRequest('text'));
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu($sMenuId);
 
         /** @var ModuleMenu_EntityItem $oItem */
-        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
-
+        $oItem = $oMenu->GetItemById($sItemId);
         if ($oItem) {
-            // Удалим старую текстовку из конфига
-            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id');
-            $aMenu = C::Get($sMenuListKey);
-            if ($aMenu && isset($aMenu['list'][F::GetRequest('item_id')]['link']) && ($sText = trim(F::GetRequest('text')))) {
-                $aMenu['list'][F::GetRequest('item_id')]['link'] = $sText;
-                C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
+            if ($sLink) {
+                $oMenu->SetConfigItem($sItemId, 'link', $sLink);
+                E::ModuleMenu()->SaveMenu($oMenu);
+
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_link_ok'));
-                E::ModuleViewer()->AssignAjax('text', $sText);
+                E::ModuleViewer()->AssignAjax('text', $sLink);
                 return;
             }
         }
 
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-        return;
-
     }
 
+    /**
+     * Remove the menu item
+     */
     public function EventAjaxRemoveItem() {
 
         // * Устанавливаем формат ответа
@@ -3443,13 +3703,14 @@ class ActionAdmin extends Action {
             return;
         }
 
-        $this->_prepareMenus();
+        $sMenuId = F::GetRequest('menu_id');
+        $sItemId = F::GetRequest('item_id');
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu($sMenuId);
 
         /** @var ModuleMenu_EntityItem $oItem */
-        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        $oItem = $oMenu->GetItemById($sItemId);
         if ($oItem) {
             $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
             if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
@@ -3459,7 +3720,6 @@ class ActionAdmin extends Action {
                 $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
             }
 
-
             $aAllowedData = array_flip($aAllowedData);
             if (isset($aAllowedData[$oItem->getId()])) {
                 unset($aAllowedData[$oItem->getId()]);
@@ -3468,10 +3728,12 @@ class ActionAdmin extends Action {
                     $aAllowedData = array(F::RandomStr(12));
                 }
 
-                $sMenuKey = "menu.data.{$oMenu->getId()}";
-                $aMenu = C::Get($sMenuKey);
-                $aMenu['init']['fill']['list'] = $aAllowedData;
-                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
+                //$sMenuKey = "menu.data.{$oMenu->getId()}";
+                //$aMenu = C::Get($sMenuKey);
+                //$aMenu['init']['fill']['list'] = $aAllowedData;
+                //Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
+                $oMenu->SetConfig('init.fill.list', $aAllowedData);
+                E::ModuleMenu()->SaveMenu($oMenu);
 
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_remove_link_ok'));
                 return;
@@ -3480,10 +3742,11 @@ class ActionAdmin extends Action {
         }
 
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-        return;
-
     }
 
+    /**
+     *
+     */
     public function EventAjaxDisplayItem() {
 
         // * Устанавливаем формат ответа
@@ -3507,13 +3770,14 @@ class ActionAdmin extends Action {
             return;
         }
 
-        $this->_prepareMenus();
+        $sMenuId = F::GetRequest('menu_id');
+        $sItemId = F::GetRequest('item_id');
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu($sMenuId);
 
         /** @var ModuleMenu_EntityItem $oItem */
-        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        $oItem = $oMenu->GetItemById($sItemId);
         if ($oItem) {
             $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
             if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
@@ -3522,7 +3786,6 @@ class ActionAdmin extends Action {
             if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
                 $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
             }
-
 
             $aAllowedData = array_flip($aAllowedData);
             if (isset($aAllowedData[$oItem->getId()])) {
@@ -3534,35 +3797,35 @@ class ActionAdmin extends Action {
                     $bDisplay = !$bDisplay;
                 }
 
-
                 if ($bDisplay) {
                     E::ModuleViewer()->AssignAjax('class', 'icon-eye-open');
                 } else {
                     E::ModuleViewer()->AssignAjax('class', 'icon-eye-close');
                 }
 
-                $sMenuKey = "menu.data.{$oMenu->getId()}";
-                $aMenu = C::Get($sMenuKey);
-                $aMenu['list'][$oItem->getId()]['display'] = $bDisplay;
-                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
+                //$sMenuKey = "menu.data.{$oMenu->getId()}";
+                //$aMenu = C::Get($sMenuKey);
+                //$aMenu['list'][$oItem->getId()]['display'] = $bDisplay;
+                //Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
+                $oMenu->SetConfigItem($sItemId, 'display', $bDisplay);
+                E::ModuleMenu()->SaveMenu($oMenu);
 
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_display_link_ok'));
 
                 return;
             }
-
         }
 
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-        return;
-
     }
 
+    /**
+     * @return null|string
+     */
     protected function _eventMenuEdit() {
 
         // * Получаем тип
         $sMenuId = $this->GetParam(1);
-
 
         if (!$oMenu = E::ModuleMenu()->GetMenu($sMenuId)) {
             return parent::EventNotFound();
@@ -3579,8 +3842,9 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('settings/menumanager_edit');
 
         // * Проверяем отправлена ли форма с данными
-        if (getRequestPost('submit_add_new_item')) {
+        if (F::GetPost('submit_add_new_item')) {
 
+            $sItemTitle = '';
             if (!(($sItemLink = trim(F::GetRequestStr('menu-item-link'))) && ($sItemTitle = trim(F::GetRequestStr('menu-item-title'))))) {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
                 return null;
@@ -3588,42 +3852,17 @@ class ActionAdmin extends Action {
 
             $sRoot = F::GetRequest('menu-item-place');
             if ($sRoot == 'root_item') {
+                // Add new item in root of menu
                 $sItemName = F::RandomStr(10);
-
-                // Добавим имя в объявление
-                $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
-                if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    unset($aAllowedData[0]);
-                }
-                if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
-                }
-
-                $aNewItems = array_merge(
-                    $aAllowedData,
-                    array($sItemName)
-                );
-
-                $sMenuKey = "menu.data.{$oMenu->getId()}";
-                $aMenu = C::Get($sMenuKey);
-                $aMenu['init']['fill']['list'] = $aNewItems;
-
-                // Добавим имя в список
-                $aNewItemConfig = array(
-                    $sItemName => array(
-                    'text'        => $sItemTitle,
-                    'link'        => $sItemLink,
+                $oMenuItem = E::ModuleMenu()->CreateMenuItem($sItemName, array(
+                    'text' => $sItemTitle,
+                    'link'    => $sItemLink,
                     'active'      => false,
-                    )
-                );
-                $aNewItemConfig = array_merge(
-                    Config::Get("menu.data.{$oMenu->getId()}.list"),
-                    $aNewItemConfig
-                );
+                ));
 
-                $aMenu['list'] = $aNewItemConfig;
-                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
-
+                // Добавим в меню
+                $oMenu->AddItem($oMenuItem);
+                E::ModuleMenu()->SaveMenu($oMenu);
 
                 R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
@@ -3632,85 +3871,42 @@ class ActionAdmin extends Action {
             } elseif ($sRoot) {
 
                 // Разрешенные идентификаторы меню
-                $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
-                if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    unset($aAllowedData[0]);
-                }
-                if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
-                }
-                if (!in_array($sRoot, $aAllowedData)) {
+                $aAllowedData = $oMenu->getFillList();
+                if (!empty($aAllowedData) && !in_array($sRoot, $aAllowedData)) {
                     E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
                     return null;
                 }
 
-                // Проверим есть ли подменю для этого элемента?
+                // Проверим, есть ли подменю для этого элемента?
                 $sSubMenuName = Config::Get("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu");
                 if (!$sSubMenuName) {
                     $sSubMenuName = 'submenu_' . F::RandomStr(10);
                     // Сохраним указатель на подменю
-                    $sMenuListKey = "menu.data.{$oMenu->getId()}";
-                    $aMenu = C::Get($sMenuListKey);
-                    if ($aMenu) {
-                        $aMenu['list'][$sRoot]['submenu'] = $sSubMenuName;
-                        C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
-                    }
-                    // Сохраним само пордменю
-                    $aSubmenu = array(
-                        'init'        => array(
-                            'fill' => array(
-                                'list' => array('*'),
-                            ),
-                        ),
-                        'list'        => array(),
-                    );
-                    Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}" => $aSubmenu), false);
+                    $oMenu->SetConfigItem($sRoot, 'submenu', $sSubMenuName);
+                    E::ModuleMenu()->SaveMenu($oMenu);
+
+                    // Сохраним само подменю (пока пустое)
+                    $oSubMenu = E::ModuleMenu()->CreateMenu($sSubMenuName);
+                    E::ModuleMenu()->SaveMenu($oSubMenu);
+                } else {
+                    $oSubMenu = E::ModuleMenu()->GetMenu($sSubMenuName);
                 }
 
                 // Добавим новый элемент в подменю
                 $sItemName = F::RandomStr(10);
-
-                // Добавим имя в объявление
-                $sMenuKey = "menu.data.{$sSubMenuName}";
-                $aMenu = C::Get($sMenuKey);
-
-                $aAllowedData = isset($aMenu['init']['fill']['list']) ? array_values($aMenu['init']['fill']['list']) : array();
-                if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    $aAllowedData = isset($aMenu['list']) ? array_keys($aMenu['list']) : array();
-                }
-                if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    unset($aAllowedData[0]);
-                }
-                $aNewItems = array_merge(
-                    $aAllowedData,
-                    array($sItemName)
-                );
-
-
-                $aMenu['init']['fill']['list'] = $aNewItems;
-
-                // Добавим имя в список
-                $aNewItemConfig = array(
-                    $sItemName => array(
-                        'text'        => $sItemTitle,
-                        'link'        => $sItemLink,
-                        'active'      => false,
-                    )
-                );
-                $aNewItemConfig = array_merge(
-                    isset($aMenu['list']) ? $aMenu['list'] : array(),
-                    $aNewItemConfig
-                );
-                $aMenu['list'] = $aNewItemConfig;
-                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
-
+                $oMenuItem = E::ModuleMenu()->CreateMenuItem($sItemName, array(
+                    'text'   => $sItemTitle,
+                    'link'   => $sItemLink,
+                    'active' => false,
+                ));
+                // Добавим в меню
+                $oSubMenu->AddItem($oMenuItem);
+                E::ModuleMenu()->SaveMenu($oSubMenu);
 
                 R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
                 return null;
-
             }
-
 
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
             return null;
@@ -3719,25 +3915,30 @@ class ActionAdmin extends Action {
         return null;
     }
 
+    /**
+     * Reset menu
+     *
+     * @return bool|string
+     */
     protected function _eventMenuReset() {
 
         // * Получаем тип
         $sMenuId = $this->GetParam(1);
 
-        if (!$oMenu = E::ModuleMenu()->GetMenu($sMenuId)) {
+        if (!$sMenuId || !($oMenu = E::ModuleMenu()->GetMenu($sMenuId))) {
             return parent::EventNotFound();
         }
 
-        Config::ResetCustomConfig("menu.data.{$sMenuId}");
+        E::ModuleMenu()->ResetMenu($oMenu);
 
         // Это подменю, удалим его
         if (strpos($oMenu->getId(), 'submenu_') === 0) {
             $aMenus = Config::Get('menu.data');
             $bFound = false;
-            foreach ($aMenus as $k=>$v) {
-                foreach ($v['list'] as $sItemKey => $aItemData) {
+            foreach ($aMenus as $sConfigMenuId => $aConfigMenuData) {
+                foreach ($aConfigMenuData['list'] as $sItemKey => $aItemData) {
                     if (isset($aItemData['submenu']) && $aItemData['submenu'] == $sMenuId) {
-                        $sMenuListKey = 'menu.data.' . $k;
+                        $sMenuListKey = 'menu.data.' . $sConfigMenuId;
                         $aMenu = C::Get($sMenuListKey);
                         if ($aMenu && isset($aMenu['list'][$sItemKey]['submenu'])) {
                             $aMenu['list'][$sItemKey]['submenu'] = '';
@@ -3755,35 +3956,9 @@ class ActionAdmin extends Action {
             R::Location("admin/settings-menumanager/");
         }
 
-
-
         R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
         return FALSE;
-
-    }
-
-    private function _prepareMenus() {
-        // Какая-то странность, что хук окончания инициализации вьювера
-        // выполняется после экшена админки, поэтому меню остается не
-        // проинициализировано и приходится это делать вручную в этом
-        // экшене, но ничего страшного, повторно всё равно не
-        // проинициализируется
-        $aMenus = Config::Get('menu.data');
-        $bChanged = false;
-        if ($aMenus && is_array($aMenus)) {
-
-            foreach($aMenus as $sMenuId => $aMenu) {
-                if (isset($aMenu['init']['fill'])) {
-                    $aMenus[$sMenuId] = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
-                    $bChanged = true;
-                }
-            }
-            if ($bChanged) {
-                Config::Set('menu.data', null);
-                Config::Set('menu.data', $aMenus);
-            }
-        }
     }
 
     /**
@@ -3796,8 +3971,6 @@ class ActionAdmin extends Action {
         // Активная вкладка главного меню
         $this->sMainMenuItem = 'settings';
 
-        $this->_prepareMenus();
-
         // Получим страницу, на которой находится пользователь
         $sMode = $this->getParam(0);
 
@@ -3808,24 +3981,22 @@ class ActionAdmin extends Action {
             return $this->_eventMenuReset();
         } else {
 
-            // Получим те меню, которые можно редактировать ползователю.
-            $aMenu = E::ModuleMenu()->GetMenusByArrayId(Config::Get('module.menu.admin'));
+            // Получим те меню, которые можно редактировать пользователю
+            $aMenus = E::ModuleMenu()->GetEditableMenus();
 
             // Заполним вьювер
             E::ModuleViewer()->Assign(array(
-                'aMenu' => $aMenu,
+                'aMenu' => $aMenus,
                 'sMode' => $sMode,
             ));
-
 
             // Установим заголовок страницы
             $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_manager'));
 
-
             // Установми страницу вывода
             $this->SetTemplateAction('settings/menu_manager');
         }
-
+        return null;
     }
 
     /**********************************************************************************/
@@ -3846,6 +4017,7 @@ class ActionAdmin extends Action {
                 if (!$this->checkUserField()) {
                     return;
                 }
+                /** @var ModuleUser_EntityField $oField */
                 $oField = E::GetEntity('User_Field');
                 $oField->setName(F::GetRequestStr('name'));
                 $oField->setTitle(F::GetRequestStr('title'));
@@ -3895,6 +4067,7 @@ class ActionAdmin extends Action {
                 if (!$this->checkUserField()) {
                     return;
                 }
+                /** @var ModuleUser_EntityField $oField */
                 $oField = E::GetEntity('User_Field');
                 $oField->setId(F::GetRequestStr('id'));
                 $oField->setName(F::GetRequestStr('name'));
@@ -4039,6 +4212,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
+        /** @var ModuleTopic_EntityContentType $oContentType */
         $oContentType = E::GetEntity('Topic_ContentType');
         $oContentType->setContentTitle(F::GetRequest('content_title'));
         $oContentType->setContentTitleDecl(F::GetRequest('content_title_decl'));
@@ -4093,6 +4267,11 @@ class ActionAdmin extends Action {
         return null;
     }
 
+    /**
+     * @param ModuleTopic_EntityContentType $oContentType
+     *
+     * @return bool
+     */
     protected function _eventContentTypesEditSubmit($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
@@ -4196,7 +4375,6 @@ class ActionAdmin extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-
     }
 
     public function EventAjaxChangeOrderFields() {
@@ -4260,6 +4438,11 @@ class ActionAdmin extends Action {
 
     }
 
+    /**
+     * @param ModuleTopic_EntityContentType $oContentType
+     *
+     * @return bool
+     */
     protected function SubmitAddField($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
@@ -4272,6 +4455,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
+        /** @var ModuleTopic_EntityField $oField */
         $oField = E::GetEntity('Topic_Field');
         $oField->setFieldType(F::GetRequest('field_type'));
         $oField->setContentId($oContentType->getContentId());
@@ -4325,7 +4509,6 @@ class ActionAdmin extends Action {
             $_REQUEST['field_required'] = $oField->getFieldRequired();
             $_REQUEST['field_values'] = $oField->getFieldValues();
         }
-
     }
 
     /**
@@ -4435,12 +4618,12 @@ class ActionAdmin extends Action {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_name_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-
+        /*
         if (!F::CheckVal(F::GetRequest('field_description', null, 'post'), 'text', 2, 200)) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_description_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
-
+        */
         if (R::GetActionEvent() == 'fieldadd') {
             if ($oContentType == 'photoset' && (F::GetRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
@@ -4480,6 +4663,7 @@ class ActionAdmin extends Action {
 
         $nValue = $this->GetPost('value');
 
+        /** @var ModuleVote_EntityVote $oUserVote */
         $oUserVote = E::GetEntity('Vote');
         $oUserVote->setTargetId($oUser->getId());
         $oUserVote->setTargetType('user');
@@ -4497,7 +4681,6 @@ class ActionAdmin extends Action {
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.vote_error'), E::ModuleLang()->Get('error'));
         }
-
     }
 
     public function EventAjaxSetProfile() {
@@ -4561,6 +4744,7 @@ class ActionAdmin extends Action {
         if ($this->IsPost()) {
             Config::Set('module.user.captcha_use_registration', false);
 
+            /** @var ModuleUser_EntityUser $oUser */
             $oUser = E::GetEntity('ModuleUser_EntityUser');
             $oUser->_setValidateScenario('registration');
 
@@ -4622,7 +4806,6 @@ class ActionAdmin extends Action {
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
         }
-
     }
 
     /**

@@ -2430,7 +2430,7 @@ span.counter {
   width: 99.7%;
   height: 50%;
   border: 0;
-  padding: 8px 0 0 136px;
+  padding: 8px 0 0 130px;
   margin: 0;
 }
 .topic-info .user-info-default-container > div.user-info-default-top {
@@ -2496,7 +2496,7 @@ span.counter {
 }
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rating {
   float: right;
-  margin-right: 16px;
+  margin-right: 10px;
 }
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rating span.positive {
   color: #57a839 !important;
@@ -2506,7 +2506,7 @@ span.counter {
 }
 .topic-info .user-info-default-container > div.user-info-default-bottom {
   background-color: #e6ebee;
-  padding: 8px 0 0 136px;
+  padding: 8px 0 0 130px;
 }
 .topic-info .user-info-default-container > div.user-info-default-bottom ul {
   margin: 0;

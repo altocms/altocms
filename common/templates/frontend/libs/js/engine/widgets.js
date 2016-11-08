@@ -6,9 +6,13 @@
 ls.widgets = (function ($) {
     "use strict";
 
+    var $that = this;
+
     this.options = {
         activeClass: 'active',
         loaderClass: 'loader',
+        widgetSelector: '.widget-type-stream',
+        contentSelector: '.js-widget-stream-content',
         type: {
             stream_comment: {
                 url: ls.routerUrl('ajax') + 'stream/comment/'
@@ -34,13 +38,13 @@ ls.widgets = (function ($) {
     this.init = function (options) {
         this.options = $.extend(this.options, options);
 
-        if ($('.widget-type-stream').length) {
+        if ($(this.options.widgetSelector).length) {
             $('.js-widget-stream-navs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                var widget = $('.widget-type-stream');
+                var widget = $(this).closest($that.options.widgetSelector);
                 widget.css('height', widget.height());
-                ls.widgets.load(this, 'stream', null, function(html) {
-                    $('.js-widget-stream-content').html(html);
-                    $('.widget-type-stream').css('height', 'auto');
+                widget.find($that.options.contentSelector).css('min-height', 30);
+                $that.load(this, 'stream', null, function(html) {
+                    $that.refreshContent(widget, html);
                 });
             });
             $('.js-widget-stream-navs li.active a[data-toggle="tab"]').triggerHandler('shown.bs.tab');
@@ -86,9 +90,16 @@ ls.widgets = (function ($) {
         }.bind(this));
     };
 
-    return this;
-}).call(ls.blocks || {}, jQuery);
+    this.refreshContent = function(widget, html) {
+        widget.find(this.options.contentSelector).html(html);
+        widget.css('height', 'auto');
+    };
 
-$(function() {
-    ls.widgets.init();
-});
+    $(function() {
+        ls.widgets.init();
+    });
+
+    return this;
+}).call(ls.widgets || {}, jQuery);
+
+// EOF

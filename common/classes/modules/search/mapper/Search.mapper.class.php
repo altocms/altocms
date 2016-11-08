@@ -56,6 +56,36 @@ class ModuleSearch_MapperSearch extends Mapper {
 
         $aData = $this->PrepareRegExp($sRegExp);
         $aWeight = array();
+        $sWhere = '';
+
+        // Обработка возможного фильтра. Пока параметр один - это разрешённые блоги для пользователя
+        // но на будущее условия разделены
+        if (!empty($aParams['filter']) && is_array($aParams['filter'])) {
+
+            // Если определён список типов/ид. разрешённых блогов
+            if (!empty($aParams['filter']['blog_type']) && is_array($aParams['filter']['blog_type'])) {
+                $aBlogTypes = array();
+                $aOrClauses = array();
+                $aParams['filter']['blog_type'] = F::Array_FlipIntKeys($aParams['filter']['blog_type'], 0);
+                foreach ($aParams['filter']['blog_type'] as $sType => $aBlogsId) {
+                    if ($aBlogsId) {
+                        if ($sType == '*') {
+                            $aOrClauses[] = "(t.blog_id IN ('" . join("','", $aBlogsId) . "'))";
+                        } else {
+                            $aOrClauses[] = "b.blog_type='" . $sType . "' AND t.blog_id IN ('" . join("','", $aBlogsId) . "')";
+                        }
+                    } else {
+                        $aBlogTypes[] = "'" . $sType . "'";
+                    }
+                }
+                if ($aBlogTypes) {
+                    $aOrClauses[] = '(b.blog_type IN (' . join(',', $aBlogTypes) . '))';
+                }
+                if ($aOrClauses) {
+                    $sWhere .= ' AND (' . join(' OR ', $aOrClauses ) . ')';
+                }
+            }
+        }
 
         $aWeight[] = "(LOWER(t.topic_title) REGEXP " . $this->oDb->escape($aData['regexp']['phrase']) . ")*" . ($aData['rates']['phrase'] * $aData['rates']['title']);
         $aWeight[] = "(LOWER(tc.topic_text_source) REGEXP " . $this->oDb->escape($aData['regexp']['phrase']) . ")*" . ($aData['rates']['phrase']);
@@ -65,15 +95,16 @@ class ModuleSearch_MapperSearch extends Mapper {
         }
         $sWeight = implode('+', $aWeight);
         $aResult = array();
-        if (!$aParams['bSkipTags']) {
-            $sql
-                = "
+
+        $sql = "
                 SELECT t.topic_id,
                     $sWeight AS weight
                 FROM ?_topic AS t
                     INNER JOIN ?_topic_content AS tc ON tc.topic_id=t.topic_id
+                    ". (C::Get('module.search.accessible') ? 'INNER JOIN ?_blog AS b ON b.blog_id=t.blog_id' : '')."
                 WHERE 
                     (topic_publish=1)
+                    " . $sWhere . "
                      AND topic_index_ignore=0
                      AND (
                         (LOWER(t.topic_title) REGEXP ?)
@@ -85,17 +116,16 @@ class ModuleSearch_MapperSearch extends Mapper {
                 LIMIT ?d, ?d
             ";
 
-            $aRows = $this->oDb->selectPage(
-                $iCount, $sql,
-                $aData['regexp']['words'],
-                $aData['regexp']['words'],
-                ($iCurrPage - 1) * $iPerPage, $iPerPage
-            );
+        $aRows = $this->oDb->selectPage(
+            $iCount, $sql,
+            $aData['regexp']['words'],
+            $aData['regexp']['words'],
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
-            if ($aRows) {
-                foreach ($aRows as $aRow) {
-                    $aResult[] = $aRow['topic_id'];
-                }
+        if ($aRows) {
+            foreach ($aRows as $aRow) {
+                $aResult[] = $aRow['topic_id'];
             }
         }
 
@@ -115,10 +145,10 @@ class ModuleSearch_MapperSearch extends Mapper {
      */
     public function GetCommentsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
 
-        $aRegExp = $this->PrepareRegExp($sRegExp);
+        $aData = $this->PrepareRegExp($sRegExp);
         $aResult = array();
-        if (!$aParams['bSkipTags']) {
-            $sql = "
+
+        $sql = "
                 SELECT DISTINCT c.comment_id,
                     CASE WHEN (LOWER(c.comment_text) REGEXP ?) THEN 1 ELSE 0 END weight
                 FROM ?_comment AS c
@@ -128,20 +158,18 @@ class ModuleSearch_MapperSearch extends Mapper {
                     AND
                         (
                             (LOWER(c.comment_text) REGEXP ?)
-                            {OR (LOWER(c.comment_text) REGEXP ?)}
                         )
                 ORDER BY
                     weight DESC,
                     c.comment_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage(
-                $iCount, $sql,
-                $aRegExp[0],
-                $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage
-            );
-        }
+        $aRows = $this->oDb->selectPage(
+            $iCount, $sql,
+            $aData['regexp']['words'],
+            $aData['regexp']['words'],
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
         if ($aRows) {
             foreach ($aRows as $aRow) {
@@ -166,8 +194,8 @@ class ModuleSearch_MapperSearch extends Mapper {
 
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
-        if (!$aParams['bSkipTags']) {
-            $sql = "
+
+        $sql = "
                 SELECT DISTINCT b.blog_id,
                     CASE WHEN (LOWER(b.blog_title) REGEXP ?) THEN 1 ELSE 0 END weight
                 FROM ?_blog AS b
@@ -184,13 +212,12 @@ class ModuleSearch_MapperSearch extends Mapper {
                     b.blog_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage(
-                $iCount, $sql,
-                $aRegExp[0],
-                $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage
-            );
-        }
+        $aRows = $this->oDb->selectPage(
+            $iCount, $sql,
+            $aRegExp[0],
+            $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
         if ($aRows) {
             foreach ($aRows as $aRow) {

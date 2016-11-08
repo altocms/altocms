@@ -54,12 +54,14 @@ class AltoFunc_File {
     /**
      * Returns total list of included files
      *
-     * @return float
+     * @return array
      */
     static public function GetIncludedFiles() {
 
         return self::$aIncludedFiles;
     }
+
+    static protected $_root = array();
 
     /**
      * Если загружена конфигурация, то возвращает корневую папку проекта,
@@ -69,8 +71,11 @@ class AltoFunc_File {
      */
     static public function RootDir() {
 
-        if (class_exists('Config', false) && Config::Get('path.root.dir')) {
+        if (!empty(self::$_root['dir'])) {
+            $sDir = self::$_root['dir'];
+        } elseif (class_exists('Config', false) && Config::Get('path.root.dir')) {
             $sDir = Config::Get('path.root.dir');
+            self::$_root['dir'] = $sDir;
         } elseif (defined('ALTO_DIR')) {
             $sDir = ALTO_DIR;
         } elseif (isset($_SERVER['DOCUMENT_ROOT'])) {
@@ -94,7 +99,9 @@ class AltoFunc_File {
      */
     static public function RootUrl($xAddLang = false) {
 
-        if (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
+        if (!empty(self::$_root['url'][$xAddLang])) {
+            $sUrl = self::$_root['url'][$xAddLang];
+        } elseif (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
 
             // Если требуется, то добавляем в URL язык
             if ($xAddLang && Config::Get('lang.in_url') && class_exists('Router', false)) {
@@ -109,6 +116,7 @@ class AltoFunc_File {
                     $sUrl = static::NormPath($sUrl . '/' . $sLang . '/');
                 }
             }
+            self::$_root['url'][$xAddLang] = $sUrl;
         } elseif (isset($_SERVER['HTTP_HOST'])) {
             $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
         } else {
@@ -148,12 +156,12 @@ class AltoFunc_File {
      * Нормализует путь к файлу, приводя все слеши (прямой и обратный) к одному виду,
      * по умолчанию - к прямому слешу
      *
-     * @param string|array $sPath
+     * @param string|string[] $xPath
      * @param string|null  $sSeparator
      *
-     * @return string
+     * @return string|string[]
      */
-    static public function NormPath($sPath, $sSeparator = '/') {
+    static public function NormPath($xPath, $sSeparator = '/') {
 
         if (!$sSeparator) {
             $sSeparator = DIRECTORY_SEPARATOR;
@@ -165,36 +173,36 @@ class AltoFunc_File {
             $sAltSeparator = '/';
         }
 
-        if (is_array($sPath)) {
+        if (is_array($xPath)) {
             $aResult = array();
-            foreach ($sPath as $sKey => $s) {
+            foreach ($xPath as $sKey => $s) {
                 $aResult[$sKey] = static::NormPath($s, $sSeparator);
             }
             return $aResult;
         }
 
         $sPrefix = '';
-        if (substr($sPath, 0, 2) == '//') {
+        if (substr($xPath, 0, 2) == '//') {
             // path like '//site.com/...'
             $sPrefix = '//';
-            $sPath = substr($sPath, 2);
-        } elseif (($nPos = strpos($sPath, '://')) && $nPos) {
+            $xPath = substr($xPath, 2);
+        } elseif (($nPos = strpos($xPath, '://')) && $nPos) {
             // path like 'http://site.com/...'
-            $sPrefix = substr($sPath, 0, $nPos + 3);
-            $sPath = substr($sPath, $nPos + 3);
-        } elseif (($nPos = strpos($sPath, ':\\')) && $nPos == 1) {
+            $sPrefix = substr($xPath, 0, $nPos + 3);
+            $xPath = substr($xPath, $nPos + 3);
+        } elseif (($nPos = strpos($xPath, ':\\')) && $nPos == 1) {
             // path like 'C:\folder\...'
-            $sPrefix = substr($sPath, 0, 2) . $sSeparator;
-            $sPath = substr($sPath, 3);
+            $sPrefix = substr($xPath, 0, 2) . $sSeparator;
+            $xPath = substr($xPath, 3);
         }
-        if (strpos($sPath, $sAltSeparator) !== false) {
-            $sPath = str_replace($sAltSeparator, $sSeparator, $sPath);
+        if (strpos($xPath, $sAltSeparator) !== false) {
+            $xPath = str_replace($sAltSeparator, $sSeparator, $xPath);
         }
 
-        while (strpos($sPath, $sSeparator . $sSeparator)) {
-            $sPath = str_replace($sSeparator . $sSeparator, $sSeparator, $sPath);
+        while (strpos($xPath, $sSeparator . $sSeparator)) {
+            $xPath = str_replace($sSeparator . $sSeparator, $sSeparator, $xPath);
         }
-        $sResult = $sPrefix . $sPath;
+        $sResult = $sPrefix . $xPath;
         if (DIRECTORY_SEPARATOR == '\\' && strlen($sResult) > 2) {
             // First symbol in Windows is a disk
             if ($sResult[1] == ':' && $sResult[0] >= 'a' && $sResult[0] <= 'z') {
@@ -232,10 +240,12 @@ class AltoFunc_File {
 
         $bResult = is_dir($sDir);
         if (!$bResult && $bAutoMake) {
+            $iOldUmask = umask(0);
             $bResult = @mkdir($sDir, $nMask, true);
             if (!$bResult) {
                 F::SysWarning('Can not make dir "' . $sDir . '"');
             }
+            umask($iOldUmask);
         }
         return $bResult;
     }
@@ -334,6 +344,7 @@ class AltoFunc_File {
                 }
             }
         }
+        return $aDirs;
     }
 
     /**
@@ -564,11 +575,16 @@ class AltoFunc_File {
             return null;
         } elseif (strlen($sPath) > 1 && $sPath[0] == '/' && $sPath[1] != '/') {
             return $sPath;
+        } elseif (strpos($sPath, ':') === false && strpos($sPath, '//') === false) {
+            return $sPath;
         }
         if ($bCheckAliases) {
-            return static::LocalPath($sPath, static::RootUrlAliases(), $bSaveParams);
+            $sResult = static::LocalPathUrl($sPath, static::RootUrlAliases(), $bSaveParams);
+        } else {
+            $sResult = static::LocalPathUrl($sPath, static::RootUrl(), $bSaveParams);
         }
-        return static::LocalPath($sPath, static::RootUrl(), $bSaveParams);
+
+        return $sResult;
     }
 
     /**
@@ -740,15 +756,23 @@ class AltoFunc_File {
      * @param string $sFile
      * @param string $sData
      * @param int    $nFlags
+     * @param bool   $bLogWarning
      *
      * @return  bool|int
      */
-    static public function PutContents($sFile, $sData, $nFlags = 0) {
+    static public function PutContents($sFile, $sData, $nFlags = 0, $bLogWarning = false) {
 
+        $bResult = false;
         if ($sFile && static::CheckDir(dirname($sFile))) {
-            return file_put_contents($sFile, $sData, $nFlags);
+            $sData = (string)$sData;
+            $iResult = file_put_contents($sFile, $sData, $nFlags);
+            $bResult = ($iResult !== false && $iResult == strlen($sData));
         }
-        return false;
+        if ($bResult === false && $bLogWarning) {
+            F::SysWarning('Cannot write to file "' . $sFile . '"');
+        }
+
+        return $bResult;
     }
 
     /**
@@ -801,12 +825,12 @@ class AltoFunc_File {
             ),
             pathinfo(static::NormPath($sPath))
         );
-        $n = strpos($aResult['extension'], '?');
+        $n = strpos($aResult['basename'], '?');
         if ($n !== false) {
-            $aResult['params'] = substr($aResult['extension'], $n + 1);
-            $aResult['extension'] = substr($aResult['extension'], 0, $n);
-            $n = strpos($aResult['basename'], '?');
+            $aResult['params'] = substr($aResult['basename'], $n + 1);
             $aResult['basename'] = substr($aResult['basename'], 0, $n);
+            $aResult['filename'] = pathinfo($aResult['basename'], PATHINFO_FILENAME);
+            $aResult['extension'] = pathinfo($aResult['basename'], PATHINFO_EXTENSION);
         }
         if (substr($sPath, 0, 2) == '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
             // Возможно, это URL с протоколом по умолчанию
@@ -944,14 +968,11 @@ class AltoFunc_File {
         try {
             self::$_time = microtime(true);
             if (F::IsDebug()) {
-                $bCheckUtf8 = (class_exists('Config', false) ? Config::Get('sys.include.check_file') : false);
-                if ($bCheckUtf8) {
-                    $sBom = file_get_contents($sFile, true, null, 0, 5);
-                    if (!$sBom) {
-                        F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
-                    } elseif ($sBom != '<?php') {
-                        F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
-                    }
+                $sBom = file_get_contents($sFile, true, null, 0, 5);
+                if (!$sBom) {
+                    F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
+                } elseif ($sBom != '<?php') {
+                    F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
                 }
             }
             if ($bOnce) {
@@ -1089,7 +1110,7 @@ class AltoFunc_File {
      */
     static public function Uniqname($sDir, $sExtension, $nLength = 8) {
 
-        $sFileName = F::RandomStr($nLength) . ($sExtension ? ('.' . trim($sExtension, '.')) : '');
+        $sFileName = dechex(time()) . '-' . F::RandomStr($nLength) . ($sExtension ? ('.' . trim($sExtension, '.')) : '');
         while(static::Exists($sDir . '/' . $sFileName)) {
             $sFileName = static::Uniqname($sDir, $sExtension, $nLength);
         }
@@ -1131,6 +1152,9 @@ class AltoFunc_File {
                 array('offset' => 0, 'signature' => "\x49\x49\x2A\x00"),
                 array('offset' => 0, 'signature' => "\x4D\x4D\x00\x2A"),
                 array('offset' => 0, 'signature' => "\x4D\x4D\x00\x2B"),
+            ),
+            'image/ico' => array(
+                array('offset' => 0, 'signature' => "\x00\x00\x01\x00"),
             ),
         );
     /**
@@ -1198,7 +1222,6 @@ class AltoFunc_File {
             return self::$aMimeFiles[$sFile];
         }
 
-        $sMimeType = '';
         if (function_exists('finfo_fopen')) {
             $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
         } else {
@@ -1231,37 +1254,70 @@ class AltoFunc_File {
     static public function ImgModAttr($sSize) {
 
         $aResult = array(
-            'width' => null,
-            'height' => null,
-            'mod' => null,
+            'width'     => null, // int - width of image
+            'height'    => null, // int - height of image
+            'mod'       => null, // str - modificator ['fit', 'crop', 'pad', 'max']
+            'attr'      => '',   // str - attributes of HTML tag <img ...>: ' width=... height=...'
+            'style'     => '',   // str - value for attributes style of HTML tag <img ...>
         );
         if ($sSize) {
-            $nPos = strpos($sSize, 'x');
-            if ($nPos === false) {
-                $nHeight = $nWidth = intval($sSize);
-            } elseif ($nPos === 0) {
-                $nWidth = 0;
-                $nHeight = intval(substr($sSize, 1));
+            $iPos = strpos($sSize, 'x');
+            if ($iPos === false) {
+                $iHeight = $iWidth = intval($sSize);
+            } elseif ($iPos === 0) {
+                $iWidth = 0;
+                $iHeight = intval(substr($sSize, 1));
             } else {
-                $nWidth = intval(substr($sSize, 0, $nPos));
-                $nHeight = intval(substr($sSize, $nPos+1));
+                $iWidth = intval(substr($sSize, 0, $iPos));
+                $iHeight = intval(substr($sSize, $iPos+1));
             }
 
-            if ($nWidth || $nHeight) {
-                if ($nWidth) {
-                    $aResult['width'] = $nWidth;
+            if ($iWidth || $iHeight) {
+                if ($iWidth) {
+                    $aResult['width'] = $iWidth;
+                    $aResult['attr'] .= ' ' . 'width="' . $iWidth . '"';
                 }
-                if ($nHeight) {
-                    $aResult['height'] = $nHeight;
+                if ($iHeight) {
+                    $aResult['height'] = $iHeight;
+                    $aResult['attr'] .= ' ' . 'height="' . $iHeight . '"';
                 }
+                if (!empty($aResult['attr'])) {
+                    $aResult['attr'] .= ' ';
+                }
+                // check modificator
+                $iMaxWidth = $iMinWidth = $iMaxHeight = $iMinHeight = 0;
                 if (strpos($sSize, 'fit')) {
                     $aResult['mod'] = 'fit';
+                    $iMaxWidth = $aResult['width'];
+                    $iMaxHeight = $aResult['height'];
                 } else if (strpos($sSize, 'crop')) {
                     $aResult['mod'] = 'crop';
                 } else if (strpos($sSize, 'pad')) {
                     $aResult['mod'] = 'pad';
+                    $iMinWidth = $aResult['width'];
+                    $iMinHeight = $aResult['height'];
                 } else if (strpos($sSize, 'max')) {
                     $aResult['mod'] = 'max';
+                }
+
+                if ($iMaxWidth) {
+                    $aResult['style'] .= 'max-width:' . $iMaxWidth . 'px;';
+                }
+                if ($iMaxHeight) {
+                    $aResult['style'] .= 'max-height:' . $iMaxHeight . 'px;';
+                }
+                if ($iMinWidth) {
+                    $aResult['style'] .= 'min-width:' . $iMinWidth . 'px;';
+                }
+                if ($iMinHeight) {
+                    $aResult['style'] .= 'min-height:' . $iMinHeight . 'px;';
+                }
+
+                if (!$iMaxWidth && !$iMinWidth && $iWidth) {
+                    $aResult['style'] .= 'width:' . $iWidth . 'px;';
+                }
+                if (!$iMaxHeight && !$iMinHeight && $iWidth) {
+                    $aResult['style'] .= 'height:' . $iHeight . 'px;';
                 }
             }
         }

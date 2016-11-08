@@ -16,6 +16,8 @@
 /**
  * Сущность блога
  *
+ * @method setOldType($sParam)
+ *
  * @package modules.blog
  * @since   1.0
  */
@@ -286,7 +288,7 @@ class ModuleBlog_EntityBlog extends Entity {
      *
      * @return string
      */
-    public function getAvatarUrl($xSize = 48) {
+    public function getAvatarUrl($xSize = null) {
 
         if (!$xSize) {
             if (Config::Get('module.user.profile_avatar_size')) {
@@ -314,10 +316,8 @@ class ModuleBlog_EntityBlog extends Entity {
             if (!$sUrl) {
                 // Old version compatibility
                 $sUrl = $this->getProp('blog_avatar');
-                if ($sUrl) {
-                    if ($xSize) {
-                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
-                    }
+                if ($sUrl && ($sUrl[0] == '@') && $xSize) {
+                    $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
                 } else {
                     $sUrl = $this->getDefaultAvatarUrl($xSize);
                 }
@@ -325,6 +325,50 @@ class ModuleBlog_EntityBlog extends Entity {
             $this->setProp($sPropKey, $sUrl);
         }
         return $sUrl;
+    }
+
+    /**
+     * @param string     $sImageType
+     * @param string|int $xSize
+     *
+     * @return array
+     */
+    protected function _defineImageSize($sImageType, $xSize) {
+
+        $sSize = C::Val('module.uploader.images.' . $sImageType . '.size.' . $xSize, $xSize);
+        return F::File_ImgModAttr($sSize);
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getAvatarImageSizeAttr($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = self::DEFAULT_AVATAR_SIZE;
+        }
+        $aImgSize = $this->_defineImageSize('blog_avatar', $xSize);
+
+        return $aImgSize['attr'];
+    }
+
+    /**
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getAvatarImageSizeStyle($xSize = null) {
+
+        // Gets default size from config or sets it to default
+        if (empty($xSize)) {
+            $xSize = self::DEFAULT_AVATAR_SIZE;
+        }
+        $aImgSize = $this->_defineImageSize('blog_avatar', $xSize);
+
+        return $aImgSize['style'];
     }
 
     /**
@@ -345,6 +389,7 @@ class ModuleBlog_EntityBlog extends Entity {
         }
 
         $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
+        $sResizePath = null;
         if ($xSize) {
             if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
                 $xSize = $sRealSize;
@@ -352,13 +397,19 @@ class ModuleBlog_EntityBlog extends Entity {
             if (is_string($xSize) && $xSize[0] == 'x') {
                 $xSize = substr($xSize, 1);
             }
-            if ($nSize = intval($xSize)) {
-                $sPath .= '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+            if ($iSize = intval($xSize)) {
+                $sResizePath = $sPath . '-' . $iSize . 'x' . $iSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+                if (Config::Get('module.image.autoresize') && !F::File_Exists($sResizePath)) {
+                    $sResizePath = E::ModuleImg()->AutoresizeSkinImage($sResizePath, 'avatar_blog', $iSize ? $iSize : null);
+                }
             }
         }
-        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
+        if ($sResizePath) {
+            $sPath = $sResizePath;
+        } elseif (!F::File_Exists($sPath)) {
+            $sPath = E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', null);
         }
+
         return E::ModuleUploader()->Dir2Url($sPath);
     }
 
@@ -399,10 +450,12 @@ class ModuleBlog_EntityBlog extends Entity {
         $bResult = $this->getProp('_user_is_subscriber');
         if (is_null($bResult)) {
             $iRole = $this->getCurrentUserRole();
-            if ($iRole) {
-                $bResult = $iRole & (ModuleBlog::BLOG_USER_ROLE_MEMBER | ModuleBlog::BLOG_USER_ROLE_MODERATOR | ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR | ModuleBlog::BLOG_USER_ROLE_OWNER);
+            if ($iRole && $iRole > ModuleBlog::BLOG_USER_ROLE_GUEST) {
+                $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_SUBSCRIBER;
             }
+            $this->setProp('_user_is_subscriber', $bResult);
         }
+
         return $bResult;
     }
 
@@ -416,10 +469,12 @@ class ModuleBlog_EntityBlog extends Entity {
         $bResult = $this->getProp('_user_is_administrator');
         if (is_null($bResult)) {
             $iRole = $this->getCurrentUserRole();
-            if ($iRole) {
+            if ($iRole && $iRole > ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR;
             }
+            $this->setProp('_user_is_administrator', $bResult);
         }
+
         return $bResult;
     }
 
@@ -433,10 +488,12 @@ class ModuleBlog_EntityBlog extends Entity {
         $bResult = $this->getProp('_user_is_moderator');
         if (is_null($bResult)) {
             $iRole = $this->getCurrentUserRole();
-            if ($iRole) {
+            if ($iRole && $iRole > ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 $bResult = $iRole & ModuleBlog::BLOG_USER_ROLE_MODERATOR;
             }
+            $this->setProp('_user_is_moderator', $bResult);
         }
+
         return $bResult;
     }
 

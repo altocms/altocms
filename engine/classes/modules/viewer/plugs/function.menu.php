@@ -7,41 +7,41 @@ include_once __DIR__ . '/function.hook.php';
  *
  * @param $aParams
  * @param $oSmarty
+ *
  * @internal param $sMenuId
  * @internal param bool $sMenuClass
  * @internal param string $sActiveClass
+ *
  * @return string
  */
 function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
     // Меню нет - уходим
-    /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
-    if (!isset($aParams['id']) || !($aMenu = Config::Get('menu.data.' . $aParams['id']))) {
-        return '';
-    }
-    /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
-    if (!isset($aMenu['items'])) {
+    /** ModuleMenu_EntityMenu $oMenu */
+    if (empty($aParams['id']) || !($oMenu = E::ModuleMenu()->GetMenu($aParams['id'], $aParams))) {
         return '';
     }
 
-    $aMenuItems = $aMenu['items'];
+    /** @var ModuleMenu_EntityItem[] $aMenuItems Элементы меню */
+    $aMenuItems = $oMenu->GetItems();
+    if (!$aMenuItems) {
+        return '';
+    }
 
     /** @var string $sMenu Запрашиваемое меню */
     $sMenu = '';
 
     // Установим класс меню, если он задан
     /** @var string $sMenuClass Класс меню */
-    $sMenuClass = isset($aParams['class']) ? 'class="' . $aParams['class'] . '"' : '';
-    if (!$sMenuClass) {
-        $sMenuClass = isset($aMenu['class']) ? 'class="' . $aMenu['class'] . '"' : '';
+    $sMenuClass = isset($aParams['class']) ? $aParams['class'] : $oMenu->GetCssClass();
+    if ($sMenuClass) {
+        $sMenuClass = 'class="' . $sMenuClass . '"';
     }
-
 
     // Открываем меню
     if (!isset($aParams['hideul'])) {
         $sMenu .= "<ul {$sMenuClass}>";
     }
-
 
     // Меню пустое
     $bEmpty = TRUE;
@@ -61,29 +61,29 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
         // Сформируем подменю если нужно
         $oMenuItem->setMenuId($aParams['id']);
-        if (strpos($oMenuItemHtml = $oMenuItem->getHtml(), "[[submenu_") !== FALSE) {
-            $oMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) {
+        if (strpos($sMenuItemHtml = $oMenuItem->getHtml(), "[[submenu_") !== FALSE) {
+            $sMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) use($oMenuItem, $oSmarty) {
                 if (isset($sSubmenuId[1])) {
                     $sSubmenuId = $sSubmenuId[1];
                 } else {
                     return '';
                 }
-                $aSettings = array('id' => $sSubmenuId);
+                $aSettings = array('id' => $sSubmenuId, 'parent_item' => $oMenuItem);
                 if (preg_match('~[a-f0-9]{10}~', $sSubmenuId)) {
                     $aSettings = array_merge($aSettings, array('class' => Config::Get('menu.submenu.class')));
                 }
-                if (!is_null($sSubmenuHtml = smarty_function_menu($aSettings))) {
+                $sSubmenuHtml = smarty_function_menu($aSettings, $oSmarty);
+                if (!empty($sSubmenuHtml)) {
                     return $sSubmenuHtml;
                 }
                 return '';
-            }, $oMenuItemHtml);
+            }, $sMenuItemHtml);
         }
 
         // Добавим html в вывод
-        $sMenu .= $oMenuItemHtml;
+        $sMenu .= $sMenuItemHtml;
 
         $bEmpty = FALSE;
-
     }
 
     // Закрываем меню
@@ -102,5 +102,6 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
     }
 
     return '';
-
 }
+
+// EOF

@@ -82,7 +82,7 @@
            onclick="$(this).toggleClass('active').parent().next().slideToggle(100); return false;"
            class="pull-right toggle-link link link-lead link-blue"><i class="fa fa-plus-circle"></i>{$aLang.topic_toggle_images}</a>
     </div>
-    <div style="display: {if ImagesList}block{else}none{/if};" class="img-container">
+    <div style="display: {if $ImagesList}block{else}none{/if};" class="img-container">
         <div>
             {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
 

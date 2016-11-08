@@ -60,6 +60,6 @@
     </div>
 
     <div class="panel-footer">
-        <a class="link link-dual link-lead link-clear" href="{router page='peoples'}"><i class="fa fa-users"></i>{$aLang.all_users}</a>
+        <a class="link link-dual link-lead link-clear" href="{router page='people'}"><i class="fa fa-users"></i>{$aLang.all_users}</a>
     </div>
 </div>

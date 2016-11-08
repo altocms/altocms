@@ -140,7 +140,7 @@ label                                   { display: block }
 .b-wbox-content                         { padding: 12px 15px }
 .b-wbox-header label.checkbox           { padding: 9px 15px; border-left: 1px solid #eee; display: block; float: right; white-space: nowrap; }
 .b-wbox-header                          { height: 36px }
-.b-wbox-header span.icon                { border-right: 1px solid #DDD; float: left; opacity: .7; padding: 11px; }
+.b-wbox-header span.icon                { border-right: 1px solid #DDD; float: left; opacity: .7; padding: 11px; width: 36px; }
 .b-wbox-header .close                   { float: right; margin: 8px 10px 0 0; }
 .b-content-header-title                 { color: #555; font-size: 28px; margin-bottom: 30px; }
 .b-wbox-header-title                    { color: #fff; float: left; font-size: 14px; font-weight: bold; padding: 10px; margin: 0; height: 36px; }
@@ -149,11 +149,11 @@ label                                   { display: block }
 .b-skin-screenshot                      { width: 240px; height: 180px; border: 1px solid #F9F9F9; float: left; margin-right: 10px; }
 
 /*    WIDGETS    ON/OFF    */
-.b-switch                               { margin: 3px auto; width: 40px; height: 20px; position: relative; cursor: pointer; }
-.b-switch label                         { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #e8a096; box-shadow: inset 0 1px 3px 1px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.5); cursor: pointer; }
+.b-switch                               { margin: 3px auto; width: 44px; height: 20px; position: relative; cursor: pointer; }
+.b-switch label                         { display: block; width: 100%; height: 100%; position: absolute; top: -1px; left: 0; background: #e8a096; box-shadow: inset 0 1px 3px 1px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.5); cursor: pointer; }
 .b-switch label:before                  { content: ""; nowhitespace: afterproperty; position: absolute; z-index: -1; top: -18px; right: -18px; bottom: -18px; left: -18px; box-shadow: 0 1px 0 rgba(255,255,255,0.5); -webkit-filter: blur(1px); /* Smooth trick */ filter: blur(1px); /* Future-proof */ ; }
 .b-switch label i                       { display: block; nowhitespace: afterproperty; height: 100%; width: 18px; position: absolute; left: 0; top: 0; z-index: 2; background-color: #e0e0e0; /* Fallback */ /*background: linear-gradient(#f0f0f0, #e0e0e0); */ background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#f7f7f7), to(#e0e0e0)); background-image: -webkit-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%); background-image: -moz-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%); background-image: -ms-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%); background-image: -o-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%); background-image: linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%); filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#e0e0e0',GradientType=0 ); box-shadow: inset 0 1px 0 white, 0 0 3px rgba(64,64,64,0.3), 0 2px 2px rgba(64,64,64,0.2); ; }
-.b-switch label i:before                { content: "off"; position: absolute; top: 50%; right: -21px; margin-top: -8px; color: #a8301e; font-style: normal; font-weight: bold; font-family: Helvetica, Arial, sans-serif; font-size: 11px; text-transform: uppercase; text-shadow: 0 1px 1px rgba(250, 250, 250, 0.7); }
+.b-switch label i:before                { content: "off"; position: absolute; top: 50%; right: -25px; margin-top: -8px; color: #a8301e; font-style: normal; font-weight: bold; font-family: Helvetica, Arial, sans-serif; font-size: 11px; text-transform: uppercase; text-shadow: 0 1px 1px rgba(250, 250, 250, 0.7); }
 .b-switch .checked ~ label              { background: #9add82 }
 .b-switch .checked ~ label i            { left: auto; right: -1%; }
 .b-switch .checked ~ label i:before     { /* On/off */ content: "on"; right: 115%; color: #40602a; text-shadow: 0 1px 1px rgba(250, 250, 250, 0.7);  }
@@ -215,9 +215,15 @@ label                                   { display: block }
 .nav.navbar-nav.navbar-right .icon      { font-size: 15px; position: relative; margin-right: 4px; }
 .nav.navbar-nav.navbar-right .dropdown-menu .icon
                                         { font-size: 13px }
-.btn-danger, .b-wbox-header .close, .b-wbox-header-title, .btn-primary, .nav, .menu-left li a, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
-                                        { font-family: "Cuprum"!important }
-body, div                               { font-family: "Ubuntu"!important }
+.btn-danger,
+.b-wbox-header .close,
+.b-wbox-header-title,
+.btn-primary,
+.nav,
+.menu-left li a,
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
+                                        { font-family: "Cuprum", Arial !important }
+body, div                               { font-family: "Ubuntu", Arial !important }
 div.dataTables_wrapper .ui-widget-header, .b-wbox-header, .modal-header, .table th
                                         { border-bottom: 1px solid #eee }
 .b-wbox-header .close, .b-wbox-header-title
@@ -240,7 +246,7 @@ input.input-wide { width: 100%; }
 
 
 
-/* ÑÍ??ÏÏÅÒÛ
+/* ï¿½ï¿½??ï¿½ï¿½ï¿½ï¿½ï¿½
 ____________________________________________________________*/
 .snippet-menu {
     width: 20px;
@@ -316,7 +322,7 @@ ____________________________________________________________*/
     padding: 12px;
 }
 
-/* ÄÎÁÀÂËÅÍÈÅ ÊÀÐÒÈÍÊÈ Â ÐÅÄÀÊÒÎÐ
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 ____________________________________________________________*/
 .editor-insert-picture {
     width: 20px;

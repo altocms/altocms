@@ -619,12 +619,13 @@ class ModuleComment extends Module {
     public function AddComment(ModuleComment_EntityComment $oComment) {
 
         if (Config::Get('module.comment.use_nested')) {
-            $nId = $this->oMapper->AddCommentTree($oComment);
+            $iCommentId = $this->oMapper->AddCommentTree($oComment);
             E::ModuleCache()->CleanByTags(array("comment_update"));
         } else {
-            $nId = $this->oMapper->AddComment($oComment);
+            $iCommentId = $this->oMapper->AddComment($oComment);
         }
-        if ($nId) {
+        if ($iCommentId) {
+            $oComment->setId($iCommentId);
             if ($oComment->getTargetType() == 'topic') {
                 E::ModuleTopic()->RecalcCountOfComments($oComment->getTargetId());
             }
@@ -632,17 +633,28 @@ class ModuleComment extends Module {
             // Освежим хранилище картинок
             E::ModuleMresource()->CheckTargetTextForImages(
                 $oComment->getTargetType() . '_comment',
-                $nId,
+                $iCommentId,
                 $oComment->getText()
             );
 
-            // чистим зависимые кеши
-            E::ModuleCache()->CleanByTags(
-                array("comment_new", "comment_new_{$oComment->getTargetType()}",
-                      "comment_new_user_{$oComment->getUserId()}_{$oComment->getTargetType()}",
-                      "comment_new_{$oComment->getTargetType()}_{$oComment->getTargetId()}")
-            );
-            $oComment->setId($nId);
+            if (E::IsUser()) {
+                // * Сохраняем дату последнего коммента для юзера
+                E::User()->setDateCommentLast(F::Now());
+                E::ModuleUser()->Update(E::User());
+                // чистим зависимые кеши
+                E::ModuleCache()->CleanByTags(
+                    array("comment_new", "comment_new_{$oComment->getTargetType()}",
+                          "comment_new_user_{$oComment->getUserId()}_{$oComment->getTargetType()}",
+                          "comment_new_{$oComment->getTargetType()}_{$oComment->getTargetId()}")
+                );
+            } else {
+                // чистим зависимые кеши
+                E::ModuleCache()->CleanByTags(
+                    array("comment_new", "comment_new_{$oComment->getTargetType()}",
+                          "comment_new_{$oComment->getTargetType()}_{$oComment->getTargetId()}")
+                );
+            }
+
             return $oComment;
         }
         return false;

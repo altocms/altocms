@@ -11,16 +11,16 @@
 /**
  * Class ModuleImg_EntityImage
  *
- * @method SetImage()
- * @method SetWidth()
- * @method SetHeight()
- * @method SetMime()
- * @method SetInfo()
- * @method SetFilename()
+ * @method SetImage($oParam)
+ * @method SetWidth($iParam)
+ * @method SetHeight($iParam)
+ * @method SetMime($sParam)
+ * @method SetInfo($aParam)
+ * @method SetFilename($sPaam)
  *
- * @method GetImage()
- * @method GetFilename()
- * @method GetDriver()
+ * @method object GetImage()
+ * @method string GetFilename()
+ * @method string GetDriver()
  */
 class ModuleImg_EntityImage extends Entity {
 
@@ -135,10 +135,13 @@ class ModuleImg_EntityImage extends Entity {
      */
     public function GetWidth() {
 
-        if ($oImage = $this->GetImage()) {
-            return $oImage->width;
+        $iWidth = $this->getProp('width');
+        if (!$iWidth) {
+            if ($oImage = $this->GetImage()) {
+                return $oImage->width;
+            }
         }
-        return null;
+        return $iWidth;
     }
 
     /**
@@ -148,10 +151,13 @@ class ModuleImg_EntityImage extends Entity {
      */
     public function GetHeight() {
 
-        if ($oImage = $this->GetImage()) {
-            return $oImage->height;
+        $iHeight = $this->getProp('height');
+        if (!$iHeight) {
+            if ($oImage = $this->GetImage()) {
+                return $oImage->height;
+            }
         }
-        return null;
+        return $iHeight;
     }
 
     /**
@@ -159,8 +165,7 @@ class ModuleImg_EntityImage extends Entity {
      */
     public function IsMultiframe() {
 
-        if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')
-        ) {
+        if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')) {
             return $oImage->image->getImageIterations();
         }
         return false;
@@ -241,13 +246,13 @@ class ModuleImg_EntityImage extends Entity {
 
         if ($oImage = $this->GetImage()) {
             if ($iWidth && $iHeight) {
-                $fWScale = $iWidth / $oImage->width;
-                $fHScale = $iHeight / $oImage->height;
+                $fWScale = $iWidth / $this->GetWidth();
+                $fHScale = $iHeight / $this->GetHeight();
                 $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
             } elseif ($iWidth) {
-                $fScale = $iWidth / $oImage->width;
+                $fScale = $iWidth / $this->GetWidth();
             } elseif ($iHeight) {
-                $fScale = $iHeight / $oImage->height;
+                $fScale = $iHeight / $this->GetHeight();
             } else {
                 throw new \Exception('Either width or height must be set');
             }
@@ -266,6 +271,8 @@ class ModuleImg_EntityImage extends Entity {
             } elseif ($fScale != 1.0) {
                 $oImage->scale($fScale);
             }
+            $this->SetWidth($iWidth);
+            $this->SetHeight($iHeight);
         }
         return $this;
     }
@@ -284,22 +291,24 @@ class ModuleImg_EntityImage extends Entity {
 
         if ($oImage = $this->GetImage()) {
             if ($iWidth && $iHeight) {
-                $fWScale = $iWidth / $oImage->width;
-                $fHScale = $iHeight / $oImage->height;
+                $fWScale = $iWidth / $this->GetWidth();
+                $fHScale = $iHeight / $this->GetHeight();
                 $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
-                $iWidth = ceil($oImage->width * $fScale);
-                $iHeight = ceil($oImage->height * $fScale);
+                $iWidth = ceil($this->GetWidth() * $fScale);
+                $iHeight = ceil($this->GetHeight() * $fScale);
             } elseif ($iWidth) {
-                $fScale = $iWidth / $oImage->width;
-                $iHeight = ceil($oImage->height * $fScale);
+                $fScale = $iWidth / $this->GetWidth();
+                $iHeight = ceil($this->GetHeight() * $fScale);
             } elseif ($iHeight) {
-                $fScale = $iHeight / $oImage->height;
-                $iWidth = ceil($oImage->width * $fScale);
+                $fScale = $iHeight / $this->GetHeight();
+                $iWidth = ceil($this->GetWidth() * $fScale);
             } else {
                 throw new \Exception('Either width or height must be set');
             }
 
             $oImage->resize($iWidth, $iHeight, $bFit);
+            $this->SetWidth($iWidth);
+            $this->SetHeight($iHeight);
         }
         return $this;
     }
@@ -453,7 +462,7 @@ class ModuleImg_EntityImage extends Entity {
             $nDY = $iHeight - $this->GetHeight();
             if ($nDX || $nDY) {
                 if (E::ModuleImg()->GetDriver() != 'GD' && $this->IsMultiframe()) {
-                    $this->_canvasSizeMultiframe($iWidth, $iHeight, $nDX, $nDY, $xBgColor, $nOpacity);
+                    $this->_canvasSizeMultiframe($iWidth, $iHeight, $nDX, $nDY);
                 } else {
                     $this->_canvasSizeOrdinary($iWidth, $iHeight, $nDX, $nDY, $xBgColor, $nOpacity);
                 }
@@ -498,7 +507,8 @@ class ModuleImg_EntityImage extends Entity {
 
         $aOptions = F::Array_Merge($this->GetOptions(), $aOptions);
         if ($oImage = $this->GetImage()) {
-            $sFormat = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat($sFile));
+            F::File_CheckDir(dirname($sFile));
+            $sFormat = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat());
             if ($sFormat == 'jpeg') {
                 $nQuality = (isset($aOptions['quality']) ? $aOptions['quality'] : 100);
                 $oImage->save($sFile, $sFormat, $nQuality);

@@ -41,8 +41,9 @@
                     {foreach $aFavouriteTopicTags as $oTag}
                             <a class="link {if $sFavouriteTag==$oTag->getText()}tag-current{/if}"
                                title="{$oTag->getCount()}"
-                               href="{$oFavouriteUser->getProfileUrl()}favourites/topics/tag/{$oTag->getText()|escape:'url'}/">
-                                <span class="tag-size tag-size-{$oTag->getSize()}">{$oTag->getText()}</span></a>
+                               href="{$oTag->getLink()}">
+                                <span class="tag-size tag-size-{$oTag->getSize()}">{$oTag->getText()}</span>
+                            </a>
                     {/foreach}
 
             {else}
@@ -53,10 +54,9 @@
         <div class="panel-content js-block-favourite-topic-tags-content-2" data-type="user" style="display: none;">
             {if $aFavouriteTopicUserTags}
                     {foreach $aFavouriteTopicUserTags as $oTag}
-                        <a class="link" title="{$oTag->getCount()}"
-                               href="{$oFavouriteUser->getProfileUrl()}favourites/topics/tag/{$oTag->getText()|escape:'url'}/">
-                            <span class="tag-size tag-size-{$oTag->getSize()}">{$oTag->getText()}</span></a>
-
+                        <a class="link" title="{$oTag->getCount()}" href="{$oTag->getLink()}">
+                            <span class="tag-size tag-size-{$oTag->getSize()}">{$oTag->getText()}</span>
+                        </a>
                     {/foreach}
             {else}
                 <p class="text-muted">{$aLang.widget_tags_empty}</p>

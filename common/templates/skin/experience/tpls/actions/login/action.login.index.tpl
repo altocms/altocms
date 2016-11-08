@@ -8,15 +8,6 @@
 {/block}
 
 {block name="layout_content"}
-    {*<script type="text/javascript">*}
-        {*jQuery(document).load(function ($) {*}
-            {*$('#login-form').bind('submit', function () {*}
-                {*ls.user.login('login-form');*}
-                {*return false;*}
-            {*});*}
-            {*$('#login-form-submit').removeAttr('disabled');*}
-        {*});*}
-    {*</script>*}
 
     <div class="text-center page-header">
         <h3>{$aLang.user_authorization}</h3>

@@ -25,6 +25,9 @@ class ModuleViewerAsset extends Module {
             'css',
         );
 
+    /**
+     * @var ModuleViewerAsset_EntityPackage[]
+     */
     protected $aAssets = array();
 
     protected $aFiles = array();
@@ -66,7 +69,16 @@ class ModuleViewerAsset extends Module {
      */
     public function AssetFilePath($sLocalFile, $sParentDir = null) {
 
-        $sResult = $this->AssetFileHashDir($sLocalFile) . '/' . basename($sLocalFile);
+        if ($n = strpos($sLocalFile, '?')) {
+            $sBasename = basename(substr($sLocalFile, 0, $n)) . '-' . F::Crc32(substr($sLocalFile, $n));
+            $sExtension = F::File_GetExtension($sLocalFile);
+            if ($sExtension) {
+                $sBasename .= '.' . $sExtension;
+            }
+        } else {
+            $sBasename = basename($sLocalFile);
+        }
+        $sResult = $this->AssetFileHashDir($sLocalFile) . '/' . $sBasename;
         if ($sParentDir) {
             if (substr($sParentDir, -1) != '/') {
                 $sParentDir .= '/';
@@ -123,7 +135,8 @@ class ModuleViewerAsset extends Module {
     public function File2Link($sLocalFile, $sParentDir = null) {
 
         $sAssetFile = $this->AssetFileDir($sLocalFile, $sParentDir);
-        if (F::File_Exists($sAssetFile) || F::File_Copy($sLocalFile, $sAssetFile)) {
+        $aInfo = F::File_PathInfo($sLocalFile);
+        if (F::File_Exists($sAssetFile) || F::File_Copy($aInfo['dirname'] . '/' . $aInfo['basename'], $sAssetFile)) {
             return $this->AssetFileUrl($sLocalFile, $sParentDir);
         }
         return false;
@@ -608,7 +621,7 @@ class ModuleViewerAsset extends Module {
     protected function _resetAssets() {
 
         $sFile = $this->GetAssetsCacheName();
-        F::File_PutContents($sFile . '.tmp', time());
+        F::File_PutContents($sFile . '.tmp', time(), LOCK_EX, true);
         F::File_Delete($sFile);
         F::File_Delete($this->GetAssetsCheckName());
     }
@@ -618,16 +631,39 @@ class ModuleViewerAsset extends Module {
      */
     protected function _saveAssets() {
 
-        F::File_PutContents($this->GetAssetsCheckName(), time());
-        $sFile = $this->GetAssetsCacheName();
-        F::File_PutContents($sFile, F::Serialize($this->aAssets));
-        F::File_Delete($sFile . '.tmp');
+        $sCheckFileName = $this->GetAssetsCheckName();
+        F::File_PutContents($sCheckFileName, time(), LOCK_EX, true);
+        $sCacheFileName = $this->GetAssetsCacheName();
+        F::File_PutContents($sCacheFileName, F::Serialize($this->aAssets), LOCK_EX, true);
+        F::File_Delete($sCacheFileName . '.tmp');
+    }
+
+    /**
+     * Checks whether a set of files empty
+     *
+     * @return bool
+     */
+    protected function _isEmpty() {
+
+        $aFiles = $this->getFiles();
+        if (!empty($aFiles) && is_array($aFiles)) {
+            foreach($aFiles as $sType => $aFileSet) {
+                if (!empty($aFileSet)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
      * Prepare current asset pack
      */
     public function Prepare() {
+
+        if ($this->_isEmpty()) {
+            return;
+        }
 
         $bForcePreparation = Config::Get('compress.css.force') || Config::Get('compress.js.force');
         $xData = $this->_checkAssets();

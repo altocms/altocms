@@ -32,6 +32,7 @@
 // Прямой эфир
 $config['widgets']['stream'] = array(
     'name' => 'stream',     // исполняемый виджет Stream (class WidgetStream)
+    'type' => 'exec',       // тип - exec - исполняемый (если не задавать, то будет определяться автоматически)
     'wgroup' => 'right',    // группа, куда нужно добавить виджет
     'priority' => 100,      // приоритет
     'action' => array(
@@ -71,6 +72,7 @@ $config['widgets']['blogAvatar.tpl'] = array(
 // Теги
 $config['widgets']['tags'] = array(
     'name' => 'tags',
+    'type' => 'exec',
     'wgroup' => 'right',
     'priority' => 50,
     'action' => array(
@@ -89,6 +91,7 @@ $config['widgets']['tags'] = array(
 // Блоги
 $config['widgets']['blogs'] = array(
     'name' => 'blogs',
+    'type' => 'exec',
     'wgroup' => 'right',
     'priority' => 1,
     'action' => array(
@@ -119,6 +122,7 @@ $config['widgets']['profile.sidebar'] = array(
 
 $config['widgets']['userfeedBlogs'] = array(
     'name' => 'userfeedBlogs',
+    'type' => 'exec',
     'wgroup' => 'right',
     'action' => array(
         'feed' => array('{index}'),
@@ -127,6 +131,7 @@ $config['widgets']['userfeedBlogs'] = array(
 
 $config['widgets']['userfeedUsers'] = array(
     'name' => 'userfeedUsers',
+    'type' => 'exec',
     'wgroup' => 'right',
     'action' => array(
         'feed' => array('{index}'),

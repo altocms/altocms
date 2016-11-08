@@ -25,8 +25,8 @@
 function smarty_function_hook($aParams, &$oSmarty) {
 
     if (empty($aParams['run'])) {
-        trigger_error('Hook: missing "run" parametr', E_USER_WARNING);
-        return;
+        trigger_error('Hook: missing "run" parameter', E_USER_WARNING);
+        return '';
     }
 
     $sReturn = '';
@@ -40,7 +40,8 @@ function smarty_function_hook($aParams, &$oSmarty) {
         }
     } else {
         $sHookName = 'template_' . strtolower($aParams['run']);
-        unset($aParams['run']);
+        $aParams['hook_name'] = $sHookName;
+        $aParams['hook_source'] = $oSmarty->template_resource;
         $aResultHook = E::ModuleHook()->Run($sHookName, $aParams);
 
         if (array_key_exists('template_result', $aResultHook)) {

@@ -14,7 +14,7 @@
                 {hook run='profile_header_begin'}
 
                 <div class="profile-header-info">
-                    <img src="{$oUserProfile->getAvatarUrl('big')}" alt="{$oUserProfile->getDisplayName()}" class="avatar" itemprop="photo"/>
+                    <img src="{$oUserProfile->getAvatarUrl('big')}" {$oUserProfile->getAvatarImageSizeAttr('big')} alt="{$oUserProfile->getDisplayName()}" class="avatar" itemprop="photo"/>
 
                     {hook run='profile_header' oUserProfile=$oUserProfile oVote=$oVote}
 

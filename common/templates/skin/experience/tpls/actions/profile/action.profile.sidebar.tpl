@@ -15,14 +15,14 @@
                         data-title         ="{$aLang.settings_profile_photo_resize_title}"
                         data-help          ="{$aLang.settings_profile_photo_resize_text}"
                         data-aspect-ratio  ="{E::ModuleUploader()->GetConfigAspectRatio('*', 'profile_photo')}"
-                        data-empty         ="{E::User()->getDefaultPhotoUrl('222crop')}"
-                        data-preview-crop  ="222crop"
+                        data-empty         ="{E::User()->getDefaultPhotoUrl('default')}"
+                        data-preview-crop  ="{C::Get('module.uploader.images.profile_photo.size.default')}"
                         data-crop          ="yes"
                     {/if}
                     >
 
                 <img style="width: 100%; display: block; margin-bottom: 8px;"
-                     src="{$oUserProfile->getPhotoUrl('222crop')}"
+                     src="{$oUserProfile->getPhotoUrl('default')}" {$oUserProfile->getPhotoImageSizeAttr('default')}
                      id="profile-photo-image"
                      class="profile-photo js-uploader-image"/>
                 <span class="label label-{if $oUserProfile->isOnline()}success{else}danger{/if}">
@@ -134,8 +134,7 @@
     {widget name="TagsFavouriteTopic" user=$oUserProfile}
 {/if}
 
-
-{if E::UserId() != $oUserProfile->getId()}
+{if E::IsUser() AND E::UserId() != $oUserProfile->getId()}
 <div class="panel panel-default sidebar user-panel raised widget">
 
         <div class="panel-body pab24 js-usernote" data-user-id="{$oUserProfile->getId()}">

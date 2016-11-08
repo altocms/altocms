@@ -30,7 +30,9 @@ body.i-fixed_navbar {
 body.modal-open {
     overflow: auto;
 }
-
+body.alto-user-role-guest .role-guest-hide {
+    display: none;
+}
 /* links */
 a.link-dashed { border-bottom: 1px dashed; }
 a.link-dashed:hover { text-decoration: none; }
@@ -575,7 +577,7 @@ select, input[type="file"] { height: auto; }
 .comment.comment-bad .comment-content { opacity: 0.3; filter: alpha(opacity=30); }
 .comment.comment-bad:hover { opacity: 1; filter: alpha(opacity=100); }
 
-.ls-user-role-not-admin .comment.comment-deleted { margin-bottom: 25px; min-height: 0; }
+.alto-user-role-not-admin .comment.comment-deleted { margin-bottom: 25px; min-height: 0; }
 
 
 /* Info Block */

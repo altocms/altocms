@@ -13,6 +13,10 @@
  */
 class ModuleWidget extends Module {
 
+    const WIDGET_TYPE_UNKNOWN = 0;
+    const WIDGET_TYPE_TEMPLATE = 1;
+    const WIDGET_TYPE_EXEC = 2;
+
     protected $aWidgets = array();
     protected $aConfig = array();
 
@@ -28,7 +32,7 @@ class ModuleWidget extends Module {
     protected function _checkPath($aPaths, $bDefault = true) {
 
         if ($aPaths) {
-            return R::CompareWithLocalPath($aPaths);
+            return R::CmpControllerPath($aPaths);
         }
         return $bDefault;
     }
@@ -52,19 +56,34 @@ class ModuleWidget extends Module {
      */
     protected function _getWidgetData($sWidgetId, $aWidgetData, $aWidgets) {
 
-        $xExtends = false;
+        if (!empty($aWidgetData[Config::KEY_REPLACE])) {
+            unset($aWidgetData[Config::KEY_EXTENDS]);
+            return $aWidgetData;
+        }
+
+        $xExtends = true;
+        $bReset = false;
         if (!empty($aWidgetData[Config::KEY_EXTENDS])) {
             $xExtends = $aWidgetData[Config::KEY_EXTENDS];
             unset($aWidgetData[Config::KEY_EXTENDS]);
-        } elseif (($iKey = array_search(Config::KEY_EXTENDS, $aWidgetData)) !== false) {
-            $xExtends = true;
-            unset($aWidgetData[$iKey]);
+        }
+        if (!empty($aWidgetData[Config::KEY_RESET])) {
+            $bReset = $aWidgetData[Config::KEY_RESET];
+            unset($aWidgetData[Config::KEY_RESET]);
         }
         if ($xExtends) {
             if (($xExtends === true) && $sWidgetId && isset($aWidgets[$sWidgetId])) {
-                $aWidgetData = F::Array_MergeCombo($aWidgets[$sWidgetId], $aWidgetData);
+                if ($bReset) {
+                    $aWidgetData = F::Array_Merge($aWidgets[$sWidgetId], $aWidgetData);
+                } else {
+                    $aWidgetData = F::Array_MergeCombo($aWidgets[$sWidgetId], $aWidgetData);
+                }
             } elseif(is_string($xExtends)) {
-                $aWidgetData = F::Array_MergeCombo(Config::Get($xExtends), $aWidgetData);
+                if ($bReset) {
+                    $aWidgetData = F::Array_Merge(Config::Get($xExtends), $aWidgetData);
+                } else {
+                    $aWidgetData = F::Array_MergeCombo(Config::Get($xExtends), $aWidgetData);
+                }
             }
         }
         return $aWidgetData;
@@ -84,7 +103,7 @@ class ModuleWidget extends Module {
         $aPlugins = F::GetPluginsList();
         if ($aPlugins) {
             foreach($aPlugins as $sPlugin) {
-                if ($aPluginWidgets = Config::Get('plugin.' . $sPlugin . '.widgets')) {
+                if ($aPluginWidgets = Config::Get('plugin.' . $sPlugin . '.widgets', null, null, true)) {
                     foreach ($aPluginWidgets as $xKey => $aWidgetData) {
                         // ID виджета может задаваться либо ключом элемента массива, либо параметром 'id'
                         if (isset($aWidgetData['id'])) {
@@ -94,7 +113,12 @@ class ModuleWidget extends Module {
                         } else {
                             $sWidgetId = null;
                         }
-                        $aWidgetData = $this->_getWidgetData($sWidgetId, $aWidgetData, $aWidgets);
+                        if (!empty($aWidgetData['plugin']) && $aWidgetData['plugin'] === true) {
+                            $aWidgetData['plugin'] = $sPlugin;
+                        }
+                        if (!empty($aWidgets[$sWidgetId])) {
+                            $aWidgetData = $this->_getWidgetData($sWidgetId, $aWidgetData, $aWidgets);
+                        }
                         if ($sWidgetId) {
                             $aWidgets[$sWidgetId] = $aWidgetData;
                         } else {
@@ -111,6 +135,9 @@ class ModuleWidget extends Module {
             foreach ($aWidgets as $sKey => $aWidgetData) {
                 if ($aWidgetData) {
                     // Если ID виджета не задан, то он формируется автоматически
+                    if (!isset($aWidgetData['id']) && !is_numeric($sKey)) {
+                        $aWidgetData['id'] = $sKey;
+                    }
                     $oWidget = $this->MakeWidget($aWidgetData);
                     $aResult[$oWidget->getId()] = $oWidget;
                 }
@@ -149,7 +176,7 @@ class ModuleWidget extends Module {
         /** @var ModuleWidget_EntityWidget $oWidget */
         foreach ($aWidgets as $oWidget) {
             if ($oWidget->isDisplay()) {
-                if (R::AllowLocalPath($oWidget->GetIncludePaths(), $oWidget->GetExcludePaths())) {
+                if (R::AllowControllerPath($oWidget->GetIncludePaths(), $oWidget->GetExcludePaths())) {
                     $this->aWidgets[$oWidget->GetId()] = $oWidget;
                 }
             }
@@ -163,19 +190,38 @@ class ModuleWidget extends Module {
      * @param   string      $sName
      * @param   string|null $sPlugin
      * @param   bool        $bReturnClassName
+     * 
      * @return  string|bool
      */
     public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
 
-        $sName = ucfirst($sName);
+        $sSeekName = F::StrCamelize($sName);
+        $xResult = $this->_fileClassExists($sSeekName, $sPlugin, $bReturnClassName);
+        if ($xResult === false) {
+            $sSeekName = ucfirst($sName);
+            $xResult = $this->_fileClassExists($sSeekName, $sPlugin, $bReturnClassName);
+        }
+
+        return $xResult;
+    }
+
+    /**
+     * @param   string      $sName
+     * @param   string|null $sPlugin
+     * @param   bool        $bReturnClassName
+     *
+     * @return  string|bool
+     */
+    protected function _fileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
+
         if (!$sPlugin) {
             $aPathSeek = Config::Get('path.root.seek');
             $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
             $sClass = 'Widget' . $sName;
         } else {
-            $aPathSeek = F::GetPluginsDir();
-            $sFile = $sPlugin . '/classes/widgets/Widget' . $sName . '.class.php';
-            $sClass = 'Plugin' . ucfirst($sPlugin) . '_Widget' . $sName;
+            $aPathSeek = array(Plugin::GetPath($sPlugin));
+            $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
+            $sClass = 'Plugin' . F::StrCamelize($sPlugin) . '_Widget' . $sName;
         }
         if (F::File_Exists($sFile, $aPathSeek)) {
             return $bReturnClassName ? $sClass : $sFile;

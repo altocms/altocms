@@ -64,23 +64,25 @@
         </div>
     {/block}
 
-    {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
-        {include file="fields/field.link-show.tpl"}
-    {/if}
+    {block name="topic_fields"}
+        {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
+            {include file="fields/field.link-show.tpl"}
+        {/if}
 
-    {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
-        {include file="fields/field.poll-show.tpl"}
-    {/if}
+        {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
+            {include file="fields/field.poll-show.tpl"}
+        {/if}
 
-    {if $oTopic->isShowPhotoset()}
-        {include file="fields/field.photoset-show.tpl"}
-    {/if}
+        {if $oTopic->isShowPhotoset()}
+            {include file="fields/field.photoset-show.tpl"}
+        {/if}
 
-    {if $oContentType}
-        {foreach from=$oContentType->getFields() item=oField}
-            {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
-        {/foreach}
-    {/if}
+        {if $oContentType}
+            {foreach from=$oContentType->getFields() item=oField}
+                {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
+            {/foreach}
+        {/if}
+    {/block}
 
     {block name="topic_footer"}
         <footer class="topic-footer">
@@ -100,7 +102,7 @@
             <ul class="list-unstyled list-inline small topic-footer-info">
                 <li class="topic-info-author js-popover-user-{$oUser->getId()}">
                     <a href="{$oUser->getProfileUrl()}" class="avatar">
-                        <img src="{$oUser->getAvatarUrl('mini')}" alt="{$oUser->getDisplayName()}" />
+                        <img src="{$oUser->getAvatarUrl('mini')}" {$oUser->getAvatarImageSizeAttr('mini')} alt="{$oUser->getDisplayName()}" />
                     </a>
                     <a rel="author" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                 </li>

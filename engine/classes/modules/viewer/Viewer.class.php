@@ -223,6 +223,8 @@ class ModuleViewer extends Module {
     /** @var bool To prevent double initialization  */
     protected $bInitRender = false;
 
+    static protected $aTemplatePaths = array();
+
     /**
      * Константа для компиляции LESS-файлов
      */
@@ -302,6 +304,8 @@ class ModuleViewer extends Module {
 
         $this->SetResponseHeader('X-Powered-By', 'Alto CMS');
         $this->SetResponseHeader('Content-Type', 'text/html; charset=utf-8');
+
+        $this->_initSkin();
     }
 
     /**
@@ -323,7 +327,13 @@ class ModuleViewer extends Module {
      */
     public function GetSmartyObject() {
 
+        $this->_initTemplator();
         $oSmarty = $this->oSmarty;
+        $aTemplateVars = $this->getTemplateVars();
+        if (is_array($aTemplateVars) && !empty($aTemplateVars)) {
+            $oSmarty->assign($aTemplateVars);
+        }
+
         // For LS interface compatibility
         if (func_num_args() && ($aVariables = func_get_arg(0)) && is_array($aVariables)) {
             $oSmarty->assign($aVariables);
@@ -416,8 +426,8 @@ class ModuleViewer extends Module {
 
         $bResult = $this->oSmarty->templateExists($sTemplate);
 
+        $sSkin = $this->GetConfigSkin();
         if (!$bResult && $bException) {
-            $sSkin = $this->GetConfigSkin();
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $sSkin . '"';
             if ($aTpls = $this->GetSmartyObject()->template_objects) {
                 if (is_array($aTpls)) {
@@ -439,6 +449,10 @@ class ModuleViewer extends Module {
             $this->_error($sMessage, $sErrorInfo);
             return false;
         }
+        if ($bResult && ($sResult = $this->_getTemplatePath($sSkin, $sTemplate))) {
+            $sTemplate = $sResult;
+        }
+
         return $bResult ? $sTemplate : $bResult;
     }
 
@@ -450,8 +464,8 @@ class ModuleViewer extends Module {
      */
     protected function _tplCreateTemplate($sTemplate, $aVariables = null) {
 
-        $oSmarty = $this->GetSmartyObject($this->getTemplateVars());
-        $oTemplate = $oSmarty->createTemplate($sTemplate, $oSmarty);
+        $oSmarty = $this->GetSmartyObject();
+        $oTemplate = $oSmarty->createTemplate($sTemplate, null, null, $oSmarty, false);
         if ($aVariables && is_array($aVariables)) {
             $oTemplate->assign($aVariables);
         }
@@ -542,6 +556,16 @@ class ModuleViewer extends Module {
         // (обычно это 'classes', 'assets', 'jevix', 'widgets', 'menu')
         $aConfigNames = array('config') + F::Str2Array(Config::Get('config_load'));
 
+        // Config section that are loaded for the current skin
+        $aSkinConfigNames = array();
+
+        // ** Old skin version compatibility
+        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
+        if (!$oSkin || !$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+            // 'head.default' may be used in skin config
+            C::Set('head.default', C::Get('assets.default'));
+        }
+
         // Load configs from paths
         foreach ($aConfigNames as $sConfigName) {
             foreach ($aSkinConfigPaths as $sPath) {
@@ -550,10 +574,38 @@ class ModuleViewer extends Module {
                     $aSubConfig = F::IncludeFile($sFile, false, true);
                     if ($sConfigName !='config' && !isset($aSubConfig[$sConfigName])) {
                         $aSubConfig = array($sConfigName => $aSubConfig);
+                    } elseif ($sConfigName == 'config' && isset($aSubConfig['head'])) {
+                        // ** Old skin version compatibility
+                        $aSubConfig['assets'] = $aSubConfig['head'];
+                        unset($aSubConfig['head']);
                     }
                     // загружаем конфиг, что позволяет сразу использовать значения
                     // в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
                     Config::Load($aSubConfig, false, null, null, $sFile);
+                    if ($sConfigName != 'config' && !isset($aSkinConfigNames[$sConfigName])) {
+                        $aSkinConfigNames[$sConfigName] = $sFile;
+                    }
+                }
+            }
+        }
+
+        if (!$oSkin || !$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+            // 'head.default' may be used in skin config
+            C::Set('head.default', false);
+        }
+
+        Config::ResetLevel(Config::LEVEL_SKIN_CUSTOM);
+        $aStorageConfig = Config::ReadStorageConfig(null, true);
+
+        // Reload sections changed by user
+        if ($aSkinConfigNames) {
+            foreach(array_keys($aSkinConfigNames) as $sConfigName) {
+                if (isset($aStorageConfig[$sConfigName])) {
+                    if (empty($aConfig)) {
+                        $aConfig[$sConfigName] = $aStorageConfig[$sConfigName];
+                    } else {
+                        $aConfig = F::Array_MergeCombo($aConfig, array($sConfigName => $aStorageConfig[$sConfigName]));
+                    }
                 }
             }
         }
@@ -604,22 +656,32 @@ class ModuleViewer extends Module {
 
         // If skin not initialized (or it was changed) then init one
         if ($this->sViewSkin != $this->GetConfigSkin()) {
-            $this->_initSkin($this->bLocal);
+            $this->_initSkin();
         } else {
             // Level could be changed after skin initialization
-            Config::SetLevel(Config::LEVEL_SKIN);
+            Config::SetLevel(Config::LEVEL_SKIN_CUSTOM);
         }
 
         // init templator if not yet
         $this->_initTemplator();
 
         // Loads localized texts
-        $this->Assign('aLang', E::ModuleLang()->GetLangMsg());
-        $this->Assign('oLang', E::ModuleLang()->Dictionary());
+        $aLang = E::ModuleLang()->GetLangMsg();
+        // Old skin compatibility
+        $aLang['registration_password_notice'] = E::ModuleLang()->Get('registration_password_notice', array('min' => C::Val('module.security.password_len', 3)));
+        $this->Assign('aLang', $aLang);
+        //$this->Assign('oLang', E::ModuleLang()->Dictionary());
 
         if (!$this->bLocal && !$this->GetResponseAjax()) {
             // Initialization of assets (JS-, CSS-files)
             $this->InitAssetFiles();
+        }
+
+        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
+        if (!$oSkin || !$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+            // Для старых скинов загружаем объект доступа к конфигурации
+            $this->Assign('oConfig', Config::getInstance());
+
         }
 
         E::ModuleHook()->Run('render_init_done', array('bLocal' => $this->bLocal));
@@ -810,9 +872,11 @@ class ModuleViewer extends Module {
         /** @var Plugin $oPlugin */
         foreach ($aPlugins as $sPlugin => $oPlugin) {
             $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
-            $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
-            $aPluginsTemplateDir[$sPlugin] = $sDir;
-            $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
+            if ($sDir) {
+                $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
+                $aPluginsTemplateDir[$sPlugin] = $sDir;
+                $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
+            }
         }
         if (E::ActivePlugin('ls')) {
             // LS-compatible //
@@ -830,12 +894,6 @@ class ModuleViewer extends Module {
         }
         $this->Assign('sSkinTheme', $sSkinTheme);
 
-        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
-        if (!$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
-            // Для старых скинвов загружаем объект доступа к конфигурации
-            $this->Assign('oConfig', Config::getInstance());
-
-        }
     }
 
     /**
@@ -870,11 +928,11 @@ class ModuleViewer extends Module {
             $this->_initRender();
 
             $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
-            if ($this->TemplateExists($sTemplate, true)) {
+            if ($sTemplatePath = $this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
                 E::ModuleSecurity()->SetSecurityKey();
 
-                $oTpl = $this->_tplCreateTemplate($sTemplate, $this->getTemplateVars());
+                $oTpl = $this->_tplCreateTemplate($sTemplatePath);
 
                 self::$_renderCount++;
                 self::$_renderStart = microtime(true);
@@ -904,11 +962,11 @@ class ModuleViewer extends Module {
 
         // * Проверяем наличие делегата
         $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
-        if ($this->TemplateExists($sTemplate, true)) {
+        if ($sTemplatePath = $this->TemplateExists($sTemplate, true)) {
             // Если задаются локальные параметры кеширования, то сохраняем общие
             $this->_tplSetOptions($aOptions);
 
-            $oTpl = $this->_tplCreateTemplate($sTemplate);
+            $oTpl = $this->_tplCreateTemplate($sTemplatePath);
             if ($aVars) {
                 $oTpl->assign($aVars);
             }
@@ -917,7 +975,7 @@ class ModuleViewer extends Module {
             self::$_renderStart = microtime(true);
             self::$_inRender += 1;
 
-            $sContent = $oTpl->fetch($sTemplate);
+            $sContent = $oTpl->fetch();
 
             self::$_inRender -= 1;
             self::$_renderTime += (microtime(true) - self::$_renderStart);
@@ -947,16 +1005,16 @@ class ModuleViewer extends Module {
         if ($sDelegateTemplate == $sTemplate && !$this->TemplateExists($sTemplate)) {
             $sWidgetTemplate = 'widgets/widget.' . $sTemplate;
             $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
-            if ($this->TemplateExists($sWidgetTemplate)) {
-                $sRenderTemplate = $sWidgetTemplate;
+            if ($sTemplatePath = $this->TemplateExists($sWidgetTemplate)) {
+                $sRenderTemplate = $sTemplatePath;
             }
 
             if (!$sRenderTemplate) {
                 // * LS-compatible *//
                 $sWidgetTemplate = 'blocks/block.' . $sTemplate;
                 $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
-                if ($this->TemplateExists($sWidgetTemplate)) {
-                    $sRenderTemplate = $sWidgetTemplate;
+                if ($sTemplatePath = $this->TemplateExists($sWidgetTemplate)) {
+                    $sRenderTemplate = $sTemplatePath;
                 }
             }
 
@@ -998,16 +1056,16 @@ class ModuleViewer extends Module {
         $this->AssignAjax('sMsg', $sMsg);
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
-            $this->SetResponseHeader('Content-type', 'application/json');
+            $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
             $sOutput = F::jsonEncode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
-            $this->SetResponseHeader('Content-type', 'application/json');
+            $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
 
             // * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
             $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
-            $this->SetResponseHeader('Content-type', 'application/json');
+            $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
             $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
 
@@ -1158,11 +1216,11 @@ class ModuleViewer extends Module {
      * Загружаем переменную в ajax ответ
      *
      * @param string $sName    Имя переменной в шаблоне
-     * @param mixed $value    Значение переменной
+     * @param mixed $xValue    Значение переменной
      */
-    public function AssignAjax($sName, $value) {
+    public function AssignAjax($sName, $xValue) {
 
-        $this->aVarsAjax[$sName] = $value;
+        $this->aVarsAjax[$sName] = $xValue;
     }
 
     /**
@@ -1205,6 +1263,29 @@ class ModuleViewer extends Module {
         return $xResult;
     }
 
+    /**
+     * @param null      $sVarName
+     * @param bool|true $bJsonEncode
+     *
+     * @return mixed
+     */
+    public function getAjaxVars($sVarName = null, $bJsonEncode = true) {
+
+        $xResult = $this->aVarsAjax;
+        if (is_string($sVarName)) {
+            if (isset($xResult[$sVarName])) {
+                $xResult = $xResult[$sVarName];
+            } else {
+                $xResult = null;
+            }
+        }
+        if ($bJsonEncode) {
+            $xResult = F::jsonEncode($xResult);
+        }
+
+        return $xResult;
+    }
+
     protected function _muteErrors() {
 
         if ($this->nMuteErrorsCnt <= 0) {
@@ -1222,6 +1303,33 @@ class ModuleViewer extends Module {
     }
 
     /**
+     * @param string      $sSkin
+     * @param string      $sTemplate
+     * @param string|bool $sTemplatePath
+     */
+    protected function _setTemplatePath($sSkin, $sTemplate, $sTemplatePath) {
+
+        static::$aTemplatePaths[$sSkin][$sTemplate] = $sTemplatePath;
+    }
+
+    /**
+     * @param string $sSkin
+     * @param string $sTemplate
+     *
+     * @return string|bool|null
+     */
+    protected function _getTemplatePath($sSkin, $sTemplate) {
+
+        if (isset(static::$aTemplatePaths[$sSkin][$sTemplate])) {
+            if (static::$aTemplatePaths[$sSkin][$sTemplate] === true) {
+                return $sTemplate;
+            }
+            return static::$aTemplatePaths[$sSkin][$sTemplate];
+        }
+        return null;
+    }
+
+    /**
      * Проверяет существование шаблона
      *
      * @param   string $sTemplate   - Шаблон
@@ -1231,7 +1339,18 @@ class ModuleViewer extends Module {
      */
     public function TemplateExists($sTemplate, $bException = false) {
 
-        return $this->_tplTemplateExists($sTemplate, $bException);
+        $sSkin = $this->GetConfigSkin();
+
+        $sResult = $this->_getTemplatePath($sSkin, $sTemplate);
+
+        if (is_null($sResult)) {
+            $sResult = $this->_tplTemplateExists($sTemplate, $bException);
+            if ($sResult) {
+                $this->_setTemplatePath($sSkin, $sTemplate, $sResult);
+            }
+        }
+
+        return $sResult;
     }
 
     /**
@@ -1460,11 +1579,18 @@ class ModuleViewer extends Module {
         if (!is_null($sDir)) {
             $sDir = rtrim($sDir, '/') . '/';
         }
-        $aCheckNames = array(
-            $sDir . 'tpls/widgets/widget.' . $sName,
-            $sDir . ltrim($sName, '/'),
-            $sDir . 'widgets/widget.' . $sName,
-        );
+        if ($sName[0] == '/') {
+            $aCheckNames = array(
+                $sDir . ltrim($sName, '/'),
+            );
+        } else {
+            $aCheckNames = array(
+                $sDir . 'tpls/widgets/widget.' . $sName,
+                $sDir . ltrim($sName, '/'),
+                $sDir . 'widgets/widget.' . $sName,
+            );
+        }
+
         foreach ($aCheckNames as $sCheckName) {
             if ($sTplName = $this->TemplateExists($sCheckName)) {
                 // Если найден шаблон, то считаем, что это шаблонный виджет
@@ -1580,6 +1706,7 @@ class ModuleViewer extends Module {
      */
     public function InitAssetFiles() {
 
+        // Load 'prepend' assets
         if ($this->aFilesPrepend['js']) {
             $this->aFilesPrepend['js'] = array_reverse($this->aFilesPrepend['js'], true);
         }
@@ -1592,12 +1719,34 @@ class ModuleViewer extends Module {
         }
 
         // Compatibility with old style skins
-        if ($aAssets = Config::Get('head.default')) {
-            E::ModuleViewerAsset()->AddAssetFiles($aAssets);
+        if ($aOldAssetsConfig = C::Get('head.default')) {
+            E::ModuleViewerAsset()->AddAssetFiles($aOldAssetsConfig);
         } else {
             E::ModuleViewerAsset()->AddAssetFiles(Config::Get('assets.default'));
         }
 
+        // Load editor's assets
+        if ($aEditors = C::Get('view.set_editors')) {
+            if (C::Get('view.wysiwyg')) {
+                if (isset($aEditors['wysiwyg'])) {
+                    $sEditor = $aEditors['wysiwyg'];
+                } else {
+                    $sEditor = 'tinymce';
+                }
+            } else {
+                if (isset($aEditors['default'])) {
+                    $sEditor = $aEditors['default'];
+                } else {
+                    $sEditor = 'markitup';
+                }
+            }
+            $aEditorAssets = C::Get('assets.editor.' . $sEditor);
+            if ($aEditorAssets) {
+                E::ModuleViewerAsset()->AddAssetFiles($aEditorAssets);
+            }
+        }
+
+        // Load 'append' assets
         if ($this->aFilesAppend['js'] || $this->aFilesAppend['css']) {
             E::ModuleViewerAsset()->AddAssetFiles($this->aFilesAppend);
         }
@@ -1623,6 +1772,9 @@ class ModuleViewer extends Module {
             } else {
                 $bReplace = (bool)$aParams['replace'];
             }
+        }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = '__default_append';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
@@ -1652,6 +1804,9 @@ class ModuleViewer extends Module {
                 $bReplace = (bool)$aParams['replace'];
             }
         }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = '__default_prepend';
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesPrepend['js'][$sFile] = $aParams;
@@ -1680,6 +1835,9 @@ class ModuleViewer extends Module {
                 $bReplace = (bool)$aParams['replace'];
             }
         }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = '__default_append';
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['css'][$sFile] = $aParams;
@@ -1707,6 +1865,9 @@ class ModuleViewer extends Module {
             } else {
                 $bReplace = (bool)$aParams['replace'];
             }
+        }
+        if (empty($aParams['asset'])) {
+            $aParams['asset'] = '__default_prepend';
         }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
@@ -1766,6 +1927,42 @@ class ModuleViewer extends Module {
             $aParams = array('prepare' => true);
         }
         return E::ModuleViewerAsset()->AppendCss($sFile, $aParams, $bReplace);
+    }
+
+    /**
+     * Prepend asset file (.js or .css)
+     *
+     * @param string $sFile
+     * @param array  $aParams
+     *
+     * @return bool
+     */
+    public function PrependAsset($sFile, $aParams = array()) {
+
+        if (substr($sFile, -3) === '.js') {
+            return $this->PrependScript($sFile, $aParams);
+        } elseif (substr($sFile, -4) === '.css') {
+            return $this->PrependStyle($sFile, $aParams);
+        }
+        return false;
+    }
+
+    /**
+     * Append asset file (.js or .css)
+     *
+     * @param string $sFile
+     * @param array  $aParams
+     *
+     * @return bool
+     */
+    public function AppendAsset($sFile, $aParams = array()) {
+
+        if (substr($sFile, -3) === '.js') {
+            return $this->AppendScript($sFile, $aParams);
+        } elseif (substr($sFile, -4) === '.css') {
+            return $this->AppendStyle($sFile, $aParams);
+        }
+        return false;
     }
 
     /**
@@ -2289,14 +2486,21 @@ class ModuleViewer extends Module {
         /**
          * Задача: если это файл плагина для текущего шаблона, то смотрим этот же файл шаблона плагина в /default/
          */
-        if ($this->GetConfigSkin() != 'default') {
-            $sSkin = preg_quote($this->GetConfigSkin());
-            if (preg_match('@^/plugins/([\w\-_]+)/templates/skin/' . $sSkin . '/(.+)$/@i', $sName, $aMatch)) {
+        $sSkin = $this->GetConfigSkin();
+
+        $sResult = $this->_getTemplatePath($sSkin, $sName);
+        if ($sResult) {
+            return $sResult;
+        }
+
+        if ($sSkin != 'default') {
+            $sSkinSeek = preg_quote($sSkin);
+            if (preg_match('@^/plugins/([\w\-_]+)/templates/skin/' . $sSkinSeek . '/(.+)$/@i', $sName, $aMatch)) {
                 // => /root/plugins/[plugin name]/templates/skin/[skin name]/dir/test.tpl
                 $sPluginDir = Plugin::GetDir($aMatch[1]);
                 $sTemplateFile = $aMatch[2];
 
-            } elseif (preg_match('@^([\w\-_]+)/templates/skin/' . $sSkin . '/(.+)$/@i', $sName, $aMatch)) {
+            } elseif (preg_match('@^([\w\-_]+)/templates/skin/' . $sSkinSeek . '/(.+)$/@i', $sName, $aMatch)) {
                 // => [plugin name]/templates/skin/[skin name]/dir/test.tpl
                 $sPluginDir = Plugin::GetDir($aMatch[1]);
                 $sTemplateFile = $aMatch[2];
@@ -2308,11 +2512,16 @@ class ModuleViewer extends Module {
             if ($sPluginDir && $sTemplateFile) {
                 $sFile = $sPluginDir . '/templates/skin/default/' . $sTemplateFile;
                 if ($this->TemplateExists($sFile)) {
-                    return $sFile;
+                    $sResult = $sFile;
                 }
             }
         }
-        return false;
+
+        if ($sResult) {
+            $this->_setTemplatePath($sSkin, $sName, $sResult);
+        }
+
+        return $sResult;
     }
 
     /**

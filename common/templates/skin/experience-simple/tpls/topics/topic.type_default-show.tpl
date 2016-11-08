@@ -28,7 +28,7 @@
                 <ul>
                     <li data-alto-popover-api="user/{$oUser->getId()}/info"
                         class="topic-user">
-                        <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                        <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                         <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                             {$oUser->getDisplayName()}
                         </a>
@@ -50,41 +50,35 @@
             <div class="topic-text">
                 {hook run='topic_content_begin' topic=$oTopic bTopicList=false}
 
-                {$sImagePath=$oTopic->getPhotosetMainPhotoUrl(false, '682pad')}
-                {if $sImagePath}
-                    <img src="{$sImagePath}" alt="image" align="left"/>
-                    <br/>
-                {/if}
-
                 {$oTopic->getText()}
 
                 {hook run='topic_content_end' topic=$oTopic bTopicList=false}
             </div>
         {/block}
 
-        {if $oTopic->isShowPhotoset()}
-            {include file="fields/field.photoset-show.tpl"}
-        {/if}
+        {block name="topic_fields"}
+            {if $oTopic->isShowPhotoset()}
+                {include file="fields/field.photoset-show.tpl"}
+            {/if}
 
-        {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
-            {include file="fields/field.poll-show.tpl"}
-        {/if}
+            {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
+                {include file="fields/field.poll-show.tpl"}
+            {/if}
 
-        {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
-            {include file="fields/field.link-show.tpl"}
-        {/if}
+            {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
+                {include file="fields/field.link-show.tpl"}
+            {/if}
 
-        {if $oContentType}
-            {foreach from=$oContentType->getFields() item=oField}
-                {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
-            {/foreach}
-        {/if}
+            {if $oContentType}
+                {foreach from=$oContentType->getFields() item=oField}
+                    {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
+                {/foreach}
+            {/if}
 
-
-        {include file="fields/field.tags-show.tpl"}
+            {include file="fields/field.tags-show.tpl"}
+        {/block}
 
     </div>
-
 
 
     {block name="topic_footer"}

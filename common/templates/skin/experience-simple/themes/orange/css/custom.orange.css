@@ -1,0 +1,6 @@
+.nav > .dropdown-submenu > a:after {
+    border-bottom-color: #d0dbdf;
+}
+.dropdown-menu.dropdown-content-menu > li > a:hover {
+    color: #de8443 !important;
+}

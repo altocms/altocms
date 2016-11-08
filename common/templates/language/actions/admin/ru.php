@@ -41,9 +41,10 @@ return array(
     'menu_menu_manager'          => 'Менеджер меню',
 
     'menu_site' => 'Сайт',
-    'menu_site_skins' => 'Оформление',
+    'menu_site_skins'   => 'Оформление',
     'menu_site_widgets' => 'Виджеты',
     'menu_site_plugins' => 'Плагины',
+    'menu_site_scripts' => 'Счетчики и скрипты',
 
     'menu_logs' => 'Журналы',
     'menu_logs_error' => 'Ошибки системы',
@@ -542,6 +543,7 @@ return array(
     'set_sys_mail_smtp_user'=>'Настройки SMTP - пользователь',
     'set_sys_mail_smtp_password'=>'Настройки SMTP - пароль',
     'set_sys_mail_smtp_auth'=>'Использовать авторизацию при отправке',
+    'set_sys_mail_smtp_secure' => 'Использовать шифрование',
     'set_sys_mail_include_comment'=>'Включает в уведомление о новых комментах текст коммента',
     'set_sys_mail_include_talk'=>'Включает в уведомление о новых личных сообщениях текст сообщения',
 
@@ -667,6 +669,31 @@ return array(
     'plugin_added_ok' => 'Плагин был успешно добавлен в список неактивных',
     'plugin_added_err' => 'Ошибка копирования плагина в общую папку плагинов',
 
+    /***
+     * SCRIPTS
+     */
+    'scripts_title' => 'Управление скриптами',
+    'scripts_sub_all' => 'Все скрипты',
+    'scripts_sub_active' => 'Активные скрипты',
+    'scripts_sub_inactive' => 'Неактивные скрипты',
+    'scripts_add' => 'Добавить скрипт',
+    'scripts_edit' => 'Изменить настройки',
+
+    'script_edit_name' => 'Название',
+    'script_edit_description' => 'Описание',
+    'script_edit_code' => 'Код (текст)',
+    'script_edit_active' => 'Активен',
+    'script_edit_place' => 'Расположение',
+    'script_edit_place_head' => 'Внутри тега < HEAD >',
+    'script_edit_place_body' => 'Внутри тега < BODY > (в начало)',
+    'script_edit_place_end' => 'Внутри тега < BODY > (в конец)',
+    'script_edit_show_code' => 'Показать код',
+    'script_exclude_adminpanel' => 'Исключить админпанель',
+    'script_exclude_adminpanel_note' => 'Если указать, то скрипт не будет включаться в страницы админпанели',
+    'script_submit_delete' => 'Удалить скрипты',
+    'script_delete_confirm' => 'Вы уверены, что желаете удалить указанные скрипты?',
+    'script_need_select_for_delete' => 'Выберите скрипты для удаления',
+
     /*** USERFIELDS */
     'user_fields_title' => 'Поля контактов пользователей',
     'user_field_admin_title_add' => 'Добавить поле',
@@ -739,6 +766,7 @@ return array(
     'checkdb_blogs_comments_online' => 'Удаленные блоги с онлайн-комментариями',
     'checkdb_clear_unlinked_blogs' => 'Удалить связи',
 
+    'checkdb_topics_comments' => 'Удаленные статьи с неудаленными комментариями',
     'checkdb_topics_comments_online' => 'Удаленные статьи с онлайн-комментариями',
     'checkdb_clear_unlinked_comments' => 'Удалить несвязанные комментарии',
 

@@ -103,6 +103,8 @@ class ModuleHook extends Module {
 
     protected $aCurrentHookOptions = array();
 
+    protected $aCurrentHookArguments = array();
+
     protected function _parseCallback($xCallback, $sClass = null) {
 
         $aResult = array(
@@ -358,15 +360,22 @@ class ModuleHook extends Module {
             if (empty($this->aHooksOrders[$this->sCurrentHookName])) {
                 $this->aHooksOrders = array();
                 $iCount = count($this->aHooks[$this->sCurrentHookName]);
-                for ($iHookNum = 0; $iHookNum < $iCount; $iHookNum++) {
-                    $this->aHooksOrders[$this->sCurrentHookName][$iHookNum] = $this->aHooks[$this->sCurrentHookName][$iHookNum]['priority'];
+                if ($iCount > 1) {
+                    for ($iHookNum = 0; $iHookNum < $iCount; $iHookNum++) {
+                        $iPriority = $this->aHooks[$this->sCurrentHookName][$iHookNum]['priority'];
+                        $this->aHooksOrders[$this->sCurrentHookName][$iHookNum] = $iPriority;
+                    }
+                    $this->aHooksOrders[$this->sCurrentHookName] = array_reverse($this->aHooksOrders[$this->sCurrentHookName], true);
+                    arsort($this->aHooksOrders[$this->sCurrentHookName], SORT_NUMERIC);
+                } else {
+                    $this->aHooksOrders[$this->sCurrentHookName][0] = $this->aHooks[$this->sCurrentHookName][0]['priority'];
                 }
-                arsort($this->aHooksOrders[$this->sCurrentHookName], SORT_NUMERIC);
             }
 
             $this->bStopHandle = false;
+            $this->aCurrentHookArguments = $aVars;
             // Runs hooks in priority order
-            foreach ($this->aHooksOrders[$this->sCurrentHookName] as $iHookNum => $iPr) {
+            foreach ($this->aHooksOrders[$this->sCurrentHookName] as $iHookNum => $iPriority) {
                 $this->aCurrentHookOptions = $this->aHooks[$this->sCurrentHookName][$iHookNum];
                 if ($bTemplateHook || $this->aCurrentHookOptions['type'] == 'template') {
                     if (isset($this->aCurrentHookOptions['params']['template']) && !isset($aVars['template'])) {
@@ -416,6 +425,8 @@ class ModuleHook extends Module {
                     break;
                 }
             }
+
+            $this->aCurrentHookArguments = null;
             $this->sCurrentHookName = null;
         }
         return $xResult;
@@ -446,6 +457,34 @@ class ModuleHook extends Module {
             return $this->aCurrentHookOptions['params'];
         }
         return array();
+    }
+
+    /**
+     * Returns call arguments of current hook handler
+     *
+     * @return mixed
+     *
+     * @since   1.1.9
+     */
+    public function GetHookArguments() {
+
+        if (isset($this->aCurrentHookArguments['params']) && array_key_exists('result', $this->aCurrentHookArguments)) {
+            return $this->aCurrentHookArguments['params'];
+        }
+        return $this->aCurrentHookArguments;
+    }
+
+    /**
+     * Returns result of hook source method
+     *
+     * @return mixed
+     */
+    public function GetSourceResult() {
+
+        if (array_key_exists('result', $this->aCurrentHookArguments)) {
+            return $this->aCurrentHookArguments['result'];
+        }
+        return $this->aCurrentHookArguments;
     }
 
     /**

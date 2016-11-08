@@ -2,7 +2,6 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 {$oUser=$oComment->getUser()}
-{$oVote=$oComment->getVote()}
 
 {if $sDateReadLast==''}
     {$sTargetType = $oComment->getTargetType()}
@@ -37,7 +36,7 @@
                     <ul>
                         <li class="comment-user js-popover-user-{$oUser->getId()}">
                             <a href="{$oUser->getProfileUrl()}" class="mal0">
-                                <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                                <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                             </a>
                             <a class="userlogo link link-blue link-lead link-clear {if $iAuthorId == $oUser->getId()}comment-topic-author{/if}"
                                {if $iAuthorId == $oUser->getId()}title="{$sAuthorNotice}"{/if}

@@ -159,7 +159,7 @@ class LiveImage {
 	 * @return mixed
 	 */
 	public function resize($width=null,$height=null,$scale=false,$alfa=true) {
-		E::Moduleclear()->error();
+		$this->clear_error();
 		/**
 		 * Если не указана новая высота, значит применяем масштабирование.
 		 * Если не указана ширина, то "забираем" ширину исходного.
@@ -228,7 +228,7 @@ class LiveImage {
 		}
 		
 		imagedestroy($this->image);
-		E::Moduleset()->image($tmp);
+		$this->set_image($tmp);
 		
 		return true;
 	}
@@ -290,7 +290,7 @@ class LiveImage {
 		}
 
 		imagedestroy($this->image);
-		E::Moduleset()->image($tmp);
+		$this->set_image($tmp);
 
 		return true;		
 	}
@@ -406,7 +406,7 @@ class LiveImage {
 	 * @return bool
 	 */
 	public function ttf_text($text,$x=0,$y=0,$unicode=false,$letter_space=20) {
-		E::Moduleclear()->error();
+		$this->clear_error();
 
 		if(!$this->font) {
 			$this->set_last_error(2);
@@ -414,7 +414,7 @@ class LiveImage {
 		}
 
 		if($unicode) {
-			$text=E::Moduleto()->unicode($text);
+			$text=$this->to_unicode($text);				
 		}
 		return imagettftext($this->image,$this->font_size,$this->font_angle,$x,$y,$this->color['locate'],$this->font,$text);
 	}
@@ -452,11 +452,11 @@ class LiveImage {
 			$y=round(($this->height-abs($box[5]))/2)-5;
 		}
 		/// Наносим фон для будущей надписи
-		E::Moduleset()->color($r_bg, $g_bg, $b_bg, $bg_alfa);
+		$this->set_color($r_bg, $g_bg, $b_bg, $bg_alfa);
 		imagefilledrectangle($this->image,$x,$y,$x+abs($box[4])+10,$y+abs($box[5])+10,$this->color['locate']);
 
 		/// Наносим надпись водянного знака
-		E::Moduleset()->color($r_font, $g_font, $b_font, $font_alpha);
+		$this->set_color($r_font, $g_font, $b_font, $font_alpha);
 		imagettftext($this->image, $this->font_size, 0, $x+5, $y+abs($box[5])+5, $this->color['locate'], $this->font, $text);
 		return true;
 	}
@@ -571,7 +571,7 @@ class LiveImage {
 	}
 
 	public function paste_image($file,$copyresized=false,$position=array(0,0),$src_x=0,$src_y=0,$src_w=-1,$src_h=-1,$dst_w=-1,$dst_h=-1) {
-		E::Moduleclear()->error();
+		$this->clear_error();
 
 		if(!$file || !($size=getimagesize($file))) {
 			$this->set_last_error(3);

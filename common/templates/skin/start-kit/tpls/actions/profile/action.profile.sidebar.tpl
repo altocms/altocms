@@ -11,8 +11,8 @@
                  data-title         ="{$aLang.settings_profile_photo_resize_title}"
                  data-help          ="{$aLang.settings_profile_photo_resize_text}"
                  data-aspect-ratio  ="{E::ModuleUploader()->GetConfigAspectRatio('*', 'profile_photo')}"
-                 data-empty         ="{E::User()->getDefaultPhotoUrl('250crop')}"
-                 data-preview-crop  ="250crop"
+                 data-empty         ="{E::User()->getDefaultPhotoUrl('default')}"
+                 data-preview-crop  ="{C::Get('module.uploader.images.profile_photo.size.default')}"
                  data-crop          ="yes"
              {/if}
             >
@@ -23,7 +23,7 @@
                 </span>
                 {* Картинка фона блога *}
                 <img style="width: 100%; display: block; margin-bottom: 8px;"
-                     src="{$oUserProfile->getPhotoUrl('250crop')}"
+                     src="{$oUserProfile->getPhotoUrl('default')}" {$oUserProfile->getPhotoImageSizeAttr('default')}
                      id="profile-photo-image"
                      class="profile-photo js-uploader-image"/>
             </div>

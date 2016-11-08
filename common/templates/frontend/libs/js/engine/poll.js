@@ -65,7 +65,7 @@ ls.poll = (function ($) {
 
         });
 
-        pollEdit.on('click', this.options.selectors.pollItemRemove, function(event){ ls.log('===', event.target);
+        pollEdit.on('click', this.options.selectors.pollItemRemove, function(event){
             $that.removeItem(event.target);
             return false;
         }.bind($that));

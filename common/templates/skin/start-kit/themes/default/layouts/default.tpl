@@ -54,14 +54,11 @@
         var ALTO_SECURITY_KEY   = '{$ALTO_SECURITY_KEY}';
         var SESSION_ID          = '{$_sPhpSessionId}';
 
-
         var tinyMCE = tinymce = false;
-        var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
+        var TINYMCE_LANG = {if E::ModuleLang()->GetLang() == 'ru'}'ru'{else}'en'{/if};
 
         var aRouter = [];
-        {foreach from=$aRouter key=sPage item=sPath}
-        aRouter['{$sPage}'] = '{$sPath}';
-        {/foreach}
+        {strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
 
         {$SWF_DIR_NAME=E::ViewerAsset_AssetFileHashDir("{Config::Get('path.root.dir')}common/templates/frontend/libs/vendor/jquery.fileapi/FileAPI/")}
         window.FileAPI = {
@@ -103,17 +100,17 @@
     {/if}
 
     {if E::IsUser()}
-        {$body_classes=$body_classes|cat:' ls-user-role-user'}
+        {$body_classes=$body_classes|cat:' alto-user-role-user'}
 
         {if E::IsAdmin()}
-            {$body_classes=$body_classes|cat:' ls-user-role-admin'}
+            {$body_classes=$body_classes|cat:' alto-user-role-admin'}
         {/if}
     {else}
-        {$body_classes=$body_classes|cat:' ls-user-role-guest'}
+        {$body_classes=$body_classes|cat:' alto-user-role-guest'}
     {/if}
 
     {if !E::IsAdmin()}
-        {$body_classes=$body_classes|cat:' ls-user-role-not-admin'}
+        {$body_classes=$body_classes|cat:' alto-user-role-not-admin'}
     {/if}
 
 {hook run='layout_head_end'}

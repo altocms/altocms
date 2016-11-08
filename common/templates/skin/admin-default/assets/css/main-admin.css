@@ -110,6 +110,11 @@ input.ip-part                           { width: 50px; text-align: center; }
 .switch-form-content                    { display: none }
 .plugins-list                           { }
 .plugins-list th.action                 { width: 70px }
+.plugins-list th.name                   { max-width: 544px; }
+.plugins-list th.dirname                { width: 100px; }
+.plugins-list th.version                { width: 60px; }
+.plugins-list th.author                 { width: 100px; }
+.plugins-list th.settings               { width: 90px; }
 .plugins-list td.action .btn-group      { width: 68px; margin: auto; }
 .plugins-list td.action .btn            { width: 32px; padding-top: 4px; height: 26px; }
 .plugins-list td.action .btn.btn-inset  { margin-top: 1px; : ; height: 25px; padding-right: 0; padding-left: 0; }

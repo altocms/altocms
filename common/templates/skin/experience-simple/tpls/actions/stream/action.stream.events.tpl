@@ -30,7 +30,7 @@
 		<li class="stream-item stream-item-type-{$sEventType}" style="display: block; clear: both;">
             <div class="row bob mal0 marr0 pab6 mab6">
                 <div class="pull-left">
-                    <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}" class="avatar" /></a>
+                    <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}" class="avatar" /></a>
                 </div>
                 <div style="">
                     <div class="stream-body">

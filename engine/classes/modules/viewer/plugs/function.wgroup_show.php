@@ -24,22 +24,38 @@
  */
 function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
 
-    if (isset($aParams['name'])) {
-        if (!isset($aParams['group'])) {
-            $aParams['group'] = $aParams['name'];
-        } elseif (!isset($aParams['widget'])) {
-            $aParams['widget'] = $aParams['name'];
-        }
-    }
-    if (!isset($aParams['group'])) {
+    static $aStack = array();
+
+    if (empty($aParams['group']) && empty($aParams['name'])) {
         $sError = 'Parameter "group" does not define in {wgroup_show ...} function';
         if ($oSmartyTemplate->template_resource) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
-        trigger_error($sError, E_USER_WARNING);
+        F::SysWarning($sError);
         return null;
     }
+
+    if (empty($aParams['group']) && !empty($aParams['name'])) {
+        $aParams['group'] = $aParams['name'];
+        unset($aParams['name']);
+    }
+
     $sWidgetGroup = $aParams['group'];
+    $aWidgetParams = (isset($aParams['params']) ? array_merge($aParams['params'], $aParams): $aParams);
+
+    if (isset($aStack[$sWidgetGroup])) {
+        // wgroup nested in self
+        $sError = 'Template function {wgroup group="' . $sWidgetGroup . '" nested in self ';
+        if ($oSmartyTemplate->template_resource) {
+            $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
+        }
+        F::SysWarning($sError);
+        return null;
+    }
+
+    // add group into the stack
+    $aStack[$sWidgetGroup] = $aWidgetParams;
+
     $aWidgets = E::ModuleViewer()->GetWidgets();
 
     $sResult = '';
@@ -48,9 +64,12 @@ function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
             F::IncludeFile('function.widget.php');
         }
         foreach ($aWidgets[$sWidgetGroup] as $oWidget) {
-            $sResult .= smarty_function_widget(array('object' => $oWidget), $oSmartyTemplate);
+            $sResult .= smarty_function_widget(array_merge($aWidgetParams, array('widget' => $oWidget)), $oSmartyTemplate);
         }
     }
+    // Pop element off the stack
+    array_pop($aStack);
+
     return $sResult;
 }
 

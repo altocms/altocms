@@ -60,6 +60,9 @@ class ModuleSkin extends Module {
      */
     public function GetSkinsList($aFilter = array()) {
 
+        if (isset($aFilter['name']) && isset($this->aSkins[$aFilter['name']])) {
+            return array($aFilter['name'] => $this->aSkins[$aFilter['name']]);
+        }
         if (is_null($this->aSkins)) {
             $aSkinList = array();
             if (isset($aFilter['dir'])) {
@@ -67,15 +70,10 @@ class ModuleSkin extends Module {
             } else {
                 $sSkinsDir = Config::Get('path.skins.dir');
             }
-            if (isset($aFilter['name'])) {
-                $sPattern = $sSkinsDir . $aFilter['name'];
-            } else {
-                $sPattern = $sSkinsDir . '*';
-            }
-            $aList = glob($sPattern, GLOB_ONLYDIR);
+            $aList = glob($sSkinsDir . '*', GLOB_ONLYDIR);
             if ($aList) {
                 if (!isset($aFilter['type'])) $aFilter['type'] = '';
-                $sActiveSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
+                $sActiveSkin = Config::Get('view.skin');
                 foreach ($aList as $sSkinDir) {
                     $sSkin = basename($sSkinDir);
                     $aData = array(

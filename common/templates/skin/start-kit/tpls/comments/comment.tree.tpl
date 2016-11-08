@@ -95,6 +95,8 @@
                 <input type="hidden" name="cmt_target_id" value="{$iTargetId}"/>
                 <input type="hidden" name="reply" value="0" id="form_comment_reply"/>
 
+                <button type="button" onclick="ls.comments.formCommentHide();"
+                        class="btn btn-default pull-right js-button-cancel">{$aLang.text_cancel}</button>
                 <button type="button" onclick="ls.comments.preview();"
                         class="btn btn-default js-button-preview">{$aLang.comment_preview}</button>
                 <button type="submit" name="submit_comment"

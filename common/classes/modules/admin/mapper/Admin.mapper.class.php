@@ -275,7 +275,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      * @param   array   $aData
      * @return  bool
      */
-    public function UpdateCustomConfig($aData) {
+    public function UpdateStorageConfig($aData) {
 
         $sql = "
             SELECT storage_key FROM ?_storage WHERE storage_key IN (?a) LIMIT ?d
@@ -296,9 +296,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
             $this->oDb->query($sql, array_keys($aInsert[0]), array_values($aInsert));
         }
         if ($aUpdate) {
-            $sql = "UPDATE ?_storage SET storage_val=? WHERE storage_key=?";
+            $sql = "UPDATE ?_storage SET storage_val=?, storage_ord=?d WHERE storage_key=?";
             foreach($aUpdate as $aItem) {
-                $this->oDb->query($sql, $aItem['storage_val'], $aItem['storage_key']);
+                $this->oDb->query($sql, $aItem['storage_val'], $aItem['storage_ord'], $aItem['storage_key']);
             }
         }
 
@@ -310,17 +310,28 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      *
      * @return mixed
      */
-    public function GetCustomConfig($sPrefix = '') {
+    public function GetStorageConfig($sPrefix = '') {
 
         if ($sPrefix) {
+            $sPrefix = addslashes($sPrefix);
+            if (substr($sPrefix, -1) == '.') {
+                $sRootPath = substr($sPrefix, 0, strlen($sPrefix) - 1);
+            } else {
+                $sRootPath = $sPrefix;
+                $sPrefix .= '.';
+            }
             $sql = "
-                SELECT storage_key, storage_val
+                SELECT storage_key AS ARRAY_KEY, storage_key, storage_val
                 FROM ?_storage
-                WHERE storage_key LIKE '" . $sPrefix . "%'";
+                WHERE
+                    storage_key = '" . $sRootPath . "'
+                    OR storage_key LIKE '" . $sPrefix . "%'
+                ORDER BY storage_id";
         } else {
             $sql = "
-                SELECT storage_key, storage_val
+                SELECT storage_key AS ARRAY_KEY, storage_key, storage_val
                 FROM ?_storage
+                ORDER BY storage_id
             ";
         }
         return $this->oDb->select($sql);
@@ -331,13 +342,22 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      *
      * @return bool
      */
-    public function DeleteCustomConfig($sPrefix = '') {
+    public function DeleteStorageConfig($sPrefix = '') {
 
         if ($sPrefix) {
+            $sPrefix = addslashes($sPrefix);
+            if (substr($sPrefix, -1) == '.') {
+                $sRootPath = substr($sPrefix, 0, strlen($sPrefix) - 1);
+            } else {
+                $sRootPath = $sPrefix;
+                $sPrefix .= '.';
+            }
             $sql = "
                 DELETE
                 FROM ?_storage
-                WHERE storage_key LIKE '" . $sPrefix . "%'";
+                WHERE
+                    storage_key = '" . $sRootPath . "'
+                    OR storage_key LIKE '" . $sPrefix . "%'";
         } else {
             $sql = "
                 DELETE
@@ -445,6 +465,41 @@ class ModuleAdmin_MapperAdmin extends Mapper {
 
         $sql = "
             DELETE FROM ?_comment_online
+            WHERE target_type='topic' AND target_id IN (?a)
+        ";
+        $aResult = $this->oDb->query($sql, $aTopicsId);
+        return $aResult;
+    }
+
+    /**
+     * @return array
+     */
+    public function GetUnlinkedTopicsForComments() {
+
+        $sql = "
+            SELECT *
+            FROM ?_comment AS c
+            LEFT JOIN ?_topic AS t ON (c.target_type =  'topic' AND c.target_id = t.topic_id)
+            WHERE c.target_type='topic' AND t.topic_id IS NULL
+            ";
+        $aRows = $this->oDb->query($sql);
+        $aResult = array();
+        if ($aRows)
+            foreach ($aRows as $aRow) {
+                $aResult[$aRow['target_id']][] = $aRow;
+            }
+        return $aResult;
+    }
+
+    /**
+     * @param array $aTopicsId
+     *
+     * @return mixed
+     */
+    public function DelUnlinkedTopicsForComments($aTopicsId) {
+
+        $sql = "
+            DELETE FROM ?_comment
             WHERE target_type='topic' AND target_id IN (?a)
         ";
         $aResult = $this->oDb->query($sql, $aTopicsId);

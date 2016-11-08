@@ -29,7 +29,7 @@
         <footer class="small topic-footer">
             <ul class="text-muted list-unstyled list-inline topic-footer-info">
                 <li class="topic-info-author">
-                    <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}" alt="avatar" class="avatar"/></a>
+                    <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}" {$oUser->getAvatarImageSizeAttr('mini')}  alt="{$oUser->getDisplayName()}" class="avatar"/></a>
                     <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                 </li>
                 <li class="topic-info-date">

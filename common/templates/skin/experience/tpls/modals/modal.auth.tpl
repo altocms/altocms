@@ -188,7 +188,7 @@
                     $('.captcha-image').attr('src', "{router page='captcha'}?n="+Math.random());
                     m.attr('data-first', 1);
                 }
-            }
+            };
             $('#modal-auth').on('shown.bs.modal', selectFirstInput);
             $('#modal-auth [data-toggle=tab]').on('shown.bs.tab', selectFirstInput);
 

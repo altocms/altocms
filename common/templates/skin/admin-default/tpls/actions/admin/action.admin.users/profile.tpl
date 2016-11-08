@@ -111,7 +111,7 @@
 			</div>
 			</div>
                 <div class="accordion-body collapse" id="user-profile-photo-img-{$oUserProfile->GetId()}">
-                    <img src="{$oUserProfile->getPhotoUrl(250)}" alt="photo"
+                    <img src="{$oUserProfile->getPhotoUrl(250)}" {$oUserProfile->getPhotoImageSizeAttr(250)} alt="photo"
                          class="photo img-polaroid userid-{$oUserProfile->GetId()}" />
                 </div>
             </div>
@@ -119,12 +119,12 @@
 
         <div class="row-fluid">
             <div class="strength span3">
-                {$oLang->user_skill}
+                {$aLang.user_skill}
                 <div class="total" id="user_skill_{$oUserProfile->getId()}">{$oUserProfile->getSkill()}</div>
             </div>
 
             <div class="voting span3">
-                {$oLang->user_rating}
+                {$aLang.user_rating}
 
                 <div style="display: inline-block; margin: auto;">
                     <i class="icon icon-arrow-up icon-green adm_vote_plus"
@@ -140,7 +140,7 @@
             </div>
 
             <div class="voting span3">
-                {$oLang->user_vote_count}
+                {$aLang.user_vote_count}
                 <div class="count">{$oUserProfile->getCountVote()}</div>
             </div>
         </div>

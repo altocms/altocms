@@ -46,6 +46,10 @@ class ModuleDatabase extends Module {
 
     static protected $sLastResult;
 
+    protected $sLogFile;
+
+    protected $aSqlErrors = array();
+
     protected $aInitSql
         = array(
             "set character_set_client='%%charset%%', character_set_results='%%charset%%', collation_connection='utf8_bin' ",
@@ -62,6 +66,7 @@ class ModuleDatabase extends Module {
             $sCharset = 'utf8';
         }
         $this->aInitSql = str_replace('%%charset%%', $sCharset, $this->aInitSql);
+        $this->sLogFile = Config::Get('sys.logs.sql_query_file');
     }
 
     protected function _getDbConnect($sDsn) {
@@ -114,7 +119,7 @@ class ModuleDatabase extends Module {
             // * Если нужно логировать все SQL запросы то подключаем логгер
             if (Config::Get('sys.logs.sql_query')) {
                 if (Config::Get('sys.logs.sql_query_rewrite')) {
-                    $oLog = E::ModuleLogger()->Reset(Config::Get('sys.logs.sql_query_file'));
+                    $oLog = E::ModuleLogger()->Reset($this->sLogFile);
                     F::File_DeleteAs($oLog->getFileDir() . pathinfo($oLog->getFileName(), PATHINFO_FILENAME) . '*');
                 }
                 $oDbSimple->setLogger(array($this, 'Logger'));
@@ -183,9 +188,8 @@ class ModuleDatabase extends Module {
 
         // Получаем информацию о запросе и сохраняем её в лог
         $sMsg = print_r($sSql, true);
-        //Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_query_file'), $sMsg);
 
-        $oLog = E::ModuleLogger()->Reset(Config::Get('sys.logs.sql_query_file'));
+        $oLog = E::ModuleLogger()->Reset($this->sLogFile);
         if (substr(trim($sMsg), 0, 2) == '--') {
             // это результат запроса
             if (DEBUG) {
@@ -251,6 +255,8 @@ class ModuleDatabase extends Module {
         $sMsg = "SQL Error: $sMessage\n---\n";
         $sMsg .= print_r($aInfo, true);
 
+        $this->aSqlErrors[] = $sMsg;
+
         // * Если нужно логировать SQL ошибки то пишем их в лог
         if (Config::Get('sys.logs.sql_error')) {
             E::ModuleLogger()->Dump(Config::Get('sys.logs.sql_error_file'), $sMsg, 'ERROR');
@@ -271,14 +277,31 @@ class ModuleDatabase extends Module {
         }
     }
 
+    /**
+     * @return string
+     */
     public function GetLastQuery() {
 
         return self::$sLastQuery;
     }
 
+    /**
+     * @return string
+     */
     public function GetLastResult() {
 
         return self::$sLastResult;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function GetLastError() {
+
+        if (!empty($this->aSqlErrors)) {
+            return end($this->aSqlErrors);
+        }
+        return null;
     }
 
     /**
@@ -317,21 +340,21 @@ class ModuleDatabase extends Module {
 
         // * Массивы запросов и пустой контейнер для сбора ошибок
         $aErrors = array();
-        $aQuery = explode(';', $sFileQuery);
+        $aQuery = preg_split('/;\\r?\\n/', $sFileQuery);
 
         // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
 
-            // * Заменяем движок базы данных, если таковой указан в запросе
-            if (Config::Get('db.tables.engine') != 'InnoDB') {
-                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
-            }
-
             if ($sQuery != '') {
+                // * Заменяем движок базы данных, если таковой указан в запросе
+                if (Config::Get('db.tables.engine') != 'InnoDB') {
+                    $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
+                }
+
                 $bResult = $this->GetConnect($aConfig)->query($sQuery);
                 if ($bResult === false) {
-                    $aErrors[] = mysql_error();
+                    $aErrors[] = $this->GetLastError();
                 }
             }
         }

@@ -248,34 +248,49 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogUsers($aFilter, &$iCount = null, $iCurrPage = null, $iPerPage = null) {
 
-        $sWhere = ' 1=1 ';
-        if (isset($aFilter['blog_id'])) {
-            $sWhere .= " AND bu.blog_id =  " . (int)$aFilter['blog_id'];
-        }
-        if (isset($aFilter['user_id'])) {
-            $sWhere .= " AND bu.user_id =  " . (int)$aFilter['user_id'];
-        }
-        if (isset($aFilter['user_role'])) {
-            if (!is_array($aFilter['user_role'])) {
-                $aFilter['user_role'] = array($aFilter['user_role']);
-            }
-            $sWhere .= " AND bu.user_role IN ('" . join("', '", $aFilter['user_role']) . "')";
-        } else {
-            $sWhere .= " AND bu.user_role>" . ModuleBlog::BLOG_USER_ROLE_GUEST;
+        if (!empty($aFilter['user_all_role']) && !empty($aFilter['user_role'])) {
+            unset($aFilter['user_role']);
         }
 
         $sql = "SELECT
                     bu.*
                 FROM 
                     ?_blog_user as bu
-                WHERE 
-                " . $sWhere . " ";
+                WHERE
+                  1=1
+                  {AND bu.blog_id=?d}
+                  {AND bu.blog_id IN (?a)}
+                  {AND bu.user_id=?d}
+                  {AND bu.user_id IN(?a)}
+                  {AND bu.user_role=?d}
+                  {AND bu.user_role IN(?a)}
+                  {AND bu.user_role>?d}
+                ";
 
-        if (is_null($iCurrPage)) {
-            $aRows = $this->oDb->select($sql);
+        if ((func_num_args() == 1) || is_null($iPerPage)) {
+            $aRows = $this->oDb->select($sql,
+                (!empty($aFilter['blog_id']) && is_numeric($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_numeric($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_numeric($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_array($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (empty($aFilter['user_all_role']) && !isset($aFilter['user_role'])) ? ModuleBlog::BLOG_USER_ROLE_GUEST : DBSIMPLE_SKIP
+            );
         } else {
-            $sql .= " LIMIT ?d, ?d ";
-            $aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage);
+            if (!$iCurrPage) {
+                $iCurrPage = 1;
+            }
+            $sql .= " LIMIT " . (($iCurrPage - 1) * $iPerPage) . ", " . intval($iPerPage);
+            $aRows = $this->oDb->selectPage($iCount, $sql,
+                (!empty($aFilter['blog_id']) && is_numeric($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_numeric($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (!empty($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_numeric($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (isset($aFilter['user_role']) && is_array($aFilter['user_role'])) ? $aFilter['user_role'] : DBSIMPLE_SKIP,
+                (empty($aFilter['user_all_role']) && !isset($aFilter['user_role'])) ? ModuleBlog::BLOG_USER_ROLE_GUEST : DBSIMPLE_SKIP
+            );
         }
 
         $aBlogUsers = array();
@@ -822,6 +837,13 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает массив типов контента для укзанных в параметре типов блогов
      *
+     * Здесь такой манёвр: тип контента должен быть либо привязан к типу
+     * блога по таблице ?_blog_type_content, либо, из соображений свместимости
+     * с версией Alto 1.0, должен храниться в соответствующем свойстве типа блога
+     * запрос на выборку из этого всего уникальных не делаю, поскольку варианта
+     * тут два - либо контент в свойстве типа блога и тогда по нему работает
+     * второй подзапрос, либо только в таблице связей - тогда работает первый.
+     *
      * @param ModuleBlog_EntityBlogType[] $aBlogTypeId
      *
      * @return ModuleTopic_EntityContentType[][]
@@ -830,29 +852,26 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql =
             "SELECT
-                  bct.blog_type_id blog_type_id,
+                  bct.blog_type_id AS blog_type_id,
+                  ct.content_sort AS content_norder,
                   ct.*
               FROM
-                  ?_blog_type_content bct,
-                  ?_content ct
+                  ?_blog_type_content AS bct,
+                  ?_content AS ct
               WHERE
                   ct.content_id = bct.content_id
                   AND bct.blog_type_id IN ( ?a )
-
-                  -- Здесь такой манёвр: тип контента должен быть либо привязан к типу
-                  -- блога по таблице ?_blog_type_content, либо, из соображений свместимости
-                  -- с версией Alto 1.0, должен храниться в соответствующем свойстве типа блога
-                  -- запрос на выборку из этого всего уникальных не делаю, поскольку варианта
-                  -- тут два - либо контент в свойстве типа блога и тогда по нему работает
-                  -- второй подзапрос, либо только в таблице связей - тогда работает первый.
               UNION
                   SELECT
-                    bt.id blog_type_id,
+                    bt.id AS blog_type_id,
+                    0 AS content_norder,
                     ct.*
                   FROM
-                    ?_blog_type bt, ?_content ct
+                    ?_blog_type AS bt, ?_content AS ct
                   WHERE
-                    bt.content_type = ct.content_url AND bt.id IN ( ?a )";
+                    bt.content_type = ct.content_url AND bt.id IN ( ?a )
+              ORDER BY blog_type_id, content_norder DESC
+            ";
 
         /** @var ModuleTopic_EntityContentType $aContentType */
         $aContentType = E::GetEntityRows(

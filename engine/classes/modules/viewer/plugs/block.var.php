@@ -26,7 +26,7 @@
  */
 function smarty_block_var($aParams, $sContent, &$oSmarty) {
     if (empty($aParams['name'])) {
-        trigger_error("Hook: missing 'name' parametr", E_USER_WARNING);
+        trigger_error("Hook: missing 'name' parameter", E_USER_WARNING);
 
         return;
     }

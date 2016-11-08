@@ -210,48 +210,51 @@ class ModuleAdmin extends Module {
     }
 
     /**
-     * Сохранение пользовательской конфигурации в базе
+     * Update config data in database
      *
      * @param   array $aConfig
+     *
      * @return  bool
      */
-    public function UpdateCustomConfig($aConfig) {
+    public function UpdateStorageConfig($aConfig) {
 
-        $bResult = $this->oMapper->UpdateCustomConfig($aConfig);
+        $bResult = $this->oMapper->UpdateStorageConfig($aConfig);
         E::ModuleCache()->CleanByTags(array('config_update'));
+
         return $bResult;
     }
 
     /**
-     * Читает пользовательскую конфигурацию из базы
+     * Read config data by prefix from database
      *
-     * @param   string  $sKeyPrefix
+     * @param   string   $sKeyPrefix
+     *
      * @return  array
      */
-    public function GetCustomConfig($sKeyPrefix = null) {
+    public function GetStorageConfig($sKeyPrefix = null) {
 
         $sCacheKey = 'config_' . $sKeyPrefix;
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetCustomConfig($sKeyPrefix);
+            $data = $this->oMapper->GetStorageConfig($sKeyPrefix);
             E::ModuleCache()->Set($data, $sCacheKey, array('config_update'), 'P1M');
         }
         return $data;
     }
 
     /**
-     * Удаляет пользовательскую конфигурацию из базы
+     * Delete config data by prefix from database
      *
      * @param   string  $sKeyPrefix
      *
      * @return  bool
      */
-    public function DelCustomConfig($sKeyPrefix = null) {
+    public function DeleteStorageConfig($sKeyPrefix = null) {
 
-        $sCacheKey = 'config_' . $sKeyPrefix;
         // Удаляем в базе
-        $bResult = $this->oMapper->DeleteCustomConfig($sKeyPrefix);
+        $bResult = $this->oMapper->DeleteStorageConfig($sKeyPrefix);
         // Чистим кеш
-        E::ModuleCache()->CleanByTags(array($sCacheKey));
+        E::ModuleCache()->CleanByTags(array('config_update'));
+
         return $bResult;
     }
 
@@ -311,6 +314,26 @@ class ModuleAdmin extends Module {
     public function DelUnlinkedTopicsForCommentsOnline($aTopicIds) {
 
         $bResult = $this->oMapper->DelUnlinkedTopicsForCommentsOnline($aTopicIds);
+        E::ModuleCache()->Clean();
+        return $bResult;
+    }
+
+    /**
+     * @return array
+     */
+    public function GetUnlinkedTopicsForComments() {
+
+        return $this->oMapper->GetUnlinkedTopicsForComments();
+    }
+
+    /**
+     * @param array $aTopicIds
+     *
+     * @return mixed
+     */
+    public function DelUnlinkedTopicsForComments($aTopicIds) {
+
+        $bResult = $this->oMapper->DelUnlinkedTopicsForComments($aTopicIds);
         E::ModuleCache()->Clean();
         return $bResult;
     }
@@ -507,7 +530,56 @@ class ModuleAdmin extends Module {
         return $bOk;
     }
 
+    /**
+     * @param bool $bActive
+     *
+     * @return array
+     */
+    public function GetScriptsList($bActive = null) {
 
+        $aResult = array();
+        $aScripts = (array)C::Get('script');
+        if ($aScripts) {
+            if (is_null($bActive)) {
+                return $aScripts;
+            }
+            foreach($aScripts as $sScriptName => $aScript) {
+                if ($bActive) {
+                    if (!isset($aScript['disable']) && !$aScript['disable']) {
+                        $aResult[$sScriptName] = $aScript;
+                    }
+                } else {
+                    if (isset($aScript['disable']) && $aScript['disable']) {
+                        $aResult[$sScriptName] = $aScript;
+                    }
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    public function GetScriptById($sScriptId) {
+
+        $aScript = C::Get('script.' . $sScriptId);
+        return $aScript;
+    }
+
+    public function SaveScript($aScript) {
+
+        $sConfigKey = 'script.' . $aScript['id'];
+        Config::WriteCustomConfig(array($sConfigKey => $aScript));
+    }
+
+    public function DeleteScript($xScript) {
+
+        if (is_array($xScript)) {
+            $sScriptId = $xScript['id'];
+        } else {
+            $sScriptId = (string)$xScript;
+        }
+        $sConfigKey = 'script.' . $sScriptId;
+        Config::ResetCustomConfig($sConfigKey);
+    }
 }
 
 // EOF

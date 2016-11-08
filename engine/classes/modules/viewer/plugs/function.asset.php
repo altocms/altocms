@@ -20,7 +20,7 @@
 function smarty_function_asset($aParams, $oSmartyTemplate) {
 
     if (empty($aParams['skin']) && empty($aParams['file'])) {
-        trigger_error('Asset: missing "file" parametr', E_USER_WARNING);
+        trigger_error('Asset: missing "file" parameter', E_USER_WARNING);
         return '';
     }
 
@@ -30,15 +30,12 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
             || (stripos($aParams['file'], 'http://') === 0)) {
             $sUrl = $aParams['file'];
         } else {
+            $sSkin = (!empty($aParams['skin']) ? $aParams['skin'] : E::ModuleViewer()->GetConfigSkin());
+            // File name has full local path
             if (F::File_LocalDir($aParams['file'])) {
                 $sFile = $aParams['file'];
             } else {
                 // Need URL to asset file
-                if (empty($aParams['skin'])) {
-                    $sSkin = E::ModuleViewer()->GetConfigSkin();
-                } else {
-                    $sSkin = $aParams['skin'];
-                }
                 if (isset($aParams['theme'])) {
                     if (is_bool($aParams['theme'])) {
                         $sTheme = E::ModuleViewer()->GetConfigTheme();
@@ -58,11 +55,22 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
                 }
             }
             if (isset($aParams['prepare'])) {
+                $sAssetName = (empty($aParams['asset']) ? $sFile : $aParams['asset']);
+                // Грязноватый хак, но иначе нам не получить ссылку
+                $aFileData = array(
+                    $sFile => array(
+                        'name' => md5($sFile),
+                        'prepare' => true,
+                    ),
+                );
+
                 /** @var ModuleViewerAsset $oLocalViewerAsset */
                 $oLocalViewerAsset = new ModuleViewerAsset();
-                $oLocalViewerAsset->AddFiles(F::File_GetExtension($sFile, true), array($sFile));
+                $oLocalViewerAsset->AddFiles(F::File_GetExtension($sFile, true), $aFileData, $sAssetName);
                 $oLocalViewerAsset->Prepare();
-                $sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
+                //$sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
+                $aLinks = $oLocalViewerAsset->GetPreparedAssetLinks();
+                $sUrl = reset($aLinks);
             } else {
                 $sUrl = E::ModuleViewerAsset()->File2Link($sFile, 'skin/' . $sSkin . '/');
             }

@@ -16,6 +16,8 @@
 /**
  * Объект сущности аттача
  *
+ * @method setId($iParam)
+ *
  * @package modules.topic
  * @since   1.0
  */

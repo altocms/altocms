@@ -37,7 +37,7 @@ class Imagick extends Driver{
 
 	protected $resize_scale = false;
 
-	protected $output_resulution = 72;
+	protected $output_resolution = 72;
 
     public function create($width, $height, $color = 0xffffff, $opacity = 0) {
 		$this->image = new $this->image_class();
@@ -93,10 +93,14 @@ class Imagick extends Driver{
 		);
 	}
 
-	protected function jpg_bg() {
+	protected function jpg_bg($image) {
+
+        if ($image->getImageProfiles()) {
+            $image->transformImageColorspace(\Imagick::COLORSPACE_SRGB);
+        }
 		$bg = new $this->image_class();
 		$bg->newImage($this->width, $this->height, $this->get_color(0xffffff, 1));
-		$bg->compositeImage($this->image, $this->composition_mode, 0, 0);
+		$bg->compositeImage($image, $this->composition_mode, 0, 0);
 		$bg->setImageFormat('jpeg');
 		return $bg;
 	}
@@ -138,7 +142,7 @@ class Imagick extends Driver{
 				$image->setImageFormat($format);
 				break;
 			case 'jpeg':
-				$image = $this->jpg_bg($this->image);
+				$image = $this->jpg_bg($image);
 				break;
 			default:
 				throw new \Exception("Type must be either png, jpeg or gif");
@@ -149,20 +153,24 @@ class Imagick extends Driver{
 			//$image->writeImages($file, true);
             // Resolve bug with animated gif
             // @see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=682858
-            $fd = fopen($file, 'w');
-            $image->writeImagesFile($fd);
-            fclose($fd);
+            //$fd = fopen($file, 'w');
+            //$image->writeImagesFile($fd);
+			//fclose($fd);
+
+			// it works best of all
+			$imageData = $image->getImagesBlob();
+			file_put_contents($file, $imageData);
 		} else {
 			$this->set_quality($quality);
-			if ($this->output_resulution) {
+			if ($this->output_resolution) {
 				$resulution = $image->getImageResolution();
-				if ((!isset($resulution['x']) || $resulution['x'] > $this->output_resulution)) {
-					$x_resulution = $this->output_resulution;
+				if ((!isset($resulution['x']) || $resulution['x'] > $this->output_resolution)) {
+					$x_resulution = $this->output_resolution;
 				} else {
 					$x_resulution = $resulution['x'];
 				}
-				if ((!isset($resulution['y']) || $resulution['y'] > $this->output_resulution)) {
-					$y_resulution = $this->output_resulution;
+				if ((!isset($resulution['y']) || $resulution['y'] > $this->output_resolution)) {
+					$y_resulution = $this->output_resolution;
 				} else {
 					$y_resulution = $resulution['y'];
 				}
@@ -173,7 +181,7 @@ class Imagick extends Driver{
 				$image->setImageResolution(72, 72);
 				$image->resampleImage(72, 72, $this->resize_filter, 1);
 			}
-			$image->writeImage($file);
+            $image->writeImage($file);
 		}
 
 		if ($format == 'jpeg')
@@ -217,14 +225,15 @@ class Imagick extends Driver{
 			if ($this->multiframe()) {
 				$this->image = $this->image->coalesceImages();
 				foreach ($this->image as $frame) {
-					$this->image->resizeImage($width, $height, $this->resize_filter, 1, $fit);
+					$frame->resizeImage($width, $height, $this->resize_filter, 1, $fit);
 					$frame->setImagePage($width, $height, 0, 0);
 				}
 			} else {
-				$this->image->resizeImage($width, $height, $this->resize_filter, 1, $fit);
+                $this->image->resizeImage($width, $height, $this->resize_filter, 1, $fit);
 			}
 			$this->update_size($width, $height);
 		}
+		return $this;
 	}
 
 	public function scale($scale){
@@ -287,10 +296,25 @@ class Imagick extends Driver{
 	}
 
 	public function overlay($layer, $x = 0, $y = 0) {
-		$layer_cs = $layer->image->getImageColorspace();
+
+		//$layer_cs = $layer->image->getImageColorspace();
 		$layer->image->setImageColorspace($this->image->getImageColorspace() );
-		$this->image->compositeImage($layer->image, $this->composition_mode, $x, $y);
-		$layer->image->setImageColorspace($layer_cs);
+		if ($this->multiframe()) {
+			$this->image = $this->image->coalesceImages();
+			$width = $this->image->getImageWidth();
+			$height = $this->image->getImageHeight();
+			foreach ($this->image as $frame) {
+				$over = clone $layer->image;
+				$frame->setImagePage($width, $height, 0, 0);
+				$frame->compositeImage($over, $this->composition_mode, $x, $y);
+			}
+			// It's magic but it work
+			$this->image->getImagesBlob();
+			$this->image->deconstructImages();
+		} else {
+			$this->image->compositeImage($layer->image, $this->composition_mode, $x, $y);
+		}
+		//$layer->image->setImageColorspace($layer_cs);
 
 		return $this;
 	}
@@ -345,6 +369,7 @@ class Imagick extends Driver{
 		if ($this->image) {
             return $this->image->getNumberImages() > 1;
 		}
+		return false;
 	}
 
 }

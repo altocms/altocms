@@ -20,7 +20,7 @@
  */
 class Curl {
 
-    const VERSION = '1.2.2';
+    const VERSION = '1.2.6';
 
     const CACHE_ENABLE = 1;
     const CACHE_TIME = 2;
@@ -51,6 +51,7 @@ class Curl {
 
     protected $_aCacheCallbacks = null;
     protected $_aCacheOptions = array();
+    protected $_aHistory = array();
 
     /**
      * Class constructor
@@ -82,9 +83,15 @@ class Curl {
 
     /**
      * @param $aOptions
+     * @param $bReset
      */
-    protected function _setOptions($aOptions) {
+    protected function _setOptions($aOptions, $bReset = false) {
 
+        if ($bReset) {
+            $this->_aOptions = array();
+            $this->_aHttpParams = array();
+            $this->_sHttpMethod = 'GET';
+        }
         foreach ($aOptions as $nKey => $xVal) {
             $this->_aOptions[$nKey] = $xVal;
             if ($nKey == CURLOPT_URL) {
@@ -93,7 +100,7 @@ class Curl {
                 $this->_sHttpMethod = ($xVal ? 'POST' : 'GET');
             }
             if ($nKey == CURLOPT_POSTFIELDS) {
-                $this->_aHttpParams = (array)$xVal;
+                $this->_aHttpParams = $xVal;
             }
         }
     }
@@ -122,14 +129,18 @@ class Curl {
                 $sHttpMethod = strtoupper($sHttpMethod);
             }
             $this->_sLastRequest = $sHttpMethod . ' ' . $sUrl;
+            $aHttpHeaders = $this->_aHttpHeaders;
 
             if ($sHttpMethod !== 'GET' && $sHttpMethod !== 'POST') {
-                $this->addHttpHeader('X-HTTP-Method-Override', $sHttpMethod);
+                //$this->addHttpHeader('X-HTTP-Method-Override', $sHttpMethod);
+                $aHttpHeaders[] = 'X-HTTP-Method-Override: ' . $sHttpMethod;
             }
             if ($this->_bKeepAlive) {
-                $this->addHttpHeader('Connection', 'keep-alive');
+                //$this->addHttpHeader('Connection', 'keep-alive');
+                $aHttpHeaders[] = 'Connection: keep-alive';
                 if (is_numeric($this->_bKeepAlive)) {
-                    $this->addHttpHeader('Keep-Alive', intval($this->_bKeepAlive));
+                    //$this->addHttpHeader('Keep-Alive', intval($this->_bKeepAlive));
+                    $aHttpHeaders[] = 'Keep-Alive: ' . intval($this->_bKeepAlive);
                 }
             }
             if (!isset($aOptions[CURLOPT_HEADER])) {
@@ -153,7 +164,7 @@ class Curl {
                 $aOptions[CURLOPT_CUSTOMREQUEST] = $sHttpMethod;
             }
             $aOptions[CURLOPT_URL] = $sUrl;
-            $aOptions[CURLOPT_HTTPHEADER] = $this->_aHttpHeaders;
+            $aOptions[CURLOPT_HTTPHEADER] = $aHttpHeaders;
         } else {
             $this->_sLastRequest = $sUrl;
         }
@@ -190,6 +201,11 @@ class Curl {
                     $sResponse = substr($sResponse, $this->_aInfo['header_size']);
                 }
             }
+            $this->_aHistory[] = array(
+                'options' => $aOptions,
+                'info' => $this->_aInfo,
+            );
+
             if ($bCache) {
                 $this->_setCache(
                     $aOptions, array(
@@ -370,6 +386,17 @@ class Curl {
         } else {
             $this->_setOptions($aOptions);
         }
+    }
+
+    /**
+     * @param $aOptions
+     */
+    public function resetOptions($aOptions) {
+
+        if ($this->_hPointer) {
+            $this->close();
+        }
+        $this->_setOptions($aOptions, true);
     }
 
     public function setHttpHeaders($aHeaders) {
@@ -581,6 +608,14 @@ class Curl {
         } else {
             return $this->_aInfo;
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getHttpCode() {
+
+        return (isset($this->_aInfo['http_code']) ? $this->_aInfo['http_code'] : null);
     }
 
     /**

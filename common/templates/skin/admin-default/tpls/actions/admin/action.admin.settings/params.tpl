@@ -28,9 +28,9 @@
                     </label>
                 {elseif $aItem.type=='select'}
                     <select name="{$aItem.config}">
-                        {foreach from=$aItem.options item=sOption}
-                            <option value="{$sOption}" {if $sOption==$aItem.value}selected{/if}>
-                                {$sOption}
+                        {foreach $aItem.options as $sOptionValue=>$sOptionText}
+                            <option value="{$sOptionValue}" {if $sOptionValue==$aItem.value}selected{/if}>
+                                {$sOptionText}
                             </option>
                         {/foreach}
                     </select>

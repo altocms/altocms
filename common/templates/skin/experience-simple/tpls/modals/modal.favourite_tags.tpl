@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {if E::IsUser()}
-    <div class="modal fade in" id="favourite-form-tags">
+    <div class="modal fade in" id="modal-favourite_tags">
         <div class="modal-dialog">
             <div class="modal-content">
 

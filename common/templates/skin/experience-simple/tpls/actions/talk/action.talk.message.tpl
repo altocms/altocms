@@ -33,7 +33,7 @@
                  <li data-alto-role="popover"
                      data-api="user/{$oUser->getId()}/info"
                      class="topic-user">
-                     <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}" class="top0"/>
+                     <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}" class="top0"/>
                      <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                          {$oUser->getDisplayName()}
                      </a>

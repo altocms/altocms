@@ -147,7 +147,7 @@ ls.editor = (function ($) {
                             width: $this.outerWidth() + options.dif
                         }).addClass('float');
 
-                        if (options.css !== 'undefined') {
+                        if (typeof options.css !== 'undefined') {
                             header.css(options.css)
                         }
 

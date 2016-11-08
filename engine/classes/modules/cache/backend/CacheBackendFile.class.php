@@ -21,7 +21,7 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
 
     static public function IsAvailable() {
 
-        return F::File_CheckDir(Config::Get('sys.cache.dir'), true);
+        return F::File_CheckDir(C::Get('sys.cache.dir'), true);
     }
 
     static public function Init($sFuncStats) {
@@ -32,10 +32,10 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
 
         $oCache = new Zend_Cache_Backend_File(
             array(
-                 'cache_dir'              => Config::Get('sys.cache.dir'),
-                 'file_name_prefix'       => Config::Get('sys.cache.prefix'),
+                 'cache_dir'              => C::Get('sys.cache.dir'),
+                 'file_name_prefix'       => E::ModuleCache()->GetCachePrefix(),
                  'read_control_type'      => 'crc32',
-                 'hashed_directory_level' => Config::Get('sys.cache.directory_level'),
+                 'hashed_directory_level' => C::Get('sys.cache.directory_level'),
                  'read_control'           => true,
                  'file_locking'           => true,
             )

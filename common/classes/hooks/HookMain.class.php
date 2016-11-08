@@ -20,6 +20,9 @@
  * @since   1.0
  */
 class HookMain extends Hook {
+
+    protected $aScripts;
+
     /**
      * Регистрируем хуки
      */
@@ -27,7 +30,7 @@ class HookMain extends Hook {
 
         $this->AddHook('module_session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
         $this->AddHook('init_action', 'InitAction', __CLASS__, PHP_INT_MAX);
-        $this->AddHook('render_init_done', 'RenderInitDone', __CLASS__, PHP_INT_MAX);
+        //$this->AddHook('render_init_done', 'RenderInitDone', __CLASS__, PHP_INT_MAX);
 
         $this->AddHook('template_form_add_content', 'insertFields', __CLASS__, -1);
 
@@ -37,15 +40,21 @@ class HookMain extends Hook {
 
         // * Упрощенный вывод JS в футере, для проблемных файлов
         $this->AddHook('template_body_end', 'BuildFooterJsCss', __CLASS__, -150);
-        $this->AddHook('template_layout_body_end', 'BuildFooterJsCss', __CLASS__, -150);
 
         $this->AddHook('template_html_head_tags', 'InsertHtmlHeadTags', __CLASS__);
+
+        $this->AddHookTemplate('layout_head_end', 'tplLayoutHeadEnd');
+        $this->AddHookTemplate('layout_body_begin', 'tplLayoutBodyBegin');
+        $this->AddHookTemplate('layout_body_end', 'tplLayoutBodyEnd');
     }
 
     public function SessionInitAfter() {
 
         if (!Config::Get('_db_')) {
-            Config::ReReadCustomConfig();
+            $aConfig = Config::ReReadStorageConfig();
+            if ($aConfig) {
+                Config::Load($aConfig, false, null, null, 'storage');
+            }
         }
     }
 
@@ -73,10 +82,12 @@ class HookMain extends Hook {
         return null;
     }
 
+    /*
     public function RenderInitDone() {
 
         E::ModuleMenu()->PrepareMenus();
     }
+    */
 
     public function insertFields() {
 
@@ -141,6 +152,52 @@ class HookMain extends Hook {
         $sResult = '';
         foreach($aTags as $sTag) {
             $sResult .= $sTag . "\n";
+        }
+        return $sResult;
+    }
+
+    protected function _scriptCode($aScripts, $sPlace) {
+
+        $sResult = '';
+        foreach($aScripts as $aScript) {
+            if (!empty($aScript['place']) && $aScript['place'] == $sPlace && empty($aScript['disable']) && !empty($aScript['code'])) {
+                $aIncludePaths = (!empty($aScript['on']) ? $aScript['on'] : array());
+                $aExcludePaths = (!empty($aScript['off']) ? $aScript['off'] : array());
+                if ((!$aIncludePaths && !$aExcludePaths) || R::AllowControllerPath($aIncludePaths, $aExcludePaths)) {
+                    $sResult .= PHP_EOL . $aScript['code'] . PHP_EOL;
+                }
+            }
+        }
+        if ($sResult) {
+            $sResult = PHP_EOL . $sResult . PHP_EOL;
+        }
+        return $sResult;
+    }
+
+    public function tplLayoutHeadEnd() {
+
+        $sResult = '';
+        $this->aScripts = C::Get('script');
+        if ($this->aScripts) {
+            $sResult = $this->_scriptCode($this->aScripts, 'head');
+        }
+        return $sResult;
+    }
+
+    public function tplLayoutBodyBegin() {
+
+        $sResult = '';
+        if ($this->aScripts) {
+            $sResult = $this->_scriptCode($this->aScripts, 'body');
+        }
+        return $sResult;
+    }
+
+    public function tplLayoutBodyEnd() {
+
+        $sResult = $this->BuildFooterJsCss();
+        if ($this->aScripts) {
+            $sResult .= PHP_EOL . $this->_scriptCode($this->aScripts, 'end');
         }
         return $sResult;
     }

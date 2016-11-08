@@ -37,7 +37,9 @@ abstract class Hook extends LsObject {
             $sClassNameHook = null;
         }
         if (is_null($sClassNameHook)) {
-            $sCallBack = array($this, $sCallBack);
+            if (is_string($sCallBack) && strpos($sCallBack, '::') === false && !function_exists($sCallBack)) {
+                $sCallBack = array($this, $sCallBack);
+            }
             E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
         } else {
             E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
@@ -66,13 +68,36 @@ abstract class Hook extends LsObject {
             $sClassNameHook = null;
         }
         if (is_null($sClassNameHook)) {
-            if (is_string($sCallBack)) {
+            if (is_string($sCallBack) && strpos($sCallBack, '::') === false && !function_exists($sCallBack)) {
                 $sCallBack = array($this, $sCallBack);
             }
             E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
         } else {
             E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
         }
+    }
+
+    /**
+     * LS-compatibility
+     * @deprecated
+     *
+     * @param string $sName
+     * @param string $sCallBack
+     * @param int    $iPriority
+     * @param array  $aParams
+     */
+    public function AddDelegateHook($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
+
+        if (is_string($iPriority) && !is_numeric($iPriority)) {
+            $sClassName = $iPriority;
+            $iPriority = $aParams;
+            $aParams = array();
+        } else {
+            $sClassName = __CLASS__;
+        }
+        $aParams['delegate'] = true;
+        $aParams['sClassName'] = $sClassName;
+        E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, $aParams);
     }
 
     /**
@@ -116,7 +141,7 @@ abstract class Hook extends LsObject {
      */
     public function GetHookName() {
 
-        E::ModuleHook()->GetHookName();
+        return E::ModuleHook()->GetHookName();
     }
 
     /**
@@ -128,7 +153,58 @@ abstract class Hook extends LsObject {
      */
     public function GetHookParams() {
 
-        E::ModuleHook()->GetHookParams();
+        return E::ModuleHook()->GetHookParams();
+    }
+
+    /**
+     * Returns the parameter of current hook handler
+     *
+     * @param $iParam
+     *
+     * @return mixed|null
+     */
+    public function GetHookParam($iParam) {
+
+        $aParams = $this->GetHookParams();
+        if (isset($aParams[$iParam])) {
+            return $aParams[$iParam];
+        }
+        return null;
+    }
+
+    /**
+     * Returns arguments of current hook handler
+     *
+     * @return array
+     *
+     * @since   1.1.9
+     */
+    public function GetHookArguments() {
+
+        return E::ModuleHook()->GetHookArguments();
+    }
+
+    /**
+     * Returns the argument of current hook handler
+     *
+     * @param $xArgument
+     *
+     * @return mixed|null
+     *
+     * @since   1.1.9
+     */
+    public function GetHookArgument($xArgument) {
+
+        $aArguments = $this->GetHookArguments();
+        if (isset($aArguments[$xArgument])) {
+            return $aArguments[$xArgument];
+        }
+        return null;
+    }
+
+    public function GetSourceResult() {
+
+        return E::ModuleHook()->GetSourceResult();
     }
 }
 

@@ -781,6 +781,23 @@ class ModuleTopic_MapperTopic extends Mapper {
             $sWhere .= " OR (t.topic_date_show IS NULL AND t.topic_date_add >=  '" . $aFilter['topic_new'] . "')";
             $sWhere .= ")";
         }
+        if (isset($aFilter['topic_date_show'])) {
+            if (is_array($aFilter['topic_date_show'])) {
+                $sDate1 = reset($aFilter['topic_date_show']);
+                $sDate2 = next($aFilter['topic_date_show']);
+            } else {
+                $sDate1 = $sDate2 = $aFilter['topic_date_show'];
+            }
+            if (strlen($sDate1) == 10) {
+                $sDate1 .= ' 00:00:00';
+            }
+            if (strlen($sDate2) == 10) {
+                $sDate2 = F::DateTimeAdd($sDate2, 'P1D');
+            } else {
+                $sDate2 = F::DateTimeAdd($sDate2, 'PT1S');
+            }
+            $sWhere .= "AND (t.topic_date_show >=  '" . $sDate1 . "' AND t.topic_date_show <'" . $sDate2 . "')";
+        }
         if (isset($aFilter['user_id'])) {
             $sWhere .= is_array($aFilter['user_id'])
                 ? " AND t.user_id IN(" . implode(', ', $aFilter['user_id']) . ")"
@@ -994,7 +1011,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @param array $aTopicId    Список ID топиков
      * @param int   $iUserId     ID пользователя
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicQuestionVote[]
      */
     public function GetTopicsQuestionVoteByArray($aTopicId, $iUserId) {
 
@@ -1147,7 +1164,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aPhotosId    Список ID фото
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicPhoto[]
      */
     public function GetTopicPhotosByArrayId($aPhotosId) {
 
@@ -1715,7 +1732,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aContentId    Список ID типов контента
      *
-     * @return array
+     * @return ModuleTopic_EntityField[]
+     *
      * @TODO рефакторинг + solid
      */
     public function GetFieldsByArrayId($aContentId) {
@@ -1867,7 +1885,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aTargetId    Список ID топиков
      *
-     * @return array
+     * @return ModuleTopic_EntityContentValues[]
+     *
      * @TODO рефакторинг + solid
      */
     public function GetTopicValuesByArrayId($aTargetId) {

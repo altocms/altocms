@@ -54,7 +54,7 @@
                 </td>
                 <td rowspan="3" class="user-logo  last-td">
                     <a href="{$oUserList->getProfileUrl()}">
-                        <img src="{$oUserList->getAvatarUrl('big')}" alt="{$oUserList->getDisplayName()}"/>
+                        <img src="{$oUserList->getAvatarUrl('big')}" {$oUserList->getAvatarImageSizeAttr('big')} alt="{$oUserList->getDisplayName()}"/>
                     </a>
                 </td>
                 <td class="user-name {if !$oUserList->getProfileName()}no-realname{/if}">
@@ -90,7 +90,7 @@
                                data-uid="{$oUserList->getId()}"
                                data-placement="right" data-original-title="{$aLang.user_friend_add}"
                                data-toggle="modal"><i class="fa fa-user"></i></a>
-                        {elseif {$oUserList->getUserFriend()->isFriend()}}
+                        {elseif $oUserList->getUserFriend()->isFriend()}
                             <a href="#" class="small link link-light-gray link-clear link-lead" title="{$aLang.user_friend_del}"
                                data-placement="right" data-original-title="{$aLang.user_friend_del}"
                                onclick="return ls.user.removeFriend(this,{$oUserList->getId()},'del');">

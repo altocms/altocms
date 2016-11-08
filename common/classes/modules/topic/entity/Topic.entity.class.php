@@ -16,11 +16,16 @@
 /**
  * Class ModuleTopic_EntityTopic Entity of topic/article
  *
- *
  * @method int getTopicIndexIgnore()
  * @method int getFavourite()
  * @method string GetTopicUrl()
+ * @method string GetTopicType()
  *
+ * @method setFavourite($oParam)
+ * @method setTopicIndexIgnore($bParam)
+ * @method setPhotosetMainPhoto($oParam)
+ * @method setTopicUrl($sParam)
+
  * @package modules.topic
  * @since   1.0
  */
@@ -844,6 +849,7 @@ class ModuleTopic_EntityTopic extends Entity {
         $aTextLinks = $this->GetTextLinks();
         if ($aTextLinks) {
             foreach($aTextLinks as $aLink) {
+                /** @var ModuleMresource_EntityMresourceRel $oMresource */
                 $oMresource = E::GetEntity('Mresource_MresourceRel');
                 $oMresource->setUrl(E::ModuleMresource()->NormalizeUrl($aLink['link']));
                 $oMresource->setType($aLink['type']);
@@ -1202,65 +1208,78 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
+     * Return main photo of photoset
+     *
+     * @return ModuleMresource_EntityMresourceRel|null
+     */
+    public function getPhotosetMainPhoto() {
+
+        // Топика ещё нет, вернём дефолтное значение (null)
+        if (!$this->getId()) {
+            return NULL;
+        }
+
+        $sPropKey = '_photoset_cover';
+        $oPhotosetCover = $this->getProp($sPropKey);
+        if ($oPhotosetCover === null) {
+            $aImages = $this->getLoadedImages();
+            foreach($aImages as $oImage) {
+                if ($oImage->getType() | ModuleMresource::TYPE_PHOTO_PRIMARY) {
+                    $oPhotosetCover = $oImage;
+                    break;
+                }
+            }
+            if ($oPhotosetCover) {
+                $this->setProp($sPropKey, $oPhotosetCover);
+            } else {
+                $this->setProp($sPropKey, false);
+            }
+        }
+        return $oPhotosetCover ? $oPhotosetCover : null;
+    }
+
+    /**
+     * @param null|string|int $xSize
+     *
+     * @return null|string
+     */
+    public function getPhotosetMainPhotoLink($xSize = null) {
+
+        $oImage = $this->getPhotosetMainPhoto();
+        if ($oImage) {
+            if ($xSize) {
+                return E::ModuleUploader()->ResizeTargetImage($oImage->getImageUrl(), $xSize);
+            }
+            return $oImage->getImageUrl();
+        }
+        return null;
+    }
+
+    /**
+     * Old style compatibility
+     *
+     * @param null $xSize
+     *
+     * @return null|string
+     */
+    public function getPhotosetMainPhotoUrl($xSize = null) {
+
+        return $this->getPhotosetMainPhotoLink($xSize);
+    }
+
+    /**
      * Returns ID of main photo in photoset
      *
      * @return int|null
      */
     public function getPhotosetMainPhotoId() {
 
-        // Топика ещё нет, вернём дефолтное значение (null)
-        if (!$this->getId()) {
-            return NULL;
-        }
-
-        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
-            'target_type' => 'photoset',
-            'target_id'   => $this->getId(),
-            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
-        ), 1, 1);
-
-        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
-            /** @var ModuleMresource_EntityMresource $oMresource */
-            return $oMresource->getMresourceId();
+        $oImage = $this->getPhotosetMainPhoto();
+        if ($oImage) {
+            return $oImage->getMresourceId();
         }
 
         return $this->getExtraValue('main_photo_id');
-    }
-
-    /**
-     * Returns main photo in photoset
-     *
-     * @return ModuleTopic_EntityTopicPhoto|null
-     */
-    public function getPhotosetMainPhoto($bFirst = FALSE) {
-
-        // Топика ещё нет, вернём дефолтное значение (null)
-        if (!$this->getId()) {
-            return NULL;
-        }
-
-        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
-            'target_type' => 'photoset',
-            'target_id'   => $this->getId(),
-            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
-        ), 1, 1);
-
-        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
-            /** @var ModuleMresource_EntityMresource $oMresource */
-            return $oMresource;
-        }
-
-        return NULL;
-
-    }
-
-    public function getPhotosetMainPhotoUrl($bFirst = false, $sSize='' ) {
-
-        $oMresource = $this->getPhotosetMainPhoto($bFirst);
-        if ($oMresource) {
-            return E::ModuleUploader()->ResizeTargetImage($oMresource->getWebPath(), $sSize);
-        }
-        return null;
     }
 
     /**
@@ -1317,6 +1336,11 @@ class ModuleTopic_EntityTopic extends Entity {
         return intval($this->getTopicIndexIgnore()) == self::INDEX_IGNORE_LOCK;
     }
 
+    /**
+     * @param string $sMode
+     *
+     * @return string
+     */
     public function getTopicTypeTemplate($sMode) {
 
         $oContentType = $this->getContentType();
@@ -1770,6 +1794,160 @@ class ModuleTopic_EntityTopic extends Entity {
         $oRssItem = E::GetEntity('ModuleRss_EntityRssItem', $aRssItemData);
 
         return $oRssItem;
+    }
+
+    /**
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getImages() {
+
+        $aResult = array();
+        $aMediaTypes = $this->getMediaResources();
+        if ($aMediaTypes) {
+            foreach($aMediaTypes as $sType => $aMedia) {
+                /** @var ModuleMresource_EntityMresourceRel $oMedia */
+                foreach($aMedia as $iMediaId => $oMedia) {
+                    if ($oMedia->isImage()) {
+                        $aResult[$iMediaId] = $oMedia;
+                    }
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    protected function _findImages($aImages, $sFilter, $iValue = null) {
+
+        if (empty($aImages)) {
+            return array();
+        }
+        $aResult = array();
+        if ($sFilter === 'height-more' || $sFilter === 'width-more') {
+            if ($sFilter === 'height-more') {
+                $sMethod = 'getSizeHeight';
+            } else {
+                $sMethod = 'getSizeWidth';
+            }
+            foreach($aImages as $xKey => $oImage) {
+                if ($oImage->$sMethod() > $iValue) {
+                    $aResult[$xKey] = $oImage;
+                }
+            }
+        } elseif ($sFilter === 'height-less' || $sFilter === 'width-less') {
+            if ($sFilter === 'height-more') {
+                $sMethod = 'getSizeHeight';
+            } else {
+                $sMethod = 'getSizeWidth';
+            }
+            foreach($aImages as $xKey => $oImage) {
+                if ($oImage->$sMethod() < $iValue) {
+                    $aResult[$xKey] = $oImage;
+                }
+            }
+        } elseif ($sFilter === 'height-max' || $sFilter === 'height-min') {
+            $aSorted = array();
+            foreach($aImages as $xKey => $oImage) {
+                $aSorted[$oImage->getSizeHeight()][$xKey] = $oImage;
+            }
+            if ($sFilter === 'height-max') {
+                $iSize = max(array_keys($aSorted));
+            } else {
+                $iSize = min(array_keys($aSorted));
+            }
+            $aResult = $aSorted[$iSize];
+        } elseif ($sFilter === 'width-max' || $sFilter === 'width-min') {
+            $aSorted = [];
+            foreach($aImages as $xKey => $oImage) {
+                $aSorted[$oImage->getSizeWidth()][$xKey] = $oImage;
+            }
+            if ($sFilter === 'width-max') {
+                $iSize = max(array_keys($aSorted));
+            } else {
+                $iSize = min(array_keys($aSorted));
+            }
+            $aResult = $aSorted[$iSize];
+        } else {
+            $aResult = $aImages;
+        }
+
+        return $aResult;
+    }
+
+    /**
+     * @param $aImages
+     * @param $aFilter
+     *
+     * @return array
+     */
+    protected function _filterImages($aImages, $aFilter) {
+
+        $aResult = $aImages;
+        $aMinMax = array('height-max', 'height-min', 'width-max', 'width-min');
+        foreach($aFilter as $sFilterName => $xFilterValue) {
+            if (in_array($xFilterValue, $aMinMax, true)) {
+                $aResult = $this->_findImages($aResult, $xFilterValue, true);
+            } else {
+                $aResult = $this->_findImages($aResult, $sFilterName, $xFilterValue);
+            }
+        }
+        return $aResult;
+    }
+
+    /**
+     * Returns images loaded in topic by filter
+     * Filter parameters:
+     *      'width-more' => N - width more then N px
+     *      'width-less' => N - width less then N px
+     *      'height-more' => N - height more then N px
+     *      'height-less' => N - height less then N px
+     *      'width-max' => true - images width max width
+     *      'width-min' => true - images width min width
+     *      'height-max' => true - images width max height
+     *      'height-min' => true - images width min height
+     *
+     *
+     * @param array $aFilter
+     *
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getLoadedImages($aFilter = array()) {
+
+        $sPropKey = '_loaded_images' . serialize($aFilter);
+        $aResult = $this->getProp($sPropKey);
+        if ($aResult === null) {
+            $aResult = array();
+            if (!empty($aFilter)) {
+                $aImages = $this->getLoadedImages();
+                if (!empty($aImages)) {
+                    $aResult = $this->_filterImages($aImages, $aFilter);
+                }
+            } else {
+                $aMedia = $this->getImages();
+                if ($aMedia) {
+                    foreach($aMedia as $iMediaId => $oMedia) {
+                        if ($oMedia->isFile()) {
+                            $aResult[$iMediaId] = $oMedia;
+                        }
+                    }
+                }
+            }
+            $this->setProp($sPropKey, $aResult);
+        }
+        return $aResult;
+    }
+
+    /**
+     * @param array $aFilter
+     *
+     * @return ModuleMresource_EntityMresourceRel|null
+     */
+    public function selectImage($aFilter = array()) {
+
+        $aImages = $this->getLoadedImages($aFilter);
+        if (empty($aImages)) {
+            return null;
+        }
+        return reset($aImages);
     }
 
 }

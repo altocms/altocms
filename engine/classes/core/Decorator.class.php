@@ -11,6 +11,9 @@
 /**
  * Class Decorator
  *
+ * @mixin Module
+ * @method Init
+ *
  * @package engine
  * @since 1.1
  */
@@ -27,6 +30,11 @@ class Decorator extends LsObject {
 
     protected $aRegisteredHooks = array();
 
+    protected $aStats = array();
+
+    /**
+     * @param $oComponent
+     */
     public function __construct($oComponent) {
 
         $this->oComponent = $oComponent;
@@ -68,7 +76,7 @@ class Decorator extends LsObject {
      * Calls method of decorated object
      *
      * @param string $sMethod
-     * @param array $aArgs
+     * @param array  $aArgs
      *
      * @return mixed
      */
@@ -94,7 +102,6 @@ class Decorator extends LsObject {
             }
         }
 
-        //$xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgsRef);
         switch (count($aArgs)) {
             case 0:
                 $xResult = $this->oComponent->$sMethod();
@@ -152,13 +159,23 @@ class Decorator extends LsObject {
 
     /**
      * @param string $sMethod
-     * @param array $aArgs
+     * @param array  $aArgs
      *
      * @return mixed
      */
     public function __call($sMethod, $aArgs) {
 
-        return $this->CallMethod($sMethod, $aArgs);
+        $iTime = microtime(true);
+
+        $xResult = $this->CallMethod($sMethod, $aArgs);
+
+        $this->aStats['calls'][] = array(
+            'time' => round(microtime(true) - $iTime, 6),
+            'method' => $sMethod,
+            'args' => $aArgs,
+        );
+
+        return $xResult;
     }
 
     /**
@@ -212,7 +229,7 @@ class Decorator extends LsObject {
      * @param object $oComponent
      * @param bool   $bHookEnable
      *
-     * @return object
+     * @return Decorator
      */
     static function Create($oComponent, $bHookEnable = true) {
 
@@ -220,7 +237,14 @@ class Decorator extends LsObject {
         if (!$bHookEnable || $sClassName == 'ModulePlugin' || $sClassName == 'ModuleHook') {
             return $oComponent;
         }
-        $oComponentDecorator = new static($oComponent);
+        if (DEBUG) {
+            $sDecoratorClassName = 'Decorator' . $sClassName;
+            $sDecoratorClassCode = 'class ' . $sDecoratorClassName . ' extends Decorator { }';
+            eval($sDecoratorClassCode);
+            $oComponentDecorator = new $sDecoratorClassName($oComponent);
+        } else {
+            $oComponentDecorator = new static($oComponent);
+        }
         $aClassInfo = E::GetClassInfo($oComponent, Engine::CI_ACTION | Engine::CI_MODULE);
         if ($aClassInfo[Engine::CI_ACTION]) {
             $oComponentDecorator->setType('action');

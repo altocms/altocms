@@ -1,0 +1,15 @@
+{
+	"name": "qevix/qevix",
+	"description": "Automatic filter HTML/XHTML",
+	"keywords": ["qevix", "html", "xhtml"],
+	"homepage": "https://github.com/AlexanderGrom/php-qevix",
+	"type": "library",
+	"license": "MIT",
+	"require": {
+		"php": ">=5.0.0",
+		"ext-mbstring": "*"
+	},
+	"autoload": {
+		"files": ["qevix.php"]
+  	}
+}

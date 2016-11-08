@@ -20,7 +20,7 @@
 	{$aHtmlHeadFiles.css}
 	
 	{if {Config::Get('view.theme')} == 'light'}
-		<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 	{/if}
 	
 	<link href="{Config::Get('path.static.skin')}/images/favicon.ico?v1" rel="shortcut icon" />

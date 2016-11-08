@@ -1,3 +1,6 @@
+
+Warning: PHP Startup: Unable to load dynamic library 'd:/www-server/modules/php/PHP-5.6/ext/php_imagick.dll' - �� ������ ��������� ������.
+ in Unknown on line 0
 /* THEME experience Light */
 /* THEME experience */
 /*
@@ -74,6 +77,11 @@ a {
 }
 .nav.context-menu > li.active > a {
   color: #fff;
+  background-color: #b82223;
+}
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
   background-color: #b82223;
 }
 .nav-pills.context-menu > li.bordered {

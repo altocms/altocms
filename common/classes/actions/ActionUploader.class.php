@@ -46,7 +46,6 @@ class ActionUploader extends Action {
         $this->AddEvent('description', 'EventDescription'); // Установка описания ресурса
         $this->AddEvent('cover', 'EventCover'); // Установка обложки фотосета
         $this->AddEvent('sort', 'EventSort'); // Меняет сортировку элементов фотосета
-
     }
 
     /**
@@ -203,7 +202,7 @@ class ActionUploader extends Action {
      * @param  string $sTargetId - ID целевого объекта
      * @param  array $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
-     * @return string|bool
+     * @return ModuleMresource_EntityMresource|bool
      */
     public function UploadImageAfterResize($sFile, $sTarget, $sTargetId, $aSize = array()) {
 
@@ -231,6 +230,21 @@ class ActionUploader extends Action {
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
         return FALSE;
+    }
+
+    /**
+     * Path to temporary preview image
+     *
+     * @param string $sFileName
+     *
+     * @return string
+     */
+    protected function _getTmpPreviewName($sFileName) {
+
+        $sFileName = basename($sFileName) . '-preview.' . pathinfo($sFileName, PATHINFO_EXTENSION);
+        $sFileName = F::File_RootDir() . Config::Get('path.uploads.images') . 'tmp/' . $sFileName;
+
+        return F::File_NormPath($sFileName);
     }
 
     /**
@@ -264,14 +278,13 @@ class ActionUploader extends Action {
 
                 return;
             }
-
         }
 
         // Ошибок пока нет
         $sError = '';
 
         // Загружаем временный файл
-        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile, $sTarget);
+        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile, 'images.' . $sTarget);
 
         // Вызовем хук перед началом загрузки картинки
         E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget, 'sTargetId' => $sTargetId));
@@ -281,7 +294,9 @@ class ActionUploader extends Action {
             if (E::ModuleImg()->MimeType($sTmpFile)) {
                 // Ресайзим и сохраняем уменьшенную копию
                 // Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
-                $sPreviewFile = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false) . '_preview.' . F::File_GetExtension($sTmpFile);
+                //$sPreviewFile = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false) . '_preview.' . F::File_GetExtension($sTmpFile);
+                // We need to create special preview file because we can show it only from upload dir (not from common tmp dir)
+                $sPreviewFile = $this->_getTmpPreviewName($sTmpFile);
 
                 if ($sPreviewFile = E::ModuleImg()->Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
 
@@ -361,9 +376,14 @@ class ActionUploader extends Action {
         $aSize = $this->_getImageSize('size');
         if ($aSize) {
             $aSize = array(
-                'x1' => round($fRation * $aSize['x1']), 'y1' => round($fRation * $aSize['y1']),
-                'x2' => round($fRation * $aSize['x2']), 'y2' => round($fRation * $aSize['y2'])
+                'x1' => floor($fRation * $aSize['x1']), 'y1' => floor($fRation * $aSize['y1']),
+                'x2' => ceil($fRation * $aSize['x2']), 'y2' => ceil($fRation * $aSize['y2'])
             );
+            $iD = max($aSize['x2'] - $aSize['x1'] - $aSizeFile[0], $aSize['y2'] - $aSize['y1'] - $aSizeFile[1]);
+            if ($iD > 0) {
+                $aSize['x2'] -= $iD;
+                $aSize['y2'] -= $iD;
+            }
         }
 
         // * Вырезаем и сохраняем фото
@@ -465,8 +485,10 @@ class ActionUploader extends Action {
 
             return;
         }
+        $sPreviewFile = $this->_getTmpPreviewName($sTmpFile);
 
         E::ModuleImg()->Delete($sTmpFile);
+        E::ModuleImg()->Delete($sPreviewFile);
 
         // * Удаляем из сессии
         E::ModuleSession()->Drop('sTarget');

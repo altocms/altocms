@@ -24,32 +24,31 @@
 
             <br/>
 
+            {if !$bIsResults}
             <div class="bg-warning">
-                {if !$bIsResults}
-                    {$aLang.search_results_empty}
-                {/if}
+                {$aLang.search_results_empty}
             </div>
+            {/if}
 
         </div>
-
 
     </div>
 
 
     {if $bIsResults && $aRes.aCounts}
         <div class="row">
-            <div class="col-lg-12 user-toggle-publication-block">
+            <div class="col-lg-24 mab12">
 
                 {foreach $aRes.aCounts as $sType=>$iCount}
-                        <a href="{router page='search'}{$sType}/?q={$aReq.q|escape:'html'}" class="btn btn-default {if $aReq.sType == $sType}class="active"{/if}">
-                            {$iCount}
+                        <a href="{router page='search'}{$sType}/?q={$aReq.q|escape:'html'}" data-search-type="{$sType}" class="btn btn-default {if $aReq.sType == $sType}active{/if} js-search-link">
                             {if $sType=="topics"}
-                                {$aLang.search_results_count_topics}
+                                {$aLang.search_found_topics}
                             {elseif $sType=="comments"}
-                                {$aLang.search_results_count_comments}
+                                {$aLang.search_found_comments}
                             {else}
                                 {hook run='search_result_item' sType=$sType}
                             {/if}
+                            {if $iCount}({$iCount}){/if}
                         </a>
                 {/foreach}
 

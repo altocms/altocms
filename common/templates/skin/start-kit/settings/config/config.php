@@ -33,6 +33,11 @@ $config['module']['uploader']['images']['profile_avatar']['size'] = array(
     'medium' => 48,
     'small'  => 36,
     'mini'   => 24,
+    'photo'  => '250x250crop',
+);
+
+$config['module']['uploader']['images']['profile_photo']['size'] = array(
+    'default'  => '250x250crop',
 );
 
 return $config;

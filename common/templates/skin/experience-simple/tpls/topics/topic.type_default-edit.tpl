@@ -22,8 +22,6 @@
             </script>
         {/if}
 
-
-
         <div class="panel-header-container">
             <div class="col-md-{if $sMenuType=='select'}12{else}6{/if}">
                 <div class="panel-header">
@@ -37,7 +35,7 @@
             <div class="js-content-type-menu-container col-md-{if $sMenuType=='select'}12{else}18{/if}">
                 {if $sMenuType=='select'}
                     <div class="form-group">
-                        <select name="blog_id" id="blog_id" onchange="location = this.options[this.selectedIndex].value;" class="form-control">
+                        <select name="content_type" id="content_type" onchange="location = this.options[this.selectedIndex].value;" class="form-control">
                         {foreach from=$aContentTypes item=oContentTypeItem}
                             {if $oContentTypeItem->isAccessible()}
                                 <option value="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/" {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
@@ -51,7 +49,7 @@
                             <option value="{router page='talk'}add">
                                 {$aLang.block_create_talk}
                             </option>
-                            {hook run='write_item' isPopup=true}
+                            {hook run='write_item' isPopup=false from="page"}
                             {if $iUserCurrentCountTopicDraft}
                                 <option value="{router page='content'}drafts/" {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
                                     {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
@@ -80,7 +78,7 @@
                                 {$aLang.block_create_talk}
                             </a>
                         </li>
-                        {hook run='write_item' isPopup=true}
+                        {hook run='write_item' isPopup=false from="page"}
                         {if $iUserCurrentCountTopicDraft}
                             <li {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
                                 <a href="{router page='content'}drafts/"
@@ -159,17 +157,7 @@
                         </div>
                     </div>
                 {else}
-    {*<script>*}
-        {*$(function(){*}
-            {*function resizeInput() {*}
-                {*$(this).attr('size', $(this).val().length-2);*}
-            {*}*}
 
-            {*$('.auto-input')*}
-                    {*.keyup(resizeInput)*}
-                    {*.each(resizeInput);*}
-        {*})*}
-    {*</script>*}
                     <div class="form-group has-feedback">
                         <div class="input-group">
                             <span class="input-group-addon">{$aLang.topic_create_url}</span>

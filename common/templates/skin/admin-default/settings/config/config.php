@@ -6,7 +6,7 @@ $config['smarty']['dir']['templates'] = array(
     'tpls'   => '___path.skins.dir___/___view.skin___/tpls/',
 );
 
-$config['head']['default']['css'] = array(
+$config['assets']['default']['css'] = array(
     '___path.frontend.dir___/libs/vendor/markitup/skins/default/style.css',
     '___path.frontend.dir___/libs/vendor/markitup/sets/default/style.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
@@ -27,9 +27,9 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/themes/___view.theme___/theme.css',
 );
 
-$config['head']['default']['js'] = array(
-    '___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+$config['assets']['default']['js'] = array(
+    '___path.frontend.dir___/libs/vendor/jquery-1.12.4.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.4.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',
@@ -112,7 +112,7 @@ $config['head']['default']['js'] = array(
     '___path.skin.dir___/assets/js/jquery.formstyler.min.js',
 );
 
-$config['footer']['default']['js'] = array();
+$config['assets']['footer']['js'] = false;
 
 $config['path']['skin']['img']['dir'] = '___path.skin.dir___/assets/img/'; // папка с изображениями скина
 $config['path']['skin']['img']['url'] = '___path.skin.url___/assets/img/'; // URL с изображениями скина

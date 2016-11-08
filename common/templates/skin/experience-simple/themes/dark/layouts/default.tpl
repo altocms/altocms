@@ -57,14 +57,11 @@
             var ALTO_SECURITY_KEY   = '{$ALTO_SECURITY_KEY}';
             var SESSION_ID          = '{$_sPhpSessionId}';
 
-
-            var tinymce = false;
-            var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
+            var tinyMCE = tinymce = false;
+            var TINYMCE_LANG = {if E::ModuleLang()->GetLang() == 'ru'}'ru'{else}'en'{/if};
 
             var aRouter = [];
-            {foreach from=$aRouter key=sPage item=sPath}
-                aRouter['{$sPage}'] = '{$sPath}';
-            {/foreach}
+            {strip}{foreach from=$aRouter key=sPage item=sPath} aRouter['{$sPage}'] = '{$sPath}'; {/foreach}{/strip}
 
             {$SWF_DIR_NAME=E::ViewerAsset_AssetFileHashDir("{Config::Get('path.root.dir')}common/templates/frontend/libs/vendor/jquery.fileapi/FileAPI/")}
             window.FileAPI = {
@@ -176,45 +173,17 @@
 
                         <div class="row">
                             <div class="col-sm-8">
-                                {if E::IsUser()}
-                                    <h4>{E::User()->getDisplayName()}</h4>
-                                    <ul class="footer-column">
-                                        <li><a class="link link-dual link-lead link-clear" href="{E::User()->getProfileUrl()}">{$aLang.footer_menu_user_profile}</a></li>
-                                        <li><a class="link link-dual link-lead link-clear" href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
-                                        <li><a class="link link-dual link-lead link-clear" href="{router page='content'}topic/add/" class="js-write-window-show">{$aLang.block_create}</a></li>
-                                        {hook run='footer_menu_user_item' oUser=$oUserCurrent}
-                                        <li><a class="link link-dual link-lead link-clear" href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a></li>
-                                    </ul>
-                                {else}
-                                    <h4>{$aLang.footer_menu_user_quest_title}</h4>
-                                    <ul class="footer-column">
-                                        <li><a class="link link-dual link-lead link-clear" href="{router page='registration'}">{$aLang.registration_submit}</a></li>
-                                        <li><a class="link link-dual link-lead link-clear" href="{router page='login'}">{$aLang.user_login_submit}</a></li>
-                                        {hook run='footer_menu_user_item' isGuest=true}
-                                    </ul>
-                                {/if}
-                            </div>
-
-                            <div class="col-sm-8">
                                 <h4>{$aLang.footer_menu_navigate_title}</h4>
-                                <ul class="footer-column">
-                                    <li><a class="link link-dual link-lead link-clear"  href="{Config::Get('path.root.url')}">{$aLang.topic_title}</a></li>
-                                    <li><a class="link link-dual link-lead link-clear"  href="{router page='blogs'}">{$aLang.blogs}</a></li>
-                                    <li><a class="link link-dual link-lead link-clear"  href="{router page='people'}">{$aLang.people}</a></li>
-                                    <li><a class="link link-dual link-lead link-clear"  href="{router page='stream'}">{$aLang.stream_menu}</a></li>
-                                    {hook run='footer_menu_navigate_item'}
-                                </ul>
+                                {menu id='footer_site_menu'}
                             </div>
 
                             <div class="col-sm-8">
                                 <h4>{$aLang.footer_menu_navigate_info}</h4>
-                                <ul class="footer-column">
-                                    <li><a class="link link-dual link-lead link-clear" href="#">{$aLang.footer_menu_project_about}</a></li>
-                                    <li><a class="link link-dual link-lead link-clear" href="#">{$aLang.footer_menu_project_rules}</a></li>
-                                    <li><a class="link link-dual link-lead link-clear" href="#">{$aLang.footer_menu_project_advert}</a></li>
-                                    <li><a class="link link-dual link-lead link-clear" href="#">{$aLang.footer_menu_project_help}</a></li>
-                                    {hook run='footer_menu_project_item'}
-                                </ul>
+                                {menu id='footer_info'}
+                            </div>
+
+                            <div class="col-sm-8">
+
                             </div>
                         </div>
 

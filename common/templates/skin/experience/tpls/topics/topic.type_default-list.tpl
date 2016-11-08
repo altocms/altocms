@@ -55,7 +55,6 @@
             </div>
         {/block}
 
-
         {block name="topic_content"}
             <div class="topic-text">
                 {hook run='topic_content_begin' topic=$oTopic bTopicList=true}
@@ -78,7 +77,9 @@
             </div>
         {/block}
 
-        {include file="fields/field.tags-show.tpl"}
+        {block name="topic_fields"}
+            {include file="fields/field.tags-show.tpl"}
+        {/block}
 
     </div>
 
@@ -103,8 +104,8 @@
         {if !$bPreview}
         <div class="topic-footer">
             <ul>
-                <li class="topic-user js-popover-{$oUser->getId()}">
-                    <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
+                <li class="topic-user js-popover-user-{$oUser->getId()}">
+                    <img src="{$oUser->getAvatarUrl('small')}" {$oUser->getAvatarImageSizeAttr('small')} alt="{$oUser->getDisplayName()}"/>
                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}
                     </a>

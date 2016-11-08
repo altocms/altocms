@@ -104,8 +104,9 @@ class Func {
 
     /**
      * @param $sError
+     * @param $aLogTrace
      */
-    static public function _errorLog($sError) {
+    static public function _errorLog($sError, $aLogTrace = null) {
 
         $sError = mb_convert_encoding($sError, 'UTF-8', 'auto');
         $sText = $sError;
@@ -144,7 +145,7 @@ class Func {
                 }
             }
 
-            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = static::_callStackError())) {
+            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = ($aLogTrace ? $aLogTrace : static::_callStackError()))) {
                 $sText .= "--- call stack ---\n";
                 foreach ($aCallStack as $aCaller) {
                     $sText .= static::_callerToString($aCaller) . "\n";
@@ -306,8 +307,13 @@ class Func {
                 }
             }
             $sLogMsg .= "\nTemplates stack:\n" . join("\n", $aTemplateStack);
+        } else {
+            $aLogTrace = $oException->getTrace();
+            if (is_array($aLogTrace) && $oException->getFile() && $oException->getLine()) {
+                array_unshift($aLogTrace, array('file' => $oException->getFile(), 'line' => $oException->getLine()));
+            }
         }
-        static::_errorLog($sLogMsg);
+        static::_errorLog($sLogMsg, !empty($aLogTrace) ? $aLogTrace : null);
     }
 
     /**
@@ -785,25 +791,34 @@ class Func {
      * Проверяет плагины на соответствие маске разрешённых url и,
      * если нужно исключает из списка активных
      *
-     * @param $aPlugins
+     * @param array $aPlugins
+     *
      * @return array
      */
     static protected function ExcludeByEnabledMask($aPlugins) {
 
-        $aResult = array();
-        $sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
-        foreach ($aPlugins as $sPluginName => $aPluginData) {
-            $sXmlText = F::File_GetContents($aPluginData['manifest']);
-            if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
-                $sReq = preg_replace('/\/+/', '/', $sRequestUri);
-                $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
-                $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
-                if (preg_match($aMatches[1], $sReq)) {
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $aResult = array();
+            //$sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
+            $sRequestUri = self::ParseUrl(null, PHP_URL_PATH);
+            if ($sRequestUri == '/') {
+                $sRequestUri = '__MAIN_PAGE__';
+            }
+            foreach ($aPlugins as $sPluginName => $aPluginData) {
+                $sXmlText = F::File_GetContents($aPluginData['manifest']);
+                if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
+                    $sReq = preg_replace('/\/+/', '/', $sRequestUri);
+                    $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
+                    $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
+                    if (preg_match($aMatches[1], $sReq)) {
+                        $aResult[$sPluginName] = $aPluginData;
+                    }
+                } else {
                     $aResult[$sPluginName] = $aPluginData;
                 }
-            } else {
-                $aResult[$sPluginName] = $aPluginData;
             }
+        } else {
+            $aResult = $aPlugins;
         }
 
         return $aResult;
@@ -988,8 +1003,8 @@ class Func {
             return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
         } else {
             return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
-            || (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY']) && $_REQUEST['HTTP_X_ALTO_AJAX_KEY'])
-            || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
+            || (!empty($_SERVER['HTTP_X_ALTO_AJAX_KEY']))
+            || (!empty($_REQUEST['ALTO_AJAX']));
         }
     }
 
@@ -1092,22 +1107,24 @@ class Func {
             }
         }
         if ($iComponent != -1) {
-            if ($iComponent == PHP_URL_SCHEME) {
+            if ($iComponent === PHP_URL_SCHEME) {
                 $xResult = $xResult['scheme'];
-            } elseif($iComponent == PHP_URL_HOST) {
+            } elseif($iComponent === PHP_URL_HOST) {
                 $xResult = $xResult['host'];
-            } elseif($iComponent == PHP_URL_PORT) {
+            } elseif($iComponent === PHP_URL_PORT) {
                 $xResult = $xResult['port'];
-            } elseif($iComponent == PHP_URL_USER) {
+            } elseif($iComponent === PHP_URL_USER) {
                 $xResult = $xResult['user'];
-            } elseif($iComponent == PHP_URL_PASS) {
+            } elseif($iComponent === PHP_URL_PASS) {
                 $xResult = $xResult['pass'];
-            } elseif($iComponent == PHP_URL_PATH) {
+            } elseif($iComponent === PHP_URL_PATH) {
                 $xResult = $xResult['path'];
-            } elseif($iComponent == PHP_URL_QUERY) {
+            } elseif($iComponent === PHP_URL_QUERY) {
                 $xResult = $xResult['query'];
-            } elseif($iComponent == PHP_URL_FRAGMENT) {
+            } elseif($iComponent === PHP_URL_FRAGMENT) {
                 $xResult = $xResult['fragment'];
+            } if(isset($xResult[$iComponent])) {
+                $xResult = $xResult[$iComponent];
             } else {
                 $xResult = false;
             }
@@ -1156,6 +1173,41 @@ class Func {
 
         $sProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
         return $sProtocol;
+    }
+
+    /**
+     * Return request method
+     *
+     * @return string
+     */
+    static public function GetRequestMethod() {
+
+        return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null;
+    }
+
+    /**
+     * Return all request headers
+     *
+     * @return array
+     */
+    static public function GetRequestHeaders() {
+
+        return getallheaders();
+    }
+
+    static protected $_sRequestBody;
+
+    /**
+     * Return raw data from the request body
+     *
+     * @return string
+     */
+    static public function GetRequestBody() {
+
+        if (is_null(self::$_sRequestBody)) {
+            self::$_sRequestBody = file_get_contents('php://input');
+        }
+        return self::$_sRequestBody;
     }
 
     /**
@@ -1402,6 +1454,18 @@ if (!function_exists('mb_preg_match_all')) {
         return mb_preg_match_fix(1, $sPattern, $sSubject, $aMatches, $nFlags, $nOffset, $sEncoding);
     }
 
+}
+
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+        $aHeaders = array();
+        foreach ($_SERVER as $sName => $sValue) {
+            if (substr($sName, 0, 5) == 'HTTP_') {
+                $aHeaders[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($sName, 5)))))] = $sValue;
+            }
+        }
+        return $aHeaders;
+    }
 }
 
 //class_alias('Func', 'F');

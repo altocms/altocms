@@ -15,7 +15,7 @@
             <i class="fa fa-pencil"></i>&nbsp;{$aLang.blog_admin_profile}
         </a>
         <a class="small link link-light-gray link-clear link-lead {if $sMenuItemSelect=='admin'}active{/if}" href="{router page='blog'}admin/{$oBlogEdit->getId()}/">
-            <i class="fa fa-cogs"></i>&nbsp;{$aLang.blog_admin_users}
+            <i class="fa fa-users"></i>&nbsp;{$aLang.blog_admin_users}
         </a>
 
         {hook run='menu_blog_edit_admin_item'}

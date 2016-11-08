@@ -1,6 +1,6 @@
 {if $aPaging AND $aPaging.iCountPage>1}
     <div class="paging">
-        <ul class="pagination">
+        <ul class="pagination js-pagination">
             {if $aPaging.iPrevPage}
                 <li class="prev"><a href="{$aPaging.sBaseUrl}/page{$aPaging.iPrevPage}/{$aPaging.sGetParams}"
                                     class="js-paging-prev-page" title="{$aLang.paging_previos}">&laquo;</a></li>

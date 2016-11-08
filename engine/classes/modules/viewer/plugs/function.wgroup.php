@@ -24,23 +24,22 @@
  */
 function smarty_function_wgroup($aParams, $oSmartyTemplate) {
 
-    if (isset($aParams['name'])) {
-        if (!isset($aParams['group'])) {
-            $aParams['group'] = $aParams['name'];
-        } elseif (!isset($aParams['widget'])) {
-            $aParams['widget'] = $aParams['name'];
-        }
-    }
-    if (!isset($aParams['group']) && !isset($aParams['name'])) {
+    if (empty($aParams['group']) && empty($aParams['name'])) {
         $sError = 'Parameter "group" does not define in {wgroup ...} function';
         if ($oSmartyTemplate->template_resource) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
-        trigger_error($sError, E_USER_WARNING);
+        F::SysWarning($sError);
         return null;
     }
+
+    if (empty($aParams['group']) && !empty($aParams['name'])) {
+        $aParams['group'] = $aParams['name'];
+        unset($aParams['name']);
+    }
+
     $sWidgetGroup = $aParams['group'];
-    $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : $aParams);
+    $aWidgetParams = (isset($aParams['params']) ? array_merge($aParams['params'], $aParams): $aParams);
 
     // group parameter required
     if (!$sWidgetGroup) {
@@ -65,7 +64,7 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
         );
     } elseif ($sWidgetCommand == 'add') {
         if (!isset($aWidgetParams['widget'])) {
-            trigger_error('Parameter "widget" does not define in {wgroup ...} function', E_USER_WARNING);
+            F::SysWarning('Parameter "widget" does not define in {wgroup ...} function');
             return null;
         }
         if (!function_exists('smarty_function_wgroup_add')) {

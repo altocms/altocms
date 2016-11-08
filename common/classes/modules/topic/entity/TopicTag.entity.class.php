@@ -151,9 +151,13 @@ class ModuleTopic_EntityTopicTag extends Entity {
         $this->setProp('size', $data);
     }
 
+    /**
+     * @return string
+     */
     public function getLink() {
 
-        return R::GetPath('tag') . F::UrlEncode($this->getText()) . '/';
+        $sLink = R::GetPath('tag') . F::UrlEncode($this->getText(), true) . '/';
+        return $sLink;
     }
 
 }

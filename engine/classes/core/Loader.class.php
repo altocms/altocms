@@ -12,6 +12,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
 
 class Loader {
 
+    static protected $bConfigLoaded = false;
+
     /**
      * @param array $aConfig
      */
@@ -66,7 +68,8 @@ class Loader {
         );
         Config::Set('path.root.seek', $aSeekDirClasses);
 
-        if (is_null(Config::Get('path.root.subdir'))) {
+        $sPathSubdir = Config::Get('path.root.subdir');
+        if (is_null($sPathSubdir)) {
             if (isset($_SERVER['DOCUMENT_ROOT'])) {
                 $sPathSubdir = '/' . F::File_LocalPath(ALTO_DIR, $_SERVER['DOCUMENT_ROOT']);
             } elseif ($iOffset = Config::Get('path.offset_request_url')) {
@@ -76,20 +79,27 @@ class Loader {
                 $sPathSubdir = '';
             }
             Config::Set('path.root.subdir', $sPathSubdir);
+        } elseif ($sPathSubdir) {
+            if ($sPathSubdir[0] !== '/' || substr($sPathSubdir, -1) === '/') {
+                $sPathSubdir = '/' . trim($sPathSubdir, '/');
+                Config::Set('path.root.subdir', $sPathSubdir);
+            }
+        }
+        if ($sPathSubdir && is_null(Config::Get('path.offset_request_url'))) {
+            Config::Set('path.offset_request_url', substr_count($sPathSubdir, '/'));
         }
 
         // Подгружаем конфиг из файлового кеша, если он есть
         Config::ResetLevel(Config::LEVEL_CUSTOM);
-        $aConfig = Config::ReadCustomConfig(null, true);
-        if ($aConfig) {
-            Config::Load($aConfig, false, null, null, 'custom');
-        }
+
+        // Load from cache, because database could not be used here
+        self::_loadStorageConfig();
 
         // Задаем локаль по умолчанию
         F::IncludeLib('UserLocale/UserLocale.class.php');
         // Устанавливаем признак того, является ли сайт многоязычным
         $aLangsAllow = (array)Config::Get('lang.allow');
-        if (sizeof($aLangsAllow) > 1) {
+        if (count($aLangsAllow) > 1) {
             UserLocale::initLocales($aLangsAllow);
             Config::Set('lang.multilang', true);
         } else {
@@ -102,6 +112,8 @@ class Loader {
         Config::Set('i18n', UserLocale::getLocale());
 
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
+
+        self::$bConfigLoaded = true;
     }
 
     /**
@@ -142,11 +154,12 @@ class Loader {
          */
         $sConfigFile = $sConfigDir . '/config.local.php';
         if (F::File_Exists($sConfigFile)) {
-            if ($aConfig = F::File_IncludeFile($sConfigFile, true)) {
+            if ($aConfig = F::IncludeFile($sConfigFile, true, true)) {
                 Config::Set($aConfig, false, null, $nConfigLevel, $sConfigFile);
             }
         }
 
+        $aConfigSections = F::Str2Array(Config::Get('config_load'));
         /*
          * Загружает конфиг-файлы плагинов вида /plugins/[plugin_name]/config/*.php
          * и include-файлы вида /plugins/[plugin_name]/include/*.php
@@ -161,7 +174,7 @@ class Loader {
                 $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
                     // move config.php to begin of array
-                    if (sizeof($aConfigFiles) > 1) {
+                    if (count($aConfigFiles) > 1) {
                         $sConfigFile = $sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/config.php';
                         $iIndex = array_search($sConfigFile, $aConfigFiles);
                         if ($iIndex) {
@@ -172,15 +185,40 @@ class Loader {
                     foreach ($aConfigFiles as $sConfigFile) {
                         $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
-                            // Если конфиг этого плагина пуст, то загружаем массив целиком
-                            $sKey = 'plugin.' . $sPlugin;
-                            if (!Config::isExist($sKey)) {
-                                Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
+                            $sSectionName = pathinfo($sConfigFile, PATHINFO_FILENAME);
+                            if (in_array($sSectionName, $aConfigSections)) {
+                                // e.g "classes.php"
+                                $aConfigRoot = $aConfig;
+                                if (!isset($aConfigRoot[$sSectionName])) {
+                                    $aConfigRoot = array(
+                                        $sSectionName => $aConfigRoot,
+                                    );
+                                }
+                                $aConfig = array();
+                            } elseif (isset($aConfig[Config::KEY_ROOT])) {
+                                $aConfigRoot = $aConfig[Config::KEY_ROOT];
+                                unset($aConfig[Config::KEY_ROOT]);
                             } else {
-                                // Если уже существуют привязанные к плагину ключи,
-                                // то сливаем старые и новое значения ассоциативно-комбинированно
-                                /** @see AltoFunc_Array::MergeCombo() */
-                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
+                                $aConfigRoot = array();
+                            }
+
+                            if (!empty($aConfigRoot)) {
+                                Config::Set($aConfigRoot, false, null, $nConfigLevel, $sConfigFile);
+                            }
+                            if (!empty($aConfig)) {
+                                Config::Set('plugin', array($sPlugin => $aConfig), null, $nConfigLevel, $sConfigFile);
+                                /*
+                                // Если конфиг этого плагина пуст, то загружаем массив целиком
+                                $sKey = 'plugin.' . $sPlugin;
+                                if (!Config::isExist($sKey)) {
+                                    Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
+                                } else {
+                                    // Если уже существуют привязанные к плагину ключи,
+                                    // то сливаем старые и новое значения ассоциативно-комбинированно
+                                    //** @see AltoFunc_Array::MergeCombo() * /
+                                    Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
+                                }
+                                */
                             }
                         }
                     }
@@ -232,6 +270,17 @@ class Loader {
     }
 
     /**
+     * Load saved config from file cache, because database could not be used here
+     */
+    protected static function _loadStorageConfig() {
+
+        $aConfig = Config::ReadStorageConfig(null, true);
+        if ($aConfig) {
+            Config::Load($aConfig, false, null, null, 'storage');
+        }
+    }
+
+    /**
      * Load subconfig file
      *
      * @param string $sFile
@@ -241,7 +290,7 @@ class Loader {
     static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
         if (F::File_Exists($sFile)) {
-            $aCfg = F::File_IncludeFile($sFile, true, true);
+            $aCfg = F::IncludeFile($sFile, true, true);
             if ($aCfg) {
                 if (isset($aCfg[$sName])) {
                     $aConfig = $aCfg[$sName];
@@ -340,6 +389,17 @@ class Loader {
         return $xResult;
     }
 
+    static $_aConfigClasses;
+
+    static protected function _getConfigClasses($sKey) {
+
+        if (!empty(self::$_aConfigClasses)) {
+            return self::$_aConfigClasses[$sKey];
+        } else {
+            return Config::Get($sKey);
+        }
+    }
+
     /**
      * Автозагрузка классов
      *
@@ -349,13 +409,16 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if (Config::Get('classes')) {
-            if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
-                return self::_classAlias($sParentClass, $sClassName);
-            }
-            if (self::_autoloadDefinedClass($sClassName)) {
-                return true;
-            }
+        if (self::$bConfigLoaded && empty(self::$_aConfigClasses)) {
+            $xData = Config::Get('classes');
+            self::$_aConfigClasses = new DataArray(array('classes' => $xData));
+        }
+
+        if ($sParentClass = self::_getConfigClasses('classes.alias.' . $sClassName)) {
+            return self::_classAlias($sParentClass, $sClassName);
+        }
+        if (self::_autoloadDefinedClass($sClassName)) {
+            return true;
         }
 
         if (class_exists('Engine', false) && (E::GetStage() >= E::STAGE_INIT)) {
@@ -383,7 +446,7 @@ class Loader {
      */
     static protected function _autoloadDefinedClass($sClassName) {
 
-        if ($sFile = Config::Get('classes.class.' . $sClassName)) {
+        if ($sFile = self::_getConfigClasses('classes.class.' . $sClassName)) {
             // defined file name for the class
             if (is_array($sFile)) {
                 $sFile = isset($sFile['file']) ? $sFile['file'] : null;
@@ -394,7 +457,7 @@ class Loader {
         }
         // May be Namespace_Package or Namespace\Package
         if (strpos($sClassName, '\\') || strpos($sClassName, '_')) {
-            $aPrefixes = Config::Get('classes.prefix');
+            $aPrefixes = self::_getConfigClasses('classes.prefix');
             foreach ($aPrefixes as $sPrefix => $aOptions) {
                 if (strpos($sClassName, $sPrefix) === 0) {
                     // defined prefix for vendor/library
@@ -438,7 +501,7 @@ class Loader {
     static protected function _autoloadPSR0($sClassName, $xPath = null) {
 
         if (!$xPath) {
-            $xPath = C::Get('path.dir.libs');
+            $xPath = Config::Get('path.dir.libs');
         }
 
         $sCheckKey = serialize(array($sClassName, $xPath));
@@ -474,7 +537,7 @@ class Loader {
 
         // An associative array where the key is a namespace prefix and the value
         // is an array of base directories for classes in that namespace.
-        $aVendorNamespaces = C::Get('classes.namespace');
+        $aVendorNamespaces = self::_getConfigClasses('classes.namespace');
         if (!strpos($sClassName, '\\') || !$aVendorNamespaces) {
             return false;
 
@@ -496,6 +559,8 @@ class Loader {
             // try to load a mapped file for the prefix and relative class
             if (isset($aVendorNamespaces[$sPrefix])) {
                 if ($sFile = F::File_Exists($sFileName, $aVendorNamespaces[$sPrefix])) {
+                    return self::_includeFile($sFile, $sClassName);
+                } elseif ($sFile = F::File_Exists($sFileName, $aVendorNamespaces[$sPrefix] . '/' . pathinfo($sFileName, PATHINFO_FILENAME))) {
                     return self::_includeFile($sFile, $sClassName);
                 }
             }
@@ -536,6 +601,20 @@ class Loader {
         }
 
         return $bResult;
+    }
+
+    /**
+     * Creates an alias for a class
+     *
+     * @param string $sOriginal
+     * @param string $sAlias
+     * @param bool   $bAutoload
+     *
+     * @return bool
+     */
+    static public function ClassAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
+
+        return self::_classAlias($sOriginal, $sAlias, $bAutoload);
     }
 
     /**

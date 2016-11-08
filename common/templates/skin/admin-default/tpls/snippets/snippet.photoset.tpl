@@ -1,7 +1,8 @@
+{strip}
 {if count($aPhotos)}
     <div class="alto-photoset page-photoset js-topic-photoset-list"
          style="width: 100%"
-         {if $sPosition=='left' || $sPosition=='right'}data-width="{$sPosition}"{/if}>{strip}
+         {if $sPosition=='left' || $sPosition=='right'}data-width="{$sPosition}"{/if}>
         {foreach $aPhotos as $oPhoto}
             <a href="{$oPhoto->getWebPath()}">
                 <img src="{$oPhoto->getWebPath('x240')}" class="topic-photoset-item"
@@ -9,6 +10,6 @@
                      alt="{$oPhoto->getDescription()}"/>
             </a>
         {/foreach}
-    {/strip}</div>
+    </div>
 {/if}
-
+{/strip}

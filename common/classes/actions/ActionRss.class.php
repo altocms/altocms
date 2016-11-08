@@ -36,9 +36,13 @@ class ActionRss extends Action {
     protected function RegisterEvent() {
 
         $this->AddEventPreg('/^index$/', '/^newall$/', 'RssTopics');
+        $this->AddEventPreg('/^index$/', '/^new$/', 'RssTopics');
+        $this->AddEventPreg('/^index$/', '/^all$/', 'RssTopics');
         $this->AddEvent('index', 'RssTopics');
+        $this->AddEvent('new', 'RssTopics');
         $this->AddEvent('wall', 'RssWall');
         $this->AddEvent('allcomments', 'RssComments');
+        $this->AddEventPreg('/^comments$/', '/^\d+$/', 'RssCommentsByTopic');
         $this->AddEvent('tag', 'RssTopics');
         $this->AddEvent('blog', 'RssBlog');
         $this->AddEvent('personal_blog', 'RssPersonalBlog');
@@ -82,6 +86,11 @@ class ActionRss extends Action {
         $this->_displayRss($oRss);
     }
 
+    /**
+     * Event RssComments
+     *
+     * @return string
+     */
     protected function RssComments() {
 
         $sEvent = $this->GetParam(0);
@@ -91,12 +100,35 @@ class ActionRss extends Action {
         return R::Action('comments', $sEvent, $aParams);
     }
 
+    /**
+     * Event RssCommentsByTopic
+     *
+     * @return string
+     */
+    protected function RssCommentsByTopic() {
+
+        $sEvent = $this->GetParam(0);
+        $aParams = $this->GetParams();
+        array_shift($aParams);
+        E::ModuleHook()->AddHandler('action_after', array($this, 'ShowRssComments'));
+        return R::Action('blog', $sEvent . '.html', $aParams);
+    }
+
+    /**
+     * Show rss comments by hook
+     *
+     */
     public function ShowRssComments() {
 
         $aComments = E::ModuleViewer()->getTemplateVars('aComments');
         $this->_showRssItems($aComments);
     }
 
+    /**
+     * Event RssTopics
+     *
+     * @return string
+     */
     protected function RssTopics() {
 
         $sEvent = $this->GetParam(0);
@@ -106,12 +138,21 @@ class ActionRss extends Action {
         return R::Action($this->sCurrentEvent, $sEvent, $aParams);
     }
 
+    /**
+     * Show rss topics by hook
+     *
+     */
     public function ShowRssTopics() {
 
         $aTopics = E::ModuleViewer()->getTemplateVars('aTopics');
         $this->_showRssItems($aTopics);
     }
 
+    /**
+     * Create and show rss channel
+     *
+     * @param $aItems
+     */
     protected function _showRssItems($aItems) {
 
         $aParts = explode('/', trim(R::Url('path'), '/'), 2);
@@ -170,6 +211,9 @@ class ActionRss extends Action {
         return R::Action('blog', $sBlogUrl, $aParams);
     }
 
+    /**
+     * @return null|string
+     */
     protected function RssPersonalBlog() {
 
         $sUserLogin = $this->GetParam(0);
@@ -187,8 +231,12 @@ class ActionRss extends Action {
         } else {
             $this->_displayEmptyRss();
         }
+        return null;
     }
 
+    /**
+     *
+     */
     public function ShowRssBlog() {
 
         /** @var ModuleTopic_EntityTopic[] $aTopics */
@@ -197,21 +245,31 @@ class ActionRss extends Action {
         /** @var ModuleBlog_EntityBlog $oBlog */
         $oBlog = E::ModuleViewer()->getTemplateVars('oBlog');
 
-        /** @var ModuleRss_EntityRss $oRss */
-        $oRss = E::GetEntity('Rss');
+        if ($oBlog) {
+            /** @var ModuleRss_EntityRss $oRss */
+            $oRss = E::GetEntity('Rss');
 
-        // Creates RSS channel from the blog
-        $oRssChannel = $oBlog->CreateRssChannel();
+            // Creates RSS channel from the blog
+            $oRssChannel = $oBlog->CreateRssChannel();
 
-        // Adds items into RSS channel
-        foreach ($aTopics as $oTopic) {
-            $oRssChannel->AddItem($oTopic->CreateRssItem());
+            if (is_array($aTopics)) {
+                // Adds items into RSS channel
+                foreach ($aTopics as $oTopic) {
+                    $oRssChannel->AddItem($oTopic->CreateRssItem());
+                }
+            }
+            $oRss->AddChannel($oRssChannel);
+
+            $this->_displayRss($oRss);
+        } else {
+            F::HttpResponseCode(404);
+            $this->_displayEmptyRss();
         }
-        $oRss->AddChannel($oRssChannel);
-
-        $this->_displayRss($oRss);
     }
 
+    /**
+     * @param $oRss
+     */
     protected function _displayRss($oRss) {
 
         E::ModuleViewer()->Assign('oRss', $oRss);
@@ -221,6 +279,9 @@ class ActionRss extends Action {
         exit;
     }
 
+    /**
+     *
+     */
     protected function _displayEmptyRss() {
 
         $oRss = E::GetEntity('Rss');

@@ -1,5 +1,5 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="panel panel-default user-info flat">
 <div class="panel-body">
@@ -8,7 +8,7 @@
 
     <div class="row user-info-block">
         <div class="col-lg-17">
-            <img src="{$oUserProfile->getAvatarUrl('big')}" alt="{$oUserProfile->getDisplayName()}" class="user-logo" itemprop="photo"/>
+            <img src="{$oUserProfile->getAvatarUrl('big')}" {$oUserProfile->getAvatarImageSizeAttr('big')} alt="{$oUserProfile->getDisplayName()}" class="user-logo" itemprop="photo"/>
             <div class="user-name">
                 <div class="user-login-block">
                     <span class="user-login {if !$oUserProfile->getProfileName()}no-user-name{/if}" >{$oUserProfile->getLogin()}</span><br/>
@@ -157,7 +157,7 @@
                 </script>
                 <a href="#"
                    onclick="ls.user.followToggle(this, {$oUserProfile->getId()}); return false;"
-                   class="link link-light-gray link-clear link-lead"><i class="fa fa-star-o"></i>
+                   class="link link-light-gray link-clear link-lead {if $oUserProfile->isFollow()}followed{/if}"><i class="fa fa-star-o"></i>
                     {if $oUserProfile->isFollow()}{$aLang.profile_user_unfollow}{else}{$aLang.profile_user_follow}{/if}
                 </a>
             </li>

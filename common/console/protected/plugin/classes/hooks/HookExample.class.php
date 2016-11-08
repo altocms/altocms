@@ -7,35 +7,62 @@ class PluginExample_HookExample extends Hook {
      */
     public function RegisterHook() {
 
-
-
         /*
-         * Хук в начало функции AddTopic() в модуле Topic (файл /classes/modules/topic/Topic.class.php , если этот модуль не переопределен в других плагинах):
+         * Хук 'before' - вызывется перед вызовом публичного метода модуля
          *
-         * $this->AddHook('module_topic_addtopic_before','func_topic_addtopic_before');
+         * Хук перед методом AddTopic() модуля Topic (файл /classes/modules/topic/Topic.class.php,
+         * если этот модуль не переопределен в других плагинах):
          *
-         * Будет вызвана функция func_topic_addtopic_before($aVars) , где $aVars - НЕассоциативный массив аргументов, переданных этой функции.
-         * Передача результата в функцию AddTopic() делается путем изменения аргументов по ссылке - например, &$aVars[0]
+         * $this->AddHook('module_topic_addtopic_before', 'beforeAddTopic');
+         *
+         * Будет вызван метод beforeAddTopic($aVars) класса хука,
+         * где $aVars - НЕассоциативный массив аргументов, переданных этой функции.
+         *
+         * Передача результата в функцию AddTopic() делается путем изменения аргументов
+         * по ссылке - например, &$aVars[0]
          */
 
 
         /*
-         * Хук в конец функции AddTopic() в модуле Topic (файл /classes/modules/topic/Topic.class.php , если этот модуль не переопределен в других плагинах):
+         * Хук 'after' - вызывается после вызова публичного метода модуля
          *
-         * $this->AddHook('module_topic_addtopic_after','func_topic_addtopic_after');
+         * Хук после метода AddTopic() модуля Topic (файл /classes/modules/topic/Topic.class.php,
+         * если этот модуль не переопределен в других плагинах):
          *
-         * Будет вызвана функция func_topic_addtopic_after($Var) , где $Var - это то, что возвращает AddTopic() (т.е. или false или объект топика $oTopic)
+         * $this->AddHook('module_topic_addtopic_after', 'afterAddTopic');
+         *
+         * Будет вызван метод afterAddTopic($Var) класса хука, где $Var - это то,
+         * что возвращает AddTopic() (т.е. или false или объект топика $oTopic)
+         *
          * Функция должна завершаться при помощи return $Var
          */
 
 
         /*
-         * Хук в конкреное место движка
+         * Хук на явный вызов
          *
-         * $this->AddHook('init_action','func_init_action', __CLASS__, -5);
+         * $this->AddHook('init_action', 'initAction', -5);
          *
          * Приоритет для вызова хука = -5. Этот приоритет так же можно указывать и в хуках на модели.
-         * Будет вызвана функция func_init_action($Var) в том месте движка, где стоит данный хук
+         * Будет вызван метод initAction($Var) в том месте движка, где стоит явный вызов E::ModuleHook()->Run('init_action')
+         */
+
+        /*
+         * Шаблонный хук - вызов метода
+         *
+         * $this->AddHookTemplate('menu_profile_created_item', 'hookMenuItem');
+         *
+         * Будет вызван метод hookMenuItem() класса хука и результат (в виде строки)
+         * будет отображен в месте вызова хука в шаблоне
+         */
+
+        /*
+         * Шаблонный хук - файл шаблона
+         *
+         * $this->AddHookTemplate('menu_profile_created_item', Plugin::GetTemplateDir(__CLASS__) . '/tpls/menu_profile_created_item.tpl');
+         *
+         * В месте вызова хука в шаблоне отображается результат обработки заданного
+         * файла шаблона
          */
 
     }

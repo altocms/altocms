@@ -15,15 +15,30 @@ class ModuleMenu_EntityMenu extends Entity {
     protected $_aItems = array();
 
     /**
-     * Переменная для кэширвоания описания элемента меню
+     * Переменная для кэширования описания элемента меню
      * @var null|bool
      */
     protected $_description = NULL;
 
     public function Init() {
+
         $this->_aItems = isset($this->_aData['items']) ? $this->_aData['items'] : NULL;
+        if (!empty($this->_aItems)) {
+            /** @var ModuleMenu_EntityItem $oItem */
+            foreach($this->_aItems as $oItem) {
+                if (!empty($oItem) && is_object($oItem)) {
+                    $oItem->setMenu($this);
+                }
+            }
+        }
     }
 
+    /**
+     * @param string $sTextTemplate
+     * @param null   $sLang
+     *
+     * @return mixed
+     */
     public function getLangText($sTextTemplate, $sLang = NULL) {
 
         return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
@@ -39,9 +54,11 @@ class ModuleMenu_EntityMenu extends Entity {
 
     /**
      * Получает описание элемента меню
+     *
      * @return bool|mixed|null
      */
     public function getDescription(){
+
         if ($this->_description) {
             return $this->_description;
         }
@@ -49,6 +66,16 @@ class ModuleMenu_EntityMenu extends Entity {
         $this->_description = $this->getLangText($this->_description);
 
         return $this->_description;
+    }
+
+    public function getCssClass() {
+
+        return $this->getProp('class');
+    }
+
+    public function setCssClass($sCssClass) {
+
+        $this->setProp('class', $sCssClass);
     }
 
     /**
@@ -82,8 +109,6 @@ class ModuleMenu_EntityMenu extends Entity {
             array_values($aMenuPosition),
             $xPosition)
         );
-
-
     }
 
     /**
@@ -92,48 +117,82 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return int
      */
     public function getLength() {
+
         return count($this->_aItems);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEditable() {
+
+        $aInitData = $this->getProp('init');
+
+        return !empty($aInitData['editable']);
+    }
+
+    /**
+     * Return fill list settings, if allow any item (mark as '*') then return empty array
+     *
+     * @return array
+     */
+    public function getFillList() {
+
+        $aInitData = $this->getProp('init');
+        if (!empty($aInitData['fill']['list'])) {
+            if (is_array($aInitData['fill']['list']) && in_array('*', $aInitData['fill']['list'])) {
+                return array();
+            } elseif ($aInitData['fill']['list'] === '*') {
+                return array();
+            }
+            return $aInitData['fill']['list'];
+        }
+        return array();
     }
 
     /**
      * Добавляет элемент меню в произвольное место списка меню
      *
      * @param ModuleMenu_EntityItem $oMenuItem
-     * @param mixed $xPosition Позиция в списке. Может задаваться числом, а
-     * может строками 'first'|'last'
+     * @param mixed                 $xPosition Позиция в списке. Может задаваться числом, а
+     *                                         может строками 'first'|'last'
+     *
      * @return array
      */
-    public function AddItem($xPosition, $oMenuItem) {
+    public function AddItem($oMenuItem, $xPosition = 'last') {
 
-        $xPosition = $this->_getIntPosition($xPosition);
-
-
-        if ($this->GetItemById($oMenuItem->getId())) {
-            return TRUE;
+        $xPosition = strtolower($xPosition);
+        $aItems = $this->GetItems();
+        if ($xPosition === 'first') {
+            $aResult = array($oMenuItem->getId() => $oMenuItem) + $aItems;
+        } elseif ($xPosition === 'last') {
+            $aResult = $aItems + array($oMenuItem->getId() => $oMenuItem);
+        } else {
+            $iPos = $this->_getIntPosition($xPosition);
+            $aResult = array_slice($aItems, 0, $iPos, true) +
+                array($oMenuItem->getId() => $oMenuItem) +
+                array_slice($aItems, $iPos, null, true);
         }
 
-        $aIds = array_keys($this->_aItems);
-        $aVals = array_values($this->_aItems);
-        $aResult = array();
+        $this->SetItems($aResult);
 
-        for ($i = 0; $i < $xPosition; $i++) {
-            $aResult[$aIds[$i]] = $aVals[$i];
+        $aAllowedData = $this->getFillList();
+        if (!empty($aAllowedData)) {
+            // Добавим имя в список разрешенных
+            $aNewItems = array_merge($aAllowedData, array($oMenuItem->getItemId()));
+            $this->SetConfig('init.fill.list', $aNewItems);
         }
-        $aResult[$oMenuItem->getId()] = $oMenuItem;
-        for ($i = $xPosition; $i < count($this->_aItems); $i++) {
-            $aResult[$aIds[$i]] = $aVals[$i];
-        }
-
-        $this->_aItems = $aResult;
 
         return TRUE;
     }
 
     /**
      * Возвращает ид. меню
+     *
      * @return int|null
      */
     public function getId() {
+
         return isset($this->_aData['id']) ? $this->_aData['id'] : NULL;
     }
 
@@ -166,7 +225,6 @@ class ModuleMenu_EntityMenu extends Entity {
         }
 
         $this->_aItems = $aResult;
-
     }
 
     /**
@@ -218,17 +276,57 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return bool|ModuleMenu_EntityItem
      */
     public function GetItem($xPosition) {
+
         return $this->SelectItem($xPosition);
     }
 
     /**
      * Возвращает элемент меню из указанной позиции, синоним {@see SelectItem}
      *
-     * @param $sItemId
-     * @return bool|ModuleMenu_EntityItem
+     * @param string $sItemId
+     *
+     * @return ModuleMenu_EntityItem|null
      */
     public function GetItemById($sItemId) {
+
         return isset($this->_aItems[$sItemId]) ? $this->_aItems[$sItemId] : NULL;
+    }
+
+    /**
+     * Удаляет элемент меню по его ID
+     *
+     * @param string|array|object $xItem
+     * @param bool                $bClearCache
+     */
+    public function RemoveItemById($xItem, $bClearCache = false) {
+
+        if (is_array($xItem)) {
+            /** @var string|object $xItemId */
+            foreach($xItem as $xItemId) {
+                if (is_object($xItemId)) {
+                    $sItemId = $xItemId->getId();
+                } else {
+                    $sItemId = (string)$xItemId;
+                }
+                if (isset($this->_aItems[$sItemId])) {
+                    unset($this->_aItems[$sItemId]);
+                }
+            }
+        } else {
+            if (is_object($xItem)) {
+                $sItemId = $xItem->getId();
+            } else {
+                $sItemId = (string)$xItem;
+            }
+            if (isset($this->_aItems[$sItemId])) {
+                unset($this->_aItems[$sItemId]);
+            }
+        }
+
+        if ($bClearCache) {
+            Config::ResetCustomConfig('menu.data.' . $this->getId() . '.list');
+            E::ModuleMenu()->SaveMenu($this);
+        }
     }
 
     /**
@@ -237,23 +335,21 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return ModuleMenu_EntityItem[]
      */
     public function GetItems() {
+
         $aAllowedItems = $this->_aItems;
-        $aAllowedData = $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
-        if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-            unset($aAllowedData[0]);
-        }
-        if (is_array($aAllowedData) && count($aAllowedData) == 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+        if ($aAllowedItems) {
+            $aAllowedData = $this->getFillList();
+            if (!empty($aAllowedData)) {
+                foreach ($aAllowedItems as $sItemId => $oItem) {
+                    if (!in_array($sItemId, $aAllowedData)) {
+                        unset($aAllowedItems[$sItemId]);
+                    }
+                }
+            }
+
             return $aAllowedItems;
         }
-
-
-        foreach ($aAllowedItems as $k => $v) {
-            if (!in_array($k, $aAllowedData)) {
-                unset($aAllowedItems[$k]);
-            }
-        }
-
-        return $aAllowedItems;
+        return array();
     }
 
     /**
@@ -262,7 +358,70 @@ class ModuleMenu_EntityMenu extends Entity {
      * @param $aMenuItems
      */
     public function SetItems($aMenuItems) {
+
         $this->_aItems = $aMenuItems;
     }
 
+    /**
+     * @param string $sKey
+     * @param mixed  $xValue
+     */
+    public function SetConfig($sKey, $xValue) {
+
+        if (is_array($xValue)) {
+            // Only scalar can be used as end value
+            array_walk_recursive($xValue, function(&$xV){
+                if (!is_scalar($xV)) {
+                    $xV = null;
+                }
+            });
+        }
+        if ($sKey && (is_scalar($xValue) || is_array($xValue))) {
+            $aKeys = explode('.', $sKey);
+            $aData = &$this->_aData;
+            $aCfg = &$this->_aData['_cfg'];
+            foreach ($aKeys as $sSubKey) {
+                $aData = &$aData[$sSubKey];
+                $aCfg = &$aCfg[$sSubKey];
+            }
+            $aData = $xValue;
+            $aCfg = $xValue;
+        }
+    }
+
+    /**
+     * @param bool|false $bRefreshItemList
+     *
+     * @return array
+     */
+    public function GetConfig($bRefreshItemList = false) {
+
+        $aMenuConfig = $this->_aData['_cfg'];
+
+        if ($bRefreshItemList) {
+            $aItemList = array();
+            foreach ($this->GetItems() as $sMenuId => $oMenuItem) {
+                $aItemList[$sMenuId] = $oMenuItem ? $oMenuItem->getItemConfig() : '';
+            }
+            $aMenuConfig['list'] = $aItemList;
+        }
+
+        return $aMenuConfig;
+    }
+
+    /**
+     * @param string $sItemId
+     * @param string $sKey
+     * @param string $xValue
+     */
+    public function SetConfigItem($sItemId, $sKey, $xValue) {
+
+        $oItem = $this->GetItemById($sItemId);
+        if ($oItem) {
+            $oItem->SetConfig($sKey, $xValue);
+        }
+    }
+
 }
+
+// EOF

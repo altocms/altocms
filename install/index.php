@@ -946,6 +946,7 @@ class Install {
             $this->Assign('validate_php_version', '<span style="color:red;">' . $this->Lang('no') . '</span>');
         } else {
             $this->Assign('validate_php_version', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            $this->Assign('validate_php_version_num', '<span style="color:green;">(' . PHP_VERSION . ')</span>');
         }
 
         if (@preg_match('//u', '') != $this->aValidEnv['UTF8_support']) {
@@ -1116,7 +1117,7 @@ class Install {
         }
 
         if ($bCreate) {
-            @mysqli_query($oDb, "CREATE DATABASE $sName");
+            @mysqli_query($oDb, 'CREATE DATABASE `' . mysqli_real_escape_string($oDb, $sName) . '`');
             return @mysqli_select_db($oDb, $sName);
         }
         return false;
