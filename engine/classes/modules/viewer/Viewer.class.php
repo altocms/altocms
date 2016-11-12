@@ -2373,12 +2373,12 @@ class ModuleViewer extends Module {
      * @param int    $iCurrentPage   Текущая страница
      * @param int    $iCountPerPage  Количество элементов на одну страницу
      * @param int    $iCountPageLine Количество ссылок на другие страницы
-     * @param string $sBaseUrl       Базовый URL, к нему будет добавлять постикс /pageN/  и GET параметры
+     * @param string $sBaseUrl       Базовый URL, к нему будет добавляться постфикс /pageN/ и GET параметры (по умолчанию - текущий URL)
      * @param array  $aGetParamsList Список GET параметров, которые необходимо передавать при постраничном переходе
      *
-     * @return array
+     * @return array|bool
      */
-    public function MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl, $aGetParamsList = array()) {
+    public function MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl = null, $aGetParamsList = array()) {
 
         if ($iCount == 0) {
             return false;
@@ -2420,6 +2420,12 @@ class ModuleViewer extends Module {
         $iNextPage = $iCurrentPage < $iCountPage ? $iCurrentPage + 1 : false;
         $iPrevPage = $iCurrentPage > 1 ? $iCurrentPage - 1 : false;
 
+        if (!$sBaseUrl) {
+            $sBaseUrl = R::RealUrl();
+        }
+        if (preg_match('/^(.+)\/page\d+\/?$/', $sBaseUrl, $aM)) {
+            $sBaseUrl = $aM[1];
+        }
         $sGetParams = '';
         if (is_string($aGetParamsList) || count($aGetParamsList)) {
             $sGetParams = '?' . (is_array($aGetParamsList) ? http_build_query($aGetParamsList, '', '&') : $aGetParamsList);

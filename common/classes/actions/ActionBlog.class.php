@@ -1143,7 +1143,7 @@ class ActionBlog extends Action {
             if (($this->sTopicFilter == 'good')) {
                 $aPaging = E::ModuleViewer()->MakePaging(
                         $aResult['count'], $iPage, Config::Get('module.topic.per_page'),
-                        Config::Get('pagination.pages.count'), rtrim($oBlog->getLink(), '/')
+                        Config::Get('pagination.pages.count')
                     );
             } elseif (($this->sTopicFilter == 'all') || ($this->sTopicFilter == 'newall')) {
                 $aPaging = E::ModuleViewer()->MakePaging(
