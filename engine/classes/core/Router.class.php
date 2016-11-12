@@ -1509,6 +1509,9 @@ class Router extends LsObject {
                         return true;
                     }
                     $aEvents = (array)$aEvents;
+                    if (in_array('*', $aEvents)) {
+                        return true;
+                    }
                     foreach ($aEvents as $sEventPreg) {
                         if (($sCurrentEventName && $sEventPreg == $sCurrentEventName) || $sEventPreg == $sCurrentEvent) {
                             // * Это название event`a
