@@ -135,4 +135,4 @@
     {/block}
 </article> <!-- /.topic -->
 
-{hook run='topic_show_end' topic=$oTopic}
+{hook run='topic_show_end' topic=$oTopic bTopicList=false}
