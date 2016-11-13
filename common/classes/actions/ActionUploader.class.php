@@ -748,6 +748,10 @@ class ActionUploader extends Action {
             $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_is_preview'));
             E::ModuleViewer()->AssignAjax('bPreview', true);
+            if ($oTarget) {
+                $oTarget->setPreviewImage(null, false);
+                E::Topic_UpdateTopic($oTarget);
+            }
         } else {
             $oResource->setType(ModuleMresource::TYPE_PHOTO);
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_mark_is_not_preview'));
@@ -755,7 +759,6 @@ class ActionUploader extends Action {
         }
 
         E::ModuleMresource()->UpdatePrimary($oResource, $sTargetType, $sTargetId);
-
     }
 
 
