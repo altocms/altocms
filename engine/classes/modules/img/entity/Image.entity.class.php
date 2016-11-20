@@ -550,7 +550,7 @@ class ModuleImg_EntityImage extends Entity {
         /** @var PHPixie\Image $oImage */
         if ($oImage = $this->GetImage()) {
             if ($sImageFormat) {
-                $sImageFormat = E::ModuleImg()->GetFormat($sImageFormat);
+                $sImageFormat = E::ModuleImg()->GetFormat('.' . $sImageFormat);
                 $oImage->render($sImageFormat);
             } else {
                 $oImage->render();
