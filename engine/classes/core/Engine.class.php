@@ -466,7 +466,7 @@ class Engine extends LsObject {
 
         // * Создаем объект модуля
         $oModule = new $sModuleClass();
-        $oModuleDecorator = Decorator::Create($oModule);
+        $oModuleDecorator = Decorator::CreateComponent($oModule);
         $this->aModules[$sModuleClass] = $oModuleDecorator;
         if ($bInit || $sModuleClass == 'ModuleCache') {
             $this->InitModule($oModuleDecorator);
