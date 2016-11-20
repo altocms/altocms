@@ -2170,11 +2170,15 @@ class ModuleViewer extends Module {
             }
 
             if ($sTagName == 'meta') {
-                foreach ($this->aSpecMetaTagsAttr as $sName) {
-                    if (isset($aAttrs[$sName])) {
-                        // defines special key for meta tags
-                        $sKey = $sTagName . ' ' . $sName . '=' . $aAttrs[$sName];
-                        break;
+                if (!empty($aAttrs['property']) && strpos($aAttrs['property'], 'og:image') === 0) {
+                    $sKey = $sTagName . ' property=' . $aAttrs['property'] . ' ' . uniqid();
+                } else {
+                    foreach ($this->aSpecMetaTagsAttr as $sName) {
+                        if (isset($aAttrs[$sName])) {
+                            // defines special key for meta tags
+                            $sKey = $sTagName . ' ' . $sName . '=' . $aAttrs[$sName];
+                            break;
+                        }
                     }
                 }
             }
