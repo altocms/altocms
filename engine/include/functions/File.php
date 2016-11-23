@@ -1259,6 +1259,7 @@ class AltoFunc_File {
             'mod'       => null, // str - modificator ['fit', 'crop', 'pad', 'max']
             'attr'      => '',   // str - attributes of HTML tag <img ...>: ' width=... height=...'
             'style'     => '',   // str - value for attributes style of HTML tag <img ...>
+            'ratio'     => null, // float - width / height
         );
         if ($sSize) {
             $iPos = strpos($sSize, 'x');
@@ -1319,6 +1320,9 @@ class AltoFunc_File {
                 if (!$iMaxHeight && !$iMinHeight && $iWidth) {
                     $aResult['style'] .= 'height:' . $iHeight . 'px;';
                 }
+            }
+            if ($iWidth && $iHeight) {
+                $aResult['ratio'] = $iWidth / $iHeight;
             }
         }
         return $aResult;

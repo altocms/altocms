@@ -231,7 +231,7 @@ class Decorator extends LsObject {
      *
      * @return Decorator
      */
-    static function Create($oComponent, $bHookEnable = true) {
+    static function CreateComponent($oComponent, $bHookEnable = true) {
 
         $sClassName = get_class($oComponent);
         if (!$bHookEnable || $sClassName == 'ModulePlugin' || $sClassName == 'ModuleHook') {
