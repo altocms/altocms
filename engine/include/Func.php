@@ -899,7 +899,76 @@ class Func {
     }
 
     /**
-     * функция доступа к REQUEST/GET/POST параметрам
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
+     * @param bool   $bCaseInsensitive
+     *
+     * @return mixed
+     */
+    static protected function _getRequest($sName, $xDefault = null, $sType = null, $bCaseInsensitive = false) {
+        /**
+         * Выбираем в каком из суперглобальных искать указанный ключ
+         */
+        switch (strtolower($sType)) {
+            case 'get':
+                $aStorage = $_GET;
+                break;
+            case 'post':
+                $aStorage = $_POST;
+                break;
+            default:
+                $aStorage = $_REQUEST;
+                break;
+        }
+
+        if ($bCaseInsensitive) {
+            if (!empty($aStorage)) {
+                $sName = strtolower($sName);
+                foreach($aStorage as $sKey => $xVal) {
+                    if ($sName === strtolower($sKey)) {
+                        return $xVal;
+                    }
+                }
+            }
+        } else {
+            if (isset($aStorage[$sName])) {
+                if (is_string($aStorage[$sName])) {
+                    return trim($aStorage[$sName]);
+                } else {
+                    return $aStorage[$sName];
+                }
+            }
+        }
+        return $xDefault;
+    }
+
+    /**
+     * @param string $sName
+     * @param string $sDefault
+     * @param string $sType
+     * @param bool   $bCaseInsensitive
+     *
+     * @return string|null
+     */
+    static protected function _getRequestStr($sName, $sDefault = null, $sType = null, $bCaseInsensitive = false) {
+
+        if (null !== $sDefault) {
+            if (is_array($sDefault)) {
+                $sDefault = '';
+            } else {
+                $sDefault = (string)$sDefault;
+            }
+        }
+        $sResult = self::_getRequest($sName, $sDefault, $sType, $bCaseInsensitive);
+        if (null !== $sResult) {
+            return (is_array($sResult) ? '' : (string)$sResult);
+        }
+        return null;
+    }
+
+    /**
+     * Функция доступа к REQUEST/GET/POST параметрам (name сase sensitive)
      *
      * @param string $sName
      * @param mixed  $xDefault
@@ -908,43 +977,20 @@ class Func {
      * @return mixed
      */
     static public function GetRequest($sName, $xDefault = null, $sType = null) {
-        /**
-         * Выбираем в каком из суперглобальных искать указанный ключ
-         */
-        switch (strtolower($sType)) {
-            default:
-            case null:
-                $aStorage = $_REQUEST;
-                break;
-            case 'get':
-                $aStorage = $_GET;
-                break;
-            case 'post':
-                $aStorage = $_POST;
-                break;
-        }
 
-        if (isset($aStorage[$sName])) {
-            if (is_string($aStorage[$sName])) {
-                return trim($aStorage[$sName]);
-            } else {
-                return $aStorage[$sName];
-            }
-        }
-        return $xDefault;
+        return self::_getRequest($sName, $xDefault, $sType, false);
     }
 
     /**
      * @param string $sName
-     * @param mixed  $xDefault
+     * @param string $sDefault
      * @param string $sType
      *
-     * @return string
+     * @return string|null
      */
-    static public function GetRequestStr($sName, $xDefault = null, $sType = null) {
+    static public function GetRequestStr($sName, $sDefault = null, $sType = null) {
 
-        $sResult = static::GetRequest($sName, $xDefault, $sType);
-        return (is_array($sResult) ? '' : (string)$sResult);
+        return self::_getRequestStr($sName, $sDefault, $sType, false);
     }
 
     /**
@@ -970,12 +1016,59 @@ class Func {
      */
     static public function GetPostStr($sName, $sDefault = null) {
 
-        if (is_array($sDefault)) {
-            $sDefault = '';
-        } elseif (!is_null($sDefault)) {
-            $sDefault = (string)$sDefault;
-        }
         return static::GetRequestStr($sName, $sDefault, 'post');
+    }
+
+    /**
+     * Функция доступа к REQUEST/GET/POST параметрам (name сase insensitive)
+     *
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
+     *
+     * @return mixed
+     */
+    static public function GetIRequest($sName, $xDefault = null, $sType = null) {
+
+        return self::_getRequest($sName, $xDefault, $sType, true);
+    }
+
+    /**
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
+     *
+     * @return string
+     */
+    static public function GetIRequestStr($sName, $xDefault = null, $sType = null) {
+
+        return self::_getRequestStr($sName, $xDefault, $sType, true);
+    }
+
+    /**
+     * Возвращает значение параметра, переданого методом POST
+     *
+     * @param string  $sName
+     * @param mixed   $xDefault
+     *
+     * @return bool
+     */
+    static public function GetIPost($sName, $xDefault = null) {
+
+        return static::GetIRequest($sName, $xDefault, 'post');
+    }
+
+    /**
+     * Возвращает значение параметра, переданого методом POST
+     *
+     * @param string  $sName
+     * @param string  $sDefault
+     *
+     * @return  bool
+     */
+    static public function GetIPostStr($sName, $sDefault = null) {
+
+        return static::GetIRequestStr($sName, $sDefault, 'post');
     }
 
     /**

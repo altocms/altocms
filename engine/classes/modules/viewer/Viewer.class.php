@@ -2171,7 +2171,8 @@ class ModuleViewer extends Module {
 
             if ($sTagName == 'meta') {
                 if (!empty($aAttrs['property']) && strpos($aAttrs['property'], 'og:image') === 0) {
-                    $sKey = $sTagName . ' property=' . $aAttrs['property'] . ' ' . uniqid();
+                    $sUnique = uniqid(count($this->aHtmlHeadTags), true);
+                    $sKey = $sTagName . ' property=' . $aAttrs['property'] . '-' . $sUnique;
                 } else {
                     foreach ($this->aSpecMetaTagsAttr as $sName) {
                         if (isset($aAttrs[$sName])) {
