@@ -371,7 +371,7 @@ class ModuleViewer extends Module {
 
         // * Папки расположения шаблонов по умолчанию
         $aDirs = F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template')));
-        if (sizeof($aDirs) == 1) {
+        if (count($aDirs) == 1) {
             $sDir = $aDirs[0];
             $aDirs['themes'] = F::File_NormPath($sDir . '/themes');
             $aDirs['tpls'] = F::File_NormPath($sDir . '/tpls');
@@ -408,7 +408,7 @@ class ModuleViewer extends Module {
         $this->oSmarty->registerResource('file', new Smarty_Resource_File());
 
         // Mutes expected Smarty minor errors
-        $this->oSmarty->muteExpectedErrors();
+        Smarty::muteExpectedErrors();
     }
 
     /**
@@ -440,7 +440,7 @@ class ModuleViewer extends Module {
             }
             $sMessage .= '. ';
             $oSkin = E::ModuleSkin()->GetSkin($sSkin);
-            if ((!$oSkin || $oSkin->GetCompatible() != 'alto') && !E::ActivePlugin('ls')) {
+            if ((!$oSkin || $oSkin->GetCompatible() !== 'alto') && !E::ActivePlugin('ls')) {
                 $sMessage .= 'Probably you need to activate plugin "Ls".';
             }
 
@@ -572,9 +572,9 @@ class ModuleViewer extends Module {
                 $sFile = $sPath . $sConfigName . '.php';
                 if (F::File_Exists($sFile)) {
                     $aSubConfig = F::IncludeFile($sFile, false, true);
-                    if ($sConfigName !='config' && !isset($aSubConfig[$sConfigName])) {
+                    if ($sConfigName !== 'config' && !isset($aSubConfig[$sConfigName])) {
                         $aSubConfig = array($sConfigName => $aSubConfig);
-                    } elseif ($sConfigName == 'config' && isset($aSubConfig['head'])) {
+                    } elseif ($sConfigName === 'config' && isset($aSubConfig['head'])) {
                         // ** Old skin version compatibility
                         $aSubConfig['assets'] = $aSubConfig['head'];
                         unset($aSubConfig['head']);
@@ -582,7 +582,7 @@ class ModuleViewer extends Module {
                     // загружаем конфиг, что позволяет сразу использовать значения
                     // в остальных конфигах скина (assets и кастомном config.php) через Config::Get()
                     Config::Load($aSubConfig, false, null, null, $sFile);
-                    if ($sConfigName != 'config' && !isset($aSkinConfigNames[$sConfigName])) {
+                    if ($sConfigName !== 'config' && !isset($aSkinConfigNames[$sConfigName])) {
                         $aSkinConfigNames[$sConfigName] = $sFile;
                     }
                 }
@@ -626,7 +626,7 @@ class ModuleViewer extends Module {
         }
 
         // Check skin theme and set one in config if it was changed
-        if ($this->GetConfigTheme() != Config::Get('view.theme')) {
+        if ($this->GetConfigTheme() !== Config::Get('view.theme')) {
             Config::Set('view.theme', $this->GetConfigTheme());
         }
 
@@ -655,7 +655,7 @@ class ModuleViewer extends Module {
         E::ModuleHook()->Run('render_init_start', array('bLocal' => $this->bLocal));
 
         // If skin not initialized (or it was changed) then init one
-        if ($this->sViewSkin != $this->GetConfigSkin()) {
+        if ($this->sViewSkin !== $this->GetConfigSkin()) {
             $this->_initSkin();
         } else {
             // Level could be changed after skin initialization
@@ -1055,16 +1055,16 @@ class ModuleViewer extends Module {
         $this->AssignAjax('sMsgTitle', $sMsgTitle);
         $this->AssignAjax('sMsg', $sMsg);
         $this->AssignAjax('bStateError', $bStateError);
-        if ($sType == 'json') {
+        if ($sType === 'json') {
             $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
             $sOutput = F::jsonEncode($this->aVarsAjax);
-        } elseif ($sType == 'jsonIframe') {
+        } elseif ($sType === 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
             $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
 
             // * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
             $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
-        } elseif ($sType == 'jsonp') {
+        } elseif ($sType === 'jsonp') {
             $this->SetResponseHeader('Content-type', 'application/json; charset=utf-8');
             $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
@@ -1204,7 +1204,7 @@ class ModuleViewer extends Module {
     public function SetResponseAjax($sResponseAjax = 'json', $bResponseSpecificHeader = true, $bValidate = true) {
 
         // Для возможности кросс-доменных запросов
-        if ($sResponseAjax != 'jsonp' && $bValidate) {
+        if ($sResponseAjax !== 'jsonp' && $bValidate) {
             E::ModuleSecurity()->ValidateSendForm();
         }
         $this->sResponseAjax = $sResponseAjax;
@@ -1231,8 +1231,8 @@ class ModuleViewer extends Module {
      */
     public function Assign($xParam, $xValue = null) {
 
-        if (is_array($xParam) && is_null($xValue)) {
-            foreach($xParam as $sName => $xValue) {
+        if (is_array($xParam) && null === $xValue) {
+            foreach((array)$xParam as $sName => $xValue) {
                 $this->Assign($sName, $xValue);
             }
         } else {
@@ -1289,7 +1289,7 @@ class ModuleViewer extends Module {
     protected function _muteErrors() {
 
         if ($this->nMuteErrorsCnt <= 0) {
-            $this->oSmarty->muteExpectedErrors();
+            Smarty::muteExpectedErrors();
             $this->nMuteErrorsCnt++;
         }
     }
@@ -1297,7 +1297,7 @@ class ModuleViewer extends Module {
     protected function _unmuteErrors() {
 
         if ($this->nMuteErrorsCnt > 0) {
-            $this->oSmarty->unmuteExpectedErrors();
+            Smarty::unmuteExpectedErrors();
             $this->nMuteErrorsCnt--;
         }
     }
@@ -1374,7 +1374,7 @@ class ModuleViewer extends Module {
         }
         $sCheckDir = Config::Get('path.skin.dir');
         // Если проверяется не текущий скин, то корректируем путь
-        if ($sSkin != $this->GetConfigSkin()) {
+        if ($sSkin !== $this->GetConfigSkin()) {
             $sCheckDir = str_replace('/' . $this->GetConfigSkin() . '/', '/' . $sSkin . '/', $sCheckDir);
         }
         // Проверяем только скин или тему скина
@@ -1564,7 +1564,7 @@ class ModuleViewer extends Module {
     public function DefineWidgetType($sName, $sDir = null, $sPlugin = null) {
 
         // Добавляем проверку на рсширение, чтобы не делать лишних телодвижений
-        $bTpl = (substr($sName, -4) == '.tpl');
+        $bTpl = (substr($sName, -4) === '.tpl');
         if (!$bTpl) {
             if (E::ModuleWidget()->FileClassExists($sName, $sPlugin)) {
                 // Если найден файл класса виджета, то это исполняемый виджет
@@ -1579,7 +1579,7 @@ class ModuleViewer extends Module {
         if (!is_null($sDir)) {
             $sDir = rtrim($sDir, '/') . '/';
         }
-        if ($sName[0] == '/') {
+        if ($sName[0] === '/') {
             $aCheckNames = array(
                 $sDir . ltrim($sName, '/'),
             );
@@ -1639,7 +1639,7 @@ class ModuleViewer extends Module {
 
         if ($this->aWidgets)
             foreach ($this->aWidgets as $sGroup => $aWidgets) {
-                if (sizeof($aWidgets)) {
+                if (count($aWidgets)) {
                     uasort($aWidgets, array($this, '_SortWidgetsCompare'));
                     $this->aWidgets[$sGroup] = array_reverse($aWidgets);
                 }
@@ -1686,7 +1686,7 @@ class ModuleViewer extends Module {
             }
             // Свойство "order" потребуется для сортировки по порядку добавления, если не задан приоритет
             if (!$oWidget->getOrder()) {
-                $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
+                $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? count($this->aWidgets[$sGroup]) : 0);
             }
 
             // if widget must be displayed then we add it to arrays
@@ -2041,7 +2041,7 @@ class ModuleViewer extends Module {
             foreach (explode('/', preg_replace('~/+~', '/', $sPath)) as $sPart) {
                 if ($sPart === "..") {
                     array_pop($aParts);
-                } elseif ($sPart != "") {
+                } elseif ($sPart !== "") {
                     $aParts[] = $sPart;
                 }
             }
@@ -2076,7 +2076,8 @@ class ModuleViewer extends Module {
     /**
      * Строит массив HTML-ссылок на ресурсы
      *
-     * @param $aHeadFiles
+     * @param array $aHeadFiles
+     *
      * @return array
      */
     protected function BuildHtmlHeadFiles($aHeadFiles) {
@@ -2084,7 +2085,7 @@ class ModuleViewer extends Module {
         foreach($aHeadFiles as $sType => $aFiles) {
             $aHeaderLinks = E::ModuleViewerAsset()->BuildHtmlLinks($sType);
             if (isset($aHeaderLinks[$sType]) && $aHeaderLinks[$sType]) {
-                $aHeadFiles[$sType] = join(PHP_EOL, $aHeaderLinks[$sType]);
+                $aHeadFiles[$sType] = implode(PHP_EOL, $aHeaderLinks[$sType]);
             } else {
                 $aHeadFiles[$sType] = '';
             }
@@ -2128,12 +2129,12 @@ class ModuleViewer extends Module {
      */
     public function AddHtmlHeadTag($sTag) {
 
-        if ($sTag[0] == '<') {
+        if ($sTag[0] === '<') {
             $sTag = substr($sTag, 1);
         }
-        if (substr($sTag, -2) == '/>') {
+        if (substr($sTag, -2) === '/>') {
             $sTag = substr($sTag, 0, strlen($sTag) - 2);
-        } elseif (substr($sTag, -1) == '>') {
+        } elseif (substr($sTag, -1) === '>') {
             $sTag = substr($sTag, 0, strlen($sTag) - 1);
         }
 
@@ -2159,9 +2160,9 @@ class ModuleViewer extends Module {
         $sTag = '<' . $sTagName;
         if (is_string($xAttributes)) {
             $sTag .= ' ' . $xAttributes;
-        } elseif (is_array($xAttributes) && sizeof($xAttributes)) {
+        } elseif (is_array($xAttributes) && count($xAttributes)) {
             $aAttrs = array();
-            foreach ($xAttributes as $sName => $sValue) {
+            foreach ((array)$xAttributes as $sName => $sValue) {
                 if (is_string($sName)) {
                     $aAttrs[strtolower($sName)] = $sValue;
                 } else {
@@ -2169,7 +2170,7 @@ class ModuleViewer extends Module {
                 }
             }
 
-            if ($sTagName == 'meta') {
+            if ($sTagName === 'meta') {
                 if (!empty($aAttrs['property']) && strpos($aAttrs['property'], 'og:image') === 0) {
                     $sUnique = uniqid(count($this->aHtmlHeadTags), true);
                     $sKey = $sTagName . ' property=' . $aAttrs['property'] . '-' . $sUnique;
@@ -2277,16 +2278,16 @@ class ModuleViewer extends Module {
     public function GetHtmlTitle($bHtmlEncode = true) {
 
         $aTitles = array_reverse($this->aHtmlTitles);
-        if ($this->iHtmlTitlesMax && sizeof($aTitles) > $this->iHtmlTitlesMax) {
+        if ($this->iHtmlTitlesMax && count($aTitles) > $this->iHtmlTitlesMax) {
             $aTitles = array_splice($aTitles, 0, $this->iHtmlTitlesMax);
         }
         if (Config::Get('view.html.title')) {
             // required part of the tag <title>
-            if (sizeof($aTitles) && (end($aTitles) != Config::Get('view.html.title'))) {
+            if (count($aTitles) && (end($aTitles) !== Config::Get('view.html.title'))) {
                 $aTitles[] = Config::Get('view.html.title');
             }
         }
-        $sHtmlTitle = join($this->sHtmlTitleSeparator, $aTitles);
+        $sHtmlTitle = implode($this->sHtmlTitleSeparator, $aTitles);
         if ($bHtmlEncode) {
             $sHtmlTitle = htmlspecialchars($sHtmlTitle);
         }
@@ -2317,7 +2318,7 @@ class ModuleViewer extends Module {
         if ($bHtmlEncode) {
             $aKeywords = array_map('htmlspecialchars', $aKeywords);
         }
-        return join(', ', $aKeywords);
+        return implode(', ', $aKeywords);
     }
 
     /**
@@ -2504,7 +2505,7 @@ class ModuleViewer extends Module {
             return $sResult;
         }
 
-        if ($sSkin != 'default') {
+        if ($sSkin !== 'default') {
             $sSkinSeek = preg_quote($sSkin);
             if (preg_match('@^/plugins/([\w\-_]+)/templates/skin/' . $sSkinSeek . '/(.+)$/@i', $sName, $aMatch)) {
                 // => /root/plugins/[plugin name]/templates/skin/[skin name]/dir/test.tpl
