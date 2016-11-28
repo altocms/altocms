@@ -1517,6 +1517,16 @@ return array(
     'uploader_picker'               => '- Перенесите нужные изображения в это область',
     'uploader_sort_notice'          => '- Порядок изображений можно изменить просто <br>переместив мышью изображение на нужное место.',
     'uploader_sort_changed'         => 'Очерёдность изображений изменена',
+
+    'error_upload_file_1'           => 'Размер файла превысил максимально допустимый размер (см. \'upload_max_filesize\' в php.ini)',
+    'error_upload_file_2'           => 'Размер загружаемого файла превысил значение MAX_FILE_SIZE',
+    'error_upload_file_3'           => 'Загружаемый файл был получен только частично',
+    'error_upload_file_4'           => 'Файл не был загружен',
+    'error_upload_file_6'           => 'Отсутствует временная папка',
+    'error_upload_file_7'           => 'Не удалось записать файл на диск',
+    'error_upload_file_8'           => 'PHP-расширение остановило загрузку файла',
+    'error_upload_file_unknown'     => 'Неизвестная ошибка загрузки',
+
     'error_upload_image'            => 'Ошибка загрузки изображения',
     'error_upload_wrong_image_type' => 'Неверный тип изображения (MIME)',
 

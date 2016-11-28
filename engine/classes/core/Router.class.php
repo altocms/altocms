@@ -987,8 +987,7 @@ class Router extends LsObject {
     static public function GetLink($sAction) {
 
         if (empty(static::$aActionPaths[$sAction])) {
-            $sAction = trim($sAction, '/');
-            static::$aActionPaths[$sAction] = static::getInstance()->_getLink($sAction);
+            static::$aActionPaths[$sAction] = static::getInstance()->_getLink(trim($sAction, '/'));
         }
         return static::$aActionPaths[$sAction];
     }
@@ -1045,7 +1044,7 @@ class Router extends LsObject {
                 return $sResult;
             }
         }
-        return rtrim(F::File_RootUrl(true), '/') . "/$sPage/";
+        return rtrim(F::File_RootUrl(true), '/') . ($sPage ? "/$sPage/" : '/');
     }
 
     /**

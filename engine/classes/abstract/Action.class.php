@@ -752,19 +752,16 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * Returns information about the uploaded file with form validation
-     * If a field name is omitted it returns the first of uploaded files
+     * @param string|null $sName
      *
-     * @param   string|null $sName
-     *
-     * @return  array|bool
+     * @return array
      */
-    protected function GetUploadedFile($sName = null) {
+    protected function GetUploadedFileData($sName = null) {
 
+        $aFileData = array();
         $aFiles = $this->_getRequestData('FILES');
-        if (E::ModuleSecurity()->ValidateSendForm(false) && !empty($aFiles)) {
-            $aFileData = false;
-            if (is_null($sName)) {
+        if (!empty($aFiles)) {
+            if (null === $sName) {
                 $aFileData = reset($aFiles);
             } elseif (!empty($aFiles) && is_array($aFiles)) {
                 foreach($aFiles as $sKey => $aData) {
@@ -774,6 +771,22 @@ abstract class Action extends LsObject {
                     }
                 }
             }
+        }
+        return $aFileData;
+    }
+
+    /**
+     * Returns information about the uploaded file with form validation
+     * If a field name is omitted it returns the first of uploaded files
+     *
+     * @param   string|null $sName
+     *
+     * @return  array|bool
+     */
+    protected function GetUploadedFile($sName = null) {
+
+        if (E::ModuleSecurity()->ValidateSendForm(false)) {
+            $aFileData = $this->GetUploadedFileData($sName);
             if ($aFileData && isset($aFileData['tmp_name']) && is_uploaded_file($aFileData['tmp_name'])) {
                 return $aFileData;
             }
@@ -782,6 +795,26 @@ abstract class Action extends LsObject {
         return false;
     }
 
+    /**
+     * @param string|null $sName
+     *
+     * @return string
+     */
+    protected function GetUploadedFileError($sName = null) {
+
+        $sResult = null;
+        $aFileData = $this->GetUploadedFileData($sName);
+        if ($aFileData && !empty($aFileData['error'])) {
+            $iErrorCode = $aFileData['error'];
+            $sError = E::ModuleLang()->Get('error_upload_file_' . $iErrorCode);
+            if ($sError) {
+                $sResult = $sError;
+            } else {
+                $sResult = E::ModuleLang()->Get('error_upload_file_unknown');
+            }
+        }
+        return $sResult;
+    }
 
     /**
      * Метод проверки прав доступа пользователя к конкретному ивенту
