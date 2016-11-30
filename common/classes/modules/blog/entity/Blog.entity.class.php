@@ -318,7 +318,7 @@ class ModuleBlog_EntityBlog extends Entity {
                 $sUrl = $this->getProp('blog_avatar');
                 if ($sUrl && ($sUrl[0] == '@') && $xSize) {
                     $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
-                } else {
+                } elseif (empty($sUrl)) {
                     $sUrl = $this->getDefaultAvatarUrl($xSize);
                 }
             }
