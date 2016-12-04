@@ -127,8 +127,8 @@
                         {/if}
                         <td class="cell-date tac text small">
                             <div class="date-block">
-                                <span class="date">{$oTalk->getDate()|date_format:'d.m.y'}</span>
-                                <span class="time">{$oTalk->getDate()|date_format:'H:i'}</span>
+                                <span class="date">{$oTalk->getDateLast()|date_format:'d.m.y'}</span>
+                                <span class="time">{$oTalk->getDateLast()|date_format:'H:i'}</span>
                             </div>
                         </td>
                     </tr>

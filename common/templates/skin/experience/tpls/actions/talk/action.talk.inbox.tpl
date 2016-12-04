@@ -117,7 +117,7 @@
                             {/if}
                             <p class="text-muted text small">{$oTalk->getTextLast()|strip_tags|truncate:200:'...'|escape:'html'}</p>
                         </td>
-                        <td class="text-muted cell-date tac text small">{date_format date=$oTalk->getDate() format="j F Y, H:i"}</td>
+                        <td class="text-muted cell-date tac text small">{date_format date=$oTalk->getDateLast() format="j F Y, H:i"}</td>
                     </tr>
                 {/foreach}
                 </tbody>
