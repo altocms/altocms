@@ -285,7 +285,7 @@ class Func {
     }
 
     /**
-     * @param Exception $oException
+     * @param Exception|Throwable $oException
      */
     static public function _exceptionHandler($oException) {
 

@@ -619,7 +619,7 @@ class ModuleText extends Module {
                 $aTagAttr = explode(';', $aTagAttributes['data-alto-tag-attr']);
                 foreach($aTagAttr as $sAttr) {
                     if ($sAttr) {
-                        list($sAttrName, $sAttrValue) = explode(':', $sAttr);
+                        list($sAttrName, $sAttrValue) = explode(':', $sAttr, 2);
                         $aParams[$sAttrName] = $sAttrValue;
                     }
                 }

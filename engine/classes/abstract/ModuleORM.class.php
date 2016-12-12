@@ -50,7 +50,14 @@ abstract class ModuleORM extends Module {
      */
     protected function _LoadMapperORM() {
 
-        $this->oMapper = new MapperORM($this->oEngine->Database_GetConnect());
+        $sMapperClass = E::GetMapperClass(get_called_class());
+        $oConnect = E::Module('Database')->GetConnect();
+        if (class_exists($sMapperClass)) {
+            $this->oMapper = new $sMapperClass($oConnect);
+        } else {
+            $this->oMapper = new MapperORM($this->oEngine->Database_GetConnect());
+        }
+
         // LS compatible
         $this->oMapperORM = $this->oMapper;
     }
