@@ -993,13 +993,6 @@ class ActionBlog extends Action {
                     'content' => 'article',
                 ),
             );
-            $aHeadTags[] = array(
-                'meta',
-                array(
-                    'name' => 'twitter:card',
-                    'content' => 'summary',
-                ),
-            );
             if ($oTopic->getPreviewImageUrl()) {
                 $aHeadTags[] = array(
                     'meta',
