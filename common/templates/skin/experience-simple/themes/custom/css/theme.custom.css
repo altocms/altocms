@@ -347,7 +347,6 @@ _________________________________________________________*/
   content: '';
   display: inline-block;
   position: absolute;
-  -webkit-transform: rotate(450deg);
   border-color: transparent;
   border-style: solid;
   border-width: 0 6px 6px;
@@ -1007,7 +1006,6 @@ _________________________________________________________________*/
   color: #4d4d4d;
   font-size: 24px;
   line-height: 34px;
-  background-color: #f2f6f7;
   background: #fafafa;
   margin-right: 4px;
   text-align: center;
@@ -1305,7 +1303,6 @@ ____________________________*/
 textarea {
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;
-  white-space: -pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
@@ -1517,7 +1514,6 @@ _____________________________________________________________*/
   font-size: 13px;
   line-height: 20px;
   border-radius: 0;
-  padding: 11 13;
   border: 0;
 }
 .btn-light,
@@ -1728,7 +1724,6 @@ fieldset[disabled] .btn-gray.active {
 }
 .modal .input-group-addon.btn-file {
   background-color: #f5f6f8 !important;
-  border-color: #e6ebee !important;
   border: 1px solid #e6ebee !important;
   border-radius: 0 3px 3px 0 !important;
   border-left: 0 !important;
@@ -2578,7 +2573,6 @@ span.counter {
 .panel-table .blog-name {
   white-space: normal !important;
   color: #1c374c !important;
-  font-size: 13px !important;
   font-size: 14px !important;
   text-decoration: none;
 }
@@ -2744,7 +2738,7 @@ span.counter {
   content: "|";
   font-weight: 100;
   display: block;
-  font-size: 38.5px;
+  font-size: 38px;
 }
 .modal-header button:before {
   -moz-transform: rotate(45deg);
@@ -2753,8 +2747,8 @@ span.counter {
   -o-transform: rotate(45deg);
   transform: rotate(45deg);
   position: absolute;
+  top: 2px;
   left: 21px;
-  top: 1.6px;
 }
 .modal-header button:after {
   -moz-transform: rotate(-45deg);
@@ -2782,7 +2776,6 @@ span.counter {
   padding: 0;
 }
 #image-categories-tree-container .image-categories-tree li.active a {
-  background: #ffffff !important;
   background-color: #ffffff !important;
   color: #1499cb !important;
 }
@@ -2891,7 +2884,6 @@ div.pp_experience .pp_content .ppt {
 }
 div.pp_experience .pp_expand,
 div.pp_experience .pp_contract {
-  display: inline-block;
   font: normal normal normal 14px/1 FontAwesome;
   font-size: inherit;
   text-rendering: auto;
@@ -2936,7 +2928,6 @@ div.pp_experience .pp_close {
   position: absolute !important;
   text-indent: 0;
   top: -20px;
-  position: absolute;
   opacity: 1;
   font-size: 1px;
   width: 40px;
@@ -2956,7 +2947,7 @@ div.pp_experience .pp_close:after {
   content: "|";
   font-weight: 100;
   display: block;
-  font-size: 38.5px;
+  font-size: 38px;
 }
 div.pp_experience .pp_close:before {
   -moz-transform: rotate(45deg);
@@ -2965,8 +2956,8 @@ div.pp_experience .pp_close:before {
   -o-transform: rotate(45deg);
   transform: rotate(45deg);
   position: absolute;
+  top: 2px;
   left: 21px;
-  top: 1.6px;
 }
 div.pp_experience .pp_close:after {
   -moz-transform: rotate(-45deg);
@@ -2979,8 +2970,8 @@ div.pp_experience .pp_close:after {
   position: absolute;
 }
 div.pp_experience .pp_close:after {
-  top: 1.6px;
-  left: 16.5px;
+  top: 2px;
+  left: 21px;
 }
 div.pp_experience .pp_details {
   position: relative;
@@ -3181,7 +3172,6 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-top ul a,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top ul a,
 .alto-popover .user-info-default-container > div.user-info-default-top ul a {
-  font-size: 13px;
   color: #1c374c !important;
   font-size: 13px !important;
   line-height: 30px;
@@ -3303,7 +3293,6 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-bottom ul a,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom ul a,
 .alto-popover .user-info-default-container > div.user-info-default-bottom ul a {
-  font-size: 13px;
   color: #1c374c !important;
   font-size: 13px !important;
 }
@@ -3650,8 +3639,8 @@ li.active.category-show {
   top: -1px;
 }
 .markItUp a {
-  -webkit-transition: 0;
-  transition: 0;
+  -webkit-transition: none;
+  transition: none;
 }
 .markItUp .editor-insert-picture a {
   background-position: -383px -2px;

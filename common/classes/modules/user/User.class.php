@@ -118,7 +118,7 @@ class ModuleUser extends Module {
         }
 
         // * Обновляем сессию
-        if (!$this->oSession) {
+        if ($this->oSession) {
             $this->UpdateSession();
         }
     }
