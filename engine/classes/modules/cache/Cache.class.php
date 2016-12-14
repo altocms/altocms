@@ -436,9 +436,9 @@ class ModuleCache extends Module {
     }
 
     /**
-     * @param $aTags
+     * @param array|string $aTags
      *
-     * @return array|string
+     * @return array
      */
     protected function _prepareTags($aTags) {
 
@@ -446,7 +446,7 @@ class ModuleCache extends Module {
         if (empty($aTags)) {
             $aTags = array();
         } elseif (!is_array($aTags)) {
-            if (!is_string($aTags)) {
+            if (!is_scalar($aTags)) {
                 $aTags = array();
             } else {
                 $aTags = array((string)$aTags);
@@ -490,7 +490,7 @@ class ModuleCache extends Module {
             } else {
                 $sVal = serialize($xVal);
             }
-            $sKey .= '[[' . $sVal . ']]';
+            $sKey .= '[[[' . $sVal . ']]]';
         }
         return $sKey;
     }
@@ -780,20 +780,20 @@ class ModuleCache extends Module {
     /**
      * Clear cache by tags
      *
-     * @param array       $aTags      - Array of tags
-     * @param string|null $sCacheType - Type of cache (if null then clear in all cache types)
+     * @param array|string $xTags      - Array of tags
+     * @param string|null  $sCacheType - Type of cache (if null then clear in all cache types)
      *
      * @return bool
      */
-    public function CleanByTags($aTags, $sCacheType = null) {
+    public function CleanByTags($xTags, $sCacheType = null) {
 
-        $aTags = $this->_prepareTags($aTags);
+        $aTags = $this->_prepareTags($xTags);
 
         if ($sCacheType && strpos($sCacheType, ',') !== false) {
             $aCacheTypes = explode(',', $sCacheType);
             $bResult = false;
-            foreach($aCacheTypes as $sCacheType) {
-                $bResult = $bResult || $this->CleanByTags($aTags, $sCacheType ? $sCacheType : null);
+            foreach($aCacheTypes as $sCacheTypeId) {
+                $bResult = $bResult || $this->CleanByTags($aTags, $sCacheTypeId ? $sCacheTypeId : null);
             }
             return $bResult;
         }
@@ -811,10 +811,10 @@ class ModuleCache extends Module {
 
         $this->aStats['time'] += $iTime;
         $this->aStats['count']++;
-        if ($sMethod == 'Dklab_Cache_Backend_Profiler::load') {
+        if ($sMethod === 'Dklab_Cache_Backend_Profiler::load') {
             $this->aStats['count_get']++;
         }
-        if ($sMethod == 'Dklab_Cache_Backend_Profiler::save') {
+        if ($sMethod === 'Dklab_Cache_Backend_Profiler::save') {
             $this->aStats['count_set']++;
         }
     }

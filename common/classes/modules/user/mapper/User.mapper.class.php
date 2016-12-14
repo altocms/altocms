@@ -208,17 +208,23 @@ class ModuleUser_MapperUser extends Mapper {
         return ($bResult !== false);
     }
 
-    public function LimitSession($oUser, $nSessionLimit) {
+    /**
+     * @param $xUser
+     * @param $iSessionLimit
+     *
+     * @return bool
+     */
+    public function LimitSession($xUser, $iSessionLimit) {
 
         // Число сессий не может быть меньше 1
-        if ($nSessionLimit < 1) {
-            return;
+        if ($iSessionLimit < 1) {
+            return true;
         }
 
-        if (is_object($oUser)) {
-            $nUserId = $oUser->GetId();
+        if (is_object($xUser)) {
+            $nUserId = $xUser->GetId();
         } else {
-            $nUserId = intval($oUser);
+            $nUserId = (int)$xUser;
         }
 
         $sql
@@ -230,8 +236,8 @@ class ModuleUser_MapperUser extends Mapper {
             ORDER BY session_date_last DESC
             LIMIT ?d
         ";
-        $aRows = $this->oDb->selectCol($sql, $nUserId, $nSessionLimit + 1);
-        if ($aRows && sizeof($aRows) > $nSessionLimit) {
+        $aRows = $this->oDb->selectCol($sql, $nUserId, $iSessionLimit + 1);
+        if ($aRows && count($aRows) > $iSessionLimit) {
             $sDate = end($aRows);
             $sql
                 = "
