@@ -138,6 +138,8 @@
 .navbar-main img.user {
   margin-right: 10px;
   border-radius: 16px;
+  width: 32px;
+  height: 32px;
 }
 .navbar-main .badge-mail-counter {
   margin-left: 6px;
