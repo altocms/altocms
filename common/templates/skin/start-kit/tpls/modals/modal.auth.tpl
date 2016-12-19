@@ -153,32 +153,42 @@
 
     <script type="text/javascript">
         jQuery(function ($) {
+            var modalAuth = $('#modal-auth');
             var selectFirstInput = function() {
-                $('#modal-auth .tab-pane.active input[type=text]:first:visible').focus();
+                modalAuth.find('.tab-pane.active input[type=text]:first:visible').focus();
+                if (modalAuth.data('first') != 1) {
+                    $('.captcha-image').attr('src', "{router page='captcha'}?n="+Math.random());
+                    modalAuth.attr('data-first', 1);
+                }
             };
-            $('#modal-auth').on('shown.bs.modal', selectFirstInput);
-            $('#modal-auth [data-toggle=tab]').on('shown.bs.tab', selectFirstInput);
+            var ajaxValidate = function(target) {
+                var field = $(target),
+                    fieldName = field.attr('name'),
+                    fieldValue = field.val(),
+                    form = field.parents('form').first(),
+                    params = { };
+
+                if (fieldName == 'password_confirm') {
+                    params['password'] = $('#input-registration-password').val();
+                }
+                if (fieldName == 'password') {
+                    var passwordConfirm = $('#input-registration-password-confirm').val();
+                    params['password'] = $('#input-registration-password').val();
+                    if (passwordConfirm) {
+                        ls.user.validateRegistrationField(form,  'password_confirm', passwordConfirm, { password: fieldValue });
+                    }
+                }
+                ls.user.validateRegistrationField(form, fieldName, fieldValue, params);
+            };
+            modalAuth.on('shown.bs.modal', selectFirstInput);
+            modalAuth.find('[data-toggle=tab]').on('shown.bs.tab', selectFirstInput);
 
             // --- //
             $('.js-form-login-submit').prop('disabled', false);
 
             // --- //
             $('.js-form-registration input.js-ajax-validate').blur(function (e) {
-                var params = { };
-                var fieldName = $(e.target).attr('name');
-                var fieldValue = $(e.target).val();
-                var form = $(e.target).parents('form').first();
-
-                if (fieldName == 'password_confirm') {
-                    params['password'] = $('#input-registration-password').val();
-                }
-                if (fieldName == 'password') {
-                    params['password'] = $('#input-registration-password').val();
-                    if ($('#input-registration-password-confirm').val()) {
-                        ls.user.validateRegistrationField(form,  'password_confirm', $('#input-registration-password-confirm').val(), { password: fieldValue });
-                    }
-                }
-                ls.user.validateRegistrationField(form, fieldName, fieldValue, params);
+                ajaxValidate(e.target);
             });
             $('.js-form-registration-submit').prop('disabled', false);
 
