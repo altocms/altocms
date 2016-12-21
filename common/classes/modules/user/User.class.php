@@ -2363,6 +2363,39 @@ class ModuleUser extends Module {
 
         return $aUserPublicationStats;
     }
+
+    /**
+     * @param int $nError
+     *
+     * @return string
+     */
+    public function GetLoginErrorMessage($nError) {
+
+        switch ((int)$nError) {
+            case ModuleUser::USER_LOGIN_ERR_MIN:
+                $sResult = E::ModuleLang()->Get('registration_login_error_min', array(
+                    'min' => intval(Config::Get('module.user.login.min_size')),
+                ));
+                break;
+            case ModuleUser::USER_LOGIN_ERR_LEN:
+                $sResult = E::ModuleLang()->Get('registration_login_error_len', array(
+                    'min' => intval(Config::Get('module.user.login.min_size')),
+                    'max' => intval(Config::Get('module.user.login.max_size')),
+                ));
+                break;
+            case ModuleUser::USER_LOGIN_ERR_CHARS:
+                $sResult = E::ModuleLang()->Get('registration_login_error_chars');
+                break;
+            case ModuleUser::USER_LOGIN_ERR_DISABLED:
+                $sResult = E::ModuleLang()->Get('registration_login_error_used');
+                break;
+            default:
+                $sResult = E::ModuleLang()->Get('registration_login_error');
+                break;
+        }
+        return $sResult;
+    }
+
 }
 
 // EOF
