@@ -19,7 +19,7 @@
                 <span class="blog-line-image">
                     {$sUrl = $oBlog->getAvatarUrl('small')}
                     {if $sUrl}
-                        <img src="{$sUrl}" class="avatar uppercase"/>
+                        <img src="{$sUrl}" class="avatar uppercase" {$oBlog->getAvatarImageSizeAttr('small')}/>
                     {else}
                         <i class="fa fa-folder"></i>
                     {/if}

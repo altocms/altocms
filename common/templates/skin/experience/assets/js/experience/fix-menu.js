@@ -1,19 +1,17 @@
 $(function(){
+    "use strict";
+    setFixMenu('.menu-level-2-container', 'fixed', '.menu-level-1-container');
 
-    //setFixMenu('.navbar-main', 'fixed');
-
-    function setFixMenu(element, stickyCssClass) {
-
-        var menuTop = $(element);
+    function setFixMenu(element, stickyCssClass, heightElement) {
+        var menuTop = $(element), height = $(heightElement).height();
 
         if (menuTop.length == 0) {
             return;
         }
 
-        menuTop = menuTop.offset().top + 110;
+        menuTop = menuTop.offset().top + height;
 
         $(window).scroll(function () {
-
             var htmlTop = $(window).scrollTop();
 
             if (htmlTop > menuTop) {

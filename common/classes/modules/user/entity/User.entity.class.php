@@ -662,7 +662,12 @@ class ModuleUser_EntityUser extends Entity {
     protected function _defineImageSize($sImageType, $xSize) {
 
         $sSize = C::Val('module.uploader.images.' . $sImageType . '.size.' . $xSize, $xSize);
-        return F::File_ImgModAttr($sSize);
+        $aResult = F::File_ImgModAttr($sSize);
+        if (empty($aResult['width']) && empty($aResult['height'])) {
+            $sSize = C::Val('module.uploader.images.default.size.' . $xSize, $xSize);
+            $aResult = F::File_ImgModAttr($sSize);
+        }
+        return $aResult;
     }
 
     /**

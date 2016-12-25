@@ -21,7 +21,8 @@ $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
 if (Config::Get('view.fix_menu')) {
-    $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
+    //$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
+    $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.js";
 }
 
 $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/userinfo.min.js";
