@@ -451,6 +451,7 @@ return array(
     'set_links_topics_mode' => 'Ссылки на статьи',
     'set_links_topics_mode_alto' => 'Стандартные',
     'set_links_topics_mode_friendly' => 'ЧеловекоПонятный URL',
+    'set_links_topics_mode_friendly_id' => 'ID + ЧеловекоПонятный URL',
     'set_links_topics_mode_ls' => 'Как в LiveStreet',
     'set_links_topics_mode_id' => 'ID статьи (числовой)',
     'set_links_topics_mode_day_name' => 'День и название',

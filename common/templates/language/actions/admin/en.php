@@ -420,6 +420,7 @@ return array(
     'set_links_topics_mode' => 'Links to articles',
     'set_links_topics_mode_alto' => 'Standard',
     'set_links_topics_mode_friendly' => 'User friendly URL',
+    'set_links_topics_mode_friendly_id' => 'ID + User friendly URL',
     'set_links_topics_mode_ls' => 'As in LiveStreet',
     'set_links_topics_mode_id' => 'Article ID (numerical)',
     'set_links_topics_mode_day_name' => 'Day and name',
