@@ -25,7 +25,7 @@ $config['assets']['default']['css'] = array(
     '___path.skin.dir___/assets/css/default.css',
 
     /* Theme */
-    '___path.skin.dir___/themes/___view.theme___/style.css',
+    '___path.skin.dir___/themes/___view.theme___/css/theme-style.css',
     //'___path.skin.dir___/themes/___view.theme___/style.css.map',
     /* Themer Icons */
     '___path.skin.dir___/assets/icons/css/fontello.css',

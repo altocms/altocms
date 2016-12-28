@@ -1,15 +1,17 @@
-@import "../../../assets/less/var.experience_simple.less";
+/** theme.custom.less */
+@import "../../../assets/less/var.bootstrap.less";
+@import "../../../assets/less/var.experience.less";
+
 //**************************************************************************************************************
-//          ПЕРЕМЕННЫЕ ТЕКУЩЕЙ ТЕМЫ (orange)
+//          ПЕРЕМЕННЫЕ ТЕКУЩЕЙ ТЕМЫ
 //**************************************************************************************************************
 
-@dark-blue:         #ca6924;
-
-
+@dark-blue:         #333;
 
 @dark-blue-l-10:    lighten(@dark-blue, 10%);
 @dark-blue-d-10:    darken(@dark-blue, 10%);
-@main-gray: darken(@dark-blue, 15%);
+@main-gray:         darken(@dark-blue, 15%);
+
 @navbar-main-default-background: @dark-blue;
 @navbar-main-default-submenu-divider:       @dark-blue-l-10;        // Цвет разделителя подменю
 @navbar-main-default-color:                 @white;                 // Дефолтный цвет ссылок
@@ -60,8 +62,7 @@
 @font-size-h6: 14px;
 
 //**************************************************************************************************************
-@import "../../../assets/less/style.experience_simple.less";
-
+@import "../../../assets/less/var.experience_theme.less";
 
 //**************************************************************************************************************
 //          СТИЛИ ТЕКУЩЕЙ ТЕМЫ
@@ -168,13 +169,13 @@ body {
 
 /* iCheck plugin */
 .icheckbox_square-blue, .iradio_square-blue {
-    background: url("../images/theme_orange.png") no-repeat;
+    background: url("../images/theme_black.png") no-repeat;
 }
 
 @media (-o-min-device-pixel-ratio: 5/4), (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
     .icheckbox_square-blue, .iradio_square-blue {
-        background-image: url("../images/theme_orange@2x.png");
-    }
+        background-image: url("../images/theme_black@2x.png");
+        }
 }
 
 .btn.btn-gray i {

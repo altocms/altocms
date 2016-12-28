@@ -1,0 +1,184 @@
+/* THEME experience DEFAULT */
+/* COMMON */
+body {
+  background: #eaeaea;
+}
+a {
+  color: #00afd1;
+}
+a:hover,
+a:visited,
+.text a:visited {
+  color: #00c6ec;
+}
+/* BUTTONS */
+.btn-success {
+  color: #fff;
+  background-color: #59a335;
+  border-color: #59a335;
+}
+/* NAVIGATIONS */
+.navbar-inverse .navbar-brand span {
+  color: #00afd1;
+}
+.navbar-inverse,
+.b-header-banner {
+  background-color: #323a45;
+}
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus {
+  background-color: #00afd1;
+}
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+  color: #fff;
+  background-color: #00afd1;
+}
+.nav.context-menu > li > a {
+  color: #2a2a2a;
+}
+.nav.context-menu > li.active > a {
+  color: #fff;
+  background-color: #00afd1;
+}
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
+  background-color: #00afd1;
+}
+.nav-pills.context-menu > li.bordered {
+  border: 1px solid #d6d6d6;
+  box-shadow: 0 2px 4px rgba(64, 64, 64, 0.05);
+  background-color: #f6f6f6;
+  background: -moz-linear-gradient(top, #fbfbfb 0%, #e7e7e7 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fbfbfb), color-stop(100%, #e7e7e7));
+  background: -webkit-linear-gradient(top, #fbfbfb 0%, #e7e7e7 100%);
+  background: -o-linear-gradient(top, #fbfbfb 0%, #e7e7e7 100%);
+  background: -ms-linear-gradient(top, #fbfbfb 0%, #e7e7e7 100%);
+  background: linear-gradient(top, #fbfbfb 0%, #e7e7e7 100%);
+}
+.nav-pills.context-menu > li.bordered + li.bordered {
+  border-left-color: #fff;
+  margin-left: 0;
+}
+.nav-pills.context-menu > li.bordered.active > a {
+  color: #2a2a2a;
+  background-color: #f6f6f6;
+}
+.nav-pills.context-menu > li.bordered:hover > a,
+.topic-header-info .topic-blog {
+  color: #00afd1;
+}
+/* PAGINATION */
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+  background-color: #00afd1;
+  border-color: #00afd1;
+}
+/* WIDGET NAVIGATIONS */
+.widget-content .nav-pills li {
+  background-color: #f6f6f6;
+  border: 1px solid #d6d6d6;
+}
+.widget-content .nav-pills > li + li {
+  margin-left: 8px;
+}
+.widget-content .nav-pills > li.active {
+  border-color: #00afd1;
+}
+/* WIDGETS */
+.widget-title a {
+  color: #323a45;
+}
+.widget-title a:hover {
+  text-decoration: none;
+  color: #00afd1;
+}
+.widget-content a.blog-top {
+  color: #5f6061;
+}
+.widget-content a.blog-top:hover {
+  text-decoration: none;
+  color: #00afd1;
+}
+.item-list li .blog-name,
+.widget-type-stream .stream-topic,
+.widget-type-stream .stream-topic:visited {
+  color: #5f6061;
+}
+.item-list li .blog-name:hover,
+.widget-type-stream .stream-topic:hover {
+  text-decoration: none;
+  color: #00afd1;
+}
+.widget-type-stream .stream-topic.text-danger {
+  color: #ff4136;
+}
+/* BLOGS & TOPICS */
+.blog-header .actions li,
+.topic-header-info .actions li {
+  padding: 0;
+}
+.blog-header .actions a,
+.topic-header-info .actions a {
+  display: inline-block;
+  color: #777777;
+  background-color: #ededed;
+  padding: 2px 4px 1px 4px;
+}
+.blog-header .actions .actions-tool,
+.topic-header-info .actions .actions-tool {
+  color: #ededed;
+  background-color: #777777;
+  padding: 4px 4px;
+}
+.blog-header .actions a:hover,
+.topic-header-info .actions a:hover {
+  color: #ededed;
+  background-color: #777777;
+  text-decoration: none;
+}
+.blog-header .actions .actions-delete:hover,
+.topic-header-info .actions .actions-delete:hover {
+  color: #ededed;
+  background-color: #ff4136;
+  text-decoration: none;
+}
+.topic-header-title,
+.topic-header-title > a {
+  font-weight: 300;
+  font-size: 22px;
+  color: #323a45;
+}
+.topic-header-title:hover > a {
+  color: #00afd1;
+  text-decoration: none;
+}
+.topic a.read-more {
+  color: #323a45 !important;
+  background-color: #f6f6f6;
+  border: 1px solid #d6d6d6;
+  padding: 2px 15px;
+}
+/* FOOTER */
+.footer {
+  background-color: #2a2f36;
+  color: #bebebe;
+}
+.footer-bottom {
+  background-color: #1c1f23;
+}
+.footer-list a,
+.footer-list a:visited {
+  color: #bebebe;
+}
+.footer-list a:hover {
+  text-decoration: none;
+  color: #00afd1;
+}
