@@ -1,34 +1,4 @@
 /** theme.default.less */
-/** ЦВЕТА (9)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ МЕНЮ (7)
-----------------------------------------------------------------------------------------------------------*/
-/** ОСНОВНОЕ МЕНЮ (7)
-----------------------------------------------------------------------------------------------------------*/
-/** МЕНЮ ТОПИКОВ (5)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ БЛОКОВ (5)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ ТУЛЛБАРА (12)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ ЭЛЕМЕНТОВ ФОРМЫ (16)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ ВЫВОДА ТОПИКА (3)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ ВЫВОДА КОММЕНТАРИЕВ (2)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ ПАДЖИНАТОРА (6)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ ПОДВАЛА (6)
-----------------------------------------------------------------------------------------------------------*/
-/** ВИДЖЕТ ИНФОРМАЦИИ О БЛОГЕ (3)
-----------------------------------------------------------------------------------------------------------*/
-/** ПРОФИЛЬ ПОЛЬЗОЫВТЕЛЯ (13)
-----------------------------------------------------------------------------------------------------------*/
-/** НАСТРОЙКИ СТЕНЫ (1, ОСТАЛЬНОЕ В НАСТРОЙКАХ КОММЕНТАРИЕВ)
-----------------------------------------------------------------------------------------------------------*/
-/** ПРОЧИЕ (1)
-----------------------------------------------------------------------------------------------------------*/
 /** Шрифты
 ----------------------------------------------------------------------------------------------------------*/
 /** Базовые цвета темы
@@ -62,11 +32,41 @@
 /**-------------------------------------------------------------------------------------------------------*/
 /** РАЧЕТНЫЕ ДАННЫЕ. НЕ МЕНЯТЬ!
 ----------------------------------------------------------------------------------------------------------*/
+/** ЦВЕТА (9)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ МЕНЮ (7)
+----------------------------------------------------------------------------------------------------------*/
+/** ОСНОВНОЕ МЕНЮ (7)
+----------------------------------------------------------------------------------------------------------*/
+/** МЕНЮ ТОПИКОВ (5)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ БЛОКОВ (5)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ ТУЛЛБАРА (12)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ ЭЛЕМЕНТОВ ФОРМЫ (16)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ ВЫВОДА ТОПИКА (3)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ ВЫВОДА КОММЕНТАРИЕВ (2)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ ПАДЖИНАТОРА (6)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ ПОДВАЛА (6)
+----------------------------------------------------------------------------------------------------------*/
+/** ВИДЖЕТ ИНФОРМАЦИИ О БЛОГЕ (3)
+----------------------------------------------------------------------------------------------------------*/
+/** ПРОФИЛЬ ПОЛЬЗОЫВТЕЛЯ (13)
+----------------------------------------------------------------------------------------------------------*/
+/** НАСТРОЙКИ СТЕНЫ (1, ОСТАЛЬНОЕ В НАСТРОЙКАХ КОММЕНТАРИЕВ)
+----------------------------------------------------------------------------------------------------------*/
+/** ПРОЧИЕ (1)
+----------------------------------------------------------------------------------------------------------*/
 .navbar-main {
   z-index: 3;
   margin-bottom: 0;
   min-height: 48px;
-  border: 0;
+  border-bottom: 1px solid #e6ebee;
   border-radius: 0;
   background-color: #f5f6f8;
   /** ПОДМЕНЮ ПОЛЬЗОВАТЕЛЯ
@@ -104,13 +104,13 @@
   opacity: 0.7;
 }
 .navbar-main .navbar-nav li.active a {
-  color: #1499cb;
+  color: #4b8bbc;
   background-color: #f5f6f8;
   opacity: 1;
 }
 .navbar-main .navbar-nav li a:hover,
 .navbar-main .navbar-nav li.active a:hover {
-  color: #d25151;
+  color: #c43a3a;
   background-color: #f5f6f8;
   opacity: 1;
 }
@@ -121,7 +121,7 @@
   min-width: 200px;
 }
 .navbar-main .navbar-nav .user-button:hover {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 .navbar-main .navbar-nav .user-button .caret {
   color: #d0dbdf;
@@ -138,18 +138,20 @@
 .navbar-main img.user {
   margin-right: 10px;
   border-radius: 16px;
+  width: 32px;
+  height: 32px;
 }
 .navbar-main .badge-mail-counter {
   margin-left: 6px;
   margin-right: 10px;
-  background-color: #d25151 !important;
+  background-color: #c43a3a !important;
   color: white;
 }
 .navbar-main .navbar-nav > .open > a,
 .navbar-main .navbar-nav > .open > a:hover,
 .navbar-main .navbar-nav > .open > a:focus {
   background-color: #e6ebee !important;
-  color: #1499cb;
+  color: #4b8bbc;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu {
   padding-top: 0 !important;
@@ -175,13 +177,13 @@
   padding-left: 2px;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li > a .new-messages {
-  color: #d25151;
+  color: #c43a3a;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li > a:hover {
   color: #1c374c;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li > a:hover i {
-  color: #d25151;
+  color: #c43a3a;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li:last-child {
   border-bottom: 0;
@@ -214,10 +216,10 @@
   font-size: 13px;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li.user_activity_items ul li.menu-item-user-rating a {
-  color: #548c40;
+  color: #57a839;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li.user_activity_items ul li.menu-item-user-rating a .negative {
-  color: #d25151;
+  color: #c43a3a;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li.user_activity_items ul li.menu-item-user-rating a i {
   color: #1c374c;
@@ -227,7 +229,7 @@
   color: #1c374c;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li.user_activity_items ul li.menu-item-user-comments a i {
-  color: #1499cb;
+  color: #4b8bbc;
   margin-right: 6px;
 }
 .navbar-main .dropdown-menu.dropdown-user-menu > li.user_activity_items ul li.menu-item-user-talks a {
@@ -264,7 +266,7 @@ _________________________________________________________*/
     opacity: 1;
   }
   .user-button:hover {
-    color: #1499cb !important;
+    color: #4b8bbc !important;
   }
   .user-button .caret {
     float: right;
@@ -378,7 +380,7 @@ a:hover,
 .link-light-gray.link-clear:hover,
 .link-gray.link-clear:hover,
 .link-clear:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 a:hover i.fa,
 .link:hover i.fa,
@@ -390,16 +392,16 @@ a:hover i.fa,
 .link-light-gray.link-clear:hover i.fa,
 .link-gray.link-clear:hover i.fa,
 .link-clear:hover i.fa {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .link.link-gray {
   color: #93a6ad !important;
 }
 .link.link-gray:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .link.link-gray:hover i.fa {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 /** БЛОК СООБЩЕНИЙ
 _______________________________________________________________*/
@@ -413,8 +415,8 @@ _______________________________________________________________*/
 .bg-warning.system-msg,
 .comment-preview.system-msg {
   padding: 18px;
-  background-color: #c3dfb9;
-  border: 1px solid #c3dfb9;
+  background-color: #cdeac3;
+  border: 1px solid #cdeac3;
 }
 /** ЗАГОЛОВКИ
 _______________________________________________________________*/
@@ -485,7 +487,7 @@ _______________________________________________________________*/
 /** ВСПОМОГАТЕЛЬНЫЕ
 _______________________________________________________________*/
 .right-divider {
-  border-right: 1px solid #f2f6f7;
+  border-right: 1px solid #e6e6e6;
   padding-right: 10px !important;
 }
 .bor32 {
@@ -548,7 +550,7 @@ _______________________________________________________________*/
   z-index: 3;
 }
 .uploader-actions:hover a {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .blog-uploader-actions > div {
   display: block;
@@ -557,7 +559,7 @@ _______________________________________________________________*/
   position: relative;
 }
 .blog-uploader-actions > div:hover a {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .blog-uploader-actions > div > input {
   display: block;
@@ -601,14 +603,14 @@ _________________________________________________________*/
 .navbar-content.navbar-default .navbar-nav > li.active > a,
 .navbar-content.navbar-default .navbar-nav > li.open > a {
   background-color: #f5f6f8;
-  color: #1499cb;
+  color: #4b8bbc;
   opacity: 1;
 }
 .navbar-content.navbar-default .navbar-nav > li.active > a:hover,
 .navbar-content.navbar-default .navbar-nav > li.open > a:hover,
 .navbar-content.navbar-default .navbar-nav > li.active > a:focus,
 .navbar-content.navbar-default .navbar-nav > li.open > a:focus {
-  color: #d25151;
+  color: #c43a3a;
 }
 .navbar-content.navbar-default .navbar-nav > li.open > a {
   background-color: #e6ebee !important;
@@ -621,7 +623,7 @@ _________________________________________________________*/
 }
 .navbar-content.navbar-default .navbar-nav > li > a:hover,
 .navbar-content.navbar-default .navbar-nav > li > a:focus {
-  color: #d25151;
+  color: #c43a3a;
   opacity: 1;
 }
 .navbar-content.navbar-default .fadeIn {
@@ -629,6 +631,9 @@ _________________________________________________________*/
   -moz-animation-duration: 0.5s;
   -o-animation-duration: 0.5s;
   animation-duration: 0.5s;
+}
+.navbar-content.under-fixed {
+  margin-top: 56px;
 }
 /* ВЫПАДАЮЩИЕ ПОДМЕНЮ КОНТЕНТА
 _________________________________________________________*/
@@ -651,7 +656,7 @@ _________________________________________________________*/
 .dropdown-menu.dropdown-content-menu > li > a:hover,
 .dropdown-menu.dropdown-content-menu > li > a:focus {
   background-color: #f5f6f8;
-  color: #d25151;
+  color: #c43a3a;
 }
 .dropdown-menu.dropdown-content-menu a {
   margin: 0 !important;
@@ -679,7 +684,7 @@ _________________________________________________________*/
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
     background-color: #f5f6f8;
-    color: #d25151;
+    color: #c43a3a;
   }
 }
 /** ОБЩИЕ СТИЛИ ДЛЯ ПАНЕЛЕЙ
@@ -728,15 +733,15 @@ _________________________________________________________________*/
 }
 .panel .panel-body #user-prefix-filter a {
   font-size: 14px !important;
-  color: #1499cb !important;
+  color: #4b8bbc !important;
   text-decoration: none;
 }
 .panel .panel-body #user-prefix-filter a:hover,
 .panel .panel-body #user-prefix-filter a.active {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .panel .panel-body #user-prefix-filter li.active a {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .panel .panel-body #search-user-login,
 .panel .panel-body #form-blogs-search input {
@@ -780,22 +785,22 @@ _________________________________________________________________*/
   margin: 0 6px;
 }
 .panel .right-placed-menu li a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .panel .right-placed-menu li a:hover i.fa {
   color: #93a6ad !important;
 }
 .panel .right-placed-menu li a:hover {
-  border-bottom: 1px dashed #d25151;
+  border-bottom: 1px dashed #c43a3a;
 }
 .panel .right-placed-menu li a:hover,
 .panel .right-placed-menu li a.active {
-  color: #1499cb !important;
-  border-color: #1499cb !important;
+  color: #4b8bbc !important;
+  border-color: #4b8bbc !important;
 }
 .panel .right-placed-menu li.active a {
-  color: #1499cb !important;
-  border-color: #1499cb !important;
+  color: #4b8bbc !important;
+  border-color: #4b8bbc !important;
 }
 .panel .panel-footer,
 .panel .topic-footer {
@@ -893,7 +898,7 @@ _________________________________________________________________*/
   position: absolute;
   left: 18px;
   top: 9px;
-  color: #f2f6f7;
+  color: #e6e6e6;
   line-height: 12px;
   font-size: 14px;
   font-weight: bold;
@@ -904,7 +909,7 @@ _________________________________________________________________*/
   color: #1a1a1a !important;
 }
 .panel.widget .feed-comment-text a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .panel.widget .panel-content,
 .panel.widget .widget-content {
@@ -917,7 +922,7 @@ _________________________________________________________________*/
 }
 .panel.widget .panel-content a:hover,
 .panel.widget .widget-content a:hover {
-  color: #d25151;
+  color: #c43a3a;
 }
 .panel.widget .panel-content .text-muted,
 .panel.widget .widget-content .text-muted {
@@ -936,7 +941,7 @@ _________________________________________________________________*/
 }
 .tag-cloud a:hover,
 .tag-cloud a:hover span {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .topic-info .topic-user {
   height: 34px !important;
@@ -952,7 +957,7 @@ _________________________________________________________________*/
   padding: 8px 18px;
   color: #fff;
   line-height: 14px;
-  background-color: #1499cb;
+  background-color: #4b8bbc;
   border-radius: 0;
 }
 .tooltip-inner,
@@ -963,28 +968,28 @@ _________________________________________________________________*/
   margin-left: 6px;
 }
 .tooltip.top .tooltip-arrow {
-  border-top-color: #1499cb;
+  border-top-color: #4b8bbc;
 }
 .tooltip.top-left .tooltip-arrow {
-  border-top-color: #1499cb;
+  border-top-color: #4b8bbc;
 }
 .tooltip.top-right .tooltip-arrow {
-  border-top-color: #1499cb;
+  border-top-color: #4b8bbc;
 }
 .tooltip.right .tooltip-arrow {
-  border-right-color: #1499cb;
+  border-right-color: #4b8bbc;
 }
 .tooltip.left .tooltip-arrow {
-  border-left-color: #1499cb;
+  border-left-color: #4b8bbc;
 }
 .tooltip.bottom .tooltip-arrow {
-  border-bottom-color: #1499cb;
+  border-bottom-color: #4b8bbc;
 }
 .tooltip.bottom-left .tooltip-arrow {
-  border-bottom-color: #1499cb;
+  border-bottom-color: #4b8bbc;
 }
 .tooltip.bottom-right .tooltip-arrow {
-  border-bottom-color: #1499cb;
+  border-bottom-color: #4b8bbc;
 }
 .toolbar {
   position: fixed;
@@ -1008,8 +1013,8 @@ _________________________________________________________________*/
   color: #93a6ad;
   font-size: 24px;
   line-height: 34px;
-  background-color: #f2f6f7;
-  background: #fafafa;
+  background-color: #e6e6e6;
+  background: #e6e6e6;
   margin-right: 4px;
   text-align: center;
   vertical-align: bottom;
@@ -1103,7 +1108,7 @@ _________________________________________________________________*/
   padding: 8px 22px;
 }
 .toolbar-write li a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .toolbar-write li a:hover i.fa {
   color: #93a6ad !important;
@@ -1149,7 +1154,7 @@ _________________________________________________________________*/
   text-decoration: none;
 }
 .toolbar-user .toolbar-menu-user a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .toolbar-user .toolbar-menu-user a:hover i.fa {
   color: #93a6ad !important;
@@ -1161,7 +1166,7 @@ _________________________________________________________________*/
 .toolbar-user .toolbar-menu-user a span.badge {
   margin-top: 6px;
   margin-left: 6px;
-  background-color: #d25151 !important;
+  background-color: #c43a3a !important;
   color: white;
   float: right;
 }
@@ -1197,10 +1202,10 @@ _________________________________________________________________*/
   font-size: 13px;
 }
 .toolbar-user li.user_activity_items ul li.menu-item-user-rating a {
-  color: #548c40;
+  color: #57a839;
 }
 .toolbar-user li.user_activity_items ul li.menu-item-user-rating a .negative {
-  color: #d25151;
+  color: #c43a3a;
 }
 .toolbar-user li.user_activity_items ul li.menu-item-user-rating a i {
   color: #1c374c;
@@ -1210,7 +1215,7 @@ _________________________________________________________________*/
   color: #1c374c;
 }
 .toolbar-user li.user_activity_items ul li.menu-item-user-comments a i {
-  color: #1499cb;
+  color: #4b8bbc;
   margin-right: 6px;
 }
 .toolbar-user li.user_activity_items ul li.menu-item-user-talks a {
@@ -1233,7 +1238,7 @@ _________________________________________________________________*/
   padding: 8px 22px;
 }
 .toolbar-user li.fixed-item a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .toolbar-user li.fixed-item a:hover i.fa {
   color: #93a6ad !important;
@@ -1426,7 +1431,7 @@ _________________________________________________*/
   top: -6px;
   right: 17px;
   z-index: 999;
-  color: #d25151;
+  color: #c43a3a;
   font-size: 20px;
   opacity: 0;
   cursor: pointer;
@@ -1440,7 +1445,7 @@ _________________________________________________*/
   top: -6px;
   left: 17px;
   z-index: 999;
-  color: #548c40;
+  color: #57a839;
   font-size: 20px;
   opacity: 0;
   cursor: pointer;
@@ -1603,7 +1608,7 @@ fieldset[disabled] .btn-default.active {
   background-color: #d0dbdf;
 }
 .open .btn-default {
-  background-color: #f2f6f7 !important;
+  background-color: #e6e6e6 !important;
 }
 .btn-blue,
 .btn-primary {
@@ -1889,7 +1894,7 @@ fieldset[disabled] .btn-gray.active {
 }
 .topic-info ul li.topic-user a span.caret {
   height: 0 !important;
-  color: #f2f6f7;
+  color: #e6e6e6;
   margin-left: 6px;
 }
 .topic-info ul li.topic-blog {
@@ -1902,8 +1907,8 @@ fieldset[disabled] .btn-gray.active {
   /* Градиент */
 }
 .topic-info ul li.topic-blog a {
-  border-left: 1px solid #f2f6f7;
-  border-right: 1px solid #f2f6f7;
+  border-left: 1px solid #e6e6e6;
+  border-right: 1px solid #e6e6e6;
   padding-left: 10px;
   padding-right: 10px;
   text-decoration: none;
@@ -1943,7 +1948,7 @@ fieldset[disabled] .btn-gray.active {
   font-size: 13px !important;
 }
 .comment-deleted * {
-  background-color: #f7dfdf !important;
+  background-color: #edc3c3 !important;
 }
 .comment-reply,
 .comment-reply * {
@@ -1991,7 +1996,7 @@ fieldset[disabled] .btn-gray.active {
   margin: 0 !important;
 }
 .comment-tools ul li.bordered a {
-  border-left: 1px solid #f2f6f7;
+  border-left: 1px solid #e6e6e6;
   padding-left: 10px !important;
   padding-right: 10px !important;
 }
@@ -2025,7 +2030,7 @@ fieldset[disabled] .btn-gray.active {
 }
 .comment-tools ul li.comment-user a span.caret {
   height: 0 !important;
-  color: #f2f6f7;
+  color: #e6e6e6;
   margin-left: 6px;
 }
 .comment-tools ul li.comment-date-block {
@@ -2083,7 +2088,7 @@ fieldset[disabled] .btn-gray.active {
   color: #1c374c;
 }
 .comment-footer ul .comment-reply:hover {
-  border-bottom: 1px dashed #d25151;
+  border-bottom: 1px dashed #c43a3a;
 }
 .paginator {
   margin-top: 58px;
@@ -2097,11 +2102,11 @@ fieldset[disabled] .btn-gray.active {
 }
 .paginator ul li {
   display: inline-block;
-  height: 32px;
-  min-width: 32px;
+  height: 42px;
+  min-width: 42px;
   text-align: center;
-  line-height: 32px;
-  background: #fafafa none;
+  line-height: 42px;
+  background: #e6e6e6 none;
   margin-right: 4px;
   border: 0;
   cursor: pointer;
@@ -2118,17 +2123,17 @@ fieldset[disabled] .btn-gray.active {
 }
 .paginator ul li.disabled:hover,
 .paginator ul li.disabled.active {
-  background: #fafafa none;
+  background: #e6e6e6 none;
 }
 .paginator ul li a,
 .paginator ul li > span,
 .paginator ul li i {
   font-weight: normal !important;
-  font-size: 14px;
-  color: #5c5c5c;
+  font-size: 13px;
+  color: #1c374c;
   padding: 0;
   display: block;
-  line-height: 32px;
+  line-height: 42px;
   text-decoration: none;
 }
 .paginator ul li.next {
@@ -2244,7 +2249,7 @@ ______________________________________________________*/
   width: auto;
 }
 .panel-content .blogs-list li .blog-line-rating {
-  color: #548c40;
+  color: #57a839;
   max-width: 40px;
   width: 40px;
   text-align: center;
@@ -2269,7 +2274,7 @@ ______________________________________________________*/
 .blog-submenu ul {
   border-radius: 0 !important;
   top: 38px !important;
-  background-color: #f2f6f7 !important;
+  background-color: #e6e6e6 !important;
   background-image: none !important;
 }
 .blog-submenu ul a:hover {
@@ -2310,8 +2315,8 @@ ______________________________________________________*/
 }
 #js-profile-user-photos #image-categories-tree-container ul li a:hover,
 #js-profile-user-photos #image-categories-tree-container ul li a.active {
-  color: #1499cb !important;
-  border-bottom: 1px dashed #1499cb;
+  color: #4b8bbc !important;
+  border-bottom: 1px dashed #4b8bbc;
 }
 #js-profile-user-photos #image-categories-tree-container ul li a span {
   margin-left: 4px;
@@ -2323,8 +2328,8 @@ ______________________________________________________*/
 }
 #js-profile-user-photos #image-categories-tree-container ul li:hover a,
 #js-profile-user-photos #image-categories-tree-container ul li.active a {
-  color: #1499cb !important;
-  border-bottom: 1px dashed #1499cb;
+  color: #4b8bbc !important;
+  border-bottom: 1px dashed #4b8bbc;
 }
 #js-profile-user-photos .image-loading {
   padding: 24px 0;
@@ -2335,7 +2340,7 @@ ______________________________________________________*/
 }
 #js-profile-user-photos .image-categories-nav a:hover,
 #js-profile-user-photos .image-categories-nav a.active {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 #js-profile-user-photos .media-text {
   font-size: 13px;
@@ -2403,10 +2408,10 @@ ______________________________________________________*/
   opacity: 1;
 }
 .friend span.success {
-  background-color: #548c40;
+  background-color: #57a839;
 }
 .friend span.danger {
-  background-color: #d25151;
+  background-color: #c43a3a;
 }
 /** ВИДЖЕТ ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ
 ______________________________________________________*/
@@ -2435,10 +2440,10 @@ ______________________________________________________*/
   opacity: 1;
 }
 .user-panel .profile-logo-container .profile-online-status.success {
-  background-color: #548c40;
+  background-color: #57a839;
 }
 .user-panel .profile-logo-container .profile-online-status.danger {
-  background-color: #d25151;
+  background-color: #c43a3a;
 }
 .user-panel .profile-photo-menu {
   font-size: 13px;
@@ -2470,7 +2475,7 @@ ______________________________________________________*/
   background-color: #ffffff !important;
 }
 .user-panel .user-nav li.active a {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 .user-panel .user-nav li a {
   padding: 0 18px;
@@ -2484,7 +2489,7 @@ ______________________________________________________*/
   color: #1c374c !important;
 }
 .user-panel .user-nav li a span {
-  background-color: #1499cb;
+  background-color: #4b8bbc;
   font-weight: normal;
   position: relative;
   top: 12px;
@@ -2492,11 +2497,11 @@ ______________________________________________________*/
 }
 .user-panel .user-nav li a:hover,
 .user-panel .user-nav li a:active {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 .user-panel .user-nav li a:hover .fa,
 .user-panel .user-nav li a:active .fa {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 .profile-avatar {
   border-radius: 100px !important;
@@ -2529,7 +2534,7 @@ ______________________________________________________*/
   color: #1c374c;
 }
 .wall-footer .comment-reply:hover {
-  border-bottom: 1px dashed #d25151;
+  border-bottom: 1px dashed #c43a3a;
 }
 .panel-wall .comment {
   border: 0 !important;
@@ -2561,13 +2566,13 @@ span.counter {
   border-bottom: 1px dashed #1c374c;
 }
 .panel-table table th a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .panel-table table th a:hover i.fa {
   color: #93a6ad !important;
 }
 .panel-table table th a:hover {
-  border-bottom: 1px dashed #d25151;
+  border-bottom: 1px dashed #c43a3a;
 }
 .panel-table table td {
   border-bottom: 1px solid #e6ebee;
@@ -2587,7 +2592,7 @@ span.counter {
   text-decoration: none;
 }
 .panel-table .blog-name:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .panel-table .blog-name:hover i.fa {
   color: #93a6ad !important;
@@ -2635,7 +2640,7 @@ span.counter {
   position: absolute;
   left: -12px;
   top: 9px;
-  color: #f2f6f7;
+  color: #e6e6e6;
   line-height: 12px;
   font-size: 14px;
   font-weight: bold;
@@ -2710,10 +2715,10 @@ span.counter {
 }
 .table-talk .time {
   font-size: 12px;
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 .table-talk .new-talk {
-  background-color: #f2f6f7;
+  background-color: #e6e6e6;
 }
 @media screen {
   body {
@@ -2788,7 +2793,7 @@ span.counter {
 #image-categories-tree-container .image-categories-tree li.active a {
   background: #ffffff !important;
   background-color: #ffffff !important;
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 #image-categories-tree-container .menu-sub {
   font-size: 13px;
@@ -2804,10 +2809,10 @@ span.counter {
   background-color: #ffffff !important;
 }
 #image-categories-tree-container .image-categories-tree li.active a {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 #image-categories-tree-container .image-categories-tree li.active a span {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 #image-categories-tree-container .image-categories-tree a {
   color: #1c374c !important;
@@ -2815,16 +2820,16 @@ span.counter {
   padding: 3px 0;
 }
 #image-categories-tree-container .image-categories-tree a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 #image-categories-tree-container .image-categories-tree a:hover i.fa {
   color: #93a6ad !important;
 }
 #image-categories-tree-container .image-categories-tree a:hover {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 #image-categories-tree-container .image-categories-tree a:hover span {
-  color: #1499cb !important;
+  color: #4b8bbc !important;
 }
 #image-categories-tree-container .image-categories-tree a span {
   display: inline-block;
@@ -3195,7 +3200,7 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-top ul a:hover,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top ul a:hover,
 .alto-popover .user-info-default-container > div.user-info-default-top ul a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .topic-info .user-info-default-container > div.user-info-default-top ul a:hover i.fa,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top ul a:hover i.fa,
@@ -3263,12 +3268,12 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rating span.positive,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top .user-info-default-rating span.positive,
 .alto-popover .user-info-default-container > div.user-info-default-top .user-info-default-rating span.positive {
-  color: #548c40 !important;
+  color: #57a839 !important;
 }
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rating span.negative,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top .user-info-default-rating span.negative,
 .alto-popover .user-info-default-container > div.user-info-default-top .user-info-default-rating span.negative {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .topic-info .user-info-default-container > div.user-info-default-bottom,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom,
@@ -3315,7 +3320,7 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-bottom ul a:hover,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom ul a:hover,
 .alto-popover .user-info-default-container > div.user-info-default-bottom ul a:hover {
-  color: #d25151 !important;
+  color: #c43a3a !important;
 }
 .topic-info .user-info-default-container > div.user-info-default-bottom ul a:hover i.fa,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom ul a:hover i.fa,
@@ -3405,7 +3410,7 @@ div.pp_experience .pp_loaderIcon {
 [data-alto-role="popover"] + .popover .blog-info-default-container a,
 .alto-popover .blog-info-default-container a {
   text-decoration: none;
-  color: #1499cb;
+  color: #4b8bbc;
 }
 .topic-info .blog-info-default-container a.link-light-gray,
 [data-alto-role="popover"] + .popover .blog-info-default-container a.link-light-gray,

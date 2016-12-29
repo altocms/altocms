@@ -466,7 +466,7 @@ class Engine extends LsObject {
 
         // * Создаем объект модуля
         $oModule = new $sModuleClass();
-        $oModuleDecorator = Decorator::Create($oModule);
+        $oModuleDecorator = Decorator::CreateComponent($oModule);
         $this->aModules[$sModuleClass] = $oModuleDecorator;
         if ($bInit || $sModuleClass == 'ModuleCache') {
             $this->InitModule($oModuleDecorator);
@@ -778,26 +778,44 @@ class Engine extends LsObject {
     /**
      * Получает объект маппера
      *
-     * @param string                 $sClassName Класс модуля маппера
-     * @param string|null            $sName      Имя маппера
-     * @param DbSimple_Driver_Mysqli $oConnect   Объект коннекта к БД,
-     *                                           который может быть получен так <pre>E::ModuleDatabase()->GetConnect($aConfig);</pre>
+     * @param string      $sClassName  Класс модуля маппера
+     * @param string|null $sMapperName Имя маппера
      *
-     * @return null|Mapper
+     * @return null|string
      */
-    public static function GetMapper($sClassName, $sName = null, $oConnect = null) {
+    public static function GetMapperClass($sClassName, $sMapperName = null) {
 
         $sModuleName = static::GetClassInfo($sClassName, self::CI_MODULE, true);
         if ($sModuleName) {
-            if (!$sName) {
-                $sName = $sModuleName;
+            if (!$sMapperName) {
+                $sMapperName = $sModuleName;
             }
-            $sClass = $sClassName . '_Mapper' . $sName;
+            $sClass = $sClassName . '_Mapper' . $sMapperName;
+            $sMapperClass = static::Module('Plugin')->GetDelegate('mapper', $sClass);
+
+            return $sMapperClass;
+        }
+        return null;
+    }
+
+    /**
+     * Получает объект маппера
+     *
+     * @param string                 $sClassName  Класс модуля маппера
+     * @param string|null            $sMapperName Имя маппера
+     * @param DbSimple_Driver_Mysqli $oConnect    Объект коннекта к БД,
+     *                                            который может быть получен так <pre>E::ModuleDatabase()->GetConnect($aConfig);</pre>
+     *
+     * @return null|Mapper
+     */
+    public static function GetMapper($sClassName, $sMapperName = null, $oConnect = null) {
+
+        $sMapperClass = static::GetMapperClass($sClassName, $sMapperName);
+        if ($sMapperClass) {
             if (!$oConnect) {
                 $oConnect = static::Module('Database')->GetConnect();
             }
-            $sClass = static::Module('Plugin')->GetDelegate('mapper', $sClass);
-            return new $sClass($oConnect);
+            return new $sMapperClass($oConnect);
         }
         return null;
     }

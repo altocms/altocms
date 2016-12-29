@@ -108,22 +108,7 @@ class ModuleUser_EntityUser extends Entity {
             if (!$nError) {
                 return $xResult;
             } else {
-                if ($nError == ModuleUser::USER_LOGIN_ERR_MIN) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_min', array(
-                            'min' => intval(Config::Get('module.user.login.min_size')),
-                        ));
-                } elseif ($nError == ModuleUser::USER_LOGIN_ERR_LEN) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_len', array(
-                            'min' => intval(Config::Get('module.user.login.min_size')),
-                            'max' => intval(Config::Get('module.user.login.max_size')),
-                        ));
-                } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_chars');
-                } elseif ($nError == ModuleUser::USER_LOGIN_ERR_DISABLED) {
-                    $xResult = E::ModuleLang()->Get('registration_login_error_used');
-                } else {
-                    $xResult = E::ModuleLang()->Get('registration_login_error');
-                }
+                $xResult = E::ModuleUser()->GetLoginErrorMessage($nError);
             }
         } else {
             $xResult = E::ModuleLang()->Get('registration_login_error');
@@ -677,7 +662,12 @@ class ModuleUser_EntityUser extends Entity {
     protected function _defineImageSize($sImageType, $xSize) {
 
         $sSize = C::Val('module.uploader.images.' . $sImageType . '.size.' . $xSize, $xSize);
-        return F::File_ImgModAttr($sSize);
+        $aResult = F::File_ImgModAttr($sSize);
+        if (empty($aResult['width']) && empty($aResult['height'])) {
+            $sSize = C::Val('module.uploader.images.default.size.' . $xSize, $xSize);
+            $aResult = F::File_ImgModAttr($sSize);
+        }
+        return $aResult;
     }
 
     /**

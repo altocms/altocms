@@ -1450,7 +1450,7 @@ class ActionAjax extends Action {
             }
         } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
             // * Загрузка файла по URL
-            if (preg_match('~(https?:\/\/)(\w([\w]+)?\.[\w\.\-\/]+.*)$~i', $sUrl, $aM)) {
+            if (preg_match('~(https?:\/\/)(\w([\w\-]+)?\.[\w\.\-\/]+.*)$~i', $sUrl, $aM)) {
                 // Иногда перед нормальным адресом встречается лишний 'http://' и прочий "мусор"
                 $sUrl = $aM[1] . $aM[2];
                 $sFile = E::ModuleTopic()->UploadTopicImageUrl($sUrl, $this->oUserCurrent);

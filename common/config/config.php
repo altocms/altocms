@@ -478,7 +478,7 @@ $config['module']['user']['avatar_size'] = array(100,64,48,24,0); // ** Old temp
 $config['module']['user']['login']['min_size'] = 3;             // Минимальное количество символов в логине
 $config['module']['user']['login']['max_size'] = 30;            // Максимальное количество символов в логине
 $config['module']['user']['login']['charset'] = '0-9a-z_\-';    // Допустимые в логине пользователя символы
-$config['module']['user']['login']['disabled'] = array('admin', 'administrator', 'moderator', 'new');  // недопустимые имена логинов
+$config['module']['user']['login']['disabled'] = array('admin', 'administrator', 'moderator', 'new', 'guest', '@admin', '@guest');  // недопустимые имена логинов
 
 $config['module']['user']['display_name'] = '%%login%%';        // Допустимые подстановки - %%login%%, %%profilename%%
 
@@ -662,7 +662,7 @@ $config['router']['page']['error']         = 'ActionError';
 $config['router']['page']['registration']  = 'ActionRegistration';
 $config['router']['page']['profile']       = 'ActionProfile';
 $config['router']['page']['my']            = 'ActionMy';
-//$config['router']['page']['blog']          = 'ActionBlog';
+$config['router']['page']['blog']          = 'ActionBlog';
 $config['router']['page']['page']          = 'ActionPage';
 $config['router']['page']['index']         = 'ActionIndex';
 $config['router']['page']['content']       = 'ActionContent';

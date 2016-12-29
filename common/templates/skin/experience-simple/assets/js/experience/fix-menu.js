@@ -1,6 +1,6 @@
 $(function(){
 
-    setFixMenu('.navbar-main', 'fixed');
+    //setFixMenu('.navbar-main', 'fixed');
 
     function setFixMenu(element, stickyCssClass) {
 

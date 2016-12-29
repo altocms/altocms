@@ -325,6 +325,12 @@ class ModuleComment extends Module {
         }
         if ($data) {
             $data = $this->GetCommentsAdditionalData($data);
+            // не может быть онлайн-комментариев без топиков
+            foreach ($data as $iCommentId => $oComment) {
+                if ($oComment->getTarget() === null) {
+                    unset($data[$iCommentId]);
+                }
+            }
         }
         return $data;
     }

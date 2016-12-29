@@ -1225,7 +1225,7 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($oPhotosetCover === null) {
             $aImages = $this->getLoadedImages();
             foreach($aImages as $oImage) {
-                if ($oImage->getType() | ModuleMresource::TYPE_PHOTO_PRIMARY) {
+                if ($oImage->getType() & ModuleMresource::TYPE_PHOTO_PRIMARY) {
                     $oPhotosetCover = $oImage;
                     break;
                 }
@@ -1857,7 +1857,7 @@ class ModuleTopic_EntityTopic extends Entity {
             }
             $aResult = $aSorted[$iSize];
         } elseif ($sFilter === 'width-max' || $sFilter === 'width-min') {
-            $aSorted = [];
+            $aSorted = array();
             foreach($aImages as $xKey => $oImage) {
                 $aSorted[$oImage->getSizeWidth()][$xKey] = $oImage;
             }

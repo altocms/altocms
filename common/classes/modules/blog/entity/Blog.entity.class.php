@@ -318,7 +318,7 @@ class ModuleBlog_EntityBlog extends Entity {
                 $sUrl = $this->getProp('blog_avatar');
                 if ($sUrl && ($sUrl[0] == '@') && $xSize) {
                     $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
-                } else {
+                } elseif (empty($sUrl)) {
                     $sUrl = $this->getDefaultAvatarUrl($xSize);
                 }
             }
@@ -336,7 +336,12 @@ class ModuleBlog_EntityBlog extends Entity {
     protected function _defineImageSize($sImageType, $xSize) {
 
         $sSize = C::Val('module.uploader.images.' . $sImageType . '.size.' . $xSize, $xSize);
-        return F::File_ImgModAttr($sSize);
+        $aResult = F::File_ImgModAttr($sSize);
+        if (empty($aResult['width']) && empty($aResult['height'])) {
+            $sSize = C::Val('module.uploader.images.default.size.' . $xSize, $xSize);
+            $aResult = F::File_ImgModAttr($sSize);
+        }
+        return $aResult;
     }
 
     /**

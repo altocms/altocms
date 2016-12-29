@@ -21,7 +21,7 @@
 $config['view']['theme'] = 'default';
 
 /**
- * Использовать ли плавующее меню
+ * Использовать ли плавающее меню
  *      - false (не использовать)
  *      - true (использовать)
  */
@@ -67,7 +67,7 @@ $config['view']['header']['logo']['name'] = Config::Get('view.name');
 
 $config['module']['user']['profile_photo_size'] = '240x';
 
-C::Set('module.uploader.images.profile_avatar.size', array(
+$config['module']['uploader']['images']['default']['size'] = array(
     'great'  => '224x224crop', // Виджет "О блоге"
     'huge'   => '150x150crop', // Блог в выпадающем тултипе
     'large'  => '128x128crop', // Шапка профиля блога/пользователя
@@ -76,7 +76,10 @@ C::Set('module.uploader.images.profile_avatar.size', array(
     'small'  => '32x32crop',
     'mini'   => '24x24crop',
     'micro'  => '16x16crop',   // Не используется
-));
+);
+
+//$config['module']['uploader']['images']['profile_avatar']['size'] = $config['module']['uploader']['images']['default']['size'];
+//$config['module']['uploader']['images']['blog_avatar']['size'] = $config['module']['uploader']['images']['default']['size'];
 
 $config['module']['uploader']['images']['profile_photo']['size'] = array(
     'default'  => '240x240crop',

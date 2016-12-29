@@ -70,6 +70,17 @@
                     <span id="topic_link_friendly" style="display: none;">%topic_url%.html</span>
                 </label>
 
+                <label {if $sPermalinkMode == 'friendly_id'}class="checked"{/if}>
+                    <span class="span6">
+                        <input type="radio" name="topic_link" value="friendly_id" {if $sPermalinkMode == 'friendly_id'}checked{/if}/>
+                        {$aLang.action.admin.set_links_topics_mode_friendly_id}
+                    </span>
+                    <span class="span6 b-topic-url-demo">
+                        {Config::Get('path.root.url')}123-sample-topic.html
+                    </span>
+                    <span id="topic_link_friendly_id" style="display: none;">%topic_url%.html</span>
+                </label>
+
                 <label {if $sPermalinkMode == 'ls'}class="checked"{/if}>
                     <span class="span6">
                         <input type="radio" name="topic_link" value="ls" {if $sPermalinkMode == 'ls'}checked{/if}/>

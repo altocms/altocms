@@ -7,7 +7,7 @@
     })
 </script>
 
-<nav class="navbar navbar-default navbar-content" role="navigation">
+<nav class="navbar navbar-default navbar-content {if C::Get('view.fix_menu')}under-fixed{/if}" role="navigation">
     <div class="container">
         <div id="navbar-content">
             <ul class="main nav navbar-nav">

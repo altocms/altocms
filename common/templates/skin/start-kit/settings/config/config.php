@@ -27,7 +27,7 @@ $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___vi
 $config['view']['header']['name'] = 'START<span>KIT</span>';
 
 // Aliases for sizes of user avatar
-$config['module']['uploader']['images']['profile_avatar']['size'] = array(
+$config['module']['uploader']['images']['default']['size'] = array(
     'large'  => 100,
     'big'    => 64,
     'medium' => 48,
@@ -35,6 +35,9 @@ $config['module']['uploader']['images']['profile_avatar']['size'] = array(
     'mini'   => 24,
     'photo'  => '250x250crop',
 );
+
+//$config['module']['uploader']['images']['profile_avatar']['size'] = $config['module']['uploader']['images']['default']['size'];
+//$config['module']['uploader']['images']['blog_avatar']['size'] = $config['module']['uploader']['images']['default']['size'];
 
 $config['module']['uploader']['images']['profile_photo']['size'] = array(
     'default'  => '250x250crop',

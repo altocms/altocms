@@ -753,7 +753,7 @@ return array(
      * Settings
      */
     'settings_profile_edit' => 'Edit profile',
-    'settings_profile_section_base' => Info',
+    'settings_profile_section_base' => 'Info',
     'settings_profile_section_contacts' => 'Contacts',
     'settings_profile_section_blog' => 'Personal blog title',
     'settings_profile_name' => 'Name',
@@ -912,7 +912,7 @@ return array(
     'widget_stream_wall' => 'Timeline',
     'widget_stream_wall_no' => 'No messages',
     'widget_stream_on_wall' => 'in the timeline',
-    'widget_stream_on_his_wall' => 'in user's timeline',
+    'widget_stream_on_his_wall' => 'in user\'s timeline',
     'widget_friends' => 'Friends',
     'widget_friends_check' => 'Select all',
     'widget_friends_uncheck' => 'Clear selection',
@@ -1018,7 +1018,7 @@ return array(
     'talk_filter_label_favourite' => 'Search in favourites',
     'talk_filter_label_date' => 'Set date',
     'talk_filter_notice_sender' => 'Specify sender\'s login',
-    'talk_filter_notice_addressee' => 'Specify recepient's login',
+    'talk_filter_notice_addressee' => 'Specify recepient\'s login',
     'talk_filter_notice_keyword' => 'Specify keywords',
     'talk_filter_notice_date' => 'Date should be in the following format 31.12.2015',
     'talk_filter_submit' => 'Filter',
@@ -1528,8 +1528,19 @@ return array(
     'uploader_picker' => '- Drag your images here',
     'uploader_sort_notice' => 'You can change the order of the pictures using your mouse.',
     'uploader_sort_changed' => 'Image order is changed',
+
+    'error_upload_file_1'           => 'The file you are trying to upload is too big (see \'upload_max_filesize\' in php.ini)',
+    'error_upload_file_2'           => 'The size of file is more then MAX_FILE_SIZE',
+    'error_upload_file_3'           => 'The uploaded file was only partially uploaded',
+    'error_upload_file_4'           => 'No file was uploaded',
+    'error_upload_file_6'           => 'Missing a temporary folder',
+    'error_upload_file_7'           => 'Failed to write file to disk',
+    'error_upload_file_8'           => 'File upload stopped by PHP-extension',
+    'error_upload_file_unknown'     => 'Unknown upload error',
+
     'error_upload_image' => 'Image upload error',
     'error_upload_wrong_image_type' => 'Incorrect image type (MIME)',
+
     'target_type_blog_avatar' => 'Blogs ',
     'target_type_profile_avatar' => 'Avatars',
     'target_type_profile_photo' => 'Photos',
