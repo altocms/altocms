@@ -1779,9 +1779,10 @@ class ModuleUser_MapperUser extends Mapper {
 
     /**
      * issue 258 {@link https://github.com/altocms/altocms/issues/258}
-     * Проверяет забанен ли пользователь или нет
+     * Проверяет забанен ли пользователь по IP или нет
      *
-     * @param $sIp
+     * @param string $sIp
+     *
      * @return bool
      */
     public function IpIsBanned($sIp) {
@@ -1789,16 +1790,12 @@ class ModuleUser_MapperUser extends Mapper {
         $sql = "SELECT id FROM ?_adminips WHERE
                     INET_ATON(?) >= ip1 AND INET_ATON(?) <= ip2
                     AND banactive = ?d
-                    AND banline > ?";
+                    AND (banline IS NULL) OR (banline > ?)
+                 LIMIT 1";
 
         $aRows = $this->oDb->select($sql, $sIp, $sIp, 1, date('Y-m-d H:i:s'));
 
-        if ($aRows) {
-            return TRUE;
-        }
-
-        return FALSE;
-
+        return !empty($aRows);
     }
 
 }
