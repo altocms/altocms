@@ -13,7 +13,7 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeLib('phpMailer/class.phpmailer.php');
+F::IncludeLib('phpMailer/PHPMailerAutoload.php');
 
 /**
  * Модуль для отправки почты(e-mail) через phpMailer
