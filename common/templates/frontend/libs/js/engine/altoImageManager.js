@@ -13,7 +13,6 @@
 // предопределённые
 
 (function ($, ls) {
-
     "use strict";
 
     //================================================================================================================
@@ -806,3 +805,17 @@
     };
 
 }(window.jQuery, ls));
+
+jQuery.ready(function () {
+    /*
+    switch (ls.getConfig('topic.external_img')) {
+        case 1:
+            // nothing
+        case 2:
+            $('.js-aim-btn-insert-link').css('display', 'none');
+            break;
+        default:
+            $('.js-image-categories-tree [data-category=insert-from-link]').css('display', 'none');
+    }
+    */
+});

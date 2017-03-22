@@ -941,6 +941,24 @@ ls = (function ($) {
         return max;
     };
 
+    /**
+     *
+     */
+    this.getConfig = function (key) {
+        var data = (ls.cfg && ls.cfg.set) ? ls.cfg.set : {},
+            keys = key ? key.split('.') : '',
+            result = null;
+
+        $.each(keys, function (index, item) {
+            if (data.hasOwnProperty(item)) {
+                data = result = data[item];
+            } else {
+                result = null;
+            }
+        });
+        return result;
+    };
+
     return this;
 }).call(ls || {}, jQuery);
 

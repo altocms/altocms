@@ -297,7 +297,7 @@
                 if( cnt === totalImgs ) {
                     $imgs.show();
                     $container.montage({
-                        fillLastRow	: true,
+                        fillLastRow	: ls.getConfig('photoset.gallery.fillLastRow'),
                         alternateHeight	: true,
                         alternateHeightRange : {
                             min	: 60,
@@ -325,7 +325,6 @@
         });
 
     ls.photoset.prepareLastImages($('.alto-photoset'));
-
 
     // Хук конца инициализации javascript-составляющих шаблона
     ls.hook.run('ls_template_init_end', [], window);

@@ -65,6 +65,15 @@ $config['view']['header']['logo']['file'] = 'logo.png';
 //$config['view']['header']['logo']['url'] = 'http://site.com/logo.png';
 $config['view']['header']['logo']['name'] = Config::Get('view.name');
 
+$config['view']['cfg']['set'] = array(
+    // Настройки отображения фотосета
+    'photoset' => array(
+        'gallery' => array(
+            'fillLastRow' => false, // заполнение последней строки изображений
+        ),
+    ),
+);
+
 $config['module']['user']['profile_photo_size'] = '240x';
 
 $config['module']['uploader']['images']['default']['size'] = array(

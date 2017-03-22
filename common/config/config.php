@@ -322,6 +322,9 @@ $config['module']['topic']['allow_empty_tags'] = true;              // Разр�
 $config['module']['topic']['draft_link'] = false;                   // разрешить показывать черновик по прямой ссылке
 $config['module']['topic']['on_duplicate_url'] = 1;                 // 0 - игнорировать; 1 - добавлять порядковый номер;
 
+// вставка изображений из внешних источников
+$config['module']['topic']['external_img'] = 1; // 0 - запрещено, 1 - разрешено, 2 - разрешено только загружать
+
 // Модуль Uploader
 /*
  * Obsolete from Alto CMS 1.1.0
@@ -380,7 +383,7 @@ $config['module']['uploader']['images']['default'] = array(
 
 $config['module']['uploader']['images']['profile_avatar'] = array(
     '$extends$' => '___module.uploader.images.default___',
-    'size' => array('large' => '96x96crop', 'medium' => '64x64crop', 'small' => '32x32crop'),
+    //'size' => array('large' => '96x96crop', 'medium' => '64x64crop', 'small' => '32x32crop'),
     'transform' => array(
         'max_width'  => 250,        // максимальная ширина сохраняемой аватары
         'max_height' => 250,        // максимальная высота сохраняемой аватары

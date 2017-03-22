@@ -420,7 +420,7 @@ $(function () {
                 if( cnt === totalImgs ) {
                     $imgs.show();
                     $container.montage({
-                        fillLastRow	: true,
+                        fillLastRow	: ls.getConfig('photoset.gallery.fillLastRow'),
                         alternateHeight	: true,
                         alternateHeightRange : {
                             min	: 60,

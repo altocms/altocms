@@ -642,7 +642,7 @@ class ModuleUser_EntityUser extends Entity {
             if (!$sUrl) {
                 // Old version compatibility
                 $sUrl = $this->getProfileAvatar();
-                if ($sUrl && ($sUrl[0] == '@') && $sSize) {
+                if ($sUrl && ($sUrl[0] === '@') && $sSize) {
                     $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $sSize);
                 } elseif (empty($sUrl)) {
                     $sUrl = $this->getDefaultAvatarUrl($sSize);

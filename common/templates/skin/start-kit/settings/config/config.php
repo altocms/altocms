@@ -26,6 +26,20 @@ $config['view']['header']['banner'] = true;
 $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___view.theme___/img/favicon.png';
 $config['view']['header']['name'] = 'START<span>KIT</span>';
 
+$config['view']['cfg']['set'] = array(
+    // Настройки отображения фотосета
+    'photoset' => array(
+        'gallery' => array(
+            'fillLastRow' => false, // заполнение последней строки изображений
+        ),
+    ),
+    // Вставка в топик изображений из внешних источников
+    // настройки берутся из конфига шаблона
+    'topic' => array(
+        'external_img' => Config::Get('module.topic.external_img'),
+    ),
+);
+
 // Aliases for sizes of user avatar
 $config['module']['uploader']['images']['default']['size'] = array(
     'large'  => 100,
