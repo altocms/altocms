@@ -3,18 +3,15 @@
  * @licence     CC Attribution-ShareAlike
  */
 
-
 $(function () {
-
     //setFixMenu('.menu-level-2-container', 'fixed');
 
-    var $selects = $("select");
+    var $selects = $("select"),
+        $checks = $('input:not(.js-no-jq)');
 
     if ($selects.length > 0) {
         $selects.not('.hidden-select').selecter()
     }
-
-    var $checks = $('input:not(.js-no-jq)');
 
     if ($checks.length > 0) {
         $checks.iCheck({
@@ -28,7 +25,7 @@ $(function () {
 
         var menuTop = $(element);
 
-        if (menuTop.length == 0) {
+        if (!menuTop.length) {
             return;
         }
 
@@ -106,10 +103,12 @@ $(function () {
 
     $('.dropdown-toggle').on('click', function(){
         $('.toolbar-button > a').popover('hide');
-    })
+    });
 
     $('.topic .topic-share').slideToggle();
 
     $('.modal-header button').html('&nbsp;');
 
 });
+
+// EOF

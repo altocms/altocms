@@ -19,11 +19,11 @@ var ls = ls || {};
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (context) {
         var fn = this;
-        if (jQuery.type(fn) != 'function') {
+        if (jQuery.type(fn) !== 'function') {
             throw new TypeError('Function.prototype.bind: call on non-function');
         }
 
-        if (jQuery.type(context) == 'null') {
+        if (jQuery.type(context) === 'null') {
             throw new TypeError('Function.prototype.bind: cant be bound to null');
         }
 
@@ -36,22 +36,30 @@ if (!Function.prototype.bind) {
     ls.nativeBind = true;
 }
 
-String.prototype.tr = function (a, p) {
-    var k, s = this;
+/**
+ * Ex.: 'Your limit is %%limit%% messages'.tr({limit: 123});
+ *
+ * @param replacement
+ * @param p
+ *
+ * @returns {String}
+ */
+String.prototype.tr = function (replacement, p) {
+    var $this = this;
 
-    p = typeof(p) == 'string' ? p : '';
+    p = typeof(p) === 'string' ? p : '';
 
-    jQuery.each(a, function (k) {
+    jQuery.each(replacement, function (key) {
         var tk = p ? p.split('/') : [];
-        tk[tk.length] = k;
+        tk[tk.length] = key;
         var tp = tk.join('/');
-        if (typeof(a[k]) == 'object') {
-            s = s.tr(a[k], tp);
+        if (typeof(replacement[key]) === 'object') {
+            $this = $this.tr(replacement[key], tp);
         } else {
-            s = s.replace((new RegExp('%%' + tp + '%%', 'g')), a[k]);
+            $this = $this.replace((new RegExp('%%' + tp + '%%', 'g')), replacement[key]);
         }
     });
-    return s;
+    return $this;
 };
 
 // Create method outerHTML()
@@ -62,7 +70,7 @@ String.prototype.tr = function (a, p) {
             outerHTML: function() {
                 if (this.length) {
                     if (this.get(0).outerHTML) {
-                        if (typeof this.get(0).outerHTML == 'function') {
+                        if (typeof this.get(0).outerHTML === 'function') {
                             return this.get(0).outerHTML();
                         } else {
                             return this.get(0).outerHTML;
@@ -83,11 +91,11 @@ ls = (function ($) {
      */
     this.log = function () {
         // Modern browsers
-        if (typeof console != 'undefined' && typeof console.log == 'function') {
+        if (typeof console !== 'undefined' && typeof console.log === 'function') {
             Function.prototype.bind.call(console.log, console).apply(console, arguments);
         } else
         // IE8
-        if (!ls.nativeBind && typeof console != 'undefined' && typeof console.log == 'object') {
+        if (!ls.nativeBind && typeof console !== 'undefined' && typeof console.log === 'object') {
             Function.prototype.call.call(console.log, console, Array.prototype.slice.call(arguments));
         } else {
             //alert(msg);
@@ -191,7 +199,7 @@ ls.timer = (function ($) {
             timeout: 1500
         };
 
-        if (typeof sUniqKey == 'function') {
+        if (typeof sUniqKey === 'function') {
             // sUniqKey is missed
             timer.id = ls.uniqId();
             timer.callback = sUniqKey;
@@ -256,14 +264,17 @@ ls.tools = (function ($) {
     };
 
     /**
-     * Выделяет все chekbox с определенным css классом
+     * Выделяет все checkbox с определенным css классом
      */
-    this.checkAll = function (cssclass, checkbox, invert) {
-        $('.' + cssclass).each(function (index, item) {
+    this.checkAll = function (cssClass, checkBox, invert) {
+        if (cssClass.indexOf('.') !== 0) {
+            cssClass = '.' + cssClass;
+        }
+        $(cssClass).each(function (index, item) {
             if (invert) {
-                $(item).attr('checked', !$(item).attr("checked"));
+                $(item).attr('checked', !$(item).attr('checked'));
             } else {
-                $(item).attr('checked', $(checkbox).attr("checked"));
+                $(item).attr('checked', $(checkBox).attr('checked'));
             }
         });
     };
@@ -287,7 +298,7 @@ ls.tools = (function ($) {
                 if (!previewArea) {
                     previewArea = '#text_preview';
                 } else {
-                    if ((typeof previewArea == 'string') && (previewArea.substr(0, 1) != '#')) {
+                    if ((typeof previewArea === 'string') && (previewArea.substr(0, 1) !== '#')) {
                         previewArea = '#' + previewArea;
                     }
                 }
@@ -343,7 +354,7 @@ ls.tools = (function ($) {
         prefix = prefix || 'option';
         for (var option in dataOptions) {
             // Remove 'option' prefix
-            if (option.substring(0, prefix.length) == prefix) {
+            if (option.substring(0, prefix.length) === prefix) {
                 var str = option.substring(prefix.length);
                 resultOptions[str.charAt(0).toLowerCase() + str.substring(1)] = dataOptions[option];
             }
@@ -417,7 +428,7 @@ ls.tools = (function ($) {
 
         // formatString()
         var formatString = function (value, leftJustify, minWidth, precision, zeroPad) {
-            if (precision != null) {
+            if (precision !== null) {
                 value = value.slice(0, precision);
             }
             return justify(value, '', leftJustify, minWidth, zeroPad);
@@ -428,7 +439,7 @@ ls.tools = (function ($) {
             var number = 0;
             var prefix = '';
 
-            if (substring == '%%') return '%';
+            if (substring === '%%') return '%';
 
             // parse flags
             var leftJustify = false, positivePrefix = '', zeroPad = false, prefixBaseX = false;
@@ -458,9 +469,9 @@ ls.tools = (function ($) {
             // we want to ignore null, undefined and empty-string values
             if (!minWidth) {
                 minWidth = 0;
-            } else if (minWidth == '*') {
+            } else if (minWidth === '*') {
                 minWidth = +a[i++];
-            } else if (minWidth.charAt(0) == '*') {
+            } else if (minWidth.charAt(0) === '*') {
                 minWidth = +a[minWidth.slice(1, -1)];
             } else {
                 minWidth = +minWidth;
@@ -477,10 +488,10 @@ ls.tools = (function ($) {
             }
 
             if (!precision) {
-                precision = 'fFeE'.indexOf(type) > -1 ? 6 : (type == 'd') ? 0 : void(0);
-            } else if (precision == '*') {
+                precision = 'fFeE'.indexOf(type) > -1 ? 6 : (type === 'd') ? 0 : void(0);
+            } else if (precision === '*') {
                 precision = +a[i++];
-            } else if (precision.charAt(0) == '*') {
+            } else if (precision.charAt(0) === '*') {
                 precision = +a[precision.slice(1, -1)];
             } else {
                 precision = +precision;
@@ -542,7 +553,7 @@ ls.tools = (function ($) {
  * Дополнительные функции
  */
 ls = (function ($) {
-    var $that = this;
+    var $main = this;
 
     /**
      * Глобальные опции
@@ -559,20 +570,20 @@ ls = (function ($) {
     this.ajax = function (url, params, callback, more) {
         more = more || {};
         params = params || {};
-        params.security_key = ls.cfg.security_key;
+        params.security_key = $main.cfg.security_key;
 
         $.each(params, function (k, v) {
-            if (typeof(v) == "boolean") {
+            if (typeof(v) === "boolean") {
                 params[k] = v ? 1 : 0;
             }
         });
 
-        if (url.indexOf('/') == 0) {
-            url = ls.cfg.url.root + url;
-        } else if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0) {
-            url = ls.routerUrl('ajax') + url ;
+        if (url.indexOf('/') === 0) {
+            url = $main.cfg.url.root + url;
+        } else if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) {
+            url = $main.routerUrl('ajax') + url ;
         }
-        if (url.substring(url.length-1) != '/') {
+        if (url.substring(url.length-1) !== '/') {
             url += '/';
         }
 
@@ -582,25 +593,25 @@ ls = (function ($) {
             data: params,
             dataType: 'json',
             success: callback || function () {
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
+                $main.debug("ajax success: ");
+                $main.debug.apply(this, arguments);
             }.bind(this),
             error: function (msg) {
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
-                ls.msg.error(null, 'System error #1002'); // may be json parser error
-                ls.progressDone(true);
+                $main.debug("ajax error: ");
+                $main.debug.apply(this, arguments);
+                $main.msg.error(null, 'System error #1002'); // may be json parser error
+                $main.progressDone(true);
             }.bind(this),
             complete: function (msg) {
-                ls.debug("ajax complete: ");
-                ls.debug.apply(this, arguments);
+                $main.debug("ajax complete: ");
+                $main.debug.apply(this, arguments);
             }.bind(this)
         }, more);
 
         var beforeSendFunc = ajaxOptions.beforeSend ? ajaxOptions.beforeSend : null;
         ajaxOptions.beforeSend = function (xhr) {
             xhr.setRequestHeader('X-Powered-By', 'Alto CMS');
-            xhr.setRequestHeader('X-Alto-Ajax-Key', ls.cfg.security_key);
+            xhr.setRequestHeader('X-Alto-Ajax-Key', $main.cfg.security_key);
             if (beforeSendFunc) {
                 beforeSendFunc(xhr);
             }
@@ -633,15 +644,15 @@ ls = (function ($) {
         form = $(form);
         more = more || {};
         if (more && more.progress) {
-            progressDone = ls.progressDone;
+            progressDone = $main.progressDone;
         }
 
         if (!url) {
             url = form.attr('action');
         }
 
-        if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
-            url = ls.routerUrl('ajax') + url + '/';
+        if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0 && url.indexOf('/') !== 0) {
+            url = $main.routerUrl('ajax') + url + '/';
         }
 
         var options = {
@@ -660,24 +671,24 @@ ls = (function ($) {
             callback = null;
         }
         options.success = function (result, status, xhr, form) {
-            ls.debug("ajax success: ");
-            ls.debug.apply(this, arguments);
+            $main.debug("ajax success: ");
+            $main.debug.apply(this, arguments);
             progressDone();
             form.find('[type=submit]').prop('disabled', false).removeClass('loading');
             if (callback) {
                 callback(result, status, xhr, form);
             } else {
                 if (!result) {
-                    ls.msg.error(null, 'System error #1001');
+                    $main.msg.error(null, 'System error #1001');
                 } else if (result.bStateError) {
-                    ls.msg.error(null, result.sMsg);
+                    $main.msg.error(null, result.sMsg);
 
                     if (more && more.warning) {
                         more.warning(result, status, xhr, form);
                     }
                 } else {
                     if (result.sMsg) {
-                        ls.msg.notice(null, result.sMsg);
+                        $main.msg.notice(null, result.sMsg);
                     }
                 }
             }
@@ -686,17 +697,17 @@ ls = (function ($) {
         options.error = function () {
             form.find('[type=submit]').prop('disabled', false).removeClass('loading');
             if (more.progress) {
-                ls.progressDone();
+                $main.progressDone();
             }
-            ls.debug("ajax error: ");
-            ls.debug.apply(this, arguments);
-            if ($.type(more.error) == 'function') {
+            $main.debug("ajax error: ");
+            $main.debug.apply(this, arguments);
+            if ($.type(more.error) === 'function') {
                 more.error();
             }
         }.bind(this);
 
         if (more.progress) {
-            ls.progressStart();
+            $main.progressStart();
         }
         form.ajaxSubmit(options);
     };
@@ -710,22 +721,22 @@ ls = (function ($) {
      * @param  {type}            [more]   Дополнительные параметры
      */
     this.ajaxForm = function (url, form, callback, more) {
-        form = typeof form == 'string' ? $(form) : form;
+        form = typeof form === 'string' ? $(form) : form;
         more = $.extend({ progress: true }, more);
 
         form.on('submit', function (e) {
-            ls.ajaxSubmit(url, form, function(result, status, xhr, form){
+            $main.ajaxSubmit(url, form, function(result, status, xhr, form){
                 if (!result) {
-                    ls.msg.error(null, 'System error #1001');
+                    $main.msg.error(null, 'System error #1001');
                 } else if (result.bStateError) {
-                    ls.msg.error(null, result.sMsg);
+                    $main.msg.error(null, result.sMsg);
 
                     if (more && more.warning) {
                         more.warning(result, status, xhr, form);
                     }
                 } else {
                     if (result.sMsg) {
-                        ls.msg.notice(null, result.sMsg);
+                        $main.msg.notice(null, result.sMsg);
                     }
                     if ($.type(callback) === 'function') {
                         callback(result, status, xhr, form);
@@ -742,15 +753,15 @@ ls = (function ($) {
     this.ajaxUploadImg = function (form, sToLoad) {
         form = $(form).closest('form');
         var modalWin = form.parents('.modal').first();
-        ls.progressStart();
-        $that.ajaxSubmit('upload/image/', form, function (result) {
-            ls.progressDone();
+        $main.progressStart();
+        $main.ajaxSubmit('upload/image/', form, function (result) {
+            $main.progressDone();
             if (!result) {
-                ls.msg.error(null, 'System error #1001');
+                $main.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
-                $that.msg.error(result.sMsgTitle, result.sMsg);
+                $main.msg.error(result.sMsgTitle, result.sMsg);
             } else {
-                $that.insertToEditor(result.sText);
+                $main.insertToEditor(result.sText);
                 modalWin.find('input[type="text"], input[type="file"]').val('');
                 modalWin.modal('hide');
             }
@@ -766,13 +777,13 @@ ls = (function ($) {
             html = '';
 
         if (url && url !== 'http://' && url !== 'https://') {
-            align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
+            align = (align === 'center') ? 'class="image-center"' : 'align="' + align + '"';
             size = (size == 0) ? '' : 'width="' + size + '%"';
             html = '<img src="' + url + '" title="' + title + '" ' + align + ' ' + size + ' />';
             form.find('[name=img_url]').val('');
             title = form.find('[name=title]').val('');
 
-            ls.insertToEditor(html);
+            $main.insertToEditor(html);
             form.parents('.modal').first().modal('hide');
         }
         return false;
@@ -796,7 +807,7 @@ ls = (function ($) {
      * @returns {*}
      */
     this.ajaxConfig = function(params, callback, more) {
-        var url = ls.routerUrl('admin') + '/ajax/config/';
+        var url = $main.routerUrl('admin') + '/ajax/config/';
         var args = params;
         params = {
             keys: []
@@ -822,7 +833,7 @@ ls = (function ($) {
             return ls.cfg.url.root + action + '/';
         }
         */
-        return ls.cfg.url.ajax + action + '/';
+        return $main.cfg.url.ajax + action + '/';
     };
 
     /**
@@ -832,9 +843,10 @@ ls = (function ($) {
      * @returns {*}
      */
     this.getAssetUrl = function(asset) {
-        if (this.cfg && this.cfg.assets && this.cfg.assets[asset]) {
-            return this.cfg.assets[asset];
+        if ($main.cfg && $main.cfg.assets && $main.cfg.assets[asset]) {
+            return $main.cfg.assets[asset];
         }
+        return nul;
     };
 
     /**
@@ -857,20 +869,20 @@ ls = (function ($) {
      * @param success
      */
     this.loadAssetScript = function (asset, success) {
-        var url = ls.getAssetUrl(asset);
+        var url = $main.getAssetUrl(asset);
         if (!url) {
-            ls.debug('error: [asset "' + asset + '"] not defined');
+            $main.debug('error: [asset "' + asset + '"] not defined');
         } else {
             $.ajax({
                 url: url,
                 dataType: 'script'
             })
                 .done(function () {
-                    ls.debug('success: [asset "' + asset + '"] ajax loaded');
+                    $main.debug('success: [asset "' + asset + '"] ajax loaded');
                     success();
                 })
                 .fail(function () {
-                    ls.debug('error: [asset "' + asset + '"] ajax not loaded');
+                    $main.debug('error: [asset "' + asset + '"] ajax not loaded');
                 });
         }
     };
@@ -880,18 +892,18 @@ ls = (function ($) {
      */
     this.progressStart = function() {
 
-        if (!$that.options.progressInit) {
-            $that.options.progressInit = true;
-            if ($that.options.progressType == 'syslabel') {
+        if (!$main.options.progressInit) {
+            $main.options.progressInit = true;
+            if ($main.options.progressType === 'syslabel') {
                 $.SysLabel.init({
                     css: {
-                        'z-index': $that.maxZIndex('.modal')
+                        'z-index': $main.maxZIndex('.modal')
                     }
                 });
             }
         }
-        if (++$that.options.progressCnt == 1) {
-            if ($that.options.progressType == 'syslabel') {
+        if (++$main.options.progressCnt === 1) {
+            if ($main.options.progressType === 'syslabel') {
                 $.SysLabel.show();
             } else {
                 NProgress.start();
@@ -904,13 +916,13 @@ ls = (function ($) {
      */
     this.progressDone = function(final) {
 
-        if ((--$that.options.progressCnt <= 0) || final) {
-            if ($that.options.progressType == 'syslabel') {
+        if ((--$main.options.progressCnt <= 0) || final) {
+            if ($main.options.progressType === 'syslabel') {
                 $.SysLabel.hide();
             } else {
                 NProgress.done();
             }
-            $that.options.progressCnt = 0;
+            $main.options.progressCnt = 0;
         }
     };
 
@@ -927,6 +939,7 @@ ls = (function ($) {
      * Calculate max z-index
      *
      * @param selector
+     *
      * @returns {number}
      */
     this.maxZIndex = function(selector) {
@@ -942,10 +955,10 @@ ls = (function ($) {
     };
 
     /**
-     *
+     * Returns config value
      */
     this.getConfig = function (key) {
-        var data = (ls.cfg && ls.cfg.set) ? ls.cfg.set : {},
+        var data = ($main.cfg && $main.cfg.data) ? $main.cfg.data : {},
             keys = key ? key.split('.') : '',
             result = null;
 

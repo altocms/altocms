@@ -15,31 +15,31 @@
  */
 
 $config['assets']['default']['js'] = Config::Get('assets.default.js');
-$config['assets']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
+$config['assets']['default']['js']['___path.skin.dir___/assets/js/experience/dropdown.min.js'] = array('name' => 'bootstrap');
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/menu.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/menu-l2.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/experience.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/toolbar.min.js';
 if (Config::Get('view.fix_menu')) {
-    //$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
-    $config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.js";
+    //$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/fix-menu.min.js';
+    $config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/fix-menu.js';
 }
 
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/userinfo.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/ch-datepicker.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/transition.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/tab.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/tooltip.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/popover.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/carousel.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/collapse.min.js";
-$config['assets']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/modal.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/fileinput.min.js";
-$config['assets']['default']['js'][] = "___path.skin.dir___/assets/js/experience/editor.js";
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/userinfo.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/ch-datepicker.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/transition.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/tab.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/tooltip.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/popover.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/carousel.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/collapse.min.js';
+$config['assets']['default']['js'][] = '___path.frontend.dir___/bootstrap-3/js/modal.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/icheck/icheck.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/moment/moment.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/jasny/fileinput.min.js';
+$config['assets']['default']['js'][] = '___path.skin.dir___/assets/js/experience/editor.js';
 
 $config['assets']['default']['css'] = array(
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',

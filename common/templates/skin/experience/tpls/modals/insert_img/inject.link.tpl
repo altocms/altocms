@@ -13,10 +13,12 @@
         {hook run="uploadimg_link_additional"}
 
         <div class="clearfix text-right">
-            <button type="submit" class="btn btn-light btn-big corner-no js-aim-btn-insert-link">
-                {$aLang.uploadimg_link_submit_paste}
-            </button>
-            &nbsp;{$aLang._or}&nbsp;
+            {if C::Get('module.topic.external_img') == 1}
+                <button type="submit" class="btn btn-light btn-big corner-no js-aim-btn-insert-link">
+                    {$aLang.uploadimg_link_submit_paste}
+                </button>
+                &nbsp;{$aLang._or}&nbsp;
+            {/if}
             <button type="submit" class="js-aim-btn-upload-image btn btn-blue btn-big corner-no  js-aim-btn-upload-image">
                 {$aLang.uploadimg_link_submit_load}
             </button>

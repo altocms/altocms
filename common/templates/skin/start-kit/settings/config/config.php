@@ -31,12 +31,20 @@ $config['view']['cfg']['set'] = array(
     'photoset' => array(
         'gallery' => array(
             'fillLastRow' => false, // заполнение последней строки изображений
+            'minHeight' => Config::Get('module.topic.photoset.thumb.height') / 2,  // минимальная высота изображений
+            'maxHeight' => Config::Get('module.topic.photoset.thumb.height'), // максимальная высота изображений
+            //'fixedHeight' => Config::Get('module.topic.photoset.thumb.height'), //
+            'fixedHeight' => null, //
+            'minWidth' => 70, // Минимальная ширина, которая должна быть у изображения
+            'margin' => 1, // отступ вокруг миниатюры
         ),
     ),
     // Вставка в топик изображений из внешних источников
     // настройки берутся из конфига шаблона
-    'topic' => array(
-        'external_img' => Config::Get('module.topic.external_img'),
+    'module' => array(
+        'topic' => array(
+            'external_img' => Config::Get('module.topic.external_img'),
+        ),
     ),
 );
 

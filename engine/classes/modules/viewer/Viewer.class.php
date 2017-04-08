@@ -2112,7 +2112,7 @@ class ModuleViewer extends Module {
 
         $sScript = 'var ls = ls || { };' . PHP_EOL;
         $sScript .= 'ls.cfg = ' . F::JsonEncode($aCfg) . ';' . PHP_EOL;
-        $sScript .= 'ls.cfg.set = ' . F::JsonEncode(C::Get('view.cfg.set')) . ';' . PHP_EOL;
+        $sScript .= 'ls.cfg.data = ' . F::JsonEncode(C::Get('view.cfg.set')) . ';' . PHP_EOL;
         $sScript = '<script>' . $sScript . '</script>' . PHP_EOL;
 
         if (isset($aText['js'])) {

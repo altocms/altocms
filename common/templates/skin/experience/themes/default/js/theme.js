@@ -414,19 +414,27 @@ $(function () {
             .find('a').removeAttr('rel').find('br').remove();
 
         $imgs.each(function() {
-            var $img	= $(this);
+            var $img	= $(this),
+                fixedHeight = ls.getConfig('photoset.gallery.fixedHeight') ? ls.getConfig('photoset.gallery.fixedHeight') : null,
+                minHeight = ls.getConfig('photoset.gallery.minHeight') ? ls.getConfig('photoset.gallery.minHeight') : 60,
+                maxHeight = ls.getConfig('photoset.gallery.maxHeight') ? ls.getConfig('photoset.gallery.maxHeight') : 120,
+                alternateHeight = (!fixedHeight && minHeight < maxHeight),
+                minWidth = ls.getConfig('photoset.gallery.minWidth') ? ls.getConfig('photoset.gallery.minWidth') : null;
+
             $('<img/>').load(function() {
                 ++cnt;
                 if( cnt === totalImgs ) {
                     $imgs.show();
                     $container.montage({
-                        fillLastRow	: ls.getConfig('photoset.gallery.fillLastRow'),
-                        alternateHeight	: true,
+                        fillLastRow	: !!ls.getConfig('photoset.gallery.fillLastRow'),
+                        alternateHeight	: alternateHeight,
                         alternateHeightRange : {
-                            min	: 60,
-                            max	: 120
+                            min	: minHeight,
+                            max	: maxHeight
                         },
-                        margin : 1
+                        fixedHeight: fixedHeight,
+                        minw: minWidth,
+                        margin : parseInt(ls.getConfig('photoset.gallery.margin'))
                     });
                     $container.find('a').each(function(){
                         $(this).attr('rel', $(this).find('img').data('rel'))

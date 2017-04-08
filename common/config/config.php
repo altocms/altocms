@@ -564,6 +564,7 @@ $config['module']['topic']['photoset']['photo_max_size'] = 6*1024;  // макс�
 $config['module']['topic']['photoset']['count_photos_min'] = 2;     // минимальное количество фоток
 $config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток (если 0, то без ограничений)
 $config['module']['topic']['photoset']['per_page'] = 20;            // число фоток для одновременной загрузки
+$config['module']['topic']['photoset']['thumb']['height'] = 200;    // высота миниатюры в фотосете
 
 // Какие модули должны быть загружены на старте
 $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');

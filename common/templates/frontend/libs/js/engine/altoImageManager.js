@@ -8,11 +8,10 @@
  * @since       Alto 1.1
  */
 
-// Объекты jQuery и ls не видны из этого файла, поэтому в JSLint для
+// Объекты jQuery и $main не видны из этого файла, поэтому в JSLint для
 // пропуска проверки параметров этой функции они внесены как заранее
 // предопределённые
-
-(function ($, ls) {
+(function ($, $main) {
     "use strict";
 
     //================================================================================================================
@@ -50,13 +49,25 @@
     //      ОПРЕДЕЛЕНИЕ ПРОТОТИПА ОБЪЕКТА
     //================================================================================================================
     altoImageManager.prototype = {
-
         /**
          * Инициализация объекта. Вызывается автоматически в
          * конструкторе плагина.
          */
         init: function () {
             var $this = this;
+
+            $this.$element.on('aim-redraw', function(){
+                switch ($main.getConfig('module.topic.external_img')) {
+                    case 1:
+                        // nothing
+                        break;
+                    case 2:
+                        $('.js-aim-btn-insert-link').attr('disabled', true);
+                        break;
+                    default:
+                        $('.js-image-categories-tree [data-category=insert-from-link]').css('display', 'none');
+                }
+            });
 
             if ($this.profile) {
                 // Если профиль, то сначала грузим топики
@@ -120,35 +131,33 @@
              * @param result
              */
             var success = function (result) {
-                ls.progressDone();
+                $main.progressDone();
                 $this.$ctrImages
                     .fadeOut(200, function () {
                         $this.$ctrImages
                             .html($(result.images))
                             .fadeIn(200, function () {
-
                                 $this._initPages();
                                 $this.$element.trigger('aim-load-page-success', result);
-
+                                $this.$element.trigger('aim-redraw', $this.$ctrImages);
                             });
                     });
                 $this.page = result.page;
                 $this.pages = result.pages;
 
                 // Загрузка списка категорий после загрузки картинок
-                if ($this.profile && $.trim($this.$ctrCategories.text()) == '') {
+                if ($this.profile && $.trim($this.$ctrCategories.text()) === '') {
                     $this._refreshCategories();
                 }
-
             };
 
             /**
              * Функция, вызываемая при ошибке запроса
              */
             var error = function () {
-                ls.progressDone(true);
+                $main.progressDone(true);
                 $this.$element.trigger('aim-load-page-error');
-                ls.msg.error(null, 'System error #1001');
+                $main.msg.error(null, 'System error #1001');
             };
 
             /**
@@ -157,7 +166,7 @@
              */
             var data = {page: page, category: $this.category, topic_id: topicId, target: $this.$ctrImages.data('target')};
 
-            ls.progressStart();
+            $main.progressStart();
             $this._ajax(
                 $this.options.url.loadImages,
                 data,
@@ -181,6 +190,8 @@
             var success = function (result) {
                 $this.$ctrCategories.html(result.categories);
                 $this.$element.trigger('aim-refresh-categories-success', result);
+                $this.$element.trigger('aim-redraw', $this.$ctrCategories);
+
                 // Отрисуем кнопку
                 $this.$ctrCategories.find('li').removeClass('active');
                 // Запомним категорию
@@ -192,9 +203,9 @@
              * Функция, вызываемая при ошибке запроса
              */
             var error = function () {
-                ls.progressDone(true);
+                $main.progressDone(true);
                 $this.$element.trigger('aim-refresh-categories-error');
-                ls.msg.error(null, 'System error #1001');
+                $main.msg.error(null, 'System error #1001');
             };
 
             /**
@@ -233,7 +244,6 @@
          */
         _showLoader: function () {
 
-
         },
 
         /**
@@ -241,7 +251,6 @@
          * @private
          */
         _hideLoader: function () {
-
 
         },
 
@@ -261,12 +270,12 @@
             if ($this.blockButtons) {
                 return $this;
             }
-            ls.progressStart();
+            $main.progressStart();
             $this._showLoader();
             $this.blockButtons = true;
 
             var queryType = 'ajax';
-            if (data.type == 'submit') {
+            if (data.type === 'submit') {
                 data = data.form;
                 queryType = 'ajaxSubmit';
             }
@@ -279,7 +288,7 @@
                 data.admin = $this.options.admin;
             }
 
-            if ($.type(error) == 'function') {
+            if ($.type(error) === 'function') {
                 more.error = error;
             }
             more.complete = function() {
@@ -287,7 +296,7 @@
             };
 
             // Отправим запрос
-            ls[queryType](url, data,
+            $main[queryType](url, data,
                 /**
                  * Обработчик результата запроса
                  * @param {{bStateError: bool}} result
@@ -295,23 +304,23 @@
                 function (result) {
 
                     // Завершим лоадеры
-                    ls.progressDone();
+                    $main.progressDone();
                     $this._hideLoader();
                     $this.blockButtons = false;
 
                     // Вызовем колбэки если необходимо
-                    if (!result || result.bStateError == true) {
-                        if ($.type(error) == 'function') {
+                    if (!result || result.bStateError) {
+                        if ($.type(error) === 'function') {
                             error.call($this, result);
                         } else {
                             if (result && result.sMsg) {
-                                ls.msg.error(result.sMsgTitle ? result.sMsgTitle : '', result.sMsg);
+                                $main.msg.error(result.sMsgTitle ? result.sMsgTitle : '', result.sMsg);
                             } else {
-                                ls.msg.error(null, 'System error #1001');
+                                $main.msg.error(null, 'System error #1001');
                             }
                         }
                     } else {
-                        if ($.type(success) == 'function') {
+                        if ($.type(success) === 'function') {
                             success.call($this, result);
                         }
                     }
@@ -320,7 +329,6 @@
 
             return $this;
         }
-
     };
 
     //================================================================================================================
@@ -349,7 +357,7 @@
             $this.$element
                 .off('aim-load-page-success.talkButtons')
                 .on('aim-load-page-success.talkButtons', function (e, data) {
-                    if (data.category == 'talk') {
+                    if (data.category === 'talk') {
                         backButtons.fadeIn(200);
                     } else {
                         backButtons.fadeOut(200);
@@ -367,6 +375,7 @@
 
             return $this.$talkButtons;
         },
+
         /**
          * Кнопки выбора картинок топика
          * @param {altoImageManager} $this
@@ -390,7 +399,7 @@
             $this.$element
                 .off('aim-load-page-success.topicButtons')
                 .on('aim-load-page-success.topicButtons', function (e, data) {
-                    if (data.category == '_topic') {
+                    if (data.category === '_topic') {
                         backButtons.fadeIn(200);
                     } else {
                         backButtons.fadeOut(200);
@@ -447,9 +456,12 @@
                     return $this.$imagesNav;
                 }
 
-                var tpl = $('#aim-pages-template').text();
+                var tpl = $('#aim-pages-template').text(),
+                    container = $('#aim-pages-container');
                 tpl = tpl.replace('%page%', $this.page).replace('%pages%', $this.pages);
-                $('#aim-pages-container').html(tpl);
+                container.html(tpl);
+                $this.$element.trigger('aim-redraw', container);
+
                 return $this.$imagesNav;
             };
 
@@ -519,7 +531,6 @@
                 });
 
             return $this.$btnTriggerParams;
-
         },
 
         /**
@@ -580,7 +591,6 @@
                 });
 
             return $this.$btnRefreshTree;
-
         },
 
         /**
@@ -594,7 +604,7 @@
                 .off('click')
                 .live('click', function () {
                     var success = function (result) {
-                        ls.insertToEditor(result.sText);
+                        $main.insertToEditor(result.sText);
                         $this.$pageUploadPc.find('input[type="file"]').val('');
                         $this.$pageUploadPc.find('.btn-file span').last().remove();
 
@@ -631,7 +641,7 @@
                 .off('click')
                 .live('click', function () {
                     var success = function (result) {
-                        ls.insertToEditor(result.sText);
+                        $main.insertToEditor(result.sText);
                         this.$element.modal('hide');
                     };
                     var error = null;
@@ -652,7 +662,7 @@
             $this.$pageUploadLink.find('.js-aim-btn-insert-link')
                 .off('click')
                 .live('click', function () {
-                    ls.insertImageToEditor(this);
+                    $main.insertImageToEditor(this);
                     return false;
                 });
 
@@ -704,13 +714,13 @@
                         title = $this.$pageImages.find('[name=title]').val(),
                         size = parseInt($this.$pageImages.find('[name=img_width]').val(), 10);
 
-                    align = (align == 'center') ? ' class="image-center"' : ((align == '') ? '' : 'align="' + align + '" ');
-                    size = (size == 0) ? '' : ' width="' + size + '%" ';
-                    title = (title == '') ? '' : ' title="' + title + '"' + ' alt="' + title + '" ';
+                    align = (align === 'center') ? ' class="image-center"' : ((align === '') ? '' : 'align="' + align + '" ');
+                    size = !size ? '' : ' width="' + size + '%" ';
+                    title = !title ? '' : ' title="' + title + '"' + ' alt="' + title + '" ';
 
                     var html = '<img src="' + url + '"' + title + align + size + ' />';
                     if (tinymce) {
-                        ls.insertToEditor(html);
+                        $main.insertToEditor(html);
                     } else {
                         $.markItUp({replaceWith: html});
                     }
@@ -782,7 +792,6 @@
 
             return $this;
         });
-
     };
 
     /**
@@ -799,14 +808,14 @@
      */
     $.fn.altoImageManager.defaultOptions = {
         url: {
-            loadTree: ls.routerUrl('ajax') + 'image-manager-load-tree/',
-            loadImages: ls.routerUrl('ajax') + 'image-manager-load-images/'
+            loadTree: $main.routerUrl('ajax') + 'image-manager-load-tree/',
+            loadImages: $main.routerUrl('ajax') + 'image-manager-load-images/'
         }
     };
 
 }(window.jQuery, ls));
 
-jQuery.ready(function () {
+//jQuery.ready(function () {
     /*
     switch (ls.getConfig('topic.external_img')) {
         case 1:
@@ -818,4 +827,4 @@ jQuery.ready(function () {
             $('.js-image-categories-tree [data-category=insert-from-link]').css('display', 'none');
     }
     */
-});
+//});
