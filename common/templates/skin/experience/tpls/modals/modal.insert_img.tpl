@@ -45,7 +45,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="image-categories-nav-trigger hidden-options" href="#">
+                                <a class="image-categories-nav-trigger {if !C::Get('module.topic.img_panel.show_params')}hidden-options{/if}" href="#">
                                     <span class="options-show">{$aLang.uploadimg_show}</span>
                                     <span class="options-hide">{$aLang.uploadimg_hide}</span>
                                 </a>

@@ -1,4 +1,4 @@
-<div class="row" id="aim-params" style="display: none;">
+<div class="row" id="aim-params" {if !C::Get('module.topic.img_panel.show_params')}style="display: none;"{/if}>
     <div class="col-md-24">
         <div class="bg bg-warning">
             <div class="form-group">

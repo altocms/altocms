@@ -57,7 +57,7 @@
             var $this = this;
 
             $this.$element.on('aim-redraw', function(){
-                switch ($main.getConfig('module.topic.external_img')) {
+                switch ($main.getConfig('module.topic.img_panel.external')) {
                     case 1:
                         // nothing
                         break;

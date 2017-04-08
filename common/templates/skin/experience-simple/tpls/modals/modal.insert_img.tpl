@@ -20,7 +20,7 @@
                 <h4 class="modal-title">{$aLang.insertimg} <span id="aim-pages-container"></span></h4>
                 <ul class="image-categories-nav list-unstyled list-inline list-no-border pull-right">
                     <li>
-                        <a class="image-categories-nav-trigger hidden-options" href="#">
+                        <a class="image-categories-nav-trigger {if !C::Get('module.topic.img_panel.show_params')}hidden-options{/if}" href="#">
                             <span class="options-show">{$aLang.uploadimg_show}&nbsp;<span class="caret"></span></span>
                             <span class="options-hide">{$aLang.uploadimg_hide}&nbsp;<span class="caret"></span></span>
                         </a>

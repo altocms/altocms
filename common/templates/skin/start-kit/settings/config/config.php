@@ -43,7 +43,7 @@ $config['view']['cfg']['set'] = array(
     // настройки берутся из конфига шаблона
     'module' => array(
         'topic' => array(
-            'external_img' => Config::Get('module.topic.external_img'),
+            'img_panel' => Config::Get('module.topic.img_panel'),
         ),
     ),
 );
