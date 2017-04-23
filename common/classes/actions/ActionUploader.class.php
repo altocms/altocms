@@ -757,7 +757,7 @@ class ActionUploader extends Action {
             $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_is_preview'));
             E::ModuleViewer()->AssignAjax('bPreview', true);
-            if ($oTarget) {
+            if ($oTarget && is_object($oTarget)) {
                 $oTarget->setPreviewImage(null, false);
                 E::Topic_UpdateTopic($oTarget);
             }

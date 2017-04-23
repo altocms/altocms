@@ -145,10 +145,9 @@
                     </div>
                 </div>
 
-
-
             </div>
 
+            {if !C::Get('module.topic.photoset.always_append')}
             <div class="form-group checkbox">
                 <div class="input-group">
                     <label for="topic_show_photoset">
@@ -159,6 +158,9 @@
                 </div>
                 <small class="control-notice">{$aLang.topic_show_photoset_notice}</small>
             </div>
+            {else}
+                <input type="hidden" id="topic_show_photoset" name="topic_show_photoset" value="1">
+            {/if}
 
         </div>
 

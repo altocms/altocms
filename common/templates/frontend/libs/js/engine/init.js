@@ -3,19 +3,21 @@
 
 
     // Определение браузера
-    if ($.browser.opera) {
-        $('body').addClass('opera opera' + parseInt($.browser.version));
-    }
-    if ($.browser.mozilla) {
-        $('body').addClass('mozilla mozilla' + parseInt($.browser.version));
-    }
-    if ($.browser.webkit) {
-        $('body').addClass('webkit webkit' + parseInt($.browser.version));
-    }
-    if ($.browser.msie) {
-        $('body').addClass('ie');
-        if (parseInt($.browser.version) > 8) {
-            $('body').addClass('ie' + parseInt($.browser.version));
+    if ($.browser) {
+        if ($.browser.opera) {
+            $('body').addClass('opera opera' + parseInt($.browser.version));
+        }
+        if ($.browser.mozilla) {
+            $('body').addClass('mozilla mozilla' + parseInt($.browser.version));
+        }
+        if ($.browser.webkit) {
+            $('body').addClass('webkit webkit' + parseInt($.browser.version));
+        }
+        if ($.browser.msie) {
+            $('body').addClass('ie');
+            if (parseInt($.browser.version) > 8) {
+                $('body').addClass('ie' + parseInt($.browser.version));
+            }
         }
     }
 
@@ -26,7 +28,7 @@
         if (ifr_source) {
             var wmode = 'wmode=opaque';
 
-            if (ifr_source.indexOf('?') != -1)
+            if (ifr_source.indexOf('?') !== -1)
                 $(this).attr('src', ifr_source + '&' + wmode);
             else
                 $(this).attr('src', ifr_source + '?' + wmode);
