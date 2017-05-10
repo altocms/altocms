@@ -93,6 +93,7 @@ class ActionAdmin extends Action {
             $this->AddEvent('tools-recalcblograting', 'EventRecalculateBlogRating');
         }
         $this->AddEvent('tools-checkdb', 'EventCheckDb');
+        $this->AddEvent('tools-testmail', 'eventTestMail');
 
         //поля контента
         $this->AddEvent('settings-contenttypes', 'EventContentTypes');
@@ -3017,6 +3018,56 @@ class ActionAdmin extends Action {
 
         $aCommentsTopics = E::ModuleAdmin()->GetUnlinkedTopicsForComments();
         E::ModuleViewer()->Assign('aCommentsTopics', $aCommentsTopics);
+    }
+
+
+    protected function eventTestMail()
+    {
+        $this->sMainMenuItem = 'tools';
+
+        $this->_setTitle(\E::ModuleLang()->Get('action.admin.testmail_title'));
+        $this->SetTemplateAction('tools/testmail');
+
+        $iAttempts = (int)\E::Module('Session')->Get('testmail_attempt');
+        if (!$iAttempts) {
+            $iAttempts = 1;
+        }
+
+        $sTestAddress = \F::GetPostStr('testmail_address');
+        $sTestBody = \F::GetPostStr('testmail_body')
+            . "\n\nhost: " . F::UrlBase()
+            . "\ntime: " . date('Y-m-d H:i:s')
+            . "\ntype: " . \C::Get('sys.mail.type')
+            . "\nfrom: " . \C::Get('sys.mail.from_email');
+        $sTestSubj = \E::ModuleLang()->Get('action.admin.testmail_subj', [
+            'count' => $iAttempts,
+            'host' => F::UrlBase(),
+            'time' => date('Y-m-d H:i:s'),
+        ]);
+        if ($sTestAddress) {
+            \E::ModuleMail()->SetAdress($sTestAddress);
+            \E::ModuleMail()->SetSubject($sTestSubj);
+            \E::ModuleMail()->SetBody($sTestBody);
+            \E::ModuleMail()->SetPlain();
+            $bResult = \E::ModuleMail()->Send();
+            if ($bResult) {
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.testmail_success'));
+            } else {
+                $sError = \E::ModuleMail()->GetError();
+                if ($sError) {
+                    $sError = \E::ModuleLang()->Get('action.admin.testmail_error') . ': ' . $sError;
+                } else {
+                    $sError = \E::ModuleLang()->Get('action.admin.testmail_error');
+                }
+                E::ModuleMessage()->AddError($sError);
+            }
+            \E::Module('Session')->Set('testmail_attempt', ++$iAttempts);
+        } else {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.testmail_error_address'));
+        }
+
+        $_REQUEST['testmail_body'] = '(' . $iAttempts . ') ' . \E::ModuleLang()->Get('action.admin.testmail_text');
+        $_REQUEST['testmail_address'] = $sTestAddress;
     }
 
     /**********************************************************************************/

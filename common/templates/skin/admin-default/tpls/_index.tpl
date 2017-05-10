@@ -217,6 +217,9 @@
                 <li class="menu-item_checkdb {if $sEvent=='tools-checkdb'}active{/if}">
                     <a href="{router page="admin"}tools-checkdb/">{$aLang.action.admin.menu_tools_checkdb}</a>
                 </li>
+                <li class="menu-item_testmail {if $sEvent=='tools-testmail'}active{/if}">
+                    <a href="{router page="admin"}tools-testmail/">{$aLang.action.admin.menu_tools_testmail}</a>
+                </li>
 
                 {hook run='admin_menu_tools'}
             </ul>

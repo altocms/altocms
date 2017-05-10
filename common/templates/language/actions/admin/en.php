@@ -52,6 +52,7 @@ return array(
     'menu_tools_recalctopics' => 'Quantity of articles in blogs',
     'menu_tools_recalcblograting' => 'Recalculation of blogs\' rating',
     'menu_tools_checkdb' => 'DB Control',
+    'menu_tools_testmail' => 'Test sending mail',
 
     /***
      * DASHBOARD
@@ -703,6 +704,7 @@ return array(
     'recalcblograting_title' => 'Recalculation of a blogs\' rating',
     'recalcblograting_message' => 'The blogs\' rating will be counted. <br><br> Attention! Operation can take a long time!',
     'blograting_recalculated' => 'The blog rating is counted',
+
     'checkdb_title' => 'Database control',
     'checkdb_deleted_blogs' => 'Verification of deleted blogs',
     'checkdb_deleted_topics' => 'Verification of deleted topics',
@@ -712,6 +714,17 @@ return array(
     'checkdb_topics_comments' => 'Removed articles with unremoved comments',
     'checkdb_topics_comments_online' => 'Removed articles with online comments',
     'checkdb_clear_unlinked_comments' => 'Remove unlinked comments',
+
+    'testmail_title' => 'Test sending mail',
+    'testmail_address_label' => 'E-mail',
+    'testmail_body_label' => 'Test message',
+    'testmail_subj' => '[test - %%host%%]',
+    'testmail_text' => 'Test sending mail',
+    'testmail_error_address' => 'Destination address must be specified',
+
+    'testmail_success' => 'Сообщение успешно отправлено',
+    'testmail_error' => 'Ошибка отправки сообщения',
+
     'pages_title' => 'Management of static pages',
     'pages_create' => 'Creation of the new page',
     'pages_edit' => 'Page editing',

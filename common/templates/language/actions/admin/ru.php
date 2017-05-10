@@ -59,6 +59,7 @@ return array(
     'menu_tools_recalctopics' => 'Кол-во статей в блогах',
     'menu_tools_recalcblograting' => 'Пересчет рейтинга блогов',
     'menu_tools_checkdb' => 'Контроль БД',
+    'menu_tools_testmail' => 'Проверка отправки почты',
 
     /*** DASHBOARD */
     'dashboard_updates_title' => 'Обновления',
@@ -770,6 +771,16 @@ return array(
     'checkdb_topics_comments' => 'Удаленные статьи с неудаленными комментариями',
     'checkdb_topics_comments_online' => 'Удаленные статьи с онлайн-комментариями',
     'checkdb_clear_unlinked_comments' => 'Удалить несвязанные комментарии',
+
+    'testmail_title' => 'Проверка отправки почты',
+    'testmail_address_label' => 'Адрес получателя',
+    'testmail_body_label' => 'Текст сообщения',
+    'testmail_subj' => '[test %%count%% - %%host%%]',
+    'testmail_text' => 'Проверка отправки почты',
+
+    'testmail_success' => 'Сообщение успешно отправлено',
+    'testmail_error' => 'Ошибка отправки сообщения',
+    'testmail_error_address' => 'Необходимо указать адрес получателя',
 
     /* PAGES */
     'pages_title' => 'Управление статическими страницами',
