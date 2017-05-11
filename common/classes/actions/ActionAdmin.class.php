@@ -3062,7 +3062,7 @@ class ActionAdmin extends Action {
                 E::ModuleMessage()->AddError($sError);
             }
             \E::Module('Session')->Set('testmail_attempt', ++$iAttempts);
-        } else {
+        } elseif ($this->IsPost()) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.testmail_error_address'));
         }
 
