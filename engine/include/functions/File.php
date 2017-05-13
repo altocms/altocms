@@ -83,7 +83,7 @@ class AltoFunc_File {
         } else {
             $sDir = null;
         }
-        if ($sDir && (substr($sDir, -1) != '\\') && (substr($sDir, -1) != '/')) {
+        if ($sDir && (substr($sDir, -1) !== '\\') && (substr($sDir, -1) !== '/')) {
             $sDir .= '/';
         }
         return $sDir;
@@ -122,7 +122,7 @@ class AltoFunc_File {
         } else {
             $sUrl = null;
         }
-        if ($sUrl && substr($sUrl, -1) != '/') {
+        if ($sUrl && substr($sUrl, -1) !== '/') {
             $sUrl .= '/';
         }
         return $sUrl;
@@ -163,10 +163,13 @@ class AltoFunc_File {
      */
     static public function NormPath($xPath, $sSeparator = '/') {
 
+        if (empty($xPath)) {
+            return (string)$xPath;
+        }
         if (!$sSeparator) {
             $sSeparator = DIRECTORY_SEPARATOR;
         }
-        if ($sSeparator == '/') {
+        if ($sSeparator === '/') {
             $sAltSeparator = '\\';
         }
         else {
@@ -175,14 +178,14 @@ class AltoFunc_File {
 
         if (is_array($xPath)) {
             $aResult = array();
-            foreach ($xPath as $sKey => $s) {
+            foreach ((array)$xPath as $sKey => $s) {
                 $aResult[$sKey] = static::NormPath($s, $sSeparator);
             }
             return $aResult;
         }
 
         $sPrefix = '';
-        if (substr($xPath, 0, 2) == '//') {
+        if (substr($xPath, 0, 2) === '//') {
             // path like '//site.com/...'
             $sPrefix = '//';
             $xPath = substr($xPath, 2);
@@ -203,9 +206,9 @@ class AltoFunc_File {
             $xPath = str_replace($sSeparator . $sSeparator, $sSeparator, $xPath);
         }
         $sResult = $sPrefix . $xPath;
-        if (DIRECTORY_SEPARATOR == '\\' && strlen($sResult) > 2) {
+        if (DIRECTORY_SEPARATOR === '\\' && strlen($sResult) > 2) {
             // First symbol in Windows is a disk
-            if ($sResult[1] == ':' && $sResult[0] >= 'a' && $sResult[0] <= 'z') {
+            if ($sResult[1] === ':' && $sResult[0] >= 'a' && $sResult[0] <= 'z') {
                 $sResult = ucfirst($sResult);
             }
         }
@@ -259,6 +262,9 @@ class AltoFunc_File {
      */
     static public function RemoveDir($sDir) {
 
+        if (!$sDir) {
+            return false;
+        }
         if (is_dir($sDir)) {
             $sPath = rtrim(static::NormPath($sDir), '/') . '/';
 
@@ -288,23 +294,24 @@ class AltoFunc_File {
      */
     static public function ClearDir($xDir, $bSafe = true) {
 
+        if (!$xDir) {
+            return false;
+        }
         $bResult = true;
         if (is_array($xDir)) {
-            foreach($xDir as $sDir) {
+            foreach((array)$xDir as $sDir) {
                 $bResult = $bResult && static::ClearDir($sDir, $bSafe);
             }
             return $bResult;
-        } else {
-            $sDir = (string)$xDir;
         }
-        $sDir = static::NormPath($sDir);
-        if (substr($sDir, -1) != '/') {
+        $sDir = static::NormPath((string)$xDir);
+        if (substr($sDir, -1) !== '/') {
             $sDir .= '/';
         }
         if (is_dir($sDir) && ($aFiles = static::ReadDir($sDir))) {
             foreach ($aFiles as $sFile) {
                 // delete all files except started with 'dot'
-                if (substr(basename($sFile), 0, 1) != '.') {
+                if (substr(basename($sFile), 0, 1) !== '.') {
                     if (is_dir($sFile)) {
                         if ($bSafe) {
                             $bResult = $bResult && static::ClearDir($sFile, $bSafe);
@@ -336,7 +343,7 @@ class AltoFunc_File {
         // исключаем из выдачи '.' и '..'
         $nCnt = 0;
         foreach ($aDirs as $n => $sFile) {
-            if (basename($sFile) == '.' || basename($sFile) == '..') {
+            if (basename($sFile) === '.' || basename($sFile) === '..') {
                 unset($aDirs[$n]);
                 if (++$nCnt > 1) {
                     // исключаем лишние циклы
@@ -358,10 +365,13 @@ class AltoFunc_File {
      */
     static public function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
 
-        if (substr($sDir, -2) == '/*') {
+        if (!$sDir) {
+            return array();
+        }
+        if (substr($sDir, -2) === '/*') {
             $sMask = '*';
-            $sDir = substr($sDir, 0, strlen($sDir) - 2);
-        } elseif ((substr($sDir, -1) != '/') && (substr(basename($sDir), 0, 2) == '*.')) {
+            $sDir = substr($sDir, 0, -2);
+        } elseif ((substr($sDir, -1) !== '/') && (substr(basename($sDir), 0, 2) === '*.')) {
             $sMask = basename($sDir);
             $sDir = dirname($sDir);
         } else {
@@ -380,10 +390,10 @@ class AltoFunc_File {
             return $aSubDirs;
         }
 
-        if (substr($sDir, -1) != '/') {
+        if (substr($sDir, -1) !== '/') {
             $sDir .= '/';
         }
-        if (substr($sMask, 0, 1) == '*') {
+        if (substr($sMask, 0, 1) === '*') {
             $aResult = glob($sDir . '{,.}' . $sMask, $nFlag | GLOB_BRACE);
         } else {
             $aResult = glob($sDir . $sMask, $nFlag | GLOB_BRACE);
@@ -411,11 +421,11 @@ class AltoFunc_File {
      */
     static public function ReadFileList($sDir, $nFlag = 0, $bRecursively = false) {
 
-        if ($nFlag & GLOB_ONLYDIR) {
+        if (!$sDir || ($nFlag & GLOB_ONLYDIR)) {
             return array();
         }
         $sDir = str_replace('\\', '/', $sDir);
-        if (substr($sDir, -1) == '/') {
+        if (substr($sDir, -1) === '/') {
             $sDir .= '*';
         }
         $aFileList = static::ReadDir($sDir, $nFlag, $bRecursively);
@@ -437,6 +447,9 @@ class AltoFunc_File {
      */
     static public function CopyDir($sDirSrc, $sDirTrg) {
 
+        if (!$sDirSrc || !$sDirTrg) {
+            return false;
+        }
         $sDirTrg = static::NormPath($sDirTrg . '/');
         $aSource = static::ReadDir($sDirSrc, 0, true);
         foreach ($aSource as $sSource) {
@@ -509,20 +522,19 @@ class AltoFunc_File {
 
         $xResult = false;
         if (is_array($xRoot)) {
-            foreach ($xRoot as $sRoot) {
+            foreach ((array)$xRoot as $sRoot) {
                 $xResult = static::LocalPath($sPath, $sRoot);
                 if ($xResult) {
                     return $xResult;
                 }
             }
             return $xResult;
-        } else {
-            $sRoot = (string)$xRoot;
         }
+        $sRoot = (string)$xRoot;
         if ($sPath && $sRoot) {
             $sPath = static::NormPath($sPath);
             $sRoot = static::NormPath($sRoot . '/');
-            if (DIRECTORY_SEPARATOR == '\\') {
+            if (DIRECTORY_SEPARATOR === '\\') {
                 // case-insensitive in Windows
                 if (stripos($sPath, $sRoot) === 0 || stripos($sPath . '/', $sRoot) === 0) {
                     return substr($sPath, strlen($sRoot));
@@ -536,6 +548,13 @@ class AltoFunc_File {
         return $xResult;
     }
 
+    /**
+     * @param      $sPath
+     * @param      $xRoot
+     * @param bool $bSaveParams
+     *
+     * @return bool|string
+     */
     static public function LocalPathUrl($sPath, $xRoot, $bSaveParams = false) {
 
         if (!$bSaveParams) {
@@ -573,9 +592,11 @@ class AltoFunc_File {
 
         if (!$sPath) {
             return null;
-        } elseif (strlen($sPath) > 1 && $sPath[0] == '/' && $sPath[1] != '/') {
+        }
+        if (strlen($sPath) > 1 && $sPath[0] === '/' && $sPath[1] !== '/') {
             return $sPath;
-        } elseif (strpos($sPath, ':') === false && strpos($sPath, '//') === false) {
+        }
+        if (strpos($sPath, ':') === false && strpos($sPath, '//') === false) {
             return $sPath;
         }
         if ($bCheckAliases) {
@@ -658,7 +679,7 @@ class AltoFunc_File {
      */
     static public function Copy($sSource, $sTarget, $bRewrite = false) {
 
-        if (static::Exists($sTarget) && !$bRewrite) {
+        if (!$sSource || !$sTarget || (static::Exists($sTarget) && !$bRewrite)) {
             return false;
         }
         if (static::Exists($sSource) && static::CheckDir(dirname($sTarget))) {
@@ -707,14 +728,17 @@ class AltoFunc_File {
      */
     static public function DeleteAs($sPattern, $bRecursively = false, $bNoCheck = false) {
 
-        $bResult = true;
-        $aFiles = glob($sPattern);
-        if ($aFiles) {
-            foreach ($aFiles as $sFile) {
-                $bResult = ($bResult && static::Delete($sFile, $bRecursively, $bNoCheck));
+        if ($sPattern) {
+            $bResult = true;
+            $aFiles = glob($sPattern);
+            if ($aFiles) {
+                foreach ($aFiles as $sFile) {
+                    $bResult = ($bResult && static::Delete($sFile, $bRecursively, $bNoCheck));
+                }
             }
+            return $bResult;
         }
-        return $bResult;
+        return false;
     }
 
     /**
@@ -779,12 +803,15 @@ class AltoFunc_File {
      * Порционная отдача файла
      *
      * @param string $sFilename
+     * @param int    $nChunkSize
      *
      * @return bool
      */
-    static public function PrintChunked($sFilename) {
+    static public function ChunkPrint($sFilename, $nChunkSize = null) {
 
-        $nChunkSize = 1 * (1024 * 1024);
+        if (null === $nChunkSize) {
+            $nChunkSize = 1048576; // 1024 * 1024
+        }
         $xHandle = fopen($sFilename, 'rb');
         if ($xHandle === false) {
             return false;
@@ -799,6 +826,11 @@ class AltoFunc_File {
         }
         fclose($xHandle);
         return true;
+    }
+
+    static public function PrintChunked($sFilename) {
+
+        return static::ChunkPrint($sFilename);
     }
 
     /**
@@ -832,7 +864,7 @@ class AltoFunc_File {
             $aResult['filename'] = pathinfo($aResult['basename'], PATHINFO_FILENAME);
             $aResult['extension'] = pathinfo($aResult['basename'], PATHINFO_EXTENSION);
         }
-        if (substr($sPath, 0, 2) == '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
+        if (substr($sPath, 0, 2) === '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
             // Возможно, это URL с протоколом по умолчанию
             if (isset($_SERVER['SERVER_PROTOCOL'])) {
                 $sProtocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));
@@ -911,15 +943,15 @@ class AltoFunc_File {
         $sNeedle = static::NormPath($sNeedle, '/');
         $aCheckPaths = static::NormPath($aPaths, '/');
         foreach ($aCheckPaths as $n => $sPath) {
-            if ($sPath == '*') {
+            if ($sPath === '*') {
                 return $aPaths[$n];
-            } elseif (substr($sPath, -2) == '/*') {
+            } elseif (substr($sPath, -2) === '/*') {
                 $sPath = substr($sPath, 0, strlen($sPath) - 2);
                 if (strpos($sNeedle, $sPath) === 0) {
                     return $aPaths[$n];
                 }
             } else {
-                if (substr($sPath, -1) != '/') {
+                if (substr($sPath, -1) !== '/') {
                     $sPath .= '/';
                 }
                 if ($sNeedle == $sPath) {
@@ -971,7 +1003,7 @@ class AltoFunc_File {
                 $sBom = file_get_contents($sFile, true, null, 0, 5);
                 if (!$sBom) {
                     F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
-                } elseif ($sBom != '<?php') {
+                } elseif ($sBom !== '<?php') {
                     F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
                 }
             }
@@ -1054,7 +1086,7 @@ class AltoFunc_File {
         }
         if (!$sFileName) {
             $sFileName = basename($sUploadedFile);
-        } elseif (substr($sFileName, -1) == '/') {
+        } elseif (substr($sFileName, -1) === '/') {
             $sFileName .= basename($sUploadedFile);
         }
         $sDir = dirname($sFileName);
@@ -1171,7 +1203,7 @@ class AltoFunc_File {
         // Defines max signature length
         if (!self::$nMimeTypeSignaturesMax) {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
-                if (isset($aSignsCollect['offset']) || isset($aSignsCollect['offset'])) {
+                if (isset($aSignsCollect['offset'])) {
                     $aSignsCollect = array($aSignsCollect);
                 }
                 foreach ($aSignsCollect as $nIdx => $aSign) {
@@ -1179,7 +1211,7 @@ class AltoFunc_File {
                         $nOffset = 0;
                         $sSignature = $aSign;
                     } else {
-                        $nOffset = isset($aSign['offset']) ? intval($aSign['offset']) : 0;
+                        $nOffset = isset($aSign['offset']) ? (int)($aSign['offset']) : 0;
                         $sSignature = isset($aSign['signature']) ? $aSign['signature'] : '';
                     }
                     $nLen = $nOffset + strlen($sSignature);
@@ -1194,7 +1226,7 @@ class AltoFunc_File {
             }
         }
         // Reads part of file and compares with signatures
-        if ($hFile = fopen($sFile, 'r')) {
+        if ($hFile = fopen($sFile, 'rb')) {
             $sBuffer = fgets($hFile, self::$nMimeTypeSignaturesMax);
             fclose($hFile);
             if ($sBuffer) {
@@ -1264,13 +1296,13 @@ class AltoFunc_File {
         if ($sSize) {
             $iPos = strpos($sSize, 'x');
             if ($iPos === false) {
-                $iHeight = $iWidth = intval($sSize);
+                $iHeight = $iWidth = (int)$sSize;
             } elseif ($iPos === 0) {
                 $iWidth = 0;
-                $iHeight = intval(substr($sSize, 1));
+                $iHeight = (int)substr($sSize, 1);
             } else {
-                $iWidth = intval(substr($sSize, 0, $iPos));
-                $iHeight = intval(substr($sSize, $iPos+1));
+                $iWidth = (int)substr($sSize, 0, $iPos);
+                $iHeight = (int)substr($sSize, $iPos+1);
             }
 
             if ($iWidth || $iHeight) {
