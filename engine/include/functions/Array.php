@@ -89,6 +89,17 @@ class AltoFunc_Array {
      */
     static public function Merge($aData1, $aData2) {
 
+        $aArgs = func_get_args();
+        if (count($aArgs) > 2) {
+            $aArg1 = array_shift($aArgs);
+            $aArg2 = array_shift($aArgs);
+            $aResult = static::Merge($aArg1, $aArg2);
+            foreach($aArgs as $aData) {
+                $aResult = static::Merge($aResult, $aData);
+            }
+            return $aResult;
+        }
+
         if (empty($aData1)) {
             $aData1 = array();
         } elseif (!is_array($aData1) && !($aData1 instanceof DataArray)) {
@@ -128,6 +139,17 @@ class AltoFunc_Array {
      */
     static public function MergeCombo($aData1, $aData2) {
 
+        $aArgs = func_get_args();
+        if (count($aArgs) > 2) {
+            $aArg1 = array_shift($aArgs);
+            $aArg2 = array_shift($aArgs);
+            $aResult = static::MergeCombo($aArg1, $aArg2);
+            foreach($aArgs as $aData) {
+                $aResult = static::MergeCombo($aResult, $aData);
+            }
+            return $aResult;
+        }
+
         if (empty($aData1)) {
             $aData1 = array();
         } elseif (!is_array($aData1) && !($aData1 instanceof DataArray)) {
@@ -135,7 +157,7 @@ class AltoFunc_Array {
         }
         if ($aData2) {
             foreach ($aData2 as $xKey => $xVal) {
-                if (is_integer($xKey)) {
+                if (is_int($xKey)) {
                     $aData1[] = $xVal;
                 } else {
                     if (is_array($xVal) && isset($aData1[$xKey])) {
@@ -154,24 +176,23 @@ class AltoFunc_Array {
      *
      * @param  array $aData     Массив
      *
-     * @return array
+     * @return array|bool
      */
     static public function KeysRecursive($aData, $sDelimiter = '.') {
 
         if (!is_array($aData) && !($aData instanceof DataArray)) {
             return false;
-        } else {
-            $aKeys = array_keys($aData);
-            foreach ($aKeys as $k => $v) {
-                if ($aAppend = static::KeysRecursive($aData[$v])) {
-                    unset($aKeys[$k]);
-                    foreach ($aAppend as $sNewKey) {
-                        $aKeys[] = $v . $sDelimiter . $sNewKey;
-                    }
+        }
+        $aKeys = array_keys($aData);
+        foreach ($aKeys as $k => $v) {
+            if ($aAppend = static::KeysRecursive($aData[$v])) {
+                unset($aKeys[$k]);
+                foreach ($aAppend as $sNewKey) {
+                    $aKeys[] = $v . $sDelimiter . $sNewKey;
                 }
             }
-            return $aKeys;
         }
+        return $aKeys;
     }
 
     /**
@@ -195,9 +216,9 @@ class AltoFunc_Array {
         }
 
         $aResult = array();
-        foreach ($aData as $xKey=>$sStr) {
-            if ($sStr || !$bSkipEmpty) {
-                $aResult[$xKey] = trim($sStr);
+        foreach ((array)$aData as $xKey=>$sVal) {
+            if ($sVal || !$bSkipEmpty) {
+                $aResult[$xKey] = trim($sVal);
             }
         }
         return $aResult;
@@ -217,7 +238,7 @@ class AltoFunc_Array {
         $aData = static::Str2Array($sStr, $sSeparator, $bUnique);
         $aResult = array();
         foreach ($aData as $sItem) {
-            $aResult[] = intval($sItem);
+            $aResult[] = (int)$sItem;
         }
         if ($bUnique) {
             $aResult = array_unique($aResult);
@@ -248,7 +269,7 @@ class AltoFunc_Array {
      */
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
 
-        if (is_array($xVal) && (sizeof($xVal) == 1) && isset($xVal[0]) && strpos($xVal[0], ',')) {
+        if (is_array($xVal) && (count($xVal) == 1) && isset($xVal[0]) && strpos($xVal[0], ',')) {
             $aResult = static::Str2Array($xVal[0], $sSeparator, $bSkipEmpty);
         } elseif (is_array($xVal)) {
             $aResult = $xVal;
@@ -321,7 +342,7 @@ class AltoFunc_Array {
      * @param string $sColumnKey
      * @param null   $sIndexKey
      *
-     * @return array
+     * @return array|bool
      */
     static public function Column($aArray, $sColumnKey, $sIndexKey = null) {
 
@@ -361,13 +382,13 @@ class AltoFunc_Array {
      *
      * @var string
      */
-    static $sSortProp = '';
+    static protected $sSortProp = '';
     /**
      * Direction for entities array sorting
      *
      * @var string
      */
-    static $iSortDirect = 1;
+    static protected $iSortDirect = 1;
 
     /**
      * Sort an array of enityes with maintain index association
@@ -380,7 +401,7 @@ class AltoFunc_Array {
      */
     static public function SortEntities($aEntities, $sProp, $bReverse = false) {
 
-        if (is_array($aEntities) && sizeof($aEntities) && $sProp) {
+        if (is_array($aEntities) && count($aEntities) && $sProp) {
             self::$sSortProp = $sProp;
             if ($bReverse) {
                 self::$iSortDirect = -1;
