@@ -239,8 +239,10 @@ class Decorator extends LsObject {
         }
         if (DEBUG) {
             $sDecoratorClassName = 'Decorator' . $sClassName;
-            $sDecoratorClassCode = 'class ' . $sDecoratorClassName . ' extends Decorator { }';
-            eval($sDecoratorClassCode);
+            if (!class_exists($sDecoratorClassName, false)) {
+                $sDecoratorClassCode = 'class ' . $sDecoratorClassName . ' extends Decorator { }';
+                eval($sDecoratorClassCode);
+            }
             $oComponentDecorator = new $sDecoratorClassName($oComponent);
         } else {
             $oComponentDecorator = new static($oComponent);
