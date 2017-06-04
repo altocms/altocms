@@ -231,12 +231,20 @@ class ModuleMail extends Module {
 
         $this->oMailer->Subject = $this->sSubject;
         $this->oMailer->Body = $this->sBody;
-        ob_start();
-        $bResult = $this->oMailer->Send();
-        $sError = ob_get_clean();
-        if (!$bResult && !$sError) {
-            // Письмо не отправлено, но ошибки нет - такое бывает
-            $sError = 'Cannot send email';
+        try {
+            $bResult = $this->oMailer->Send();
+            $sError = '';
+        } catch (phpmailerException $e) {
+            $sError = $e->getMessage();
+            $bResult = false;
+        }
+        if (!$bResult) {
+            if ($this->oMailer->ErrorInfo) {
+                $sError = $this->oMailer->ErrorInfo;
+            } else {
+                // Письмо не отправлено, но ошибки нет - такое раньше было
+                $sError = 'Cannot send email';
+            }
         }
         if ($sError) {
             $this->_addError($sError);
