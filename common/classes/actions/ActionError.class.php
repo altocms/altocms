@@ -66,31 +66,34 @@ class ActionError extends Action {
         $this->AddEventPreg('/^\d{3}$/i', 'EventError');
     }
 
-    /**
-     * Вывод ошибки
-     *
-     */
+
     protected function EventError() {
-        /**
+        /*
          * Если евент равен одной из ошибок из $aHttpErrors, то шлем браузеру специфичный header
          * Например, для 404 в хидере будет послан браузеру заголовок HTTP/1.1 404 Not Found
+         * Отстается для совместимости
          */
         if (array_key_exists($this->sCurrentEvent, $this->aHttpErrors)) {
-            E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('system_error_' . $this->sCurrentEvent), $this->sCurrentEvent
-            );
             $aHttpError = $this->aHttpErrors[$this->sCurrentEvent];
             if (isset($aHttpError['header'])) {
                 $sProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
                 header("{$sProtocol} {$aHttpError['header']}");
             }
+        } elseif (is_numeric($this->sCurrentEvent) && $this->sCurrentEvent > 100 && $this->sCurrentEvent < 600) {
+            // считаем, что передан стандартный код HTTP ошибки
+            \F::HttpResponseCode($this->sCurrentEvent);
         }
-        /**
+        $sErrorMessage = E::ModuleLang()->Get('system_error_' . $this->sCurrentEvent, array(), true, true);
+        if ($sErrorMessage) {
+            E::ModuleMessage()->AddErrorSingle($sErrorMessage, $this->sCurrentEvent);
+        }
+        /*
          * Устанавливаем title страницы
          */
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('error'));
         $this->SetTemplateAction('index');
     }
+
 }
 
 // EOF
