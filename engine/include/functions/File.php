@@ -1199,7 +1199,6 @@ class AltoFunc_File {
 
     static public function MimeTypeBySignature($sFile) {
 
-        $sMimeType = '';
         // Defines max signature length
         if (!self::$nMimeTypeSignaturesMax) {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
@@ -1226,9 +1225,8 @@ class AltoFunc_File {
             }
         }
         // Reads part of file and compares with signatures
-        if ($hFile = fopen($sFile, 'rb')) {
-            $sBuffer = fgets($hFile, self::$nMimeTypeSignaturesMax);
-            fclose($hFile);
+        if (is_file($sFile)) {
+            $sBuffer = file_get_contents($sFile, NULL, NULL, 0, self::$nMimeTypeSignaturesMax);
             if ($sBuffer) {
                 foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
                     foreach ($aSignsCollect as $aSign) {
@@ -1239,7 +1237,7 @@ class AltoFunc_File {
                 }
             }
         }
-        return $sMimeType;
+        return '';
     }
     /**
      * Defines of MimeType of the file

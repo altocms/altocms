@@ -829,6 +829,42 @@ class AltoFunc_Main {
     }
 
     /**
+     * RFC 3548, section 4
+     *
+     * @param string $sStr
+     * @param bool   $bPadding
+     *
+     * @return string
+     */
+    static public function Base64uEncode($sStr, $bPadding = false) {
+
+        if ($sStr) {
+            $sResult = base64_encode($sStr);
+            if (!$bPadding) {
+                $sResult = trim($sResult, '=');
+            }
+            return strtr($sResult, array('+' => '-', '/' => '_'));
+        }
+        return '';
+    }
+
+    /**
+     * RFC 3548, section 4
+     *
+     * @param string $sStr
+     *
+     * @return string
+     */
+    static public function Base64uDecode($sStr) {
+
+        if ($sStr) {
+            $sStr = strtr($sStr, array('-' => '+', '_' => '/'));
+            return base64_encode($sStr);
+        }
+        return '';
+    }
+
+    /**
      * Compare string with simple pattern - symbol, '?', '*'
      *
      * @param string|array $xPatterns

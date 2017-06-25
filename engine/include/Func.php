@@ -15,8 +15,9 @@ class Func {
 
     const ERROR_LOGFILE = 'error.log';
 
-    const ERROR_LOG_EXTINFO = 1;
+    const ERROR_LOG_EXTINFO   = 1;
     const ERROR_LOG_CALLSTACK = 2;
+    const ERROR_LOG_POSTDATA  = 4;
 
     static protected $nFatalErrors;
 
@@ -37,6 +38,8 @@ class Func {
     static protected $nErrorDisplay = E_ALL;
 
     static protected $aErrorCollection = array();
+
+    static protected $aDebugVars = array();
 
     /**
      * Init function
@@ -91,6 +94,9 @@ class Func {
         if ((bool)static::_getConfig('sys.logs.error_callstack', true)) {
             $nExtInfo += self::ERROR_LOG_CALLSTACK;
         }
+        if ((bool)static::_getConfig('sys.logs.error_postdata', true)) {
+            $nExtInfo += self::ERROR_LOG_POSTDATA;
+        }
         return $nExtInfo;
     }
 
@@ -100,6 +106,53 @@ class Func {
     static public function _errorLogNoRepeat() {
 
         return (bool)static::_getConfig('sys.logs.error_norepeat', true);
+    }
+
+    static protected function _prettyValue($xVal) {
+
+        if (is_string($xVal)) {
+            return "'$xVal'";
+        }
+        if (is_bool($xVal)) {
+            return $xVal ? 'TRUE' : 'FALSE';
+        }
+        if (null === $xVal) {
+            return 'NULL';
+        }
+        return $xVal;
+    }
+
+    /**
+     * @param mixed $xVar
+     *
+     * @return string
+     */
+    static protected function _errorVar($xVar) {
+
+        $sText = '';
+        if (null === $xVar || is_scalar($xVar)) {
+            $sText .= self::_prettyValue($xVar);
+        } else {
+            $sText .= gettype($xVar);
+            if (is_array($xVar)) {
+                $sText .= '(';
+                $nCnt = 0;
+                foreach ($xVar as $xIdx => $sItem) {
+                    if ($nCnt++) {
+                        $sText .= ',';
+                    }
+                    if (is_scalar($sItem)) {
+                        $sText .= $xIdx . '=>' . self::_prettyValue($sItem);
+                    } else {
+                        $sText .= $xIdx . '=>' . gettype($sItem) . '()';
+                    }
+                }
+                $sText .= ')';
+            } else {
+                $sText .= '()';
+            }
+        }
+        return $sText;
     }
 
     /**
@@ -115,33 +168,24 @@ class Func {
             $sText .= "\n";
             if (($nErrorExtInfo & self::ERROR_LOG_EXTINFO) && isset($_SERVER) && is_array($_SERVER)) {
                 $sText .= "--- server vars ---\n";
-                foreach ($_SERVER as $sKey => $sVal) {
+                foreach ($_SERVER as $sKey => $xVal) {
                     if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR'))) {
-                        $sText .= "  _SERVER['$sKey']=";
-                        if (is_scalar($sVal)) {
-                            $sText .= $sVal;
-                        } else {
-                            $sText .= gettype($sVal);
-                            if (is_array($sVal)) {
-                                $sText .= '(';
-                                $nCnt = 0;
-                                foreach ($sVal as $xIdx => $sItem) {
-                                    if ($nCnt++) {
-                                        $sText .= ',';
-                                    }
-                                    if (is_scalar($sItem)) {
-                                        $sText .= $xIdx . '=>' . $sItem;
-                                    } else {
-                                        $sText .= $xIdx . '=>' . gettype($sItem) . '()';
-                                    }
-                                }
-                                $sText .= ')';
-                            } else {
-                                $sText .= '()';
-                            }
-                        }
-                        $sText .= "\n";
+                        $sText .= "  _SERVER['$sKey']=" . self::_errorVar($xVal) . "\n";
                     }
+                }
+            }
+
+            if (($nErrorExtInfo & self::ERROR_LOG_POSTDATA) && !empty($_POST)) {
+                $sText .= "--- post vars ---\n";
+                foreach ($_POST as $sKey => $xVal) {
+                    $sText .= "  _POST['$sKey']=" . self::_errorVar($xVal) . "\n";
+                }
+            }
+
+            if (!empty(self::$aDebugVars)) {
+                $sText .= "--- post vars ---\n";
+                foreach (self::$aDebugVars as $sKey => $xVal) {
+                    $sText .= "  '$sKey'=" . self::_errorVar($xVal) . "\n";
                 }
             }
 
@@ -456,7 +500,7 @@ class Func {
      * @param int  $nOffset
      * @param bool $bString
      *
-     * @return string
+     * @return string|array
      */
     static protected function _getCaller($nOffset = 1, $bString = false) {
 
@@ -569,6 +613,20 @@ class Func {
             $xResult = $xDefault;
         }
         return $xResult;
+    }
+
+    /**
+     * @param $aVar
+     */
+    static public function DebugVar($aVar)
+    {
+        if (is_scalar($aVar)) {
+            self::$aDebugVars[] = $aVar;
+        } else {
+            foreach($aVar as $sKey => $xVal) {
+                self::$aDebugVars[$sKey] = $xVal;
+            }
+        }
     }
 
     /**
