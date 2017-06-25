@@ -167,7 +167,13 @@ class ModuleMail extends Module {
         // Вывод ошибок через ob_get_clean() возможен только с включением этой опции.
         // Иначе все ошибки будут с содержанием: «Cannot send email».
         // Однако, в случае ошибки отправки, в лог будет записан текст запросов к smtp-серверу, включая логин и пароль.
-        $this->oMailer->SMTPDebug = defined('DEBUG') && DEBUG;
+        //$this->oMailer->SMTPDebug = defined('DEBUG') && DEBUG;
+
+        // новый логгер ошибок
+        if ($this->GetLogFile()) {
+            $this->oMailer->Debugoutput = array($this, 'Logger');
+        }
+
         $this->oMailer->Host = $this->sHost;
         $this->oMailer->Port = $this->iPort;
         $this->oMailer->Username = $this->sUsername;
@@ -184,6 +190,25 @@ class ModuleMail extends Module {
         //$this->oMailer->FromName = $this->sFromName;
 
         $this->oMailer->SetFrom($this->sFrom, $this->sFromName);
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function GetLogFile() {
+
+        $sFileName = C::Get('sys.logs.email_file');
+        return $sFileName ? C::Get('sys.logs.dir') . $sFileName : false;
+    }
+
+    /**
+     * @param string $sStr
+     * @param int    $iLevel
+     */
+    public function Logger($sStr, $iLevel) {
+
+        $sLogFile = $this->GetLogFile();
+        E::ModuleLogger()->Dump($sLogFile, 'level: ' . $iLevel . "\nmessage: " . $sStr);
     }
 
     /**

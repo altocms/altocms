@@ -232,6 +232,8 @@ $config['sys']['logs']['error_postdata']    = false;        // выводить 
 
 $config['sys']['logs']['error_norepeat']    = true;         // не повторять вывод одинаковых ошибок
 
+$config['sys']['logs']['email_file']        = 'email.log';  // файл лога ошибок отправки по емейл
+
 $config['sys']['logs']['size_for_rotate']   = 1000000;      // максимальный размер для ротации логов (если 0 - без ротации)
 $config['sys']['logs']['count_for_rotate']  = 99;           // максимальное число файлов в ротации (если 0 - без ограничений)
 
