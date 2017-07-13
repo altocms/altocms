@@ -466,7 +466,13 @@ class Router extends LsObject {
                         $bFoundPattern = F::StrMatch($sPattern, $sRequest, true);
                     }
                     if ($bFoundPattern) {
-                        $sRequest = $sReplace;
+                        if (strpos($sReplace, '$1') && !empty($aM[1])) {
+                            $sRequest = str_replace('$1', $aM[1], $sReplace);
+                        } elseif (strpos($sReplace, '*') && !empty($aM[1])) {
+                            $sRequest = str_replace('*', $aM[1], $sReplace);
+                        } else {
+                            $sRequest = $sReplace;
+                        }
                         break;
                     }
                 }

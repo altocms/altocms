@@ -561,7 +561,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   `user_id` int(11) unsigned NOT NULL,
   `topic_type` varchar(30) DEFAULT 'topic',
   `topic_title` varchar(200) NOT NULL,
-  `topic_tags` varchar(250) NOT NULL COMMENT 'tags separated by a comma',
+  `topic_tags` varchar(250) NOT NULL,
   `topic_date_add` datetime NOT NULL,
   `topic_date_edit` datetime DEFAULT NULL,
   `topic_date_show` datetime DEFAULT NULL,
