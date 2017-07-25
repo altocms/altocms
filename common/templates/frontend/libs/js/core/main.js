@@ -846,7 +846,7 @@ ls = (function ($) {
         if ($main.cfg && $main.cfg.assets && $main.cfg.assets[asset]) {
             return $main.cfg.assets[asset];
         }
-        return nul;
+        return null;
     };
 
     /**
