@@ -1,9 +1,9 @@
 /**
  * syslabel
  */
-//"use strict";
 
-(function ($) {
+;(function ($) {
+    "use strict";
     $.SysLabel = { };
     var $that = $.SysLabel;
 
@@ -17,11 +17,11 @@
         top: 0,
         dotted: 3,
         template: '<div class="b-syslabel"></div>'
-    }
+    };
 
     $that.init = function(options) {
         $that.options = $.extend($that.options, options);
-    }
+    };
 
     $that.show = function (options) {
 
@@ -45,7 +45,7 @@
             $that.render();
         }
         return this;
-    }
+    };
 
     $that.render = function () {
         if ($that.options.dotted && $that.inProgress) {
@@ -53,7 +53,7 @@
                 $that.tick = 0;
             }
             var text = $that.options.text;
-            for (i = 0; i < $that.tick; i++) {
+            for (var i = 0; i < $that.tick; i++) {
                 text += '.';
             }
             $that.label.text(text);
@@ -62,7 +62,7 @@
             }, 1000);
         }
         return this;
-    }
+    };
 
     $that.hide = function() {
         if ($that.inProgress) {
