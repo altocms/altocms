@@ -218,10 +218,13 @@ $config['sys']['cache']['concurrent_delay']    = 0; //60;
  */
 $config['sys']['logs']['dir']            = '___path.tmp.dir___/logs/';       // папка для логов
 $config['sys']['logs']['file']           = 'log.log';       // файл общего лога
+
 $config['sys']['logs']['sql_query']      = false;            // логировать или нет SQL запросы
 $config['sys']['logs']['sql_query_file'] = 'sql_query.log'; // файл лога SQL запросов
 $config['sys']['logs']['sql_error']      = true;            // логировать или нет ошибки SQl
 $config['sys']['logs']['sql_error_file'] = 'sql_error.log'; // файл лога ошибок SQL
+$config['sys']['logs']['sql_error_display'] = false;        // выводить ошибки SQL на экран
+
 $config['sys']['logs']['cron']           = true;            // логировать или нет cron скрипты
 $config['sys']['logs']['cron_file']      = 'cron.log';      // файл лога запуска крон-процессов
 

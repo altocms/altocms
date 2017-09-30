@@ -505,7 +505,7 @@ class Func {
     static protected function _getCaller($nOffset = 1, $bString = false) {
 
         $aData = static::_callStack($nOffset + 1, 1);
-        if (sizeof($aData)) {
+        if (count($aData)) {
             if ($bString) {
                 return static::_callerToString(reset($aData));
             }
@@ -527,12 +527,12 @@ class Func {
         if ($aCaller && is_array($aCaller)) {
             $sCallerStr = '';
             $sPosition = '';
-            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+            if (isset($aCaller['class'], $aCaller['function'], $aCaller['type'])) {
                 $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
             } elseif (isset($aCaller['function'])) {
                 $sCallerStr = $aCaller['function'] . '()';
             }
-            if (isset($aCaller['file']) && isset($aCaller['line'])) {
+            if (isset($aCaller['file'], $aCaller['line'])) {
                 $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
             }
             $sResult = $sCallerStr . $sPosition;
@@ -553,14 +553,23 @@ class Func {
      */
     static protected function _callStack($nOffset = 1, $nLength = null, $bCheckException = true) {
 
-        $aStack = array_slice(debug_backtrace(false), $nOffset, $nLength);
-        // if exception then gets trace from it
+        $aStack = debug_backtrace(false);
         if ($bCheckException) {
-            $aLastCaller = end($aStack);
-            if (isset($aLastCaller['args'][0]) && is_object($aLastCaller['args'][0]) && $aLastCaller['args'][0] instanceof Exception) {
-                $aStack = $aLastCaller['args'][0]->getTrace();
+            // if exception then gets trace from it
+            foreach(array_reverse($aStack) as $aCaller) {
+                if (isset($aCaller['args'][0]) && is_object($aCaller['args'][0]) && $aCaller['args'][0] instanceof \Exception) {
+                    /** @var \Exception $oException */
+                    $oException = $aCaller['args'][0];
+                    $aCallStack = $oException->getTrace();
+                    if ($nOffset || $nLength) {
+                        return array_slice($aCallStack, $nOffset, $nLength);
+                    }
+                    return $aStack;
+                }
             }
         }
+        $aStack = array_slice($aStack, $nOffset, $nLength);
+
         return $aStack;
     }
 
@@ -581,7 +590,7 @@ class Func {
                     && (isset($aCaller['args'][2]) && $aCaller['args'][2] == $aLastError['err_file'])
                     && (isset($aCaller['args'][3]) && $aCaller['args'][3] == $aLastError['err_line'])
                 ) {
-                    if (sizeof($aStack) > $nI + 1) {
+                    if (count($aStack) > $nI + 1) {
                         $aStack = array_slice($aStack, $nI + 1);
                         if (!isset($aStack[0]['file'])) {
                             $aStack[0]['file'] = $aLastError['err_file'];

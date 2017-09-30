@@ -69,6 +69,11 @@ class ModuleDatabase extends Module {
         $this->sLogFile = Config::Get('sys.logs.sql_query_file');
     }
 
+    /**
+     * @param $sDsn
+     *
+     * @return DbSimple_Connect
+     */
     protected function _getDbConnect($sDsn) {
 
         if (Config::Get('db.params.lazy')) {
@@ -179,18 +184,18 @@ class ModuleDatabase extends Module {
     /**
      * Логгирование SQL запросов
      *
-     * @param   object $oDb
-     * @param   array  $sSql
+     * @param object $oDb
+     * @param array  $xSql
      */
-    function Logger($oDb, $sSql) {
+    public function Logger($oDb, $xSql) {
 
-        $this->_internalLogger($oDb, $sSql);
+        $this->_internalLogger($oDb, $xSql);
 
         // Получаем информацию о запросе и сохраняем её в лог
-        $sMsg = print_r($sSql, true);
+        $sMsg = print_r($xSql, true);
 
         $oLog = E::ModuleLogger()->Reset($this->sLogFile);
-        if (substr(trim($sMsg), 0, 2) == '--') {
+        if (0 === strpos(trim($sMsg), '--')) {
             // это результат запроса
             if (DEBUG) {
                 $aStack = debug_backtrace(false);
@@ -224,16 +229,58 @@ class ModuleDatabase extends Module {
                         $aLines[$iIndex] = '    ' . $sLine;
                     }
                 }
-                $sMsg = join(PHP_EOL, $aLines);
+                $sMsg = implode(PHP_EOL, $aLines);
                 $sMsg = '-- [id]' . md5($sMsg) . PHP_EOL . $sMsg;
             }
             $oLog->DumpBegin($sMsg);
         }
     }
 
+    /**
+     * @param bool $bAsText
+     *
+     * @return array|string
+     */
+    protected static function _getCallStack($bAsText = false) {
+
+        $aStack = debug_backtrace(false);
+        $i = 0;
+        while (empty($aStack[$i]['file']) || (isset($aStack[$i]['file']) && strpos($aStack[$i]['file'], 'DbSimple') === false)) {
+            ++$i;
+        }
+        while (empty($aStack[$i]['file']) || (isset($aStack[$i]['file']) && strpos($aStack[$i]['file'], 'DbSimple') !== false)) {
+            ++$i;
+        }
+        $aCallStack = array_slice($aStack, $i);
+        if ($bAsText) {
+            $sResult = '';
+            foreach ($aCallStack as $aCallerPoint) {
+                $sCaller = '';
+                if (isset($aCallerPoint['file'])) {
+                    $sCaller .= '   ' . $aCallerPoint['file'];
+                }
+                if (isset($aCallerPoint['line'])) {
+                    $sCaller .= ' (' . $aCallerPoint['line'] . ')';
+                }
+                if ($sResult) {
+                    $sResult .= PHP_EOL;
+                }
+                $sResult .= $sCaller;
+            }
+            return $sResult;
+        }
+
+        return $aCallStack;
+    }
+
+    /**
+     * @param $sTable
+     *
+     * @return bool|mixed|string
+     */
     public function TableNameTransformer($sTable) {
 
-        if (substr($sTable, 0, 2) == '?_') {
+        if (substr($sTable, 0, 2) === '?_') {
             $sTable = substr($sTable, 2);
             if ($sTableName = Config::Get('db.table.' . $sTable)) {
                 return $sTableName;
@@ -249,7 +296,7 @@ class ModuleDatabase extends Module {
      * @param   string $sMessage     Сообщение об ошибке
      * @param   array  $aInfo        Информация об ошибке
      */
-    function ErrorHandler($sMessage, $aInfo) {
+    public function ErrorHandler($sMessage, $aInfo) {
 
         // * Формируем текст сообщения об ошибке
         $sMsg = "SQL Error: $sMessage\n---\n";
@@ -259,18 +306,26 @@ class ModuleDatabase extends Module {
 
         // * Если нужно логировать SQL ошибки то пишем их в лог
         if (Config::Get('sys.logs.sql_error')) {
+            if (Config::Get('sys.logs.error_callstack')) {
+                $sErrorStack = self::_getCallStack(true);
+                $sMsg .= PHP_EOL . 'Callstack:' . PHP_EOL . $sErrorStack;
+            }
             E::ModuleLogger()->Dump(Config::Get('sys.logs.sql_error_file'), $sMsg, 'ERROR');
         }
 
-        // * Если стоит вывод ошибок то выводим ошибку на экран(браузер)
-        if (error_reporting() && ini_get('display_errors')) {
+        // * Если стоит вывод ошибок то выводим ошибку на экран (в браузер)
+        if (Config::Get('sys.logs.sql_error_display')) {
             exit($sMsg);
         }
     }
 
+    /**
+     * @param $oDb
+     * @param $sSql
+     */
     public function _internalLogger($oDb, $sSql) {
 
-        if (substr($sSql, 0, 5) == '  -- ') {
+        if (substr($sSql, 0, 5) === '  -- ') {
             self::$sLastResult = $sSql;
         } else {
             self::$sLastQuery = $sSql;
@@ -317,9 +372,10 @@ class ModuleDatabase extends Module {
     public function ExportSQL($sFilePath, $aConfig = null) {
 
         if (!is_file($sFilePath)) {
-            return array('result' => false, 'errors' => array("cant find file '$sFilePath'"));
-        } elseif (!is_readable($sFilePath)) {
-            return array('result' => false, 'errors' => array("cant read file '$sFilePath'"));
+            return array('result' => false, 'errors' => array("can't find file '$sFilePath'"));
+        }
+        if (!is_readable($sFilePath)) {
+            return array('result' => false, 'errors' => array("can't read file '$sFilePath'"));
         }
         $sFileQuery = file_get_contents($sFilePath);
         return $this->ExportSQLQuery($sFileQuery, $aConfig);
@@ -348,7 +404,7 @@ class ModuleDatabase extends Module {
 
             if ($sQuery != '') {
                 // * Заменяем движок базы данных, если таковой указан в запросе
-                if (Config::Get('db.tables.engine') != 'InnoDB') {
+                if (Config::Get('db.tables.engine') !== 'InnoDB') {
                     $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
                 }
 
@@ -432,18 +488,28 @@ class ModuleDatabase extends Module {
                 }
             }
             if (substr($aRow['Type'], 0, 4) !== 'enum') {
-                return true;
+                return false;
             }
             if (strpos($aRow['Type'], "'{$sType}'") === false) {
                 $aRow['Type'] = str_ireplace('enum(', "enum('{$sType}',", $aRow['Type']);
                 $sQuery = "ALTER TABLE {$sTableName} MODIFY {$sFieldName} " . $aRow['Type'];
-                $sQuery .= ($aRow['Null'] == 'NO') ? ' NOT NULL ' : ' NULL ';
+                $sQuery .= ($aRow['Null'] === 'NO') ? ' NOT NULL ' : ' NULL ';
                 $sQuery .= is_null($aRow['Default']) ? ' DEFAULT NULL ' : " DEFAULT '{$aRow['Default']}' ";
                 $this->GetConnect($aConfig)->select($sQuery);
             }
         }
+        return true;
     }
 
+    /**
+     * @param        $sTableName
+     * @param        $sFieldName
+     * @param        $sFieldType
+     * @param null   $sDefault
+     * @param null   $bNull
+     * @param string $sAdditional
+     * @param null   $aConfig
+     */
     public function AddField($sTableName, $sFieldName, $sFieldType, $sDefault = null, $bNull = null, $sAdditional = '', $aConfig = null) {
 
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
@@ -462,6 +528,13 @@ class ModuleDatabase extends Module {
         $this->GetConnect($aConfig)->query($sQuery);
     }
 
+    /**
+     * @param      $sTableName
+     * @param      $aIndexFields
+     * @param null $sIndexType
+     * @param null $sIndexName
+     * @param null $aConfig
+     */
     public function AddIndex($sTableName, $aIndexFields, $sIndexType = null, $sIndexName = null, $aConfig = null) {
 
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
@@ -474,7 +547,7 @@ class ModuleDatabase extends Module {
         } else {
             $sIndexType = strtoupper($sIndexType);
         }
-        if (!$sIndexName || $sIndexName == 'PRIMARY') {
+        if (!$sIndexName || $sIndexName === 'PRIMARY') {
             $sIndexName = '';
         }
         $sQuery = "ALTER TABLE {$sTableName} ADD {$sIndexType} {$sIndexName} ({$sFields})";
