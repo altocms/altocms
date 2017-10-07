@@ -138,7 +138,7 @@ class AltoFunc_Main {
      *
      * @return string
      */
-    static function CryptoRandomStr($iLen = 32, $sChars = true) {
+    static public function CryptoRandomStr($iLen = 32, $sChars = true) {
 
         $sResult = '';
         if ($sChars === true) {
@@ -163,7 +163,7 @@ class AltoFunc_Main {
 
         $aUnits = self::$sMemSizeUnits;
         $nIndex = 0;
-        $nResult = intval($nValue);
+        $nResult = (int)$nValue;
         while ($nResult >= 1024) {
             $nIndex += 1;
             $nResult = $nResult / 1024;
@@ -188,15 +188,15 @@ class AltoFunc_Main {
      */
     static public function MemSize2Int($sNum) {
 
-        $nValue = floatval($sNum);
+        $nValue = (float)$sNum;
         if (!is_numeric($sNum)) {
             // string has a non-numeric suffix
             $sSuffix = strpbrk(strtoupper($sNum), self::$sMemSizeUnits);
             if ($sSuffix && ($nIdx = strpos(self::$sMemSizeUnits, $sSuffix[0]))) {
-                $nValue *= pow(1024, $nIdx);
+                $nValue *= 1024 ** $nIdx;
             }
         }
-        return intval($nValue);
+        return (int)$nValue;
     }
 
     /**
@@ -216,7 +216,7 @@ class AltoFunc_Main {
             }
             return json_encode($xData, $iOptions);
         }
-        if (is_null($xData)) {
+        if (null === $xData) {
             return 'null';
         }
         if ($xData === false) {
@@ -228,7 +228,7 @@ class AltoFunc_Main {
         if (is_scalar($xData)) {
             if (is_float($xData)) {
                 // Always use "." for floats.
-                return floatval(str_replace(",", ".", strval($xData)));
+                return (float)str_replace(",", ".", (string)$xData);
             }
 
             if (is_string($xData)) {
@@ -241,7 +241,8 @@ class AltoFunc_Main {
             }
         }
         $bList = true;
-        for ($i = 0, reset($xData); $i < count($xData); $i++, next($xData)) {
+        $nSize = count($xData);
+        for ($i = 0, reset($xData); $i < $nSize; $i++, next($xData)) {
             if (key($xData) !== $i) {
                 $bList = false;
                 break;
@@ -650,7 +651,7 @@ class AltoFunc_Main {
     static public function ToSeconds($sInterval) {
 
         if (is_numeric($sInterval)) {
-            return intval($sInterval);
+            return (int)$sInterval;
         }
         if (!is_string($sInterval)) {
             return null;
@@ -713,10 +714,12 @@ class AltoFunc_Main {
      * @return int
      */
     static public function DateDiffSeconds($sDate1, $sDate2) {
+
         $oDatetime1 = date_create($sDate1);
         $oDatetime2 = date_create($sDate2);
         $nDiff = $oDatetime2->getTimestamp() - $oDatetime1->getTimestamp();
-        return intval($nDiff);
+
+        return $nDiff;
     }
 
     /**
@@ -859,7 +862,7 @@ class AltoFunc_Main {
 
         if ($sStr) {
             $sStr = strtr($sStr, array('-' => '+', '_' => '/'));
-            return base64_encode($sStr);
+            return base64_decode($sStr);
         }
         return '';
     }
@@ -879,7 +882,7 @@ class AltoFunc_Main {
         $xResult = false;
         if ($xPatterns) {
             if (is_array($xPatterns)) {
-                foreach($xPatterns as $sPattern) {
+                foreach((array)$xPatterns as $sPattern) {
                     $xResult = static::StrMatch($sPattern, $sString, $bCaseInsensitive, $aMatches);
                     if ($xResult) {
                         return $xResult;
@@ -986,6 +989,119 @@ class AltoFunc_Main {
         return $sResult;
     }
 
+    /**
+     * @param $xVariable
+     *
+     * @return mixed|string
+     */
+    static public function Var2Str($xVariable)
+    {
+        if (func_num_args() > 1) {
+            $aVars = [];
+            foreach(func_get_args() as $xArg) {
+                $aVars[] = static::Var2Str($xArg);
+            }
+            return implode(', ', $aVars);
+        }
+        switch (gettype($xVariable)) {
+            case 'boolean':
+                $sResult = ($xVariable ? 'TRUE' : 'FALSE');
+                break;
+            case 'integer':
+                $sResult = (string)$xVariable;
+                break;
+            case 'string':
+                $sResult = '\'' . (string)$xVariable . '\'';
+                break;
+            case 'double':
+                if ($xVariable === INF) {
+                    $sResult = 'INF';
+                } elseif ($xVariable === -INF) {
+                    $sResult = '-INF';
+                } elseif (is_nan($xVariable)) {
+                    $sResult = 'NaN';
+                } else {
+                    $sResult = str_replace(',', '.', (string)$xVariable);
+                    if (false === strpos($xVariable, '.')) {
+                        $sResult .= '.0';
+                    }
+                }
+                break;
+            case 'array':
+                $aKeys = array_keys($xVariable);
+                $iIndex = 0;
+                $bAssociate = false;
+                $aValues = [];
+                foreach($aKeys as $xKey) {
+                    if ($xKey !== $iIndex++) {
+                        $bAssociate = true;
+                    }
+                    $aValues[$xKey] = static::Var2Str($xVariable[$xKey]);
+                }
+                if ($bAssociate) {
+                    foreach ($aValues as $xKey => $xVal) {
+                        $aValues[$xKey] = static::Var2Str($xKey) . ' => ' . $xVal;
+                    }
+                }
+                $sResult = '[' . implode(', ', $aValues) . ']';
+                break;
+            case 'object':
+                $sResult = get_class($xVariable);
+                break;
+            case 'resource':
+                $sResult = get_resource_type($xVariable);
+                break;
+            case 'NULL':
+                $sResult = 'NULL';
+                break;
+            case 'unknown type':
+            default:
+                $sResult = 'unknown';
+                break;
+        }
+        return $sResult;
+    }
+
+    /**
+     * @return string
+     */
+    static public function getLocale()
+    {
+        return setlocale(LC_ALL, 0);
+    }
+
+    /**
+     * @param string $sLocale
+     *
+     * @return string
+     */
+    static public function setLocale($sLocale)
+    {
+        $sOldLocale = static::getLocale();
+        setlocale(LC_ALL, $sLocale);
+
+        return $sOldLocale;
+    }
+
+    /**
+     * @param $sLocale
+     */
+    static public function restoreLocale($sLocale)
+    {
+        $aLocales = explode(';', $sLocale);
+        foreach ($aLocales as $sLocaleSetting) {
+            if (strpos($sLocaleSetting, '=') !== false) {
+                list ($sCategory, $sLocaleVal) = explode('=', $sLocaleSetting);
+                $nCategory = (defined($sCategory) ? constant($sCategory) : null);
+            } else {
+                $nCategory = LC_ALL;
+                $sLocaleVal   = $sLocaleSetting;
+            }
+            if ($nCategory) {
+                setlocale($nCategory, $sLocaleVal);
+            }
+        }
+    }
 
 }
 

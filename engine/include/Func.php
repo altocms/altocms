@@ -175,15 +175,24 @@ class Func {
                 }
             }
 
-            if (($nErrorExtInfo & self::ERROR_LOG_POSTDATA) && !empty($_POST)) {
+            if (($nErrorExtInfo & self::ERROR_LOG_POSTDATA) && (!empty($_POST) || !empty($_FILES))) {
                 $sText .= "--- post vars ---\n";
-                foreach ($_POST as $sKey => $xVal) {
-                    $sText .= "  _POST['$sKey']=" . self::_errorVar($xVal) . "\n";
+                if (!empty($_POST)) {
+                    foreach ($_POST as $sKey => $xVal) {
+                        $sText .= "  _POST['$sKey']=" . self::_errorVar($xVal) . "\n";
+                    }
+                }
+                if (!empty($_FILES)) {
+                    foreach ($_FILES as $sField => $aFile) {
+                        foreach($aFile as $sKey => $xVal) {
+                            $sText .= "  _FILE['sField']['$sKey']=" . self::_errorVar($xVal) . "\n";
+                        }
+                    }
                 }
             }
 
             if (!empty(self::$aDebugVars)) {
-                $sText .= "--- post vars ---\n";
+                $sText .= "--- debug vars ---\n";
                 foreach (self::$aDebugVars as $sKey => $xVal) {
                     $sText .= "  '$sKey'=" . self::_errorVar($xVal) . "\n";
                 }
@@ -217,7 +226,9 @@ class Func {
         if (class_exists('ModuleLogger', false) || (class_exists('Loader', false) && Loader::Autoload('ModuleLogger'))) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
             return E::ModuleLogger()->Dump($sLogFile, $sText, $sLevel);
-        } elseif (class_exists('Config', false)) {
+        }
+
+        if (class_exists('Config', false)) {
             // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
             $sFile = Config::Get('sys.logs.dir') . $sLogFile;
             if (!$sFile) {
@@ -350,8 +361,11 @@ class Func {
                     }
                 }
             }
-            $sLogMsg .= "\nTemplates stack:\n" . join("\n", $aTemplateStack);
+            $sLogMsg .= "\nTemplates stack:\n" . implode("\n", $aTemplateStack);
         } else {
+            while($oPrevious = $oException->getPrevious()) {
+                $oException = $oPrevious;
+            }
             $aLogTrace = $oException->getTrace();
             if (is_array($aLogTrace) && $oException->getFile() && $oException->getLine()) {
                 array_unshift($aLogTrace, array('file' => $oException->getFile(), 'line' => $oException->getLine()));
@@ -444,10 +458,10 @@ class Func {
         $sCallerStr = 'Func::' . $sName . '()';
         $sPosition = '';
         if ($aCaller) {
-            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+            if (isset($aCaller['class'], $aCaller['function'], $aCaller['type'])) {
                 $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
             }
-            if (isset($aCaller['file']) && isset($aCaller['line'])) {
+            if (isset($aCaller['file'], $aCaller['line'])) {
                 $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
             }
         }
@@ -648,12 +662,12 @@ class Func {
      */
     static public function ErrorReporting($nErrorTypes = null, $bSystem = false) {
 
-        if (func_num_args() == 1 && is_bool($nErrorTypes)) {
+        if (func_num_args() === 1 && is_bool($nErrorTypes)) {
             $bSystem  = $nErrorTypes;
             $nErrorTypes = null;
         }
         if ($bSystem) {
-            if (is_integer($nErrorTypes)) {
+            if (is_int($nErrorTypes)) {
                 $nResult = error_reporting($nErrorTypes);
                 self::$nErrorTypes = $nErrorTypes;
             } else {
@@ -661,7 +675,7 @@ class Func {
             }
         } else {
             $nResult = self::$nErrorTypes;
-            if (is_integer($nErrorTypes)) {
+            if (is_int($nErrorTypes)) {
                 self::$nErrorTypes = $nErrorTypes;
             }
         }
@@ -680,6 +694,7 @@ class Func {
 
         $nOldErrorTypes = static::ErrorReporting(null, $bSystem);
         static::ErrorReporting($nOldErrorTypes & ~$nErrorTypes, $bSystem);
+
         return $nOldErrorTypes;
     }
 
@@ -694,6 +709,7 @@ class Func {
 
         $nOldErrorTypes = static::$nErrorDisplay;
         static::$nErrorDisplay = $nErrorTypes;
+
         return $nOldErrorTypes;
     }
 
@@ -707,9 +723,11 @@ class Func {
     static public function SetErrorNoDisplay($nErrorTypes) {
 
         $nOldErrorTypes = static::$nErrorDisplay;
-        static::$nErrorDisplay = static::$nErrorDisplay & ~$nErrorTypes;
+        static::$nErrorDisplay &= ~$nErrorTypes;
+
         return $nOldErrorTypes;
     }
+
     /**
      * System warning message
      *
@@ -759,7 +777,7 @@ class Func {
 
         $sDir = dirname($sFile);
         $sRealPath = null;
-        if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
+        if ($sDir === '.' || $sDir === '..' || substr($sDir, 0, 2) === './' || substr($sDir, 0, 3) === '../') {
             $aCaller = static::_getCaller();
             if (isset($aCaller['file'])) {
                 $sRealPath = realpath(dirname($aCaller['file']) . '/' . $sFile);
@@ -868,7 +886,7 @@ class Func {
             $aResult = array();
             //$sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
             $sRequestUri = self::ParseUrl(null, PHP_URL_PATH);
-            if ($sRequestUri == '/') {
+            if ($sRequestUri === '/') {
                 $sRequestUri = '__MAIN_PAGE__';
             }
             foreach ($aPlugins as $sPluginName => $aPluginData) {
@@ -1012,7 +1030,7 @@ class Func {
 
     /**
      * @param string $sName
-     * @param string $sDefault
+     * @param mixed  $sDefault
      * @param string $sType
      * @param bool   $bCaseInsensitive
      *
@@ -1230,14 +1248,14 @@ class Func {
     /**
      * $url = 'http://username:password@hostname.com/path?arg=value#anchor';
      *
-     * @param null $sUrl
-     * @param int  $iComponent
+     * @param string $sUrl
+     * @param int    $iComponent
      *
      * @return array|string
      */
     static public function ParseUrl($sUrl = null, $iComponent = -1) {
 
-        if (is_null($sUrl) && isset($_SERVER['HTTP_HOST'])) {
+        if (null === $sUrl && isset($_SERVER['HTTP_HOST'])) {
             $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
             if (!empty($_SERVER['REQUEST_URI'])) {
                 $sUrl .= $_SERVER['REQUEST_URI'];
@@ -1300,11 +1318,11 @@ class Func {
     static public function UrlScheme($bAddSlash = false) {
 
         $sResult = 'http';
-        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
+        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
             $sResult = 'https';
-        } elseif (isset($_SERVER['HTTP_SCHEME']) && strtolower($_SERVER['HTTP_SCHEME']) == 'https') {
+        } elseif (isset($_SERVER['HTTP_SCHEME']) && strtolower($_SERVER['HTTP_SCHEME']) === 'https') {
             $sResult = 'https';
-        } elseif(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') {
+        } elseif(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') {
             $sResult = 'https';
         }
         if ($bAddSlash) {
@@ -1364,7 +1382,7 @@ class Func {
      */
     static public function GetRequestBody() {
 
-        if (is_null(self::$_sRequestBody)) {
+        if (null === self::$_sRequestBody) {
             self::$_sRequestBody = file_get_contents('php://input');
         }
         return self::$_sRequestBody;
@@ -1379,66 +1397,66 @@ class Func {
      */
     static public function HttpResponseCode($nResponseCode = null) {
 
-        if (!is_null($nResponseCode)) {
-            $nResponseCode = intval($nResponseCode);
+        if (null !== $nResponseCode) {
+            $nResponseCode = (int)$nResponseCode;
         }
         // function http_response_code() added in PHP 5.4
         if (function_exists('http_response_code')) {
             return http_response_code($nResponseCode);
-        } else {
-            if (!is_null($nResponseCode)) {
-                switch ($nResponseCode) {
-                    case 100: $sText = 'Continue'; break;
-                    case 101: $sText = 'Switching Protocols'; break;
-                    case 200: $sText = 'OK'; break;
-                    case 201: $sText = 'Created'; break;
-                    case 202: $sText = 'Accepted'; break;
-                    case 203: $sText = 'Non-Authoritative Information'; break;
-                    case 204: $sText = 'No Content'; break;
-                    case 205: $sText = 'Reset Content'; break;
-                    case 206: $sText = 'Partial Content'; break;
-                    case 300: $sText = 'Multiple Choices'; break;
-                    case 301: $sText = 'Moved Permanently'; break;
-                    case 302: $sText = 'Moved Temporarily'; break;
-                    case 303: $sText = 'See Other'; break;
-                    case 304: $sText = 'Not Modified'; break;
-                    case 305: $sText = 'Use Proxy'; break;
-                    case 400: $sText = 'Bad Request'; break;
-                    case 401: $sText = 'Unauthorized'; break;
-                    case 402: $sText = 'Payment Required'; break;
-                    case 403: $sText = 'Forbidden'; break;
-                    case 404: $sText = 'Not Found'; break;
-                    case 405: $sText = 'Method Not Allowed'; break;
-                    case 406: $sText = 'Not Acceptable'; break;
-                    case 407: $sText = 'Proxy Authentication Required'; break;
-                    case 408: $sText = 'Request Time-out'; break;
-                    case 409: $sText = 'Conflict'; break;
-                    case 410: $sText = 'Gone'; break;
-                    case 411: $sText = 'Length Required'; break;
-                    case 412: $sText = 'Precondition Failed'; break;
-                    case 413: $sText = 'Request Entity Too Large'; break;
-                    case 414: $sText = 'Request-URI Too Large'; break;
-                    case 415: $sText = 'Unsupported Media Type'; break;
-                    case 500: $sText = 'Internal Server Error'; break;
-                    case 501: $sText = 'Not Implemented'; break;
-                    case 502: $sText = 'Bad Gateway'; break;
-                    case 503: $sText = 'Service Unavailable'; break;
-                    case 504: $sText = 'Gateway Time-out'; break;
-                    case 505: $sText = 'HTTP Version not supported'; break;
-                    default:
-                        exit('Unknown http status code "' . $nResponseCode . '"');
-                        break;
-                }
+        }
 
-                header(static::HttpProtocol() . ' ' . $nResponseCode . ' ' . $sText);
-
-                $GLOBALS['http_response_code'] = $nResponseCode;
-            } else {
-                $nResponseCode = (isset($GLOBALS['http_response_code']) ? $GLOBALS['http_response_code'] : 200);
+        if (null !== $nResponseCode) {
+            switch ($nResponseCode) {
+                case 100: $sText = 'Continue'; break;
+                case 101: $sText = 'Switching Protocols'; break;
+                case 200: $sText = 'OK'; break;
+                case 201: $sText = 'Created'; break;
+                case 202: $sText = 'Accepted'; break;
+                case 203: $sText = 'Non-Authoritative Information'; break;
+                case 204: $sText = 'No Content'; break;
+                case 205: $sText = 'Reset Content'; break;
+                case 206: $sText = 'Partial Content'; break;
+                case 300: $sText = 'Multiple Choices'; break;
+                case 301: $sText = 'Moved Permanently'; break;
+                case 302: $sText = 'Moved Temporarily'; break;
+                case 303: $sText = 'See Other'; break;
+                case 304: $sText = 'Not Modified'; break;
+                case 305: $sText = 'Use Proxy'; break;
+                case 400: $sText = 'Bad Request'; break;
+                case 401: $sText = 'Unauthorized'; break;
+                case 402: $sText = 'Payment Required'; break;
+                case 403: $sText = 'Forbidden'; break;
+                case 404: $sText = 'Not Found'; break;
+                case 405: $sText = 'Method Not Allowed'; break;
+                case 406: $sText = 'Not Acceptable'; break;
+                case 407: $sText = 'Proxy Authentication Required'; break;
+                case 408: $sText = 'Request Time-out'; break;
+                case 409: $sText = 'Conflict'; break;
+                case 410: $sText = 'Gone'; break;
+                case 411: $sText = 'Length Required'; break;
+                case 412: $sText = 'Precondition Failed'; break;
+                case 413: $sText = 'Request Entity Too Large'; break;
+                case 414: $sText = 'Request-URI Too Large'; break;
+                case 415: $sText = 'Unsupported Media Type'; break;
+                case 500: $sText = 'Internal Server Error'; break;
+                case 501: $sText = 'Not Implemented'; break;
+                case 502: $sText = 'Bad Gateway'; break;
+                case 503: $sText = 'Service Unavailable'; break;
+                case 504: $sText = 'Gateway Time-out'; break;
+                case 505: $sText = 'HTTP Version not supported'; break;
+                default:
+                    exit('Unknown http status code "' . $nResponseCode . '"');
+                    break;
             }
 
-            return $nResponseCode;
+            header(static::HttpProtocol() . ' ' . $nResponseCode . ' ' . $sText);
+
+            $GLOBALS['http_response_code'] = $nResponseCode;
+        } else {
+            $nResponseCode = (isset($GLOBALS['http_response_code']) ? $GLOBALS['http_response_code'] : 200);
         }
+
+        return $nResponseCode;
     }
 
     /**
@@ -1511,7 +1529,7 @@ class Func {
             if ($aHeaders && is_array($aHeaders)) {
                 foreach ($aHeaders as $xHeaderParam) {
                     if (is_array($xHeaderParam)) {
-                        if (sizeof($xHeaderParam) > 1) {
+                        if (count($xHeaderParam) > 1) {
                             header((string)$xHeaderParam[0], (bool)$xHeaderParam[1]);
                         } else {
                             header((string)$xHeaderParam[0]);
@@ -1571,7 +1589,7 @@ if (!function_exists('mb_preg_match_all')) {
         $bFuncAll, $sPattern, $sSubject, &$aMatches,
         $nFlags = PREG_OFFSET_CAPTURE, $nOffset = 0, $sEncoding = NULL
     ) {
-        if (is_null($sEncoding)) {
+        if (null === $sEncoding) {
             $sEncoding = mb_internal_encoding();
         }
 
@@ -1620,7 +1638,7 @@ if (!function_exists('getallheaders')) {
     function getallheaders() {
         $aHeaders = array();
         foreach ($_SERVER as $sName => $sValue) {
-            if (substr($sName, 0, 5) == 'HTTP_') {
+            if (substr($sName, 0, 5) === 'HTTP_') {
                 $aHeaders[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($sName, 5)))))] = $sValue;
             }
         }
