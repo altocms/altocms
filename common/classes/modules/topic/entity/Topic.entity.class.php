@@ -900,8 +900,11 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     protected function extractExtra() {
 
-        if (is_null($this->aExtra)) {
-            $this->aExtra = @unserialize($this->getExtra());
+        if (null === $this->aExtra) {
+            $aData = @unserialize($this->getExtra());
+            if (is_array($aData)) {
+                $this->aExtra = $aData;
+            }
         }
     }
 
@@ -1470,7 +1473,7 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Устанавливает сериализованную строчку дополнительных данных
      *
-     * @param string $data
+     * @param array $data
      */
     public function setExtra($data) {
 
