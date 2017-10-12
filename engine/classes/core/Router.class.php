@@ -165,6 +165,7 @@ class Router extends LsObject {
      */
     public function __construct() {
 
+        parent::__construct();
         $this->LoadConfig();
     }
 
@@ -235,7 +236,7 @@ class Router extends LsObject {
 
             // Проверка языка в URL
             if ($aRequestUrl && $aLangs && Config::Get('lang.in_url')) {
-                if (sizeof($aLangs) && sizeof($aRequestUrl) && in_array($aRequestUrl[0], $aLangs)) {
+                if (count($aLangs) && count($aRequestUrl) && in_array($aRequestUrl[0], $aLangs)) {
                     static::$sLang = array_shift($aRequestUrl);
                 }
             }
@@ -270,12 +271,12 @@ class Router extends LsObject {
             $this->aCurrentUrl['scheme'] = $this->aCurrentUrl['protocol'];
         }
 
-        $iPathOffset = intval(C::Get('path.offset_request_url'));
+        $iPathOffset = (int)C::Get('path.offset_request_url');
         $aUrlParts = F::ParseUrl();
         $sBase = !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
         if ($sBase && $iPathOffset) {
             $aPath = explode('/', trim($aUrlParts['path'], '/'));
-            $iPathOffset = min($iPathOffset, sizeof($aPath));
+            $iPathOffset = min($iPathOffset, count($aPath));
             for($i = 0; $i < $iPathOffset; $i++) {
                 $sBase .= '/' . $aPath[$i];
             }
@@ -297,7 +298,7 @@ class Router extends LsObject {
     protected function GetRequestUri() {
 
         $sReq = preg_replace('/\/+/', '/', $_SERVER['REQUEST_URI']);
-        if (substr($sReq, -1) == '/') {
+        if (substr($sReq, -1) === '/') {
             $sLastChar = '/';
         } else {
             $sLastChar = '';
@@ -308,9 +309,9 @@ class Router extends LsObject {
         // * Формируем $sCurrentFullUrl ДО применения реврайтов
         if (!empty($this->aConfigRoute['domains']['forward'])) {
             // маппинг доменов
-            static::$sCurrentFullUrl = strtolower(F::UrlBase() . '/' . join('/', $this->GetRequestArray($sReq)));
+            static::$sCurrentFullUrl = strtolower(F::UrlBase() . '/' . implode('/', $this->GetRequestArray($sReq)));
         } else {
-            static::$sCurrentFullUrl = strtolower(F::File_RootUrl() . join('/', $this->GetRequestArray($sReq)));
+            static::$sCurrentFullUrl = strtolower(F::File_RootUrl() . implode('/', $this->GetRequestArray($sReq)));
         }
 
         $this->CheckRedirectionRules();
@@ -332,15 +333,15 @@ class Router extends LsObject {
                     if (!is_array($xTarget)) {
                         $sTarget = $xTarget;
                         $iCode = 301;
-                    } elseif (sizeof($xTarget) == 1) {
+                    } elseif (count($xTarget) === 1) {
                         $sTarget = reset($xTarget);
                         $iCode = 301;
                     } else {
                         $sTarget = reset($xTarget);
-                        $iCode = intval(next($xTarget));
+                        $iCode = count(next($xTarget));
                     }
-                    if ((substr($sRule, 0, 1) == '[') && (substr($sRule, -1) == ']')) {
-                        $sPattern = substr($sRule, 1, strlen($sRule) - 2);
+                    if (($sRule[0] === '[') && (substr($sRule, -1) === ']')) {
+                        $sPattern = substr($sRule, 1, -1);
                         if (preg_match($sPattern, $sUrl)) {
                             $sUrl = preg_replace($sPattern, $sTarget, $sUrl);
                             $iHttpResponse = $iCode;
@@ -369,7 +370,7 @@ class Router extends LsObject {
      */
     protected function GetRequestArray($sReq) {
 
-        $aRequestUrl = ($sReq == '' || $sReq == '/') ? array() : explode('/', trim($sReq, '/'));
+        $aRequestUrl = ($sReq === '' || $sReq === '/') ? array() : explode('/', trim($sReq, '/'));
         for ($i = 0; $i < Config::Get('path.offset_request_url'); $i++) {
             array_shift($aRequestUrl);
         }
@@ -485,7 +486,7 @@ class Router extends LsObject {
 
         // STAGE 3: Internal rewriting (topic URLs etc.)
         // $config['router']['rewrite'] = ...
-        $aRequestUrl = (trim($sRequest, '/') == '') ? array() : explode('/', $sRequest);
+        $aRequestUrl = (trim($sRequest, '/') === '') ? array() : explode('/', $sRequest);
         if ($aRequestUrl) {
             $aRequestUrl = $this->RewriteInternal($aRequestUrl);
         }
@@ -542,15 +543,25 @@ class Router extends LsObject {
      */
     protected function SpecialAction($sReq) {
 
-        if (substr($sReq, 0, 4) == '@404') {
+        if (substr($sReq, 0, 4) === '@404') {
             F::HttpHeader('404 Not Found');
             exit;
-        } elseif (preg_match('~@die(.*)~i', $sReq, $aMatches)) {
+        }
+
+        if (preg_match('~@die(.*)~i', $sReq, $aMatches)) {
             if (isset($aMatches[1]) && $aMatches[1]) {
                 $sMsg = trim($aMatches[1]);
-                if (substr($sMsg, 0, 1) == '(' && substr($sMsg, -1) == ')') $sMsg = trim($sMsg, '()');
-                if (substr($sMsg, 0, 1) == '"' && substr($sMsg, -1) == '"') $sMsg = trim($sMsg, '"');
-                if (substr($sMsg, 0, 1) == '\'' && substr($sMsg, -1) == '\'') $sMsg = trim($sMsg, '\'');
+                if ($sMsg) {
+                    if ($sMsg[0] === '(' && substr($sMsg, -1) === ')') {
+                        $sMsg = trim($sMsg, '()');
+                    }
+                    if ($sMsg[0] === '"' && substr($sMsg, -1) === '"') {
+                        $sMsg = trim($sMsg, '"');
+                    }
+                    if ($sMsg[0] === '\'' && substr($sMsg, -1) === '\'') {
+                        $sMsg = trim($sMsg, '\'');
+                    }
+                }
                 die($sMsg);
             }
         } else {
@@ -925,7 +936,7 @@ class Router extends LsObject {
      */
     static public function GetControllerPath() {
 
-        if (is_null(static::$sControllerPath)) {
+        if (null === static::$sControllerPath) {
             static::$sControllerPath = static::GetAction() . '/';
             if (static::GetActionEvent()) static::$sControllerPath .= static::GetActionEvent() . '/';
             if (static::GetParams()) static::$sControllerPath .= implode('/', static::GetParams()) . '/';
@@ -1133,7 +1144,10 @@ class Router extends LsObject {
     static public function Location($sLocation) {
 
         static::getInstance()->oEngine->Shutdown();
-        if (substr($sLocation, 0, 1) !== '/') {
+        if (!$sLocation) {
+            $sLocation = '/';
+        }
+        if ($sLocation[0] !== '/') {
             // Проверка на "виртуальный" путь
             $sRelLocation = trim($sLocation, '/');
             if (preg_match('|^[a-z][\w\-]+$|', $sRelLocation)) {
@@ -1156,7 +1170,7 @@ class Router extends LsObject {
     protected function _getUrlPart($aData, $sPart) {
 
         $sResult = '';
-        if ($sPart == 'url') {
+        if ($sPart === 'url') {
             $sResult = $this->_getUrlPart($aData, 'link');
             if (isset($aData['query'])) {
                 $sResult .= '?' . $aData['query'];
@@ -1164,14 +1178,14 @@ class Router extends LsObject {
             if (isset($aData['fragment'])) {
                 $sResult .= '#' . $aData['fragment'];
             }
-        } elseif ($sPart == 'link') {
+        } elseif ($sPart === 'link') {
             if (isset($aData['root'])) {
                 $sResult = trim($aData['root'], '/');
             }
             if (isset($aData['action'])) {
                 $sResult .= $this->_getUrlPart($aData, 'path');
             }
-        } elseif ($sPart == 'path') {
+        } elseif ($sPart === 'path') {
             if (isset($aData['path'])) {
                 $sResult = $aData['path'];
             } else {
@@ -1273,7 +1287,7 @@ class Router extends LsObject {
      */
     static public function GetTopicUrlMask($bEmptyIfWrong = true) {
 
-        if (is_null(static::$sTopicUrlMask)) {
+        if (null === static::$sTopicUrlMask) {
             $sUrlMask = Config::Get('module.topic.url');
             if ($sUrlMask) {
                 // WP compatible
@@ -1318,7 +1332,7 @@ class Router extends LsObject {
 
         $sUrlPattern = static::GetTopicUrlMask();
         if ($sUrlPattern) {
-            $sUrlPattern = preg_quote($sUrlPattern);
+            $sUrlPattern = preg_quote($sUrlPattern, '/');
             $aReplace = array(
                 '%year%'       => '\d{4}',
                 '%month%'      => '\d{2}',
@@ -1338,7 +1352,7 @@ class Router extends LsObject {
                 $aReplace['%topic_url%'] = '[\w\-]+';
             }
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
-            if (substr($sUrlPattern, -1) == '/') {
+            if (substr($sUrlPattern, -1) === '/') {
                 $sUrlPattern .= '?';
             }
             $sUrlPattern = '#^' . strtr($sUrlPattern, $aReplace) . '$#i';
@@ -1371,13 +1385,13 @@ class Router extends LsObject {
 
         $sUrlPattern = static::GetUserUrlMask();
         if ($sUrlPattern) {
-            $sUrlPattern = preg_quote($sUrlPattern);
+            $sUrlPattern = preg_quote($sUrlPattern, '/');
             $aReplace = array(
                 '%login%' => '([\w_\-]+)',
                 '%user_id%' => '(\d+)',
             );
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
-            if (substr($sUrlPattern, -1) == '/') {
+            if (substr($sUrlPattern, -1) === '/') {
                 $sUrlPattern .= '?';
             }
             $sUrlPattern = '#^' . strtr($sUrlPattern, $aReplace) . '$#i';
@@ -1414,9 +1428,9 @@ class Router extends LsObject {
             $aPaths = F::Val2Array($aPaths);
             if ($aPaths) {
                 foreach($aPaths as $nKey => $sPath) {
-                    if ($sPath == '*') {
+                    if ($sPath === '*') {
                         $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
-                    } elseif($sPath == '/') {
+                    } elseif($sPath === '/') {
                         $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
                     } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
                         $aPaths[$nKey] = $sPath . '/*';
@@ -1443,9 +1457,9 @@ class Router extends LsObject {
             $aPaths = F::Val2Array($aPaths);
             if ($aPaths) {
                 foreach($aPaths as $nKey => $sPath) {
-                    if ($sPath == '*') {
+                    if ($sPath === '*') {
                         return $sPath;
-                    } elseif(strpos($sPath, '*') === false && trim($sPath, '/') == $sComparePath) {
+                    } elseif(strpos($sPath, '*') === false && trim($sPath, '/') === $sComparePath) {
                         return $sPath;
                     }
                 }
@@ -1512,7 +1526,7 @@ class Router extends LsObject {
                         $aEvents = array();
                     }
                 }
-                if ($sAction == $sCurrentAction) {
+                if ($sAction === $sCurrentAction) {
                     if (!$aEvents) {
                         return true;
                     }
@@ -1524,13 +1538,13 @@ class Router extends LsObject {
                         if (($sCurrentEventName && $sEventPreg == $sCurrentEventName) || $sEventPreg == $sCurrentEvent) {
                             // * Это название event`a
                             return true;
-                        } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
+                        } elseif (($sEventPreg[0] === '{') && (trim($sEventPreg, '{}') === $sCurrentEventName)) {
                             // LS-compatibility
                             // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
                             return true;
-                        } elseif ((substr($sEventPreg, 0, 1) == '[')
-                            && (substr($sEventPreg, -1) == ']')
-                            && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
+                        } elseif (($sEventPreg[0] === '[')
+                            && (substr($sEventPreg, -1) === ']')
+                            && preg_match(substr($sEventPreg, 1, -1), $sCurrentEvent)) {
                             // * Это регулярное выражение
                             return true;
                         }
