@@ -444,9 +444,9 @@ class Router extends LsObject {
         $aRouterUriRules = $this->GetRouterUriRules();
         if ($aRouterUriRules) {
             foreach ($aRouterUriRules as $sPattern => $sReplace) {
-                if ($sPattern[0] == '[' && substr($sPattern, -1) == ']') {
-                    $sRegExp = substr($sPattern, 1, strlen($sPattern) - 2);
-                } elseif ((strlen($sPattern) > 3) && ($sPattern[1] == '^') && (substr_count($sPattern, $sPattern[0]) == 2)) {
+                if ($sPattern[0] === '[' && substr($sPattern, -1) === ']') {
+                    $sRegExp = substr($sPattern, 1, -1);
+                } elseif ((strlen($sPattern) > 3) && ($sPattern[1] === '^') && (substr_count($sPattern, $sPattern[0]) == 2)) {
                     $sRegExp = $sPattern;
                 } else {
                     $sRegExp = null;
@@ -460,15 +460,15 @@ class Router extends LsObject {
                     $sRequest = preg_replace($sRegExp, $sReplace, $sRequest . '/');
                     break;
                 } else {
-                    if (substr($sPattern, -2) == '/*') {
-                        $bFoundPattern = F::StrMatch(array(substr($sPattern, 0, strlen($sPattern) - 2), $sPattern), $sRequest, true);
+                    if (substr($sPattern, -2) === '/*') {
+                        $bFoundPattern = F::StrMatch(array(substr($sPattern, 0, -1), $sPattern), $sRequest, true, $aM);
                     } else {
-                        $bFoundPattern = F::StrMatch($sPattern, $sRequest, true);
+                        $bFoundPattern = F::StrMatch($sPattern, $sRequest, true, $aM);
                     }
                     if ($bFoundPattern) {
-                        if (strpos($sReplace, '$1') && !empty($aM[1])) {
+                        if (!empty($aM[1]) && strpos($sReplace, '$1')) {
                             $sRequest = str_replace('$1', $aM[1], $sReplace);
-                        } elseif (strpos($sReplace, '*') && !empty($aM[1])) {
+                        } elseif (!empty($aM[1]) && strpos($sReplace, '*')) {
                             $sRequest = str_replace('*', $aM[1], $sReplace);
                         } else {
                             $sRequest = $sReplace;
@@ -478,7 +478,7 @@ class Router extends LsObject {
                 }
             }
 
-            if (substr($sRequest, 0, 1) == '@') {
+            if ($sRequest[0] === '@') {
                 $this->SpecialAction($sRequest);
             }
         }
