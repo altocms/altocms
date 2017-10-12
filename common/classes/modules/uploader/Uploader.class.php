@@ -910,15 +910,18 @@ class ModuleUploader extends Module {
                 E::ModuleMresource()->UnlinkFile($sTargetType, $sTargetId, E::UserId());
             }
 
-            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl($this->GetTargetUrl($sTargetType, $sTargetId)));
-            $oResource->setType($sTargetType);
-            $oResource->setUserId(E::UserId());
-            if ($sTargetId == '0') {
-                $oResource->setTargetTmp(E::ModuleSession()->GetCookie(self::COOKIE_TARGET_TMP));
-            }
-            E::ModuleMresource()->AddTargetRel(array($oResource), $sTargetType, $sTargetId);
+            $sTargetUrl = $this->GetTargetUrl($sTargetType, $sTargetId);
+            if ($sTargetUrl) {
+                $oResource->setUrl(E::ModuleMresource()->NormalizeUrl($sTargetUrl));
+                $oResource->setType($sTargetType);
+                $oResource->setUserId(E::UserId());
+                if ((int)$sTargetId === 0) {
+                    $oResource->setTargetTmp(E::ModuleSession()->GetCookie(self::COOKIE_TARGET_TMP));
+                }
+                E::ModuleMresource()->AddTargetRel(array($oResource), $sTargetType, $sTargetId);
 
-            return $oResource;
+                return $oResource;
+            }
         }
 
         return FALSE;
