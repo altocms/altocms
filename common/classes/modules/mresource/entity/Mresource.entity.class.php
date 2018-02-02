@@ -131,28 +131,32 @@ class ModuleMresource_EntityMresource extends Entity {
      */
     public function SetUrl($sUrl) {
 
-        if ($sUrl[0] === '@') {
-            $sPathUrl = substr($sUrl, 1);
-            $sUrl = F::File_RootUrl() . $sPathUrl;
+        if ($sUrl) {
+            if ($sUrl[0] === '@') {
+                $sPathUrl = substr($sUrl, 1);
+                $sUrl = F::File_RootUrl() . $sPathUrl;
+            } else {
+                $sPathUrl = F::File_LocalUrl($sUrl);
+            }
         } else {
-            $sPathUrl = F::File_LocalUrl($sUrl);
+            $sPathUrl = null;
         }
         if ($sPathUrl) {
             // Сохраняем относительный путь
-            $this->SetPathUrl('@' . trim($sPathUrl, '/'));
+            $this->setPathUrl('@' . trim($sPathUrl, '/'));
             if (!$this->getPathFile()) {
                 $this->SetFile(F::File_Url2Dir($sUrl));
             }
         } else {
             // Сохраняем абсолютный путь
-            $this->SetPathUrl($sUrl);
+            $this->setPathUrl($sUrl);
         }
-        if (is_null($this->GetPathFile())) {
-            if (is_null($this->GetLink())) {
-                $this->SetLink(true);
+        if (null === $this->getPathFile()) {
+            if (null === $this->getLink()) {
+                $this->setLink(true);
             }
-            if (is_null($this->GetType())) {
-                $this->SetType(ModuleMresource::TYPE_HREF);
+            if (null === $this->getType()) {
+                $this->setType(ModuleMresource::TYPE_HREF);
             }
         }
         $this->RecalcHash();
@@ -168,20 +172,20 @@ class ModuleMresource_EntityMresource extends Entity {
         if ($sFile) {
             if ($sPathDir = F::File_LocalDir($sFile)) {
                 // Сохраняем относительный путь
-                $this->SetPathFile('@' . $sPathDir);
-                if (!$this->GetPathUrl()) {
+                $this->setPathFile('@' . $sPathDir);
+                if (!$this->getPathUrl()) {
                     $this->SetUrl(F::File_Dir2Url($sFile));
                 }
             } else {
                 // Сохраняем абсолютный путь
-                $this->SetPathFile($sFile);
+                $this->setPathFile($sFile);
             }
-            $this->SetLink(false);
-            if (!$this->GetStorage()) {
-                $this->SetStorage('file');
+            $this->setLink(false);
+            if (!$this->getStorage()) {
+                $this->setStorage('file');
             }
         } else {
-            $this->SetPathFile(null);
+            $this->setPathFile(null);
         }
         $this->RecalcHash();
     }
