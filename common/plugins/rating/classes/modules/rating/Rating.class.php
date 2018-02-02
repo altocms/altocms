@@ -39,6 +39,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
      * @return int
      */
     public function VoteComment($oUser, $oComment, $iValue) {
+
         if (!C::Get('plugin.rating.comment.vote')) {
             return 0;
         }
@@ -52,7 +53,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         /**
          * Начисляем силу автору коммента, используя логарифмическое распределение
          */
-        $skill = $oUser->getSkill();
+        $nSkill = $oUser->getSkill();
         $iMinSize = C::Get('plugin.rating.comment.min_change');//0.004;
         $iMaxSize = C::Get('plugin.rating.comment.max_change');//0.5;
         $iSizeRange = $iMaxSize - $iMinSize;
@@ -62,22 +63,23 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         if ($iCountRange == 0) {
             $iCountRange = 1;
         }
-        if ($skill > C::Get('plugin.rating.comment.left_border') and $skill < C::Get('plugin.rating.comment.right_border')) {//50-200
-            $skill_new = $skill / C::Get('plugin.rating.comment.mid_divider');//70
-        } elseif ($skill >= C::Get('plugin.rating.comment.right_border')) {//200
-            $skill_new = $skill / C::Get('plugin.rating.comment.right_divider');//10
+        if ($nSkill > C::Get('plugin.rating.comment.left_border') and $nSkill < C::Get('plugin.rating.comment.right_border')) {//50-200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.comment.mid_divider');//70
+        } elseif ($nSkill >= C::Get('plugin.rating.comment.right_border')) {//200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.comment.right_divider');//10
         } else {
-            $skill_new = $skill / C::Get('plugin.rating.comment.left_divider');//130
+            $nSkillNew = $nSkill / C::Get('plugin.rating.comment.left_divider');//130
         }
-        $iDelta = $iMinSize + (log($skill_new + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
+        $iDelta = $iMinSize + (log($nSkillNew + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
         /**
          * Сохраняем силу
          */
-        $oUserComment = $this->User_GetUserById($oComment->getUserId());
+        $oUserComment = E::Module('User')->GetUserById($oComment->getUserId());
         $iSkillNew = $oUserComment->getSkill() + $iValue * $iDelta;
         $iSkillNew = ($iSkillNew < 0) ? 0 : $iSkillNew;
         $oUserComment->setSkill($iSkillNew);
-        $this->User_Update($oUserComment);
+        E::Module('User')->Update($oUserComment);
+
         return $iValue;
     }
 
@@ -91,24 +93,27 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
      * @return int
      */
     public function VoteTopic($oUser, $oTopic, $iValue) {
+
         $iDeltaRating = 0;
-        $skill = $oUser->getSkill();
+        $nSkill = $oUser->getSkill();
 
         if (C::Get('plugin.rating.topic.vote') && (C::Get('plugin.rating.topic.dislike') || (!C::Get('plugin.rating.topic.dislike') && $iValue > 0))) {
             /**
              * Устанавливаем рейтинг топика
              */
             $iDeltaRating = $iValue * C::Get('plugin.rating.rating.topic_k1');//1
-            if ($skill >= C::Get('plugin.rating.rating.topic_border_1') and $skill < C::Get('plugin.rating.rating.topic_border_2')) { // 100-250
+            if ($nSkill >= C::Get('plugin.rating.rating.topic_border_1') && $nSkill < C::Get('plugin.rating.rating.topic_border_2')) { // 100-250
                 $iDeltaRating = $iValue * C::Get('plugin.rating.rating.topic_k2');//2
-            } elseif ($skill >= C::Get('plugin.rating.rating.topic_border_2') and $skill < C::Get('plugin.rating.rating.topic_border_3')) { //250-400
+            } elseif ($nSkill >= C::Get('plugin.rating.rating.topic_border_2') && $nSkill < C::Get('plugin.rating.rating.topic_border_3')) { //250-400
                 $iDeltaRating = $iValue * C::Get('plugin.rating.rating.topic_k3');//3
-            } elseif ($skill >= C::Get('plugin.rating.rating.topic_border_3')) { //400
+            } elseif ($nSkill >= C::Get('plugin.rating.rating.topic_border_3')) { //400
                 $iDeltaRating = $iValue * C::Get('plugin.rating.rating.topic_k4');//4
             }
             $oTopic->setRating($oTopic->getRating() + $iDeltaRating);
         }
 
+        $iMinCount = log(0 + 1);
+        $iCountRange = 1;
         if (C::Get('plugin.rating.rating.vote') && (C::Get('plugin.rating.topic.dislike') || (!C::Get('plugin.rating.topic.dislike') && $iValue > 0))) {
             /**
              * Начисляем силу и рейтинг автору топика, используя логарифмическое распределение
@@ -116,47 +121,47 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
             $iMinSize = C::Get('plugin.rating.topic.min_change');//0.1;
             $iMaxSize = C::Get('plugin.rating.topic.max_change');//8;
             $iSizeRange = $iMaxSize - $iMinSize;
-            $iMinCount = log(0 + 1);
             $iMaxCount = log(C::Get('plugin.rating.topic.max_rating') + 1);
             $iCountRange = $iMaxCount - $iMinCount;
             if ($iCountRange == 0) {
                 $iCountRange = 1;
             }
-            if ($skill > C::Get('plugin.rating.topic.left_border') and $skill < C::Get('plugin.rating.topic.right_border')) {//200
-                $skill_new = $skill / C::Get('plugin.rating.topic.mid_divider');//70;
-            } elseif ($skill >= C::Get('plugin.rating.topic.right_border')) {//200
-                $skill_new = $skill / C::Get('plugin.rating.topic.right_divider');//10;
+            if ($nSkill > C::Get('plugin.rating.topic.left_border') && $nSkill < C::Get('plugin.rating.topic.right_border')) {//200
+                $nSkillNew = $nSkill / C::Get('plugin.rating.topic.mid_divider');//70;
+            } elseif ($nSkill >= C::Get('plugin.rating.topic.right_border')) {//200
+                $nSkillNew = $nSkill / C::Get('plugin.rating.topic.right_divider');//10;
             } else {
-                $skill_new = $skill / C::Get('plugin.rating.topic.left_divider');//100;
+                $nSkillNew = $nSkill / C::Get('plugin.rating.topic.left_divider');//100;
             }
-            $iDelta = $iMinSize + (log($skill_new + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
+            $iDelta = $iMinSize + (log($nSkillNew + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
             /**
              * Сохраняем силу и рейтинг
              */
-            $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
+            $oUserTopic = E::Module('User')->GetUserById($oTopic->getUserId());
             $iSkillNew = $oUserTopic->getSkill() + $iValue * $iDelta;
             $iSkillNew = ($iSkillNew < 0) ? 0 : $iSkillNew;
             $oUserTopic->setSkill($iSkillNew);
             $oUserTopic->setRating($oUserTopic->getRating() + $iValue * $iDelta / C::Get('plugin.rating.topic.auth_coef'));//2.73
-            $this->User_Update($oUserTopic);
+            E::Module('User')->Update($oUserTopic);
         }
-        if ($skill > C::Get('plugin.rating.topic.left_border') and $skill < C::Get('plugin.rating.topic.right_border')) {//200
-            $skill_new = $skill / C::Get('plugin.rating.topic.mid_divider');//70;
-        } elseif ($skill >= C::Get('plugin.rating.topic.right_border')) {//200
-            $skill_new = $skill / C::Get('plugin.rating.topic.right_divider');//10;
+        if ($nSkill > C::Get('plugin.rating.topic.left_border') && $nSkill < C::Get('plugin.rating.topic.right_border')) {//200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.topic.mid_divider');//70;
+        } elseif ($nSkill >= C::Get('plugin.rating.topic.right_border')) {//200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.topic.right_divider');//10;
         } else {
-            $skill_new = $skill / C::Get('plugin.rating.topic.left_divider');//100;
+            $nSkillNew = $nSkill / C::Get('plugin.rating.topic.left_divider');//100;
         }
-        $iDelta = $iMinSize + (log($skill_new + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
+        $iDelta = $iMinSize + (log($nSkillNew + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
         /**
          * Сохраняем силу и рейтинг
          */
-        $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
+        $oUserTopic = E::Module('User')->GetUserById($oTopic->getUserId());
         $iSkillNew = $oUserTopic->getSkill() + $iValue * $iDelta;
         $iSkillNew = ($iSkillNew < 0) ? 0 : $iSkillNew;
         $oUserTopic->setSkill($iSkillNew);
         $oUserTopic->setRating($oUserTopic->getRating() + $iValue * $iDelta / C::Get('plugin.rating.topic.auth_coef'));//2.73
-        $this->User_Update($oUserTopic);
+        E::Module('User')->Update($oUserTopic);
+
         return $iDeltaRating;
     }
 
@@ -169,7 +174,8 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
      *
      * @return int
      */
-    public function VoteBlog($oUser, $oBlog, $iValue) {
+    public function VoteBlog($oUser, $oBlog, $iValue)
+    {
         if (!C::Get('plugin.rating.blog.vote')) {
             return 0;
         }
@@ -179,7 +185,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         /**
          * Устанавливаем рейтинг блога, используя логарифмическое распределение
          */
-        $skill = $oUser->getSkill();
+        $nSkill = $oUser->getSkill();
         $iMinSize = C::Get('plugin.rating.blog.min_change');//1.13;
         $iMaxSize = C::Get('plugin.rating.blog.max_change');//15;
         $iSizeRange = $iMaxSize - $iMinSize;
@@ -189,18 +195,19 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         if ($iCountRange == 0) {
             $iCountRange = 1;
         }
-        if ($skill > C::Get('plugin.rating.blog.left_border') and $skill < C::Get('plugin.rating.blog.right_border')) {//50-200
-            $skill_new = $skill / C::Get('plugin.rating.blog.mid_divider');//20;
-        } elseif ($skill >= C::Get('plugin.rating.blog.right_border')) {//200
-            $skill_new = $skill / C::Get('plugin.rating.blog.right_divider');//10;
+        if ($nSkill > C::Get('plugin.rating.blog.left_border') && $nSkill < C::Get('plugin.rating.blog.right_border')) {//50-200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.blog.mid_divider');//20;
+        } elseif ($nSkill >= C::Get('plugin.rating.blog.right_border')) {//200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.blog.right_divider');//10;
         } else {
-            $skill_new = $skill / C::Get('plugin.rating.blog.left_divider');//50;
+            $nSkillNew = $nSkill / C::Get('plugin.rating.blog.left_divider');//50;
         }
-        $iDelta = $iMinSize + (log($skill_new + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
+        $iDelta = $iMinSize + (log($nSkillNew + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
         /**
          * Сохраняем рейтинг
          */
         $oBlog->setRating($oBlog->getRating() + $iValue * $iDelta);
+
         return $iValue * $iDelta;
     }
 
@@ -214,6 +221,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
      * @return float
      */
     public function VoteUser($oUser, $oUserTarget, $iValue) {
+
         if (!C::Get('plugin.rating.user.vote')) {
             return 0;
         }
@@ -223,7 +231,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         /**
          * Начисляем силу и рейтинг юзеру, используя логарифмическое распределение
          */
-        $skill = $oUser->getSkill();
+        $nSkill = $oUser->getSkill();
         $iMinSize = C::Get('plugin.rating.user.min_change');//0.42;
         $iMaxSize = C::Get('plugin.rating.user.max_change');//3.2;
         $iSizeRange = $iMaxSize - $iMinSize;
@@ -233,19 +241,20 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         if ($iCountRange == 0) {
             $iCountRange = 1;
         }
-        if ($skill > C::Get('plugin.rating.user.left_border') and $skill < C::Get('plugin.rating.user.right_border')) { // 50-200
-            $skill_new = $skill / C::Get('plugin.rating.user.mid_divider'); //70
-        } elseif ($skill >= C::Get('plugin.rating.user.right_border')) { // 200
-            $skill_new = $skill / C::Get('plugin.rating.user.right_divider'); //2
+        if ($nSkill > C::Get('plugin.rating.user.left_border') and $nSkill < C::Get('plugin.rating.user.right_border')) { // 50-200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.user.mid_divider'); //70
+        } elseif ($nSkill >= C::Get('plugin.rating.user.right_border')) { // 200
+            $nSkillNew = $nSkill / C::Get('plugin.rating.user.right_divider'); //2
         } else {
-            $skill_new = $skill / C::Get('plugin.rating.user.left_divider'); //40
+            $nSkillNew = $nSkill / C::Get('plugin.rating.user.left_divider'); //40
         }
-        $iDelta = $iMinSize + (log($skill_new + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
+        $iDelta = $iMinSize + (log($nSkillNew + 1) - $iMinCount) * ($iSizeRange / $iCountRange);
         /**
          * Определяем новый рейтинг
          */
         $iRatingNew = $oUserTarget->getRating() + $iValue * $iDelta;
         $oUserTarget->setRating($iRatingNew);
+
         return $iValue * $iDelta;
     }
 
