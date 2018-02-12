@@ -16,15 +16,27 @@
                         $.each(uploaded, function(key, url) {
                             //console.log(url);
                             var $param = $('#aim-params'),
+                                cssClass = '',
                                 align = $param.find('[name=align]').val(),
                                 title = $param.find('[name=title]').val(),
                                 size = parseInt($param.find('[name=img_width]').val(), 10);
 
-                            align = (align == 'center') ? ' class="image-center"' : ((align == '') ? '' : 'align="' + align + '" ');
-                            size = (size == 0) ? '' : ' width="' + size + '%" ';
-                            title = (title == '') ? '' : ' title="' + title + '"' + ' alt="' + title + '" ';
+                            $param.find('select[name^=class], input:checkbox[name^=class]:checked, input:radio[name^=class]:checked').each(function(key, item){
+                                cssClass += $(item).val() + ' ';
+                            });
+                            if (align) {
+                                if (align === 'center') {
+                                    cssClass = (cssClass) ? 'image-center ' + cssClass : 'image-center';
+                                    align = '';
+                                } else {
+                                    align = ' align="' + align + '" ';
+                                }
+                            }
+                            size = (!size) ? '' : ' width="' + size + '%" ';
+                            title = (!title) ? '' : ' title="' + title + '"' + ' alt="' + title + '" ';
+                            cssClass = (cssClass) ? ' class="' + cssClass + '" ' : '';
 
-                            var html = '<img src="' + url + '"' + title + align + size + ' />';
+                            var html = '<img src="' + url + '"' + title + align + size + cssClass + ' />';
                             if (tinymce) {
                                 ls.insertToEditor(html);
                             } else {
