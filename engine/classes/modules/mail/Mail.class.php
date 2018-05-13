@@ -18,7 +18,7 @@ F::IncludeLib('phpMailer/PHPMailerAutoload.php');
 /**
  * Модуль для отправки почты(e-mail) через phpMailer
  * <pre>
- * E::ModuleMail()->SetAdress('claus@mail.ru','Claus');
+ * E::ModuleMail()->SetAddress('claus@mail.ru','Claus');
  * E::ModuleMail()->SetSubject('Hi!');
  * E::ModuleMail()->SetBody('How are you?');
  * E::ModuleMail()->SetHTML();
@@ -137,8 +137,8 @@ class ModuleMail extends Module {
      * Инициализация модуля
      *
      */
-    public function Init() {
-
+    public function Init()
+    {
         // * Настройки SMTP сервера для отправки писем
         $this->sHost = Config::Get('sys.mail.smtp.host');
         $this->iPort = Config::Get('sys.mail.smtp.port');
@@ -189,14 +189,18 @@ class ModuleMail extends Module {
         //$this->oMailer->From = $this->sFrom;
         //$this->oMailer->FromName = $this->sFromName;
 
-        $this->oMailer->SetFrom($this->sFrom, $this->sFromName);
+        try {
+            $this->oMailer->SetFrom($this->sFrom, $this->sFromName);
+        } catch (\Exception $e) {
+            $this->_addError($e->getMessage());
+        }
     }
 
     /**
      * @return bool|string
      */
-    public function GetLogFile() {
-
+    public function GetLogFile()
+    {
         $sFileName = C::Get('sys.logs.email_file');
         return $sFileName ? C::Get('sys.logs.dir') . $sFileName : false;
     }
@@ -205,10 +209,10 @@ class ModuleMail extends Module {
      * @param string $sStr
      * @param int    $iLevel
      */
-    public function Logger($sStr, $iLevel) {
-
+    public function Logger($sStr, $iLevel)
+    {
         $sLogFile = $this->GetLogFile();
-        E::ModuleLogger()->Dump($sLogFile, 'level: ' . $iLevel . "\nmessage: " . $sStr);
+        \E::ModuleLogger()->Dump($sLogFile, 'level: ' . $iLevel . "\nmessage: " . $sStr);
     }
 
     /**
@@ -216,8 +220,8 @@ class ModuleMail extends Module {
      *
      * @param string $sText - Тема сообщения
      */
-    public function SetSubject($sText) {
-
+    public function SetSubject($sText)
+    {
         $this->sSubject = $sText;
     }
 
@@ -237,13 +241,83 @@ class ModuleMail extends Module {
      * @param string $sMail - Адрес
      * @param string $sName - Имя
      */
-    public function AddAdress($sMail, $sName = null) {
+    public function AddAddress($sMail, $sName = null)
+    {
+        try {
+            $this->oMailer->addAddress($sMail, $sName);
+        } catch (\Exception $e) {
+            $this->_addError($e->getMessage());
+        }
+    }
 
-        ob_start();
-        $this->oMailer->AddAddress($sMail, $sName);
-        $sError = ob_get_clean();
-        if ($sError) {
-            $this->_addError($sError);
+    /**
+     * Очищает все адреса получателей
+     *
+     */
+    public function ClearAddresses()
+    {
+        $this->oMailer->clearAddresses();
+    }
+
+    /**
+     * Устанавливает единственный адрес получателя
+     *
+     * @param string $sMail - Алрес
+     * @param string $sName - Имя
+     */
+    public function SetAddress($sMail, $sName = null)
+    {
+        try {
+            $this->ClearAddresses();
+            $this->oMailer->addAddress($sMail, $sName);
+        } catch (\Exception $e) {
+            $this->_addError($e->getMessage());
+        }
+    }
+
+    /**
+     * Добавляет адрес для ответа Reply-To
+     *
+     * @param $sMail
+     * @param string $sName
+     */
+    public function AddReplyTo($sMail, $sName = '')
+    {
+        try {
+            $this->oMailer->addReplyTo($sMail, $sName);
+        } catch (\Exception $e) {
+            $this->_addError($e->getMessage());
+        }
+    }
+
+    /**
+     * Устанавливает единственный адрес для ответа Reply-To
+     *
+     * @param $sMail
+     * @param string $sName
+     */
+    public function SetReplyTo($sMail, $sName = '')
+    {
+        try {
+            $this->oMailer->clearReplyTos();
+            $this->oMailer->addReplyTo($sMail, $sName);
+        } catch (\Exception $e) {
+            $this->_addError($e->getMessage());
+        }
+    }
+
+    /**
+     * Добавляем вложение
+     *
+     * @param string $sFile - Файл
+     * @param string $sName - Имя
+     */
+    public function AddAttachment($sFile, $sName = null)
+    {
+        try {
+            $this->oMailer->addAttachment($sFile, $sName);
+        } catch (\Exception $e) {
+            $this->_addError($e->getMessage());
         }
     }
 
@@ -252,12 +326,12 @@ class ModuleMail extends Module {
      *
      * @return bool
      */
-    public function Send() {
-
+    public function Send()
+    {
         $this->oMailer->Subject = $this->sSubject;
         $this->oMailer->Body = $this->sBody;
         try {
-            $bResult = $this->oMailer->Send();
+            $bResult = $this->oMailer->send();
             $sError = '';
         } catch (phpmailerException $e) {
             $sError = $e->getMessage();
@@ -278,51 +352,29 @@ class ModuleMail extends Module {
     }
 
     /**
-     * Очищает все адреса получателей
-     *
-     */
-    public function ClearAddresses() {
-
-        $this->oMailer->ClearAddresses();
-    }
-
-    /**
-     * Устанавливает единственный адрес получателя
-     *
-     * @param string $sMail - Алрес
-     * @param string $sName - Имя
-     */
-    public function SetAdress($sMail, $sName = null) {
-
-        $this->ClearAddresses();
-        ob_start();
-        $this->oMailer->AddAddress($sMail, $sName);
-        $sError = ob_get_clean();
-        if ($sError) {
-            $this->_addError($sError);
-        }
-    }
-
-    /**
      * Устанавливает режим отправки письма как HTML
      *
      */
-    public function setHTML() {
-
-        $this->oMailer->IsHTML(true);
+    public function setHTML()
+    {
+        $this->oMailer->isHTML(true);
     }
 
     /**
      * Устанавливает режим отправки письма как Text(Plain)
      *
      */
-    public function setPlain() {
+    public function setPlain()
+    {
 
-        $this->oMailer->IsHTML(false);
+        $this->oMailer->isHTML(false);
     }
 
-    protected function _addError($sError) {
-
+    /**
+     * @param $sError
+     */
+    protected function _addError($sError)
+    {
         $this->aErrors[] = $sError;
         $this->sError = $sError;
     }
@@ -334,8 +386,8 @@ class ModuleMail extends Module {
      *
      * @return string
      */
-    public function GetError($bClear = false) {
-
+    public function GetError($bClear = false)
+    {
         if (!$bClear) {
             return $this->sError;
         }
@@ -351,8 +403,8 @@ class ModuleMail extends Module {
     /**
      * При завершении работы модуля пишем ошибки в лог, если они есть
      */
-    public function Shutdown() {
-
+    public function Shutdown()
+    {
         while ($sError = $this->GetError(true)) {
             F::SysWarning($sError);
         }

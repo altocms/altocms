@@ -551,7 +551,7 @@ class ModuleNotify extends Module {
             }
         } else {
             // * Отправляем e-mail
-            E::ModuleMail()->SetAdress($sMail, $sName);
+            E::ModuleMail()->SetAddress($sMail, $sName);
             E::ModuleMail()->SetSubject($sSubject);
             E::ModuleMail()->SetBody($sBody);
             E::ModuleMail()->SetHTML();
@@ -594,7 +594,7 @@ class ModuleNotify extends Module {
      */
     public function SendTask($oTask) {
 
-        E::ModuleMail()->SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
+        E::ModuleMail()->SetAddress($oTask->getUserMail(), $oTask->getUserLogin());
         E::ModuleMail()->SetSubject($oTask->getNotifySubject());
         E::ModuleMail()->SetBody($oTask->getNotifyText());
         E::ModuleMail()->SetHTML();

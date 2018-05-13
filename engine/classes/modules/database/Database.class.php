@@ -52,7 +52,7 @@ class ModuleDatabase extends Module {
 
     protected $aInitSql
         = array(
-            "set character_set_client='%%charset%%', character_set_results='%%charset%%', collation_connection='utf8_bin' ",
+            "set character_set_client='%%charset%%', character_set_results='%%charset%%', collation_connection='%%collation%%' ",
         );
 
     /**
@@ -65,7 +65,12 @@ class ModuleDatabase extends Module {
         if (!$sCharset) {
             $sCharset = 'utf8';
         }
-        $this->aInitSql = str_replace('%%charset%%', $sCharset, $this->aInitSql);
+        if ($sCharset === 'utf8mb4') {
+            $sCollation = 'utf8mb4_bin';
+        } else {
+            $sCollation = 'utf8_bin';
+        }
+        $this->aInitSql = str_replace(['%%charset%%', '%%collation%%'], [$sCharset, $sCollation], $this->aInitSql);
         $this->sLogFile = Config::Get('sys.logs.sql_query_file');
     }
 

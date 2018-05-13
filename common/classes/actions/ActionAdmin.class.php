@@ -3045,7 +3045,7 @@ class ActionAdmin extends Action {
             'time' => date('Y-m-d H:i:s'),
         ]);
         if ($sTestAddress) {
-            \E::ModuleMail()->SetAdress($sTestAddress);
+            \E::ModuleMail()->SetAddress($sTestAddress);
             \E::ModuleMail()->SetSubject($sTestSubj);
             \E::ModuleMail()->SetBody($sTestBody);
             \E::ModuleMail()->SetPlain();
