@@ -1,5 +1,5 @@
 
-## Qevix
+## Qevix  [![Build Status](https://travis-ci.org/AlexanderGrom/php-qevix.svg?branch=master)](https://travis-ci.org/AlexanderGrom/php-qevix)
 
 **Qevix** — Jevix-подобный автоматический фильтр HTML/XHTML разметки в текстах.
 Применяя наборы правил, контролирует перечень допустимых тегов и атрибутов, предотвращает возможные XSS-атаки.
@@ -52,7 +52,7 @@ $qevix->cfgSetTagCutWithContent(array('script', 'object', 'iframe', 'style'));
 $qevix->cfgSetTagBlockType(array('ol','ul','code'));
 
 // 8. Добавляет разрешенные параметры для тегов. Значение по умолчанию - шаблон #text. Разрешенные шаблоны #text, #int, #link, #regexp(...) (Например: "#regexp(\d+(%|px))")
-$qevix->cfgAllowTagParams('a', array('title', 'href' => '#link', 'rel' => '#text', 'target' => array('_blank')));
+$qevix->cfgAllowTagParams('a', array('title', 'href' => '#link', 'rel' => '#text', 'target' => array('_blank'), 'download' => '#bool'));
 $qevix->cfgAllowTagParams('img', array('src' => '#text', 'alt' => '#text', 'title', 'align' => array('right', 'left', 'center'), 'width' => '#int', 'height' => '#int'));
 
 // 9. Добавляет обязательные параметры для тега
