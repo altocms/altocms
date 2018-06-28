@@ -18,8 +18,7 @@ return array(
     'class'  => array(
         'LsObject' => '___path.dir.engine___/classes/abstract/LsObject.class.php',
         'Jevix' => '___path.dir.libs___/Jevix/jevix.class.php',
-        'Qevix' => '___path.dir.libs___/php-qevix-0.4/qevix.php',
-        'csstidy' => '___path.dir.libs___/CSSTidy-1.5.6/class.csstidy.php',
+        'csstidy' => '___path.dir.libs___/CSSTidy-1.5.7/class.csstidy.php',
         'JShrink\Minifier' => '___path.dir.libs___/JShrink-1.3.0/src/JShrink/Minifier.php',
     ),
     'prefix' => array(
