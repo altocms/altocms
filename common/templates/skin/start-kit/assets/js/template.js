@@ -326,6 +326,40 @@
         });
     };
 
+    ls.userstream = ( function ($) {
+        this.isBusy = false;
+        this.dateLast = null;
+
+        this.getMoreByUser = function (iUserId) {
+            if (this.isBusy) {
+                return;
+            }
+            var lastId = $('#stream_last_id').val();
+            if (!lastId) return;
+            $('#stream_get_more').addClass('loading');
+            this.isBusy = true;
+
+            var url = aRouter['stream'] + 'get_more_user/';
+            var params = {'iLastId': lastId, iUserId: iUserId, 'sDateLast': this.dateLast};
+
+            ls.hook.marker('getMoreByUserBefore');
+            ls.ajax(url, params, function (data) {
+                if (!data.bStateError && data.events_count) {
+                    $('#stream-list').append(data.result);
+                    $('#stream_last_id').attr('value', data.iStreamLastId);
+                }
+                if (!data.events_count) {
+                    $('#stream_get_more').hide();
+                }
+                $('#stream_get_more').removeClass('loading');
+                ls.hook.run('ls_stream_get_more_by_user_after', [lastId, iUserId, data]);
+                this.isBusy = false;
+            }.bind(this));
+        };
+
+        return this;
+    }).call(ls.stream || {}, jQuery);
+
     $('.spoiler-slider')
         .live('click', function(){
             $(this).parent().next().slideToggle();
