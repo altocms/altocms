@@ -9,6 +9,7 @@
  */
 
 defined('DEBUG') || define('DEBUG', 0);
+//$_SERVER['HTTP_APP_ENV'] = 'test'; // for tests and develops
 
 /*
  * Config for your site

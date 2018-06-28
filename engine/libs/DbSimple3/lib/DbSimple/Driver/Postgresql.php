@@ -23,33 +23,33 @@
  */
 class DbSimple_Driver_Postgresql extends DbSimple_Database
 {
-
-    var $DbSimple_Postgresql_USE_NATIVE_PHOLDERS = null;
-    var $prepareCache = array();
-    var $link;
+    private $DbSimple_Postgresql_USE_NATIVE_PHOLDERS = null;
+    private $prepareCache = array();
+    private $link;
 
     /**
      * constructor(string $dsn)
      * Connect to PostgresSQL.
      */
-    function __construct($dsn)
+    public function __construct($dsn)
     {
-        $p = DbSimple_Database::parseDSN($dsn);
+        $dsn = DbSimple_Database::parseDSN($dsn);
         if (!is_callable('pg_connect')) {
-            return $this->_setLastError("-1", "PostgreSQL extension is not loaded", "pg_connect");
+            $this->_setLastError(-1, 'PostgreSQL extension is not loaded', 'pg_connect');
+            return;
         }
 
         // Prepare+execute works only in PHP 5.1+.
         $this->DbSimple_Postgresql_USE_NATIVE_PHOLDERS = function_exists('pg_prepare');
         
         $dsnWithoutPass = 
-        	(!empty($p['host']) ? 'host='.$p['host'].' ' : '') .
-            (!empty($p['port']) ? 'port=' . $p['port'] . ' ' : '') .
-            'dbname=' . preg_replace('{^/}s', '', $p['path']) .' '.
-            (!empty($p['user']) ? 'user='. $p['user'] : '');
+        	(!empty($dsn['host']) ? 'host='.$dsn['host'].' ' : '') .
+            (!empty($dsn['port']) ? 'port=' . $dsn['port'] . ' ' : '') .
+            'dbname=' . preg_replace('{^/}s', '', $dsn['path']) .' '.
+            (!empty($dsn['user']) ? 'user='. $dsn['user'] : '');
 
         $ok = $this->link = @pg_connect(
-            $dsnWithoutPass . " " . (!empty($p['pass']) ? 'password=' . $p['pass'] . ' ' : ''),
+            $dsnWithoutPass . ' ' . (!empty($dsn['pass']) ? 'password=' . $dsn['pass'] . ' ' : ''),
 			PGSQL_CONNECT_FORCE_NEW
         );
         // We use PGSQL_CONNECT_FORCE_NEW, because in PHP 5.3 & PHPUnit
@@ -60,43 +60,58 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
         // xxx already exists" error each time we execute the same statement
         // as in the previous calls.
         $this->_resetLastError();
-        if (!$ok) return $this->_setDbError('pg_connect("' . $dsnWithoutPass . '") error');
+        if (!$ok) {
+            $this->_setDbError('pg_connect("' . $dsnWithoutPass . '") error');
+        }
     }
 
-
-    function _performEscape($s, $isIdent=false)
+    /**
+     * @param $s
+     * @param bool $isIdent
+     *
+     * @return string
+     */
+    protected function _performEscape($s, $isIdent = false)
     {
-        if (!$isIdent)
+        if (!$isIdent) {
             return "E'" . pg_escape_string($this->link, $s) . "'";
-        else
-            return '"' . str_replace('"', '_', $s) . '"';
+        }
+        return '"' . str_replace('"', '_', $s) . '"';
     }
 
-
-    function _performTransaction($parameters=null)
+    /**
+     * @param null $parameters
+     *
+     * @return array|null
+     */
+    protected function _performTransaction($parameters=null)
     {
         return $this->query('BEGIN');
     }
 
-
-    function& _performNewBlob($blobid=null)
+    /**
+     * @param null $blobid
+     *
+     * @return DbSimple_Postgresql_Blob
+     */
+    protected function _performNewBlob($blobid = null)
     {
         return new DbSimple_Postgresql_Blob($this, $blobid);
     }
 
 
-    function _performGetBlobFieldNames($result)
+    protected function _performGetBlobFieldNames($result)
     {
         $blobFields = array();
         for ($i=pg_num_fields($result)-1; $i>=0; $i--) {
             $type = pg_field_type($result, $i);
-            if (strpos($type, "BLOB") !== false) $blobFields[] = pg_field_name($result, $i);
+            if (strpos($type, 'BLOB') !== false) $blobFields[] = pg_field_name($result, $i);
         }
         return $blobFields;
     }
 
     // TODO: Real PostgreSQL escape
-    function _performGetPlaceholderIgnoreRe()
+    protected function _performGetPlaceholderIgnoreRe()
     {
         return '
             "   (?> [^"\\\\]+|\\\\"|\\\\)*    "   |
@@ -105,25 +120,25 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
         ';
     }
 
-    function _performGetNativePlaceholderMarker($n)
+    protected function _performGetNativePlaceholderMarker($n)
     {
         // PostgreSQL uses specific placeholders such as $1, $2, etc.
         return '$' . ($n + 1);
     }
 
-    function _performCommit()
+    protected function _performCommit()
     {
         return $this->query('COMMIT');
     }
 
 
-    function _performRollback()
+    protected function _performRollback()
     {
         return $this->query('ROLLBACK');
     }
 
 
-    function _performTransformQuery(&$queryMain, $how)
+    protected function _performTransformQuery(&$queryMain, $how)
     {
 
         // If we also need to calculate total number of found rows...
@@ -148,7 +163,9 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
                 if (preg_match($re, $queryMain[0], $m)) {
                     $queryMain[0] = $m[1] . $this->_fieldList2Count($m[2]) . " AS C" . $m[3];
                     $skipTail = substr_count($m[4] . $m[5], '?');
-                    if ($skipTail) array_splice($queryMain, -$skipTail);
+                    if ($skipTail) {
+                        array_splice($queryMain, -$skipTail);
+                    }
                 }
                 return true;
         }
@@ -157,7 +174,7 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
     }
 
 
-    function _performQuery($queryMain)
+    protected function _performQuery($queryMain)
     {
         $this->_lastQuery = $queryMain;
         $isInsert = preg_match('/^\s* INSERT \s+/six', $queryMain[0]);
@@ -179,8 +196,10 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
             $hash = md5($queryMain[0]);
             if (!isset($this->prepareCache[$hash])) {
                 $prepared = @pg_prepare($this->link, $hash, $queryMain[0]);
-                if ($prepared === false) return $this->_setDbError($queryMain[0]);
-                else $this->prepareCache[$hash] = true;
+                if ($prepared === false) {
+                    return $this->_setDbError($queryMain[0]);
+                }
+                $this->prepareCache[$hash] = true;
             } else {
                 // Prepare cache hit!
             }
@@ -191,7 +210,9 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
             $result = @pg_query($this->link, $queryMain[0]);
         }
 
-        if ($result === false) return $this->_setDbError($queryMain);
+        if ($result === false) {
+            return $this->_setDbError($queryMain);
+        }
         if (!pg_num_fields($result)) {
             if ($isInsert) {
                 // INSERT queries return generated OID (if table is WITH OIDs).
@@ -215,20 +236,22 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
     }
 
 
-    function _performFetch($result)
+    protected function _performFetch($result)
     {
         $row = @pg_fetch_assoc($result);
-        if (pg_last_error($this->link)) return $this->_setDbError($this->_lastQuery);
+        if (pg_last_error($this->link)) {
+            return $this->_setDbError($this->_lastQuery);
+        }
         return $row;
     }
 
 
-    function _setDbError($query)
+    protected function _setDbError($query)
     {
-        return $this->_setLastError(null, $this->link? pg_last_error($this->link) : (is_array($query)? "Connection is not established" : $query), $query);
+        return $this->_setLastError(null, $this->link? pg_last_error($this->link) : (is_array($query) ? 'Connection is not established' : $query), $query);
     }
 
-    function _getVersion()
+    protected function _getVersion()
     {
     }
 }
@@ -236,11 +259,11 @@ class DbSimple_Driver_Postgresql extends DbSimple_Database
 
 class DbSimple_Postgresql_Blob implements DbSimple_Blob
 {
-    var $blob; // resourse link
-    var $id;
-    var $database;
+    private $blob; // resourse link
+    private $id;
+    private $database;
 
-    function DbSimple_Postgresql_Blob(&$database, $id=null)
+    public function __construct(&$database, $id = null)
     {
         $this->database =& $database;
         $this->database->transaction();
@@ -248,50 +271,69 @@ class DbSimple_Postgresql_Blob implements DbSimple_Blob
         $this->blob = null;
     }
 
-    function read($len)
+    public function read($len)
     {
-        if ($this->id === false) return ''; // wr-only blob
-        if (!($e=$this->_firstUse())) return $e;
+        if ($this->id === false) {
+            return '';
+        } // wr-only blob
+        if (!($e=$this->_firstUse())) {
+            return $e;
+        }
         $data = @pg_lo_read($this->blob, $len);
-        if ($data === false) return $this->_setDbError('read');
+        if ($data === false) {
+            return $this->_setDbError('read');
+        }
         return $data;
     }
 
-    function write($data)
+    public function write($data)
     {
-        if (!($e=$this->_firstUse())) return $e;
+        if (!($e=$this->_firstUse())) {
+            return $e;
+        }
         $ok = @pg_lo_write($this->blob, $data);
-        if ($ok === false) return $this->_setDbError('add data to');
+        if ($ok === false) {
+            return $this->_setDbError('add data to');
+        }
         return true;
     }
 
-    function close()
+    public function close()
     {
-        if (!($e=$this->_firstUse())) return $e;
+        if (!($e=$this->_firstUse())) {
+            return $e;
+        }
         if ($this->blob) {
             $id = @pg_lo_close($this->blob);
-            if ($id === false) return $this->_setDbError('close');
+            if ($id === false) {
+                return $this->_setDbError('close');
+            }
             $this->blob = null;
         } else {
             $id = null;
         }
         $this->database->commit();
+
         return $this->id? $this->id : $id;
     }
 
-    function length()
+    public function length()
     {
-        if (!($e=$this->_firstUse())) return $e;
+        if (!($e=$this->_firstUse())) {
+            return $e;
+        }
 
         @pg_lo_seek($this->blob, 0, PGSQL_SEEK_END);
         $len = @pg_lo_tell($this->blob);
         @pg_lo_seek($this->blob, 0, PGSQL_SEEK_SET);
 
-        if (!$len) return $this->_setDbError('get length of');
+        if (!$len) {
+            return $this->_setDbError('get length of');
+        }
         return $len;
     }
 
-    function _setDbError($query)
+    protected function _setDbError($query)
     {
         $hId = $this->id === null? "null" : ($this->id === false? "false" : $this->id);
         $query = "-- $query BLOB $hId";
@@ -299,21 +341,26 @@ class DbSimple_Postgresql_Blob implements DbSimple_Blob
     }
 
     // Called on each blob use (reading or writing).
-    function _firstUse()
+    protected function _firstUse()
     {
         // BLOB opened - do nothing.
-        if (is_resource($this->blob)) return true;
+        if (is_resource($this->blob)) {
+            return true;
+        }
 
         // Open or create blob.
         if ($this->id !== null) {
             $this->blob = @pg_lo_open($this->database->link, $this->id, 'rw');
-            if ($this->blob === false) return $this->_setDbError('open');
+            if ($this->blob === false) {
+                return $this->_setDbError('open');
+            }
         } else {
             $this->id = @pg_lo_create($this->database->link);
             $this->blob = @pg_lo_open($this->database->link, $this->id, 'w');
-            if ($this->blob === false) return $this->_setDbError('create');
+            if ($this->blob === false) {
+                return $this->_setDbError('create');
+            }
         }
         return true;
     }
 }
-?>

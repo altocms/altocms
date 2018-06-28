@@ -90,10 +90,9 @@ class DbSimple_Generic
     public static function connect($dsn)
     {
         // Load database driver and create its instance.
-        $parsed = DbSimple_Generic::parseDSN($dsn);
+        $parsed = self::parseDSN($dsn);
         if (!$parsed) {
-            $dummy = null;
-            return $dummy;
+            return null;
         }
         $class = 'DbSimple_Driver_'.ucfirst($parsed['scheme']);
         if (!class_exists($class)) {
@@ -121,15 +120,20 @@ class DbSimple_Generic
      */
     public static function parseDSN($dsn)
     {
-        if (is_array($dsn)) return $dsn;
+        if (is_array($dsn)) {
+            return $dsn;
+        }
         $parsed = parse_url($dsn);
-        if (!$parsed) return null;
+        if (!$parsed) {
+            return null;
+        }
         $params = null;
         if (!empty($parsed['query'])) {
             parse_str($parsed['query'], $params);
             $parsed += $params;
         }
         $parsed['dsn'] = $dsn;
+
         return $parsed;
     }
 }

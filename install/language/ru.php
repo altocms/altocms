@@ -57,7 +57,7 @@ return array(
 	                    <p><b>Внимание.</b> Папки /_tmp, /_run, /uploads должны иметь права на запись.</p>',
 
     'php_params'                       => 'Основные настройки PHP',
-    'php_params_version'               => 'PHP версии не ниже 5.3',
+    'php_params_version'               => 'PHP версии не ниже ' . ALTO_PHP_REQUIRED,
     'php_params_safe_mode'             => 'Safe mode выключен',
     'php_params_utf8'                  => 'Поддержка UTF8 в PCRE',
     'php_params_mbstring'              => 'Поддержка Mbstring',

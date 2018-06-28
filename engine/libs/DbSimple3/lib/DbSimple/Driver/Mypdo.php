@@ -26,18 +26,21 @@ class DbSimple_Driver_Mypdo extends DbSimple_Database
 
 	public function __construct($dsn)
 	{
+        $dsn = DbSimple_Database::parseDSN($dsn);
 		$base = preg_replace('{^/}s', '', $dsn['path']);
-		if (!class_exists('PDO'))
-			return $this->_setLastError("-1", "PDO extension is not loaded", "PDO");
+		if (!class_exists('PDO')) {
+            $this->_setLastError(-1, 'PDO extension is not loaded', 'PDO');
+            return;
+        }
 
 		try {
 			$this->link = new PDO('mysql:host='.$dsn['host'].(empty($dsn['port'])?'':';port='.$dsn['port']).';dbname='.$base,
-				$dsn['user'], isset($dsn['pass'])?$dsn['pass']:'', array(
+				$dsn['user'], isset($dsn['pass'])?$dsn['pass']:'', [
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
 					PDO::ATTR_PERSISTENT => isset($dsn['persist']) && $dsn['persist'],
 					PDO::ATTR_TIMEOUT => isset($dsn['timeout']) && $dsn['timeout'] ? $dsn['timeout'] : 0,
 					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.(isset($dsn['enc']) ? $dsn['enc'] : 'UTF8'),
-				));
+                ]);
 		} catch (PDOException $e) {
 			$this->_setLastError($e->getCode() , $e->getMessage(), 'new PDO');
 		}
@@ -57,12 +60,11 @@ class DbSimple_Driver_Mypdo extends DbSimple_Database
 	{
 		if (!$isIdent) {
 			return $this->link->quote($s);
-		} else {
-			return "`" . str_replace('`', '``', $s) . "`";
 		}
+        return '`' . str_replace('`', '``', $s) . '`';
 	}
 
-	protected function _performTransaction($parameters=null)
+	protected function _performTransaction($parameters = null)
 	{
 		return $this->link->beginTransaction();
 	}
@@ -82,18 +84,23 @@ class DbSimple_Driver_Mypdo extends DbSimple_Database
 		$this->_lastQuery = $queryMain;
 		$this->_expandPlaceholders($queryMain, false);
 		$p = $this->link->query($queryMain[0]);
-		if (!$p)
-			return $this->_setDbError($p,$queryMain[0]);
-		if ($p->errorCode()!=0)
-			return $this->_setDbError($p,$queryMain[0]);
-		if (preg_match('/^\s* INSERT \s+/six', $queryMain[0]))
-			return $this->link->lastInsertId();
-		if ($p->columnCount()==0)
-			return $p->rowCount();
+		if (!$p) {
+            return $this->_setDbError($p,$queryMain[0]);
+        }
+		if ($p->errorCode()) {
+            return $this->_setDbError($p,$queryMain[0]);
+        }
+		if (preg_match('/^\s* INSERT \s+/six', $queryMain[0])) {
+            return $this->link->lastInsertId();
+        }
+		if ($p->columnCount()==0) {
+            return $p->rowCount();
+        }
 		//Если у нас в запросе есть хотя-бы одна колонка - это по любому будет select
 		$p->setFetchMode(PDO::FETCH_ASSOC);
 		$res = $p->fetchAll();
 		$p->closeCursor();
+
 		return $res;
 	}
 
@@ -119,9 +126,9 @@ class DbSimple_Driver_Mypdo extends DbSimple_Database
 		return false;
 	}
 
-	protected function _setDbError($obj,$q)
+	protected function _setDbError($obj, $q)
 	{
-		$info=$obj?$obj->errorInfo():$this->link->errorInfo();
+		$info = $obj ? $obj->errorInfo() : $this->link->errorInfo();
 		return $this->_setLastError($info[1], $info[2], $q);
 	}
 
@@ -131,7 +138,7 @@ class DbSimple_Driver_Mypdo extends DbSimple_Database
 
 	protected function _performGetBlobFieldNames($result)
 	{
-		return array();
+		return [];
 	}
 
 	protected function _performFetch($result)
@@ -141,4 +148,3 @@ class DbSimple_Driver_Mypdo extends DbSimple_Database
 
 }
 
-?>

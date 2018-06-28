@@ -36,8 +36,8 @@ require_once __DIR__ . '/Database.php';
  *      string setIdentPrefix($prx)
  *      string setCachePrefix($prx)
  */
-class DbSimple_Connect {
-
+class DbSimple_Connect
+{
     /** @var callback обработчик ошибок */
     protected $errorHandler = null;
 
@@ -48,7 +48,7 @@ class DbSimple_Connect {
     protected $_preformatter = null;
     protected $_tablefunc = null;
 
-    /** @var DbSimple_Generic_Database База данных */
+    /** @var DbSimple_Database База данных */
     protected $DbSimple;
     /** @var string DSN подключения */
     protected $DSN;
@@ -67,10 +67,11 @@ class DbSimple_Connect {
      *
      * @param string $dsn DSN строка БД
      */
-    public function __construct($dsn) {
+    public function __construct($dsn)
+    {
         $this->DbSimple = null;
         $this->DSN = $dsn;
-        $this->init = array();
+        $this->init = [];
         $this->shema = ucfirst(substr($dsn, 0, strpos($dsn, ':')));
     }
 
@@ -81,8 +82,9 @@ class DbSimple_Connect {
      *
      * @return DbSimple_Connect
      */
-    public static function get($dsn) {
-        static $pool = array();
+    public static function get($dsn)
+    {
+        static $pool = [];
         return isset($pool[$dsn]) ? $pool[$dsn] : $pool[$dsn] = new self($dsn);
     }
 
@@ -91,15 +93,16 @@ class DbSimple_Connect {
      *
      * @return string имя типа БД
      */
-    public function getShema() {
+    public function getShema()
+    {
         return $this->shema;
     }
 
     /**
      * Коннект при первом запросе к базе данных
      */
-    public function __call($method, $params) {
-
+    public function __call($method, $params)
+    {
         if ($this->DbSimple === null) {
             $this->connect($this->DSN);
         }
@@ -110,8 +113,8 @@ class DbSimple_Connect {
      * mixed selectPage(int &$total, string $query [, $arg1] [,$arg2] ...)
      * Функцию нужно вызвать отдельно из-за передачи по ссылке
      */
-    public function selectPage(&$total, $query) {
-
+    public function selectPage(&$total, $query)
+    {
         if ($this->DbSimple === null) {
             $this->connect($this->DSN);
         }
@@ -124,8 +127,8 @@ class DbSimple_Connect {
      * Подключение к базе данных
      * @param string $dsn DSN строка БД
      */
-    protected function connect($dsn) {
-
+    protected function connect($dsn)
+    {
         $parsed = $this->parseDSN($dsn);
         if (!$parsed) {
             $this->errorHandler('Parsing error of DSN', $dsn);
@@ -152,39 +155,38 @@ class DbSimple_Connect {
                 error_reporting($nErrorFlag);
             }
             die("<br><br>\n\n Cannot connect to database");
-        } else {
-            $prefix = isset($parsed['prefix'])
-                ? $parsed['prefix']
-                : ($this->_identPrefix ? $this->_identPrefix : false);
-            if ($prefix) {
-                $this->DbSimple->setIdentPrefix($prefix);
-            }
-
-            if ($this->_cachePrefix) {
-                $this->DbSimple->setCachePrefix($this->_cachePrefix);
-            }
-            if ($this->_cacher) {
-                $this->DbSimple->setCacher($this->_cacher);
-            }
-            if ($this->_logger) {
-                $this->DbSimple->setLogger($this->_logger);
-            }
-            if ($this->_preformatter) {
-                $this->DbSimple->setPreFormatter($this->_preformatter);
-            }
-            if ($this->_tablefunc) {
-                $this->DbSimple->setTableNameFunc($this->_tablefunc);
-            }
-
-            $this->DbSimple->setErrorHandler(
-                $this->errorHandler !== null ? $this->errorHandler : array(&$this, 'errorHandler')
-            );
-            // Eval init queries if they are exist
-            foreach ($this->init as $query) {
-                call_user_func_array(array($this->DbSimple, 'query'), $query);
-            }
-            $this->init = array();
         }
+        $prefix = isset($parsed['prefix'])
+            ? $parsed['prefix']
+            : ($this->_identPrefix ? $this->_identPrefix : false);
+        if ($prefix) {
+            $this->DbSimple->setIdentPrefix($prefix);
+        }
+
+        if ($this->_cachePrefix) {
+            $this->DbSimple->setCachePrefix($this->_cachePrefix);
+        }
+        if ($this->_cacher) {
+            $this->DbSimple->setCacher($this->_cacher);
+        }
+        if ($this->_logger) {
+            $this->DbSimple->setLogger($this->_logger);
+        }
+        if ($this->_preformatter) {
+            $this->DbSimple->setPreFormatter($this->_preformatter);
+        }
+        if ($this->_tablefunc) {
+            $this->DbSimple->setTableNameFunc($this->_tablefunc);
+        }
+
+        $this->DbSimple->setErrorHandler(
+            $this->errorHandler !== null ? $this->errorHandler : [&$this, 'errorHandler']
+        );
+        // Eval init queries if they are exist
+        foreach ($this->init as $query) {
+            call_user_func_array(array($this->DbSimple, 'query'), $query);
+        }
+        $this->init = [];
     }
 
     /**
@@ -192,9 +194,10 @@ class DbSimple_Connect {
      * Все вызовы без @ прекращают выполнение скрипта
      *
      * @param string $msg  Сообщение об ошибке
-     * @param array  $info Подробная информация о контексте ошибки
+     * @param mixed  $info Подробная информация о контексте ошибки
      */
-    public function errorHandler($msg, $info) {
+    public function errorHandler($msg, $info)
+    {
         // Если использовалась @, ничего не делать.
         if (!error_reporting()) {
             return;
@@ -210,11 +213,11 @@ class DbSimple_Connect {
      * Выставляет запрос для инициализации
      *
      */
-    public function addInit() {
-
+    public function addInit()
+    {
         $args = func_get_args();
         if ($this->DbSimple !== null) {
-            return call_user_func_array(array($this->DbSimple, 'query'), $args);
+            return call_user_func_array([$this->DbSimple, 'query'], $args);
         }
         $this->init[] = $args;
     }
@@ -231,7 +234,8 @@ class DbSimple_Connect {
      *
      * @return callback|null|false предыдущий обработчик
      */
-    public function setErrorHandler($handler) {
+    public function setErrorHandler($handler)
+    {
         $prev = $this->errorHandler;
         $this->errorHandler = $handler;
         if ($this->DbSimple) {
@@ -245,7 +249,8 @@ class DbSimple_Connect {
      * Set query logger called before each query is executed.
      * Returns previous logger.
      */
-    public function setLogger($logger) {
+    public function setLogger($logger)
+    {
         $prev = $this->_logger;
         $this->_logger = $logger;
         if ($this->DbSimple) {
@@ -259,7 +264,8 @@ class DbSimple_Connect {
      * Set cache mechanism called during each query if specified.
      * Returns previous handler.
      */
-    public function setCacher(Zend_Cache_Backend_Interface $cacher = null) {
+    public function setCacher(Zend_Cache_Backend_Interface $cacher = null)
+    {
         $prev = $this->_cacher;
         $this->_cacher = $cacher;
         if ($this->DbSimple) {
@@ -272,7 +278,8 @@ class DbSimple_Connect {
      * string setIdentPrefix($prx)
      * Set identifier prefix used for $_ placeholder.
      */
-    public function setIdentPrefix($prx) {
+    public function setIdentPrefix($prx)
+    {
         $old = $this->_identPrefix;
         if ($prx !== null) {
             $this->_identPrefix = $prx;
@@ -287,7 +294,8 @@ class DbSimple_Connect {
      * string setCachePrefix($prx)
      * Set cache prefix used in key caclulation.
      */
-    public function setCachePrefix($prx) {
+    public function setCachePrefix($prx)
+    {
         $old = $this->_cachePrefix;
         if ($prx !== null) {
             $this->_cachePrefix = $prx;
@@ -298,7 +306,8 @@ class DbSimple_Connect {
         return $old;
     }
 
-    public function setPreFormatter($func) {
+    public function setPreFormatter($func)
+    {
         $prev = $this->_preformatter;
         $this->_preformatter = $func;
         if ($this->DbSimple) {
@@ -307,7 +316,8 @@ class DbSimple_Connect {
         return $prev;
     }
 
-    public function setTableNameFunc($func) {
+    public function setTableNameFunc($func)
+    {
         $prev = $this->_tablefunc;
         $this->_tablefunc = $func;
         if ($this->DbSimple) {
@@ -323,7 +333,8 @@ class DbSimple_Connect {
      *
      * @return array Параметры коннекта
      */
-    protected function parseDSN($dsn) {
+    protected function parseDSN($dsn)
+    {
         $parsed = parse_url($dsn);
         if (!$parsed) {
             return null;
@@ -334,6 +345,7 @@ class DbSimple_Connect {
             $parsed += $params;
         }
         $parsed['dsn'] = $dsn;
+
         return $parsed;
     }
 }

@@ -25,14 +25,21 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 	private $link;
 	private $isMySQLnd;
 
+    /**
+     * DbSimple_Driver_Mysqli constructor.
+     *
+     * @param $dsn
+     */
 	public function __construct($dsn)
 	{
+        $dsn = DbSimple_Database::parseDSN($dsn);
 		$base = preg_replace('{^/}s', '', $dsn['path']);
-		if (!class_exists('mysqli'))
-			return $this->_setLastError('-1', 'mysqli extension is not loaded', 'mysqli');
+		if (!class_exists('mysqli')) {
+            $this->_setLastError(-1, 'mysqli extension is not loaded', 'mysqli');
+            return;
+        }
 
-		try
-		{
+		try {
             $this->link = mysqli_init();
             if (!$this->link) {
                 $this->_setLastError(-1, 'mysqli_init failed', 'new mysqli');
@@ -63,13 +70,14 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
             }
 
 			$this->isMySQLnd = method_exists('mysqli_result', 'fetch_all');
-		}
-		catch (mysqli_sql_exception $e)
-		{
+		} catch (mysqli_sql_exception $e) {
 			$this->_setLastError($e->getCode() , $e->getMessage(), 'new mysqli');
 		}
 	}
 
+    /**
+     * @return string
+     */
 	protected function _performGetPlaceholderIgnoreRe()
 	{
 		return '
@@ -80,33 +88,50 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 		';
 	}
 
-	protected function _performEscape($s, $isIdent=false)
+    /**
+     * @param $s
+     * @param bool $isIdent
+     *
+     * @return string
+     */
+	protected function _performEscape($s, $isIdent = false)
 	{
-		if (!$isIdent)
-		{
-			return "'" .$this->link->escape_string($s). "'";
+		if (!$isIdent) {
+			return "'" . $this->link->escape_string($s) . "'";
 		}
-		else
-		{
-			return "`" . str_replace('`', '``', $s) . "`";
-		}
+        return '`' . str_replace('`', '``', $s) . '`';
 	}
 
-	protected function _performTransaction($parameters=null)
+    /**
+     * @param null $parameters
+     * @return bool|mysqli_result
+     */
+	protected function _performTransaction($parameters = null)
 	{
 		return $this->link->query('BEGIN');
 	}
 
+    /**
+     * @return bool|mysqli_result
+     */
 	protected function _performCommit()
 	{
 		return $this->link->query('COMMIT');
 	}
 
+    /**
+     * @return bool|mysqli_result
+     */
 	protected function _performRollback()
 	{
 		return $this->link->query('ROLLBACK');
 	}
 
+    /**
+     * @param $queryMain
+     *
+     * @return bool|int|mixed|mysqli_result
+     */
 	protected function _performQuery($queryMain)
 	{
 		$this->_lastQuery = $queryMain;
@@ -115,31 +140,38 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 
 		$result = $this->link->query($queryMain[0]);
 
-		if (!$result)
-			return $this->_setDbError($this->link, $queryMain[0]);
+		if (!$result) {
+            return $this->_setDbError($this->link, $queryMain[0]);
+        }
 
-		if ($this->link->errno!=0)
-			return $this->_setDbError($this->link, $queryMain[0]);
+		if ($this->link->errno) {
+            return $this->_setDbError($this->link, $queryMain[0]);
+        }
 
-        if (preg_match('/^\s* INSERT \s+/six', $queryMain[0]))
+        if (preg_match('/^\s* INSERT \s+/six', $queryMain[0])) {
             return $this->link->insert_id;
+        }
 
-		if ($this->link->field_count == 0)
-			return $this->link->affected_rows;
+		if ($this->link->field_count == 0) {
+            return $this->link->affected_rows;
+        }
 
-		if ($this->isMySQLnd)
-		{
+		if ($this->isMySQLnd) {
 			$res = $result->fetch_all(MYSQLI_ASSOC);
 			$result->close();
-		}
-		else
-		{
+		} else {
 			$res = $result;
 		}
 
         return $res;
 	}
 
+    /**
+     * @param $queryMain
+     * @param $how
+     *
+     * @return bool
+     */
 	protected function _performTransformQuery(&$queryMain, $how)
 	{
 		// If we also need to calculate total number of found rows...
@@ -148,8 +180,9 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 			// Prepare total calculation (if possible)
 			case 'CALC_TOTAL':
 				$m = null;
-				if (preg_match('/^(\s* SELECT)(.*)/six', $queryMain[0], $m))
-					$queryMain[0] = $m[1] . ' SQL_CALC_FOUND_ROWS' . $m[2];
+				if (preg_match('/^(\s* SELECT)(.*)/six', $queryMain[0], $m)) {
+                    $queryMain[0] = $m[1] . ' SQL_CALC_FOUND_ROWS' . $m[2];
+                }
 				return true;
 
 			// Perform total calculation.
@@ -161,33 +194,52 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 		return false;
 	}
 
-	protected function _setDbError($obj,$q)
+    /**
+     * @param $obj
+     * @param $q
+     *
+     * @return bool
+     */
+	protected function _setDbError($obj, $q)
 	{
-		$info=$obj?$obj:$this->link;
+		$info = $obj ? $obj : $this->link;
 		return $this->_setLastError($info->errno, $info->error, $q);
 	}
 
-	protected function _performNewBlob($id=null)
+    /**
+     * @param $id
+     */
+	protected function _performNewBlob($id = null)
 	{
 	}
 
+    /**
+     * @param $result
+     *
+     * @return array
+     */
 	protected function _performGetBlobFieldNames($result)
 	{
-		return array();
+		return [];
 	}
 
+    /**
+     * @param $result
+     *
+     * @return bool|null|array
+     */
 	protected function _performFetch($result)
 	{
-		if ($this->isMySQLnd)
-			return $result;
+		if ($this->isMySQLnd) {
+            return $result;
+        }
 
 		$row = $result->fetch_assoc();
 
         if ($this->link->error)
-			return $this->_setDbError($this->_lastQuery);
+			return $this->_setDbError($this->link, $this->_lastQuery);
 
-        if ($row === false)
-		{
+        if ($row === false) {
 			$result->close();
 			return null;
 		}
@@ -196,4 +248,3 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 	}
 }
 
-?>

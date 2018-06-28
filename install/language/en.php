@@ -40,7 +40,7 @@ return array(
     'step' => 'Step',
     'start_paragraph' => '<p>Welcome to Alto CMS installation.Check the results and follow the prompts</p> <p><b>Notice:</b> For successful installation you need to rename file /app/config/config.local.php.txt to /app/config/config.local.php and make it writable.</p> <p><b>Notice:</b> Folders  /_tmp, /_run, /uploads should have rw permissions.</p>',
     'php_params' => 'General PHP Configuration',
-    'php_params_version' => 'PHP ver. 5.3 or higher',
+    'php_params_version' => 'PHP ver.' . ALTO_PHP_REQUIRED . ' or higher',
     'php_params_safe_mode' => 'Safe mode is off',
     'php_params_utf8' => 'UTF8 support in PCRE',
     'php_params_mbstring' => 'Mbstring support',

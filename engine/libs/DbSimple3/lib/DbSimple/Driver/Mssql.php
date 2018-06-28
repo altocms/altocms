@@ -23,65 +23,91 @@
  */
 class DbSimple_Driver_Mssql extends DbSimple_Database
 {
-    var $link;
+    private $link;
 
     /**
      * constructor(string $dsn)
      * Connect to Mssql.
      */
-    function __construct($dsn)
+    public function __construct($dsn)
     {
+        $dsn = DbSimple_Database::parseDSN($dsn);
         if (!is_callable('mssql_connect')) {
-            return $this->_setLastError("-1", "Mssql extension is not loaded", "mssql_connect");
+            $this->_setLastError(-1, 'Mssql extension is not loaded', 'mssql_connect');
+            return;
         }
         $ok = $this->link = @mssql_connect(
-            $dsn['host'] . (empty($dsn['port'])? "" : ":".$dsn['port']),
+            $dsn['host'] . (empty($dsn['port']) ? '' : ':' . $dsn['port']),
             $dsn['user'],
             $dsn['pass'],
             true
         );
         $this->_resetLastError();
-        if (!$ok) return $this->_setDbError('mssql_connect()');
-        $ok = @mssql_select_db(preg_replace('{^/}s', '', $p['path']), $this->link);
-        if (!$ok) return $this->_setDbError('mssql_select_db()');
-    }
-
-
-    function _performEscape($s, $isIdent=false)
-    {
-        if (!$isIdent) {
-            return "'" . str_replace("'", "''", $s) . "'";
-        } else {
-            return str_replace(array('[',']'), '', $s);
+        if (!$ok) {
+            $this->_setDbError('mssql_connect()');
+            return;
+        }
+        $ok = @mssql_select_db(preg_replace('{^/}s', '', $dsn['path']), $this->link);
+        if (!$ok) {
+            $this->_setDbError('mssql_select_db()');
         }
     }
 
+    /**
+     * @param $s
+     * @param bool $isIdent
+     *
+     * @return string
+     */
+    protected function _performEscape($s, $isIdent = false)
+    {
+        if (!$isIdent) {
+            return "'" . str_replace("'", "''", $s) . "'";
+        }
+        return str_replace(array('[',']'), '', $s);
+    }
 
-    function _performTransaction($parameters=null)
+    /**
+     * @param null $parameters
+     *
+     * @return array|null
+     */
+    protected function _performTransaction($parameters = null)
     {
         return $this->query('BEGIN TRANSACTION');
     }
 
-
-    function _performNewBlob($blobid=null)
+    /**
+     * @param null $blobid
+     *
+     * @return DbSimple_Mssql_Blob
+     */
+    protected function _performNewBlob($blobid=null)
     {
-        $obj = new DbSimple_Mssql_Blob($this, $blobid);
-        return $obj;
+        return new DbSimple_Mssql_Blob($this, $blobid);
     }
 
-
-    function _performGetBlobFieldNames($result)
+    /**
+     * @param $result
+     *
+     * @return array
+     */
+    protected function _performGetBlobFieldNames($result)
     {
         $blobFields = array();
         for ($i=mssql_num_fields($result)-1; $i>=0; $i--) {
             $type = mssql_field_type($result, $i);
-            if (strpos($type, "BLOB") !== false) $blobFields[] = mssql_field_name($result, $i);
+            if (strpos($type, 'BLOB') !== false) {
+                $blobFields[] = mssql_field_name($result, $i);
+            }
         }
         return $blobFields;
     }
 
-
-    function _performGetPlaceholderIgnoreRe()
+    /**
+     * @return string
+     */
+    protected function _performGetPlaceholderIgnoreRe()
     {
         return '
             "   (?> [^"\\\\]+|\\\\"|\\\\)*    "   |
@@ -91,20 +117,29 @@ class DbSimple_Driver_Mssql extends DbSimple_Database
         ';
     }
 
-
-    function _performCommit()
+    /**
+     * @return array|null
+     */
+    protected function _performCommit()
     {
         return $this->query('COMMIT TRANSACTION');
     }
 
-
-    function _performRollback()
+    /**
+     * @return array|null
+     */
+    protected function _performRollback()
     {
         return $this->query('ROLLBACK TRANSACTION');
     }
 
-
-    function _performTransformQuery(&$queryMain, $how)
+    /**
+     * @param $queryMain
+     * @param $how
+     *
+     * @return bool
+     */
+    protected function _performTransformQuery(&$queryMain, $how)
     {
         // If we also need to calculate total number of found rows...
         switch ($how) {
@@ -122,7 +157,7 @@ class DbSimple_Driver_Mssql extends DbSimple_Database
             case 'GET_TOTAL':
                 // Built-in calculation available?
                 if ($this->_calcFoundRowsAvailable()) {
-                    $queryMain = array('SELECT FOUND_ROWS()');
+                    $queryMain = ['SELECT FOUND_ROWS()'];
                 }
                 // Else use manual calculation.
                 // TODO: GROUP BY ... -> COUNT(DISTINCT ...)
@@ -136,9 +171,11 @@ class DbSimple_Driver_Mssql extends DbSimple_Database
                 $/six';
                 $m = null;
                 if (preg_match($re, $queryMain[0], $m)) {
-                    $query[0] = $m[1] . $this->_fieldList2Count($m[2]) . " AS C" . $m[3];
+                    $query[0] = $m[1] . $this->_fieldList2Count($m[2]) . ' AS C' . $m[3];
                     $skipTail = substr_count($m[4] . $m[5], '?');
-                    if ($skipTail) array_splice($query, -$skipTail);
+                    if ($skipTail) {
+                        array_splice($query, -$skipTail);
+                    }
                 }
                 return true;
         }
@@ -146,8 +183,12 @@ class DbSimple_Driver_Mssql extends DbSimple_Database
         return false;
     }
 
-
-    function _performQuery($queryMain)
+    /**
+     * @param $queryMain
+     *
+     * @return mixed
+     */
+    protected function _performQuery($queryMain)
     {
         $this->_lastQuery = $queryMain;
         $this->_expandPlaceholders($queryMain, false);
@@ -159,7 +200,6 @@ class DbSimple_Driver_Mssql extends DbSimple_Database
         }
 
         if (!is_resource($result)) {
-
             if (preg_match('/^\s* INSERT \s+/six', $queryMain[0])) {
                 // INSERT queries return generated ID.
                 $result = mssql_fetch_assoc(mssql_query("SELECT SCOPE_IDENTITY() AS insert_id", $this->link));
@@ -169,75 +209,89 @@ class DbSimple_Driver_Mssql extends DbSimple_Database
             // Non-SELECT queries return number of affected rows, SELECT - resource.
             if (function_exists('mssql_affected_rows')) {
                 return mssql_affected_rows($this->link);
-            } elseif (function_exists('mssql_rows_affected')) {
+            }
+            if (function_exists('mssql_rows_affected')) {
                 return mssql_rows_affected($this->link);
             }
         }
         return $result;
     }
 
-
-    function _performFetch($result)
+    /**
+     * @param $result
+     *
+     * @return array|null
+     */
+    protected function _performFetch($result)
     {
         $row = mssql_fetch_assoc($result);
         //if (mssql_error()) return $this->_setDbError($this->_lastQuery);
-        if ($row === false) return null;
+        if ($row === false) {
+            return null;
+        }
 
         // mssql bugfix - replase ' ' to ''
         if (is_array($row)) {
             foreach ($row as $k => $v) {
-                if ($v === ' ') $row[$k] = '';
+                if ($v === ' ') {
+                    $row[$k] = '';
+                }
             }
         }
         return $row;
     }
 
-
-    function _setDbError($query, $errors = null)
+    /**
+     * @param $query
+     * @param null $errors
+     *
+     * @return bool
+     */
+    protected function _setDbError($query, $errors = null)
     {
         return $this->_setLastError('Error! ', mssql_get_last_message() . strip_tags($errors), $query);
     }
 
 
-    function _calcFoundRowsAvailable()
+    protected function _calcFoundRowsAvailable()
     {
         return false;
     }
 }
 
 
-class DbSimple_Mssql_Blob extends DbSimple_Generic_Blob
+class DbSimple_Mssql_Blob implements DbSimple_Blob
 {
     // Mssql does not support separate BLOB fetching.
-    var $blobdata = null;
-    var $curSeek  = 0;
+    private $blobdata = null;
+    private $curSeek  = 0;
 
-    function DbSimple_Mssql_Blob(&$database, $blobdata=null)
+    public function __construct(&$database, $blobdata=null)
     {
         $this->blobdata = $blobdata;
         $this->curSeek = 0;
     }
 
-    function read($len)
+    public function read($len)
     {
         $p = $this->curSeek;
         $this->curSeek = min($this->curSeek + $len, strlen($this->blobdata));
         return substr($this->blobdata, $this->curSeek, $len);
     }
 
-    function write($data)
+    public function write($data)
     {
         $this->blobdata .= $data;
     }
 
-    function close()
+    public function close()
     {
         return $this->blobdata;
     }
 
-    function length()
+    public function length()
     {
         return strlen($this->blobdata);
     }
 }
-?>
+
