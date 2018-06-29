@@ -26,6 +26,8 @@ F::IncludeLib('Smarty/libs/Smarty.class.php');
  */
 class ModuleViewer extends Module {
 
+    protected static $_previousErrorHandler = null;
+
     /** @var bool Устанавливаем признак предзагрузки (влияет на порядок шатдауна) */
     protected $bPreloaded = true;
 
@@ -215,8 +217,6 @@ class ModuleViewer extends Module {
     protected $sForcedTheme;
 
     protected $bAssetInit = false;
-
-    protected $nMuteErrorsCnt = 0;
 
     protected $aResponseHeaders = array();
 
@@ -408,14 +408,15 @@ class ModuleViewer extends Module {
         $this->oSmarty->registerResource('file', new Smarty_Resource_File());
 
         // Mutes expected Smarty minor errors
-        Smarty::muteExpectedErrors();
+        //Smarty::muteExpectedErrors();
+        $this->_muteExpectedErrors();
     }
 
     /**
      * @param string $sTemplate
      * @param bool $bException
      *
-     * @return bool|void
+     * @return bool
      * @throws Exception
      */
     protected function _tplTemplateExists($sTemplate, $bException = false) {
@@ -1286,20 +1287,38 @@ class ModuleViewer extends Module {
         return $xResult;
     }
 
-    protected function _muteErrors() {
+    protected function _muteExpectedErrors() {
 
-        if ($this->nMuteErrorsCnt <= 0) {
-            Smarty::muteExpectedErrors();
-            $this->nMuteErrorsCnt++;
+        $error_handler = [$this, 'mutingErrorHandler'];
+        $previous = set_error_handler($error_handler);
+        // avoid dead loops
+        if ($previous !== $error_handler) {
+            self::$_previousErrorHandler = $previous;
         }
     }
 
-    protected function _unmuteErrors() {
+    protected function _unmuteExpectedErrors() {
 
-        if ($this->nMuteErrorsCnt > 0) {
-            Smarty::unmuteExpectedErrors();
-            $this->nMuteErrorsCnt--;
+        if (self::$_previousErrorHandler) {
+            set_error_handler(self::$_previousErrorHandler);
         }
+    }
+
+    public function mutingErrorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
+
+        if (!(error_reporting() & $errno)) {
+            // Этот код ошибки не включен в error_reporting, обрабатывать не нужно
+            return false;
+        }
+        if (self::$_previousErrorHandler) {
+            return call_user_func(self::$_previousErrorHandler,
+                $errno,
+                $errstr,
+                $errfile,
+                $errline,
+                $errcontext);
+        }
+        return false;
     }
 
     /**
@@ -1450,7 +1469,7 @@ class ModuleViewer extends Module {
      */
     public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = null) {
 
-        if (is_null($iPriority)) {
+        if (null === $iPriority) {
             $iPriority = (isset($aParams['priority']) ? $aParams['priority'] : 0);
         }
 

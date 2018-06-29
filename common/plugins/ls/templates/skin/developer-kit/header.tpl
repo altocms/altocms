@@ -44,7 +44,7 @@
 	{if $sHtmlCanonical}
 		<link rel="canonical" href="{$sHtmlCanonical}" />
 	{/if}
-	
+
 	{if $bRefreshToHome}
 		<meta  HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.web')}/">
 	{/if}
