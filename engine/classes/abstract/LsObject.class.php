@@ -55,7 +55,7 @@ abstract class LsObject {
             // И пытаемся определить, откуда был этот некорректный вызов
             foreach ($aStack as $aCaller) {
                 if (isset($aCaller['file']) && isset($aCaller['function'])) {
-                    if (preg_match('/[A-Z]\w+\_' . preg_quote($sName) . '/', $aCaller['function'])
+                    if (preg_match('/[A-Z]\w+\_' . preg_quote($sName, '/') . '/', $aCaller['function'])
                         || $aCaller['function'] == $sName
                     ) {
                         $oException->sAdditionalInfo = 'In file ' . $aCaller['file'];

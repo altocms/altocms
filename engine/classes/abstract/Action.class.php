@@ -32,7 +32,7 @@ abstract class Action extends LsObject {
      *
      * @var array
      */
-    protected $aRegisterEvent = array();
+    protected $aRegisterEvent = [];
 
     /**
      * Index of selected event for execution
@@ -47,7 +47,7 @@ abstract class Action extends LsObject {
      *
      * @var array
      */
-    protected $aParams = array();
+    protected $aParams = [];
 
     /**
      * Список совпадений по регулярному выражению для евента
@@ -119,7 +119,7 @@ abstract class Action extends LsObject {
      *
      * @var array
      */
-    protected $aRequestData = array();
+    protected $aRequestData = [];
 
     protected static $bPost = null;
 
@@ -176,12 +176,12 @@ abstract class Action extends LsObject {
 
     /**
      * @param string $sType
-     * @param string $sKey
+     * @param mixed  $sKey
      * @param mixed  $xValue
      */
     protected function _setRequestData($sType, $sKey, $xValue = null) {
 
-        if (is_array($sKey) && is_null($xValue)) {
+        if (is_array($sKey) && null === $xValue) {
             foreach($sKey as $sDataKey => $xDataValue) {
                 $this->aRequestData[$sType][strtolower($sDataKey)] = $xDataValue;
             }
@@ -197,15 +197,15 @@ abstract class Action extends LsObject {
      */
     protected function _prepareRequestBody($sBodyData) {
 
-        $aResult = array();
+        $aResult = [];
         if ($sBodyData) {
-            if ($this->_getRequestData('HEADER', 'Content-Type') == 'application/json') {
+            if ($this->_getRequestData('HEADER', 'Content-Type') === 'application/json') {
                 $aResult = json_decode($sBodyData, true);
             } else {
                 $aExplodedData = explode('&', $sBodyData);
                 foreach ($aExplodedData as $aPair) {
                     $item = explode('=', $aPair);
-                    if (count($item) == 2) {
+                    if (count($item) === 2) {
                         $aResult[urldecode($item[0])] = urldecode($item[1]);
                     }
                 }
@@ -264,23 +264,23 @@ abstract class Action extends LsObject {
 
         $sType = strtoupper($sType);
         if (in_array($sType, array('HEADER', 'GET', 'POST', 'BODY', 'FILES'))) {
-            if (is_null($sName) && isset($this->aRequestData[$sType])) {
+            if (null === $sName && isset($this->aRequestData[$sType])) {
                 return $this->aRequestData[$sType];
-            } elseif (!is_null($sName) && isset($this->aRequestData[$sType][strtolower($sName)])) {
-                return $this->aRequestData[$sType][strtolower($sName)];
-            } else {
-                return null;
             }
+            if (null !== $sName && isset($this->aRequestData[$sType][strtolower($sName)])) {
+                return $this->aRequestData[$sType][strtolower($sName)];
+            }
+            return null;
         }
         // $sType is request method
         if ($this->_getRequestMethod() === $sType) {
-            if (is_null($sName)) {
+            if (null === $sName) {
                 return $this->aRequestData['BODY'];
-            } elseif (isset($this->aRequestData['BODY'][strtolower($sName)])) {
-                return $this->aRequestData['BODY'][strtolower($sName)];
-            } else {
-                return null;
             }
+            if (isset($this->aRequestData['BODY'][strtolower($sName)])) {
+                return $this->aRequestData['BODY'][strtolower($sName)];
+            }
+            return null;
         }
         return null;
     }
@@ -295,7 +295,7 @@ abstract class Action extends LsObject {
      */
     protected function _addEventHandler($aArgs, $iType) {
 
-        $iCountArgs = sizeof($aArgs);
+        $iCountArgs = count($aArgs);
         if ($iCountArgs < 2) {
             throw new Exception('Incorrect number of arguments when adding events');
         }
@@ -408,7 +408,7 @@ abstract class Action extends LsObject {
      */
     public function ExecEvent() {
 
-        if ($this->GetDefaultEvent() == 'index' && method_exists($this, 'EventIndex')) {
+        if ($this->GetDefaultEvent() === 'index' && method_exists($this, 'EventIndex')) {
             $this->AddEvent('index', 'EventIndex');
         }
         $this->sCurrentEvent = R::GetActionEvent();
@@ -429,10 +429,8 @@ abstract class Action extends LsObject {
                 E::ModuleHook()->Run($sHook . '_after', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
 
                 return $xResult;
-            } else {
-                return $this->AccessDenied(R::GetActionEvent());
-                //return null;
             }
+            return $this->AccessDenied(R::GetActionEvent());
         }
 
         return $this->EventNotFound();
@@ -470,12 +468,10 @@ abstract class Action extends LsObject {
         if ($iItem) {
             if (isset($this->aParamsEventMatch['event'][$iItem])) {
                 return $this->aParamsEventMatch['event'][$iItem];
-            } else {
-                return null;
             }
-        } else {
-            return $this->aParamsEventMatch['event'];
+            return null;
         }
+        return $this->aParamsEventMatch['event'];
     }
 
     /**
@@ -488,19 +484,17 @@ abstract class Action extends LsObject {
      */
     protected function GetParamEventMatch($iParamNum, $iItem = null) {
 
-        if (!is_null($iItem)) {
+        if (null !== $iItem) {
             if (isset($this->aParamsEventMatch['params'][$iParamNum][$iItem])) {
                 return $this->aParamsEventMatch['params'][$iParamNum][$iItem];
-            } else {
-                return null;
             }
-        } else {
-            if (isset($this->aParamsEventMatch['event'][$iParamNum])) {
-                return $this->aParamsEventMatch['event'][$iParamNum];
-            } else {
-                return null;
-            }
+            return null;
         }
+
+        if (isset($this->aParamsEventMatch['event'][$iParamNum])) {
+            return $this->aParamsEventMatch['event'][$iParamNum];
+        }
+        return null;
     }
 
     /**
@@ -526,7 +520,7 @@ abstract class Action extends LsObject {
      */
     protected function GetLastParam($sDefault = null) {
 
-        $nNumParams = sizeof($this->GetParams());
+        $nNumParams = count($this->GetParams());
         if ($nNumParams > 0) {
             $iOffset = $nNumParams - 1;
             return $this->GetParam($iOffset, $sDefault);
@@ -574,8 +568,8 @@ abstract class Action extends LsObject {
      */
     protected function SetTemplateAction($sTemplate) {
 
-        if (substr($sTemplate, -4) != '.tpl') {
-            $sTemplate = $sTemplate . '.tpl';
+        if (substr($sTemplate, -4) !== '.tpl') {
+            $sTemplate .= '.tpl';
         }
         $sActionTemplatePath = $sTemplate;
 
@@ -634,7 +628,7 @@ abstract class Action extends LsObject {
      */
     public function GetTemplate() {
 
-        if (is_null($this->sActionTemplate)) {
+        if (null === $this->sActionTemplate) {
             $this->SetTemplateAction($this->sCurrentEvent);
         }
         return $this->sActionTemplate;
@@ -709,10 +703,10 @@ abstract class Action extends LsObject {
     protected function IsPost($sName = null) {
 
         $aPostData = $this->_getRequestData('POST');
-        if (is_null(self::$bPost)) {
+        if (null === self::$bPost) {
             if (E::ModuleSecurity()->ValidateSendForm(false)
-                && ($this->_getRequestMethod() == 'POST')
-                && !is_null($aPostData)
+                && ($this->_getRequestMethod() === 'POST')
+                && null !== $aPostData
             ) {
                 self::$bPost = true;
             } else {
@@ -722,9 +716,8 @@ abstract class Action extends LsObject {
         if (self::$bPost) {
             if ($sName) {
                 return array_key_exists(strtolower($sName), $aPostData);
-            } else {
-                return is_array($aPostData);
             }
+            return is_array($aPostData);
         }
         return false;
     }
@@ -744,9 +737,8 @@ abstract class Action extends LsObject {
             if ($sName) {
                 $sName = strtolower($sName);
                 return isset($aPostData[$sName]) ? $aPostData[$sName] : $sDefault;
-            } else {
-                return $aPostData;
             }
+            return $aPostData;
         }
         return null;
     }
