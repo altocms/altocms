@@ -975,9 +975,10 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @param string $data
      */
-    public function setSourceLink($data) {
+    public function setSourceLink($data = null) {
 
-        $this->setExtraValue('url', strip_tags($data));
+        if($data && $data !== '')
+            $this->setExtraValue('url', strip_tags($data));
     }
 
     /**
